@@ -1,0 +1,37 @@
+@props(['accent', 'roleLabel', 'eyebrow', 'title', 'description', 'focusAreas' => []])
+
+<div class="role-dashboard role-dashboard--{{ $accent }}">
+    <div class="role-dashboard__inner">
+        <div class="role-dashboard__topline">
+            <div class="role-dashboard__identity">
+                <a class="role-dashboard__brand" href="{{ route('home') }}" aria-label="Tuklas home">tuklas</a>
+                <span class="role-dashboard__divider" aria-hidden="true"></span>
+                <span class="role-dashboard__role">{{ $roleLabel }}</span>
+            </div>
+            <nav class="role-dashboard__nav" aria-label="Workspace navigation">
+                <a class="is-active" href="{{ route('dashboard') }}" aria-current="page">Overview</a>
+                <a href="#ai-scanner">AI scanner</a>
+                @foreach ($focusAreas as $focusArea)
+                    <span aria-disabled="true" title="This workspace area is planned">{{ $focusArea }} <small>Planned</small></span>
+                @endforeach
+            </nav>
+            <div class="role-dashboard__right">
+                <x-theme-toggle />
+                <a class="role-dashboard__account" href="{{ route('profile.show') }}" aria-label="Edit profile for {{ auth()->user()->name }}">
+                    <span class="role-dashboard__avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                    <span class="role-dashboard__account-copy">
+                        <span>{{ auth()->user()->name }}</span>
+                        <small>Edit profile</small>
+                    </span>
+                </a>
+            </div>
+        </div>
+        <x-document-scanner />
+        <header class="role-dashboard__heading">
+            <p class="role-dashboard__eyebrow">{{ $eyebrow }}</p>
+            <h1>{{ $title }}</h1>
+            <p>{{ $description }}</p>
+        </header>
+        {{ $slot }}
+    </div>
+</div>
