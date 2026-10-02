@@ -8,23 +8,12 @@ use Illuminate\View\View;
 
 class NavComposer
 {
+    private const SHARED_TABS = [['Scanner', 'scanner.index'], ['TESDA', 'tesda.index']];
+
     private const TABS = [
-        'super_admin' => [
-            ['Overview', 'admin.dashboard'],
-            ['Users', 'admin.users.index'],
-            ['Careers', 'admin.careers.index'],
-            ['Trainings', 'admin.trainings.index'],
-        ],
-        'trainer' => [
-            ['Overview', 'trainer.dashboard'],
-            ['Programs', 'trainer.programs.index'],
-        ],
-        'youth' => [
-            ['Overview', 'youth.dashboard'],
-            ['AI Scan', 'youth.scan.index'],
-            ['Careers', 'youth.careers.index'],
-            ['Trainings', 'youth.trainings.index'],
-        ],
+        'super_admin' => [['Overview', 'admin.dashboard'], ['Users', 'admin.users.index'], ['Careers', 'admin.careers.index'], ['Trainings', 'admin.trainings.index']],
+        'trainer' => [['Overview', 'trainer.dashboard'], ['Programs', 'trainer.programs.index']],
+        'youth' => [['Overview', 'youth.dashboard'], ['Careers', 'youth.careers.index'], ['Trainings', 'youth.trainings.index']],
     ];
 
     public function compose(View $view): void
@@ -35,27 +24,19 @@ class NavComposer
         }
 
         $tabs = collect(self::TABS[$user->role->value] ?? [])
+            ->concat(self::SHARED_TABS)
             ->push(['Profile', 'profile.show'])
-            ->filter(fn (array $tab): bool => Route::has($tab[1]))
-            ->map(function (array $tab): array {
-                $pattern = Str::endsWith($tab[1], '.dashboard')
-                    ? $tab[1]
-                    : Str::beforeLast($tab[1], '.').'.*';
+            ->filter(fn ($tab) => Route::has($tab[1]))
+            ->map(function ($tab) {
+                $pattern = Str::endsWith($tab[1], '.dashboard') ? $tab[1] : Str::beforeLast($tab[1], '.').'.*';
 
-                return [
-                    'label' => $tab[0],
-                    'href' => route($tab[1]),
-                    'active' => request()->routeIs($pattern),
-                ];
+                return ['label' => $tab[0], 'href' => route($tab[1]), 'active' => request()->routeIs($pattern)];
             })
-            ->values()
-            ->all();
+            ->values()->all();
 
         $initials = collect(preg_split('/\s+/', trim($user->name)))
-            ->filter()
-            ->take(2)
-            ->map(fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)))
-            ->implode('');
+            ->filter()->take(2)
+            ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))->implode('');
 
         $view->with([
             'navTabs' => $tabs,

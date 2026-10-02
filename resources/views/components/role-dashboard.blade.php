@@ -10,7 +10,8 @@
             </div>
             <nav class="role-dashboard__nav" aria-label="Workspace navigation">
                 <a class="is-active" href="{{ route('dashboard') }}" aria-current="page">Overview</a>
-                <a href="#ai-scanner">AI scanner</a>
+                <a href="{{ route('scanner.index') }}">Scanner</a>
+                <a href="{{ route('tesda.index') }}">TESDA</a>
                 @foreach ($focusAreas as $focusArea)
                     <span aria-disabled="true" title="This workspace area is planned">{{ $focusArea }} <small>Planned</small></span>
                 @endforeach
@@ -26,7 +27,6 @@
                 </a>
             </div>
         </div>
-        <x-document-scanner />
         <header class="role-dashboard__heading">
             <p class="role-dashboard__eyebrow">{{ $eyebrow }}</p>
             <h1>{{ $title }}</h1>

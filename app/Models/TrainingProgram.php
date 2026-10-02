@@ -9,16 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TrainingProgram extends Model
 {
     protected $fillable = [
-        'title',
-        'nc_level',
-        'description',
-        'duration_hours',
-        'requirements',
-        'schedule_note',
-        'status',
-        'source_reference',
-        'last_verified_at',
-        'created_by',
+        'title', 'nc_level', 'description', 'duration_hours', 'requirements',
+        'schedule_note', 'status', 'source_reference', 'last_verified_at', 'created_by',
     ];
 
     protected function casts(): array

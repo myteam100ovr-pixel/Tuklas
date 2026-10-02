@@ -1,0 +1,1 @@
+<script>(function(){try{var t=localStorage.getItem('tuklas-theme');if(t!=='dark'&&t!=='light'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme='light'}})()</script>

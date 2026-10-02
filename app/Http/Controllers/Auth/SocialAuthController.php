@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -15,8 +17,12 @@ use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
 {
-    public function redirect(string $provider)
+    public function redirect(Request $request, string $provider): RedirectResponse
     {
+        if ($request->boolean('mobile')) {
+            $request->session()->put('mobile_social_login', true);
+        }
+
         return Socialite::driver($provider)->redirect();
     }
 
@@ -54,6 +60,7 @@ class SocialAuthController extends Controller
                     'email' => $email,
                     'password' => Hash::make(Str::random(40)),
                     'role' => Role::Youth->value,
+                    'is_active' => true,
                     'email_verified_at' => now(),
                 ]);
 
@@ -66,8 +73,15 @@ class SocialAuthController extends Controller
             });
         }
 
-        if ($user->role !== Role::Youth || ! $user->is_active) {
+        if (! $user->hasRole(Role::Youth) || ! $user->is_active) {
             return $this->fail('This account cannot sign in with '.ucfirst($provider).'.');
+        }
+
+        if (session()->pull('mobile_social_login', false)) {
+            $ticket = Str::random(64);
+            Cache::put('mobile-social-ticket:'.hash('sha256', $ticket), $user->id, now()->addMinutes(2));
+
+            return redirect()->away('tuklas://auth/social?ticket='.rawurlencode($ticket));
         }
 
         Auth::login($user, remember: true);
@@ -77,6 +91,10 @@ class SocialAuthController extends Controller
 
     private function fail(string $message): RedirectResponse
     {
+        if (session()->pull('mobile_social_login', false)) {
+            return redirect()->away('tuklas://auth/social?error='.rawurlencode($message));
+        }
+
         return redirect()->route('login')->withErrors(['email' => $message]);
     }
 }

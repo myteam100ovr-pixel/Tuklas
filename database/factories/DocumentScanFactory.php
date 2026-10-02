@@ -20,14 +20,15 @@ class DocumentScanFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'document_type' => fake()->randomElement(['resume', 'certification']),
+            'doc_type' => fake()->randomElement(['resume', 'certificate']),
             'original_name' => fake()->word().'.pdf',
-            'file_path' => 'document-scans/'.fake()->uuid().'.pdf',
-            'mime_type' => 'application/pdf',
-            'file_size' => fake()->numberBetween(100_000, 2_000_000),
-            'status' => 'completed',
-            'analysis' => ['summary' => fake()->sentence()],
-            'failure_message' => null,
+            'stored_path' => 'document-scans/'.fake()->uuid().'.pdf',
+            'mime' => 'application/pdf',
+            'size' => fake()->numberBetween(100_000, 2_000_000),
+            'status' => 'done',
+            'progress' => 100,
+            'result' => ['summary' => fake()->sentence()],
+            'error' => null,
             'processed_at' => now(),
         ];
     }

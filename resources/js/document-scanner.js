@@ -3,7 +3,6 @@ const scanner = document.querySelector('[data-document-scanner]');
 if (scanner) {
     const input = scanner.querySelector('[data-document-input]');
     const chooseButton = scanner.querySelector('[data-document-choose]');
-    const typeSelect = scanner.querySelector('[data-document-type]');
     const consent = scanner.querySelector('[data-document-consent]');
     const submitButton = scanner.querySelector('[data-document-submit]');
     const selectedList = scanner.querySelector('[data-document-selected]');
@@ -13,8 +12,10 @@ if (scanner) {
     const progressBar = scanner.querySelector('[data-progress-bar]');
     const status = scanner.querySelector('[data-document-status]');
     const results = scanner.querySelector('[data-document-results]');
+    const latestAnalysis = scanner.querySelector('[data-latest-analysis]');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const geminiReady = scanner.dataset.geminiReady === 'true';
+    const profileSyncEnabled = scanner.dataset.profileSync === 'true';
     const maxFileSize = 10 * 1024 * 1024;
     let selectedFiles = [];
     let isScanning = false;
@@ -34,6 +35,35 @@ if (scanner) {
 
     const updateSubmitState = () => {
         submitButton.disabled = !geminiReady || selectedFiles.length === 0 || !consent.checked || isScanning;
+    };
+
+    const renderLatestAnalysis = (documentData) => {
+        const summary = documentData.analysis?.summary;
+
+        if (!summary) {
+            return;
+        }
+
+        const heading = document.createElement('p');
+        heading.className = 'document-scanner__latest-file';
+        heading.textContent = documentData.original_name;
+
+        const copy = document.createElement('p');
+        copy.className = 'document-scanner__latest-copy';
+        copy.textContent = summary;
+
+        const content = document.createElement('div');
+        content.className = 'document-scanner__latest-content';
+        content.append(heading, copy);
+
+        if (profileSyncEnabled) {
+            const profileNote = document.createElement('p');
+            profileNote.className = 'document-scanner__latest-note';
+            profileNote.textContent = 'Skills and qualifications found here are saved to your Tuklas profile and shown on Overview.';
+            content.append(profileNote);
+        }
+
+        latestAnalysis.replaceChildren(latestAnalysis.querySelector('.document-scanner__latest-heading'), content);
     };
 
     const setProgress = (percent, label, scanning = false) => {
@@ -97,7 +127,12 @@ if (scanner) {
 
         const type = document.createElement('small');
         type.className = 'document-scanner__result-type';
-        type.textContent = documentData.document_type === 'resume' ? 'Resume' : 'Certificate';
+        type.textContent = {
+            resume: 'Resume',
+            certificate: 'Certificate',
+            certification: 'Certificate',
+            document: 'Career document',
+        }[documentData.document_type] ?? 'Career document';
         card.append(heading, type);
 
         const summary = documentData.analysis?.summary;
@@ -152,7 +187,6 @@ if (scanner) {
     const uploadFile = (file) => new Promise((resolve) => {
         const request = new XMLHttpRequest();
         const formData = new FormData();
-        formData.append('document_type', typeSelect.value);
         formData.append('file', file, file.name);
 
         request.open('POST', scanner.dataset.uploadUrl);
@@ -185,6 +219,7 @@ if (scanner) {
 
             if (request.status >= 200 && request.status < 300 && response.document) {
                 renderDocument(response.document);
+                renderLatestAnalysis(response.document);
                 resolve(true);
                 return;
             }
@@ -218,7 +253,6 @@ if (scanner) {
         isScanning = true;
         updateSubmitState();
         input.disabled = true;
-        typeSelect.disabled = true;
         chooseButton.disabled = true;
         consent.disabled = true;
         progress.hidden = false;
@@ -232,7 +266,6 @@ if (scanner) {
         input.value = '';
         renderSelected();
         input.disabled = false;
-        typeSelect.disabled = false;
         chooseButton.disabled = false;
         consent.checked = false;
         consent.disabled = false;
@@ -259,6 +292,11 @@ if (scanner) {
             }
 
             payload.documents.forEach((documentData) => renderDocument(documentData, false));
+            const latestCompleted = payload.documents.find((documentData) => documentData.status === 'completed' && documentData.analysis?.summary);
+
+            if (latestCompleted) {
+                renderLatestAnalysis(latestCompleted);
+            }
         } catch (error) {
             // The scan form remains usable when prior history cannot be loaded.
         }

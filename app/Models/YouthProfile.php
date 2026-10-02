@@ -22,17 +22,9 @@ class YouthProfile extends Model
     public const EMPLOYMENT = ['Student', 'Employed', 'Self-employed', 'Unemployed', 'Out of school'];
 
     protected $fillable = [
-        'barangay',
-        'contact_number',
-        'educational_attainment',
-        'employment_status',
-        'livelihood_interests',
-        'interests',
-        'skills',
-        'credentials',
-        'guardian_name',
-        'guardian_relationship',
-        'guardian_contact',
+        'barangay', 'contact_number', 'educational_attainment', 'employment_status',
+        'livelihood_interests', 'interests', 'skills', 'credentials',
+        'guardian_name', 'guardian_relationship', 'guardian_contact',
     ];
 
     protected function casts(): array
