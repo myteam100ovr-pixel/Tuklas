@@ -54,6 +54,11 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'asset_url' => env(
+        'ASSET_URL',
+        env('RAILWAY_PUBLIC_DOMAIN') ? 'https://'.env('RAILWAY_PUBLIC_DOMAIN') : null,
+    ),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
