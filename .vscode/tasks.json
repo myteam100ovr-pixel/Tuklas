@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Tuklas: check database and start mobile API",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\start-mobile-api.ps1"
+      ],
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "owner": "tuklas-mobile-api",
+          "pattern": {
+            "regexp": "^(.*)$",
+            "message": 1
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".*",
+            "endsPattern": "^(TUKLAS_MOBILE_API_READY|.*Server running on.*)$"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -300,6 +300,8 @@ html[data-theme='dark'] .shadow-lg {
 .role-dashboard__nav span { color: var(--system-muted); }
 .role-dashboard__nav a:hover { background: color-mix(in srgb, var(--system-text) 6%, transparent); color: var(--system-text); }
 .role-dashboard__nav a.is-active { color: var(--system-text); background: var(--system-card); }
+.role-dashboard__nav--filled { width: min(100%, 44rem); }
+.role-dashboard__nav--filled a { flex: 1; justify-content: center; }
 .role-dashboard__lower .role-dashboard__empty-state { background: var(--system-card); }
 
 .theme-toggle {
@@ -402,17 +404,29 @@ html[data-theme='dark'] .shadow-lg {
 .document-scanner__latest-note { color: var(--system-muted); font-size: .68rem; line-height: 1.5; }
 .document-scanner__latest-file { margin: 0; font-weight: 500; }
 .document-scanner__latest-copy { margin: .45rem 0 0; color: var(--system-text); font-size: .76rem; line-height: 1.65; white-space: pre-wrap; }
+.document-scanner__latest-content { display: grid; gap: .7rem; }
+.document-scanner__insight { padding: .7rem; border: 1px solid var(--system-line); border-radius: .65rem; }
+.document-scanner__insight h4 { margin: 0 0 .45rem; color: var(--system-text); font-size: .7rem; font-weight: 500; }
+.document-scanner__insight ul { display: grid; gap: .4rem; margin: 0; padding-left: 1.1rem; color: var(--system-muted); font-size: .66rem; line-height: 1.5; }
+.document-scanner__insight a { color: var(--role-accent); }
 .document-scanner__latest-note { margin: .7rem 0 0; }
 .profile-insights { display: grid; gap: 1rem; padding: 1.1rem; }
 .profile-insights__heading { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
 .profile-insights__heading h2 { margin: .22rem 0 0; color: var(--system-text); font-size: .95rem; font-weight: 500; }
 .profile-insights__heading > a { color: var(--role-accent); font-size: .7rem; text-decoration: none; }
 .profile-insights__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.profile-insights__next-steps { display: grid; gap: .8rem; }
 .profile-insights__group { min-width: 0; padding: .75rem; border: 1px solid var(--system-line); border-radius: .7rem; }
+.profile-insights__group--wide { grid-column: 1 / -1; }
 .profile-insights__group h3 { margin: 0; color: var(--system-muted); font-size: .68rem; font-weight: 500; }
 .profile-insights__group ul { display: flex; flex-wrap: wrap; gap: .35rem; margin: .55rem 0 0; padding: 0; list-style: none; }
 .profile-insights__group li { padding: .3rem .5rem; border-radius: 99px; color: var(--system-text); background: var(--system-surface); font-size: .64rem; line-height: 1.4; }
 .profile-insights__group p { margin: .5rem 0 0; color: var(--system-muted); font-size: .66rem; }
+.profile-insights__resources { display: grid !important; gap: .6rem !important; }
+.profile-insights__resource { display: grid; gap: .3rem; padding: .7rem; border: 1px solid var(--system-line); border-radius: .65rem; background: var(--system-card); }
+.profile-insights__resource h4 { margin: 0; color: var(--system-text); font-size: .82rem; font-weight: 500; }
+.profile-insights__resource p { margin: 0; color: var(--system-muted); font-size: .68rem; line-height: 1.5; }
+.profile-insights__resource a { width: fit-content; color: var(--role-accent); font-size: .68rem; font-weight: 600; }
 
 html[data-theme='dark'] .role-dashboard__panel-heading h2,
 html[data-theme='dark'] .role-dashboard__empty-state h3,
@@ -449,6 +463,14 @@ html[data-theme='dark'] .min-h-screen:has(.role-dashboard) { background: var(--s
     .role-dashboard__right { grid-column: 2; grid-row: 1; }
     .document-scanner { grid-template-columns: 1fr; }
 }
+
+.recommendation-list { display: grid; gap: 1rem; }
+.recommendation-card { display: grid; gap: .9rem; padding: 1.15rem; border: 1px solid var(--system-line); border-radius: .9rem; background: var(--system-card); }
+.recommendation-card__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .45rem 1rem; color: var(--system-muted); font-size: .78rem; }
+.recommendation-card__jobs { display: grid; gap: .75rem; }
+.recommendation-card__job { padding: .9rem; border: 1px solid var(--system-line); border-radius: .7rem; background: var(--system-surface); }
+.recommendation-card__job h3 { margin: 0 0 .45rem; color: var(--system-text); font-size: 1rem; }
+.recommendation-card__job p { margin: .35rem 0 0; color: var(--system-muted); font-size: .86rem; line-height: 1.55; }
 
 @media (max-width: 700px) {
     .document-scanner__workspace { grid-template-columns: 1fr; }

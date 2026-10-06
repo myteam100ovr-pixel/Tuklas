@@ -1,4 +1,4 @@
-@props(['accent', 'roleLabel', 'eyebrow', 'title', 'description', 'focusAreas' => []])
+@props(['accent', 'roleLabel', 'eyebrow', 'title', 'description', 'focusAreas' => [], 'navigation' => []])
 
 <div class="role-dashboard role-dashboard--{{ $accent }}">
     <div class="role-dashboard__inner">
@@ -8,13 +8,19 @@
                 <span class="role-dashboard__divider" aria-hidden="true"></span>
                 <span class="role-dashboard__role">{{ $roleLabel }}</span>
             </div>
-            <nav class="role-dashboard__nav" aria-label="Workspace navigation">
-                <a class="is-active" href="{{ route('dashboard') }}" aria-current="page">Overview</a>
-                <a href="{{ route('scanner.index') }}">Scanner</a>
-                <a href="{{ route('tesda.index') }}">TESDA</a>
-                @foreach ($focusAreas as $focusArea)
-                    <span aria-disabled="true" title="This workspace area is planned">{{ $focusArea }} <small>Planned</small></span>
-                @endforeach
+            <nav class="role-dashboard__nav {{ $navigation !== [] ? 'role-dashboard__nav--filled' : '' }}" aria-label="Workspace navigation">
+                @if ($navigation !== [])
+                    @foreach ($navigation as [$label, $routeName])
+                        <a href="{{ route($routeName) }}" class="{{ request()->routeIs($routeName) ? 'is-active' : '' }}" @if (request()->routeIs($routeName)) aria-current="page" @endif>{{ $label }}</a>
+                    @endforeach
+                @else
+                    <a class="is-active" href="{{ route('dashboard') }}" aria-current="page">Overview</a>
+                    <a href="{{ route('scanner.index') }}">Scanner</a>
+                    <a href="{{ route('tesda.index') }}">TESDA</a>
+                    @foreach ($focusAreas as $focusArea)
+                        <span aria-disabled="true" title="This workspace area is planned">{{ $focusArea }} <small>Planned</small></span>
+                    @endforeach
+                @endif
             </nav>
             <div class="role-dashboard__right">
                 <x-theme-toggle />

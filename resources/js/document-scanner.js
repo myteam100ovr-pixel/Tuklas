@@ -38,23 +38,81 @@ if (scanner) {
     };
 
     const renderLatestAnalysis = (documentData) => {
-        const summary = documentData.analysis?.summary;
+        const analysis = documentData.analysis ?? {};
+        const summary = analysis.summary;
 
-        if (!summary) {
+        if (!summary && !documentData.failure_message) {
             return;
         }
 
         const heading = document.createElement('p');
         heading.className = 'document-scanner__latest-file';
-        heading.textContent = documentData.original_name;
-
-        const copy = document.createElement('p');
-        copy.className = 'document-scanner__latest-copy';
-        copy.textContent = summary;
+        heading.textContent = documentData.original_name ?? 'Latest scan';
 
         const content = document.createElement('div');
         content.className = 'document-scanner__latest-content';
-        content.append(heading, copy);
+        content.append(heading);
+
+        if (summary) {
+            const copy = document.createElement('p');
+            copy.className = 'document-scanner__latest-copy';
+            copy.textContent = summary;
+            content.append(copy);
+        } else if (documentData.failure_message) {
+            const failure = document.createElement('p');
+            failure.className = 'document-scanner__analysis document-scanner__analysis--error';
+            failure.textContent = documentData.failure_message;
+            content.append(failure);
+        }
+
+        const sections = [
+            ['jobRecommendations', 'Job recommendations'],
+            ['careerMatches', 'Career matches'],
+            ['skillGaps', 'Skills to build'],
+            ['learningRecommendations', 'Free learning and practice'],
+            ['tesdaRecommendations', 'TESDA training to consider'],
+            ['nextActions', 'Next steps'],
+        ];
+
+        sections.forEach(([key, title]) => {
+            const items = analysis[key];
+            if (!Array.isArray(items) || items.length === 0) {
+                return;
+            }
+
+            const section = document.createElement('section');
+            section.className = 'document-scanner__insight';
+            const sectionTitle = document.createElement('h4');
+            sectionTitle.textContent = title;
+            section.append(sectionTitle);
+
+            const list = document.createElement('ul');
+            items.forEach((item) => {
+                const row = document.createElement('li');
+                const name = typeof item === 'string'
+                    ? item
+                    : (item.title ?? item.name ?? 'Recommendation');
+                const detail = typeof item === 'object' && item !== null
+                    ? [item.match, item.reason, item.description].filter(Boolean).join(' · ')
+                    : '';
+                row.textContent = detail ? `${name} — ${detail}` : name;
+                list.append(row);
+
+                const url = typeof item === 'object' && item !== null
+                    ? (item.directUrl ?? item.url)
+                    : null;
+                if (typeof url === 'string' && /^https:\/\//i.test(url)) {
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = 'Open resource';
+                    row.append(' ', link);
+                }
+            });
+            section.append(list);
+            content.append(section);
+        });
 
         if (profileSyncEnabled) {
             const profileNote = document.createElement('p');
@@ -127,12 +185,20 @@ if (scanner) {
 
         const type = document.createElement('small');
         type.className = 'document-scanner__result-type';
+        const classifiedType = documentData.analysis?.documentType;
         type.textContent = {
             resume: 'Resume',
             certificate: 'Certificate',
             certification: 'Certificate',
-            document: 'Career document',
-        }[documentData.document_type] ?? 'Career document';
+            study_material: 'Study material',
+            other: 'Document',
+            document: 'Document',
+        }[classifiedType] ?? ({
+            resume: 'Resume',
+            certificate: 'Certificate',
+            certification: 'Certificate',
+            document: 'Document',
+        }[documentData.document_type] ?? 'Document');
         card.append(heading, type);
 
         const summary = documentData.analysis?.summary;
@@ -190,6 +256,7 @@ if (scanner) {
         formData.append('file', file, file.name);
 
         request.open('POST', scanner.dataset.uploadUrl);
+        request.timeout = 260000;
         request.setRequestHeader('Accept', 'application/json');
         request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
@@ -214,7 +281,9 @@ if (scanner) {
             try {
                 response = JSON.parse(request.responseText);
             } catch (error) {
-                response = {};
+                setStatus('The server returned an unreadable response. Please try scanning again.', 'error');
+                resolve(false);
+                return;
             }
 
             if (request.status >= 200 && request.status < 300 && response.document) {
@@ -239,6 +308,11 @@ if (scanner) {
 
         request.addEventListener('abort', () => {
             setStatus(`The upload for ${file.name} was cancelled.`, 'error');
+            resolve(false);
+        });
+
+        request.addEventListener('timeout', () => {
+            setStatus(`AI scanning ${file.name} took too long. Please try again.`, 'error');
             resolve(false);
         });
 
@@ -277,10 +351,15 @@ if (scanner) {
         try {
             const response = await fetch(scanner.dataset.historyUrl, { headers: { Accept: 'application/json' } });
             if (!response.ok) {
+                setStatus('Could not load previous scans. You can still submit a new document.', 'error');
                 return;
             }
 
             const payload = await response.json();
+            if (!Array.isArray(payload.documents)) {
+                setStatus('The scan history response was invalid. You can still submit a new document.', 'error');
+                return;
+            }
             results.replaceChildren();
 
             if (payload.documents.length === 0) {
@@ -298,7 +377,7 @@ if (scanner) {
                 renderLatestAnalysis(latestCompleted);
             }
         } catch (error) {
-            // The scan form remains usable when prior history cannot be loaded.
+            setStatus('Could not load previous scans. Check your connection and try again.', 'error');
         }
     };
 

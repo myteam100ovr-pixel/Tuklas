@@ -32,7 +32,7 @@ return [
     ],
 
     'resend' => [
-        'key' => env('RESEND_API_KEY') ?: env('RESEND_KEY'),
+        'key' => env('RESEND_API_KEY'),
     ],
 
     'google' => [
@@ -44,8 +44,8 @@ return [
     ],
 
     'facebook' => [
-        'client_id' => env('FACEBOOK_APP_ID') ?: env('FACEBOOK_CLIENT_ID'),
-        'client_secret' => env('FACEBOOK_APP_SECRET') ?: env('FACEBOOK_CLIENT_SECRET'),
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('FACEBOOK_REDIRECT_URI') ?: env('APP_URL').'/auth/facebook/callback',
     ],
 

@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/landing.css',
                 'resources/js/landing.js',
                 'resources/css/ui.css',
+                'resources/css/auth.css',
                 'resources/js/ui.js',
             ],
             refresh: true,

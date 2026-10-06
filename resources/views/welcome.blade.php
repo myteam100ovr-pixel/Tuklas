@@ -78,7 +78,7 @@
                         <a class="btn btn-violet" href="{{ route('dashboard') }}">Go to dashboard</a>
                     @else
                         <a class="btn btn-violet" href="{{ route('register') }}">Get started</a>
-                        <a class="btn btn-line" href="{{ route('login') }}">Log in</a>
+                        <a class="btn btn-line" href="#pathways">See how it works</a>
                         <a class="mobile-resource-link" href="{{ route('tesda.index') }}"><span aria-hidden="true">&#8599;</span> TESDA resources</a>
                     @endauth
                 </div>

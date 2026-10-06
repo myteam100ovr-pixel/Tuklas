@@ -31,7 +31,12 @@ class MobileCatalogController extends Controller
                 'total' => $programs->total(),
             ],
             'resources' => [
-                ['title' => 'NC I–IV registered programs', 'url' => 'https://www.tesda.gov.ph/Tvi/Result?SearchCourse=NC&SearchLoc=pangasinan'],
+                ...collect(['NC I', 'NC II', 'NC III', 'NC IV'])
+                    ->map(fn (string $level): array => [
+                        'title' => $level.' registered programs',
+                        'url' => 'https://www.tesda.gov.ph/Tvi/Result?SearchCourse='.urlencode($level).'&SearchLoc=pangasinan',
+                    ])
+                    ->all(),
                 ['title' => 'TESDA Online Program', 'url' => 'https://e-tesda.gov.ph/course/'],
                 ['title' => 'Scholarships and assistance', 'url' => 'https://tesda.gov.ph/About/TESDA/1279'],
                 ['title' => 'Assessment and certification', 'url' => 'https://tesda.gov.ph/about/tesda/25'],

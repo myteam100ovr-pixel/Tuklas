@@ -155,10 +155,11 @@ Never commit real secrets. `.env` is local configuration; keep API keys and OAut
 | `GOOGLE_AI_API_KEY` | Enables Gemini resume/certificate scans and career chat; the key stays server-side |
 | `GEMINI_MODEL` | Gemini model name; defaults to the value in `.env.example` |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional Google sign-in credentials |
-| `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET` | Optional Facebook sign-in credentials |
+| `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET` | Optional Facebook sign-in credentials |
 | `GOOGLE_REDIRECT_URI`, `FACEBOOK_REDIRECT_URI` | OAuth callback addresses; use `{APP_URL}/auth/google/callback` and `{APP_URL}/auth/facebook/callback` |
-| `MAIL_MAILER` | `log` for local development; messages are written to `storage/logs/laravel.log` |
-| `RESEND_API_KEY` | Optional Resend email delivery key for a verified sending domain |
+| `MAIL_MAILER` | `log` for local development; set to `resend` to deliver mail through Resend |
+| `RESEND_API_KEY` | Resend API key used when `MAIL_MAILER=resend` |
+| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Sender address and display name; Resend requires a verified sender domain |
 
 ## Daily development
 
@@ -170,6 +171,65 @@ npm run dev
 ```
 
 Use `npm run build` to create production frontend assets. Run `php artisan test` when you want to run the project test suite.
+
+### Enable Resend email delivery
+
+Create a Resend API key with email-sending permission and store it only in the local `.env` file or your deployment's secret manager. Set:
+
+```dotenv
+MAIL_MAILER=resend
+RESEND_API_KEY=re_your_api_key
+MAIL_FROM_ADDRESS=notifications@your-verified-domain.example
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+Replace the example key and sender address with your own. Verify the sender's domain in Resend before sending. For local testing only, use `MAIL_FROM_ADDRESS=onboarding@resend.dev`; switch to an address on your verified domain before sending to regular recipients. Then refresh Laravel's cached configuration:
+
+```text
+php artisan config:clear
+```
+
+The Resend API-key create, list, update, and delete endpoints manage credentials; they are not needed to send application email. Laravel uses the configured Resend mailer and `RESEND_API_KEY` for delivery. See Resend's [test-email guide](https://resend.com/docs/dashboard/emails/send-test-emails) for test recipient addresses and [domain setup](https://resend.com/docs/add-a-domain) for production sender verification.
+
+## Set up the Flutter mobile app
+
+The mobile app is in `tuklas_mobile/`. Install the Flutter SDK separately from this repository; use the official [Flutter installation guide](https://docs.flutter.dev/install) and choose the instructions for your operating system. Extract the stable SDK to a writable location, add its `bin` directory to your `PATH`, and open a new terminal. The Dart SDK bundled with Flutter must satisfy the constraint in `tuklas_mobile/pubspec.yaml` (Dart 3.13.4 or newer in the 3.x series).
+
+For Android development, install [Android Studio](https://developer.android.com/studio), including the Android SDK, command-line tools, and an emulator. Accept the Android SDK licenses and check the setup:
+
+```text
+flutter doctor --android-licenses
+flutter doctor -v
+```
+
+For iOS development, use macOS with [Xcode](https://developer.apple.com/xcode/) installed and configured. Flutter's [Android setup guide](https://docs.flutter.dev/platform-integration/android/setup) and [iOS setup guide](https://docs.flutter.dev/platform-integration/ios/setup) list the platform-specific requirements.
+
+From the repository root, fetch the app dependencies and launch it on a running emulator or connected device:
+
+```text
+cd tuklas_mobile
+flutter pub get
+flutter devices
+flutter run
+```
+
+The Laravel backend must also be running with its database initialized. The app's default API address is `http://10.0.2.2:8000/api/mobile`, which reaches the host computer from an Android emulator. For an iOS simulator, pass its API address when launching:
+
+```text
+flutter run --dart-define=API_BASE=http://127.0.0.1:8000/api/mobile
+```
+
+For a physical phone, connect the phone and computer to the same network, start Laravel so it accepts LAN connections, and substitute the computer's LAN IP:
+
+```text
+# In the Laravel project root, in a separate terminal:
+php artisan serve --host=0.0.0.0
+
+# In tuklas_mobile:
+flutter run --dart-define=API_BASE=http://192.168.1.20:8000/api/mobile
+```
+
+Replace `192.168.1.20` with the computer's actual LAN IP and allow the server through the computer's firewall if prompted. `API_BASE` can also be set to another reachable API URL without editing the app source. Run `flutter analyze` and `flutter test` from `tuklas_mobile` to check the app.
 
 ## Troubleshooting
 

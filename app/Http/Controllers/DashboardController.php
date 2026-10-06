@@ -36,7 +36,10 @@ class DashboardController extends Controller
         }
         $bars = $this->scaleBars($bars);
 
-        $latest = User::where('role', Role::Youth->value)->with('youthProfile')->latest()->take(6)->get();
+        $latest = User::query()
+            ->latest()
+            ->take(6)
+            ->get(['id', 'name', 'email', 'role', 'is_active', 'created_at']);
 
         return view('dashboard.show', [
             'title' => 'PESO Bugallon overview',
@@ -57,14 +60,14 @@ class DashboardController extends Controller
                 'axis' => [$bars[0]['label'], $bars[29]['label']],
             ],
             'table' => [
-                'title' => 'Latest youth accounts',
-                'columns' => ['Name', 'Barangay', 'Joined', 'Email'],
-                'empty' => 'No youth accounts yet.',
+                'title' => 'Latest registered accounts',
+                'columns' => ['Name', 'Role', 'Account status', 'Joined'],
+                'empty' => 'No user accounts have been registered yet.',
                 'rows' => $latest->map(fn (User $u) => [
-                    ['t' => $u->name, 's' => $u->date_of_birth ? $u->date_of_birth->age.' years old' : null, 'avatar' => $this->initials($u->name)],
-                    ['t' => $u->youthProfile?->barangay ?: 'Not set'],
+                    ['t' => $u->name, 's' => $u->email, 'avatar' => $this->initials($u->name)],
+                    ['t' => $u->role->label()],
+                    $u->is_active ? ['chip' => 'Active', 'tone' => 'good'] : ['chip' => 'Inactive', 'tone' => 'bad'],
                     ['t' => $u->created_at->format('M j, Y')],
-                    $u->email_verified_at ? ['chip' => 'Verified', 'tone' => 'good'] : ['chip' => 'Unverified', 'tone' => 'warn'],
                 ])->all(),
             ],
             'tasks' => [
@@ -155,7 +158,31 @@ class DashboardController extends Controller
         $scanned = (clone $scans)->where('status', 'done')->count();
         $skills = count($user->youthProfile?->skills ?? []);
         $recent = (clone $scans)->latest()->take(6)->get();
-        $latestAnalysis = (clone $scans)->where('status', 'done')->latest()->first(['result'])?->result ?? [];
+        $latestAnalysis = (clone $scans)->where('status', 'done')->latest('processed_at')->first(['result'])?->result ?? [];
+        $careerMatches = collect($latestAnalysis['careerMatches'] ?? $latestAnalysis['job_roles'] ?? [])
+            ->map(fn ($match): mixed => is_array($match) ? ($match['name'] ?? $match['title'] ?? null) : $match)
+            ->filter(fn ($match): bool => is_string($match) && trim($match) !== '')
+            ->values()
+            ->all();
+        $jobRecommendations = collect($latestAnalysis['jobRecommendations'] ?? [])
+            ->filter(fn ($recommendation): bool => is_array($recommendation))
+            ->map(fn (array $recommendation): array => [
+                'title' => $recommendation['title'] ?? null,
+                'reason' => $recommendation['reason'] ?? null,
+                'evidence' => $recommendation['evidence'] ?? null,
+            ])
+            ->filter(fn (array $recommendation): bool => is_string($recommendation['title']) && trim($recommendation['title']) !== '')
+            ->take(6)
+            ->values()
+            ->all();
+        $skillGaps = collect($latestAnalysis['skillGaps'] ?? [])
+            ->filter(fn ($skillGap): bool => is_string($skillGap) && trim($skillGap) !== '')
+            ->values()
+            ->all();
+        $learningRecommendations = collect($latestAnalysis['learningRecommendations'] ?? [])
+            ->filter(fn ($recommendation): bool => is_array($recommendation))
+            ->values()
+            ->all();
 
         return view('dashboard.show', [
             'title' => 'Hi, '.explode(' ', trim($user->name))[0],
@@ -167,8 +194,11 @@ class DashboardController extends Controller
             'profileInsights' => [
                 'skills' => $user->youthProfile?->skills ?? [],
                 'credentials' => $user->youthProfile?->credentials ?? [],
-                'job_roles' => $latestAnalysis['job_roles'] ?? [],
+                'job_roles' => $careerMatches,
                 'tesda_training' => $latestAnalysis['tesda_training'] ?? [],
+                'job_recommendations' => $jobRecommendations,
+                'skill_gaps' => $skillGaps,
+                'learning_recommendations' => $learningRecommendations,
             ],
             'chart' => [
                 'kind' => 'meters',
@@ -202,7 +232,7 @@ class DashboardController extends Controller
                         ? $this->task('Scan a resume or certificate', $scanned.' scanned', 'Let Google Gemini suggest skills and credentials.', $scanned > 0, route('scanner.index'))
                         : null,
                     $this->task('Take the skills assessment', 'Coming soon', 'Answer a short set of questions.', false),
-                    $this->task('See career and training suggestions', 'Coming soon', 'Based on TESDA Lingayen programs in the system.', false),
+                    $this->task('See PESO job matches', $scanned.' documents scanned', 'View job suggestions based on your completed resume and certificate scans.', $scanned > 0, route('peso.index')),
                 ])),
             ],
             'actions' => $this->actions([

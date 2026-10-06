@@ -33,27 +33,56 @@ class GeminiCareerAssistant
             'parts' => [['text' => $message['text']]],
         ], $messages);
 
-        try {
-            $response = Http::withHeaders([
-                'x-goog-api-key' => $apiKey,
-            ])
-                ->connectTimeout(10)
-                ->timeout(45)
-                ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($model).':generateContent', [
-                    'system_instruction' => [
-                        'parts' => [[
-                            'text' => 'You are Tuklas, a friendly career and skills-training guide for youth in Bugallon, Pangasinan. Help users explore interests and practical next steps. Do not invent current TESDA schedules, local vacancies, or other facts you cannot verify. Never guarantee employment, admission, or eligibility. Do not ask for sensitive personal identifiers. Reply concisely in the user\'s language when possible.',
-                        ]],
-                    ],
-                    'contents' => $contents,
-                    'generationConfig' => [
-                        'temperature' => 0.5,
-                        'maxOutputTokens' => 700,
-                    ],
-                ])
-                ->throw();
-        } catch (ConnectionException|RequestException $exception) {
-            throw new RuntimeException('Gemini could not reply.', previous: $exception);
+        $requestBody = [
+            'systemInstruction' => [
+                'parts' => [[
+                    'text' => 'You are Tuklas, a friendly career and skills-training guide for youth in Bugallon, Pangasinan. Help users explore interests and practical next steps. Do not invent current TESDA schedules, local vacancies, or other facts you cannot verify. Never guarantee employment, admission, or eligibility. Do not ask for sensitive personal identifiers. Reply concisely in the user\'s language when possible.',
+                ]],
+            ],
+            'contents' => $contents,
+            'generationConfig' => [
+                'temperature' => 0.5,
+                'maxOutputTokens' => 700,
+            ],
+        ];
+        $response = null;
+        $lastException = null;
+        $lastStatus = 0;
+        $quotaExceeded = false;
+        $lastMessage = 'Gemini could not reply.';
+
+        foreach ([$model] as $candidate) {
+            try {
+                $candidateResponse = Http::withHeaders(['x-goog-api-key' => $apiKey])
+                    ->connectTimeout(10)
+                    ->timeout(45)
+                    ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($candidate).':generateContent', $requestBody);
+
+                if ($candidateResponse->successful()) {
+                    $response = $candidateResponse;
+                    break;
+                }
+
+                $lastStatus = $candidateResponse->status();
+                $lastMessage = (string) data_get($candidateResponse->json(), 'error.message', $lastMessage);
+                $quotaExceeded = $quotaExceeded || $lastStatus === 429;
+
+                if (in_array($candidateResponse->status(), [401, 403], true)) {
+                    $candidateResponse->throw();
+                }
+
+                if (! in_array($candidateResponse->status(), [400, 404, 429, 500, 502, 503, 504], true)) {
+                    $candidateResponse->throw();
+                }
+            } catch (ConnectionException $exception) {
+                $lastException = $exception;
+            } catch (RequestException $exception) {
+                throw new RuntimeException('Gemini could not reply.', previous: $exception);
+            }
+        }
+
+        if ($response === null) {
+            throw new RuntimeException($lastMessage, code: $quotaExceeded ? 429 : $lastStatus, previous: $lastException);
         }
 
         $parts = data_get($response->json(), 'candidates.0.content.parts', []);

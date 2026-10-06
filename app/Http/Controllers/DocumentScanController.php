@@ -47,7 +47,7 @@ class DocumentScanController extends Controller
         }
 
         $scan = $user->documentScans()->create([
-            'doc_type' => 'document',
+            'doc_type' => $validated['document_type'] ?? 'document',
             'original_name' => mb_substr($file->getClientOriginalName(), 0, 255),
             'stored_path' => $path,
             'mime' => $file->getMimeType(),
@@ -69,7 +69,8 @@ class DocumentScanController extends Controller
 
             $analysis = $scanner->analyze($file, $publishedPrograms);
 
-            if ($user->hasRole(Role::Youth)) {
+            if ($user->hasRole(Role::Youth)
+                && in_array($analysis['documentType'] ?? 'other', ['resume', 'certificate'], true)) {
                 $profile = $user->youthProfile()->firstOrNew();
                 $profile->skills = $this->mergeProfileValues($profile->skills ?? [], $analysis['skills'] ?? []);
                 $profile->credentials = $this->mergeProfileValues($profile->credentials ?? [], $analysis['credentials'] ?? []);
@@ -127,11 +128,15 @@ class DocumentScanController extends Controller
 
     private function failureMessage(Throwable $exception): string
     {
+        if ($exception->getCode() === 429) {
+            return 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.';
+        }
+
         $previous = $exception->getPrevious();
 
         if ($previous instanceof RequestException
             && in_array($previous->response->status(), [502, 503, 504], true)) {
-            return 'Gemini is temporarily unavailable. Please try again shortly.';
+            return 'Gemini 3.7 Flash is under high demand right now. Please wait a moment and try the scan again.';
         }
 
         if ($previous instanceof ConnectionException) {

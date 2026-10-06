@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Tuklas') }}</title>
     @include('partials.theme-boot')
-    @vite(['resources/css/ui.css', 'resources/js/ui.js'])
+    @vite(['resources/css/ui.css', 'resources/css/auth.css', 'resources/js/ui.js'])
     @livewireStyles
 </head>
 <body class="tk-body">

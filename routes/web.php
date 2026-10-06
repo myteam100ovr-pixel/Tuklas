@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CareerRecommendationController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DashboardController;
@@ -32,9 +34,12 @@ Route::middleware([
     Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
     Route::post('/document-scans', [DocumentScanController::class, 'store'])
         ->middleware('throttle:5,1')->name('document-scans.store');
+    Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
 
     Route::middleware('role:super_admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'admin'])->name('dashboard');
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/job-matches', fn () => redirect()->route('peso.index'))->name('recommendations.index');
     });
 
     Route::middleware('role:trainer')->prefix('trainer')->name('trainer.')->group(function () {

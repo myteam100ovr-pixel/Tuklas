@@ -20,9 +20,14 @@ h1, h2, h3, p { font-weight: 400; }
 .tk-head { position: sticky; top: 0; z-index: 40; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; padding: 1rem var(--pad); background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); }
 .tk-brand { font-size: 1.75rem; font-weight: 500; letter-spacing: -.05em; line-height: 1; justify-self: start; }
 .tk-tabs { display: flex; gap: .6rem; justify-content: center; }
-.tk-tab { padding: .7rem 1.6rem; border: 1px solid var(--line); border-radius: 999px; font-size: .9rem; color: var(--ink-2); white-space: nowrap; transition: border-color .2s, background .2s, color .2s; }
-.tk-tab:hover { border-color: var(--muted); color: var(--ink); }
-.tk-tab.is-active { border-color: var(--ink); color: var(--ink); background: var(--surface); box-shadow: var(--shadow); }
+.tk-head:has(.tk-tabs--workspace) { grid-template-columns: minmax(0, 1fr) minmax(0, 46rem) minmax(0, 1fr); }
+.tk-tabs--workspace { width: 100%; min-width: 0; padding: .3rem; border: 1px solid var(--line); border-radius: 1.15rem; background: var(--surface-2); }
+.tk-tabs--workspace .tk-tab { min-width: 0; min-height: 2.85rem; flex: 1; justify-content: center; padding: .45rem .6rem; }
+.tk-tab { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem .8rem; border: 1px solid transparent; border-radius: .85rem; color: var(--ink-2); font-size: .82rem; text-decoration: none; white-space: nowrap; transition: border-color .2s, background .2s, color .2s; }
+.tk-tab__icon { width: 1.9rem; height: 1.9rem; padding: .42rem; border-radius: 50%; color: var(--ink-2); background: var(--surface); }
+.tk-tab:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.tk-tab.is-active { border-color: transparent; color: #fff; background: var(--violet); box-shadow: var(--shadow); }
+.tk-tab.is-active .tk-tab__icon { color: var(--violet); background: #fff; }
 .tk-right { display: flex; align-items: center; justify-content: flex-end; gap: .6rem; }
 .tk-ibtn { display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink-2); transition: border-color .2s, color .2s; }
 .tk-ibtn:hover { border-color: var(--muted); color: var(--ink); }
@@ -83,6 +88,12 @@ h1, h2, h3, p { font-weight: 400; }
 .tbl-t { width: 100%; border-collapse: collapse; min-width: 34rem; }
 .tbl-t th { padding: 0 .6rem .7rem; text-align: left; font-size: .72rem; font-weight: 400; color: var(--muted); }
 .tbl-t td { padding: .85rem .6rem; border-top: 1px solid var(--line); vertical-align: middle; }
+.users-directory__count { color: var(--muted); font-size: .76rem; }
+.users-directory__table { min-width: 52rem; }
+.users-directory__pagination { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .78rem; }
+.users-directory__pagination a { padding: .45rem .7rem; border: 1px solid var(--line); border-radius: .55rem; color: var(--ink); text-decoration: none; }
+.users-directory__pagination a:hover { border-color: var(--violet); }
+.users-directory__pagination [aria-disabled='true'] { padding: .45rem .7rem; opacity: .5; }
 .cell { display: flex; align-items: center; gap: .75rem; }
 .av { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--surface-2); font-size: .72rem; font-weight: 500; flex: none; }
 .cell-t { display: block; font-size: .88rem; }
@@ -242,6 +253,12 @@ textarea.input { resize: vertical; }
     .tk-tabs { order: 3; grid-column: 1 / -1; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; padding-bottom: .2rem; }
     .tk-tabs::-webkit-scrollbar { display: none; }
     .tk-sec { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+}
+@media (max-width: 980px) {
+    .tk-head:has(.tk-tabs--workspace) { grid-template-columns: 1fr auto; row-gap: .8rem; }
+    .tk-tabs--workspace { order: 3; grid-column: 1 / -1; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; padding-bottom: .3rem; }
+    .tk-tabs--workspace::-webkit-scrollbar { display: none; }
+    .tk-tabs--workspace .tk-tab { flex: 0 0 auto; }
 }
 @media (max-width: 700px) {
     .stats { grid-template-columns: minmax(0, 1fr); }

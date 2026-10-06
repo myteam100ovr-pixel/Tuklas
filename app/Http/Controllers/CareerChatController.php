@@ -25,7 +25,9 @@ class CareerChatController
             report($exception);
 
             return response()->json([
-                'message' => 'Gemini could not reply right now. Please try again.',
+                'message' => $exception->getCode() === 429
+                    ? 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.'
+                    : 'Gemini could not reply right now. Please try again.',
             ], 502);
         }
     }

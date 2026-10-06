@@ -40,7 +40,10 @@ class MobileAuthController extends Controller
 
         event(new Registered($user));
 
-        return $this->issueToken($user, $validated['device_name'], 201);
+        return response()->json([
+            'message' => 'Account created. Verify your email address before signing in.',
+            'user' => $this->presentUser($user),
+        ], 201);
     }
 
     public function token(Request $request, TwoFactorAuthenticationProvider $twoFactorProvider): JsonResponse
@@ -304,14 +307,14 @@ class MobileAuthController extends Controller
         }
     }
 
-    private function issueToken(User $user, string $deviceName, int $status = 200): JsonResponse
+    private function issueToken(User $user, string $deviceName): JsonResponse
     {
         $token = $user->createToken($deviceName, ['*'], now()->addDays(90));
 
         return response()->json([
             'token' => $token->plainTextToken,
             'user' => $this->presentUser($user),
-        ], $status);
+        ]);
     }
 
     /** @return array<string, mixed> */

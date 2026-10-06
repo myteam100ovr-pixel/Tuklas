@@ -7,7 +7,7 @@
     <title>{{ config('app.name', 'Tuklas') }}</title>
     @include('partials.theme-boot')
     @vite(['resources/css/ui.css', 'resources/js/ui.js'])
-    @if (request()->routeIs('scanner.index'))
+    @if (request()->routeIs('scanner.index', 'peso.index', 'admin.dashboard', 'admin.recommendations.index', 'trainer.dashboard', 'youth.dashboard'))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
     @livewireStyles
@@ -18,9 +18,12 @@
     <header class="tk-head">
         <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home">tuklas</a>
 
-        <nav class="tk-tabs" aria-label="Primary">
+        <nav class="tk-tabs tk-tabs--workspace" aria-label="Primary">
             @foreach ($navTabs as $tab)
-                <a href="{{ $tab['href'] }}" class="tk-tab {{ $tab['active'] ? 'is-active' : '' }}" @if ($tab['active']) aria-current="page" @endif>{{ $tab['label'] }}</a>
+                <a href="{{ $tab['href'] }}" class="tk-tab {{ $tab['active'] ? 'is-active' : '' }}" @if ($tab['active']) aria-current="page" @endif>
+                    <svg class="ic tk-tab__icon" aria-hidden="true"><use href="#{{ $tab['icon'] }}"/></svg>
+                    <span>{{ $tab['label'] }}</span>
+                </a>
             @endforeach
         </nav>
 

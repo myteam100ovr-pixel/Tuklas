@@ -53,20 +53,20 @@ const p = {
     heart: '<path d="M12 20s-7-4.6-7-10a4 4 0 017-2.4A4 4 0 0119 10c0 5.4-7 10-7 10z"/>',
 };
 const fns = [
-    ['Youth profile', 'user', 'pk'],
-    ['Skills assessment', 'clipboard', 'yl'],
-    ['AI recommendations', 'spark', 'vi'],
-    ['Resume and certificate scan', 'scan', 'or'],
-    ['Career explorer', 'briefcase', 'pk'],
-    ['TESDA Lingayen training catalog', 'cap', 'yl'],
-    ['Trainer tools', 'cap', 'vi'],
-    ['User management', 'users', 'or'],
-    ['Role-based access', 'shield', 'pk'],
-    ['Guardian consent for ages 15 to 17', 'heart', 'yl'],
+    ['Youth profile and profile completion', 'user', 'pk'],
+    ['AI career guidance chat', 'spark', 'vi'],
+    ['Resume and certificate scanning', 'scan', 'or'],
+    ['AI scan summaries and career suggestions', 'spark', 'yl'],
+    ['Saved document scan history', 'list', 'pk'],
+    ['TESDA Lingayen program catalog', 'cap', 'yl'],
+    ['Links to TESDA NC I–IV provider search', 'briefcase', 'or'],
+    ['PESO and TESDA trainer dashboards', 'users', 'vi'],
+    ['Role-based account access', 'shield', 'pk'],
+    ['Youth registration and guardian consent', 'heart', 'yl'],
+    ['Google and Facebook sign-in', 'user', 'or'],
+    ['Email verification and password recovery', 'mail', 'pk'],
     ['Two-factor authentication', 'lock', 'vi'],
-    ['Email verification', 'mail', 'or'],
-    ['Browser session control', 'monitor', 'pk'],
-    ['Audit log', 'list', 'yl'],
+    ['Browser session management', 'monitor', 'yl'],
 ];
 const fnHtml = fns.map(([label, icon, tone]) =>
     `<li class="fnc"><i class="fi ${tone}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[icon]}</svg></i><span>${label}</span></li>`

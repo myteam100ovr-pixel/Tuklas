@@ -2,7 +2,6 @@
     <header class="career-chat__heading">
         <p>Google Gemini</p>
         <h2 id="career-chat-title">How can I help you?</h2>
-        <small>{{ config('services.google.gemini_model') }}</small>
     </header>
     <div class="career-chat__messages" data-chat-messages aria-live="polite" aria-relevant="additions">
         <p class="career-chat__message">Ask about careers, skills training, or a practical next step.</p>

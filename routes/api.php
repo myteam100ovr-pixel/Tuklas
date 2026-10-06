@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\MobileCatalogController;
 use App\Http\Controllers\Api\MobileDashboardController;
+use App\Http\Controllers\Api\MobilePesoController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DocumentScanController;
 use App\Http\Controllers\YouthProfileController;
@@ -46,6 +47,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
 
         Route::middleware('verified')->group(function () {
             Route::get('/dashboard', [MobileDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/peso', [MobilePesoController::class, 'index'])->name('peso.index');
             Route::post('/career-chat', CareerChatController::class)
                 ->middleware('throttle:10,1')->name('career-chat.store');
             Route::get('/document-scans', [DocumentScanController::class, 'index'])
