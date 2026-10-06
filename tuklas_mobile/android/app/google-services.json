@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "834341101694",
+    "project_id": "tuklas-780a3",
+    "storage_bucket": "tuklas-780a3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834341101694:android:0b4e3f25f691637533382f",
+        "android_client_info": {
+          "package_name": "com.tuklas_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_pm2lbnT51lPUjlBmcEhfrmQWz-nS1ek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
