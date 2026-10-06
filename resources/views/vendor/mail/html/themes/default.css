@@ -3,14 +3,14 @@
 body,
 body *:not(html):not(style):not(br):not(tr):not(code) {
     box-sizing: border-box;
-    font-family: 'Schibsted Grotesk', 'Trebuchet MS', Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     position: relative;
 }
 
 body {
     -webkit-text-size-adjust: none;
-    background-color: #f6f6f8;
-    color: #3a3a44;
+    background-color: #f5f3fa;
+    color: #302b3a;
     height: 100%;
     line-height: 1.4;
     margin: 0;
@@ -82,7 +82,7 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f6f6f8;
+    background-color: #f5f3fa;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -105,11 +105,11 @@ img {
 }
 
 .header a {
-    color: #4510b9;
-    font-family: 'Schibsted Grotesk', 'Trebuchet MS', Arial, sans-serif;
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: -1.5px;
+    color: #5424d8;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -1px;
     text-decoration: none;
 }
 
@@ -129,9 +129,9 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f6f6f8;
-    border-bottom: 1px solid #f6f6f8;
-    border-top: 1px solid #f6f6f8;
+    background-color: #f5f3fa;
+    border-bottom: 1px solid #f5f3fa;
+    border-top: 1px solid #f5f3fa;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -142,8 +142,8 @@ img {
     -premailer-cellspacing: 0;
     -premailer-width: 570px;
     background-color: #ffffff;
-    border-color: #e7e7ec;
-    border-radius: 18px;
+    border-color: #e9e4f2;
+    border-radius: 20px;
     border-width: 1px;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
@@ -237,7 +237,7 @@ img {
     border-radius: 10px;
     color: #fff;
     display: inline-block;
-    font-family: 'Schibsted Grotesk', 'Trebuchet MS', Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
     font-weight: 500;
     overflow: hidden;
