@@ -17,18 +17,18 @@ Tuklas is a youth career guidance and skills development web app for Pangasinan,
 
 ## Requirements
 
-- PHP **8.3 or newer**, with `ctype`, `curl`, `dom`, `fileinfo`, `filter`, `hash`, `mbstring`, `openssl`, `pcre`, `pdo`, `session`, `tokenizer`, and `xml`. The default SQLite database also needs `pdo_sqlite`. For MySQL, enable `pdo_mysql` instead.
+- PHP **8.4.1 or newer**, with `ctype`, `curl`, `dom`, `fileinfo`, `filter`, `hash`, `mbstring`, `openssl`, `pcre`, `pdo`, `session`, `tokenizer`, and `xml`. The default SQLite database also needs `pdo_sqlite`. For MySQL, enable `pdo_mysql` instead.
 - Composer 2
 - Node.js **20.19+ or 22.12+** and npm (use an active Node.js LTS release)
 - Git
 
-Laravel 13 requires PHP 8.3 or newer. Vite 8, used by this project, requires Node.js 20.19+ or 22.12+. For updated installation instructions, see the official [Laravel installation guide](https://laravel.com/docs/13.x/installation), [Node.js downloads](https://nodejs.org/en/download/), and [Composer downloads](https://getcomposer.org/download/).
+The locked Symfony 8.1 dependencies require PHP 8.4.1 or newer. Vite 8, used by this project, requires Node.js 20.19+ or 22.12+. For updated installation instructions, see the official [Laravel installation guide](https://laravel.com/docs/13.x/installation), [Node.js downloads](https://nodejs.org/en/download/), and [Composer downloads](https://getcomposer.org/download/).
 
 ## Install tools by operating system
 
 ### Windows
 
-Use PowerShell, Windows Terminal, Git Bash, or WSL. Install PHP 8.3+, Composer 2, Node.js LTS, and Git. Laravel Herd or Laragon can provide a local PHP environment; verify the PHP version and extensions from the same terminal you will use for the project. The [PHP for Windows downloads](https://windows.php.net/download/), [Composer Windows installer](https://getcomposer.org/Composer-Setup.exe), and [Node.js downloads](https://nodejs.org/en/download/) are also available.
+Use PowerShell, Windows Terminal, Git Bash, or WSL. Install PHP 8.4.1+, Composer 2, Node.js LTS, and Git. Laravel Herd or Laragon can provide a local PHP environment; verify the PHP version and extensions from the same terminal you will use for the project. The [PHP for Windows downloads](https://windows.php.net/download/), [Composer Windows installer](https://getcomposer.org/Composer-Setup.exe), and [Node.js downloads](https://nodejs.org/en/download/) are also available.
 
 If you use WSL, install the tools inside your Linux distribution and follow the Linux commands below. Keeping the project in the Linux home directory (rather than under `/mnt/c`) can improve file-watching performance.
 
@@ -44,7 +44,7 @@ SQLite is the default database and needs no separate server. To use MySQL instea
 
 ### Linux (Ubuntu or Debian)
 
-Install Git, PHP 8.3+ and its SQLite extensions, plus the common Laravel PHP extensions:
+Install Git, PHP 8.4.1+ and its SQLite extensions, plus the common Laravel PHP extensions:
 
 ```bash
 sudo apt update
@@ -52,7 +52,7 @@ sudo apt install -y git curl unzip sqlite3 composer \
   php-cli php-sqlite3 php-curl php-mbstring php-xml php-zip php-bcmath php-intl
 ```
 
-Check that `php -v` reports PHP 8.3 or newer and that `composer --version` reports Composer 2. Install Node.js LTS from [nodejs.org](https://nodejs.org/en/download/) or a maintained Node version manager if your distribution's package is too old for Vite 8. If your distribution does not provide PHP 8.3+, use the [official Laravel installation instructions](https://laravel.com/docs/13.x/installation) for a current PHP setup.
+Check that `php -v` reports PHP 8.4.1 or newer and that `composer --version` reports Composer 2. Install Node.js LTS from [nodejs.org](https://nodejs.org/en/download/) or a maintained Node version manager if your distribution's package is too old for Vite 8. If your distribution does not provide PHP 8.4.1+, use the [official Laravel installation instructions](https://laravel.com/docs/13.x/installation) for a current PHP setup.
 
 For Fedora, Arch, and other distributions, install the equivalent PHP extensions, SQLite PDO driver, Composer 2, Git, and supported Node.js LTS using that distribution's package manager.
 
