@@ -7,12 +7,15 @@
     <title>{{ config('app.name', 'Tuklas') }}</title>
     @include('partials.theme-boot')
     @vite(['resources/css/ui.css', 'resources/js/ui.js'])
+    @if (request()->routeIs('tesda.index'))
+        @vite('resources/css/landing.css')
+    @endif
     @if (request()->routeIs('scanner.index', 'peso.index', 'admin.dashboard', 'admin.recommendations.index', 'trainer.dashboard', 'youth.dashboard'))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
     @livewireStyles
 </head>
-<body class="tk-body">
+<body class="tk-body {{ request()->routeIs('tesda.index') ? 'tesda-body' : '' }}">
     @include('partials.sprite')
 
     <header class="tk-head">

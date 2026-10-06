@@ -25,7 +25,7 @@
             </div>
 
             <label for="remember_me" class="auth-remember">
-                <x-checkbox id="remember_me" name="remember" />
+                <x-checkbox id="remember_me" name="remember" checked />
                 <span>{{ __('Remember me') }}</span>
             </label>
 

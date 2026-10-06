@@ -32,39 +32,47 @@
                 <p class="tesda-eyebrow">Tuklas local catalog</p>
                 <h2 id="local-programs-title">TESDA Lingayen programs</h2>
             </div>
-            <span class="tesda-count">{{ $programs->total() }} published</span>
+            <span class="tesda-count">{{ $programCount }} published</span>
         </div>
         <p class="tesda-note">This list includes programs published in Tuklas by authorized local staff. Training dates, slots, requirements, and scholarship availability can change; confirm them with TESDA or the provider before applying.</p>
 
-        @if ($programs->isEmpty())
+        @if ($programCount === 0)
             <div class="tesda-empty">
                 <h3>No local programs have been published yet.</h3>
                 <p>Use the NC I–IV searches above to find current Pangasinan provider listings on TESDA’s website.</p>
             </div>
         @else
-            <div class="tesda-program-grid">
-                @foreach ($programs as $program)
-                    <article class="tesda-program">
-                        <div class="tesda-program-top">
-                            <span>{{ $program->nc_level ?: 'TESDA training program' }}</span>
-                            @if ($program->last_verified_at)
-                                <small>Checked {{ $program->last_verified_at->format('M Y') }}</small>
-                            @endif
-                        </div>
-                        <h3>{{ $program->title }}</h3>
-                        @if ($program->description)
-                            <p>{{ $program->description }}</p>
-                        @endif
-                        @if ($program->duration_hours || $program->schedule_note)
-                            <div class="tesda-program-meta">
-                                @if ($program->duration_hours)<span>{{ $program->duration_hours }} training hours</span>@endif
-                                @if ($program->schedule_note)<span>{{ $program->schedule_note }}</span>@endif
+            <div class="tesda-level-list">
+                @foreach ($programGroups as $level => $levelPrograms)
+                    <section class="tesda-level-group" aria-labelledby="tesda-level-{{ $loop->index }}">
+                        <header class="tesda-level-header">
+                            <span class="tesda-level-mark" aria-hidden="true">{{ $loop->iteration }}</span>
+                            <div class="tesda-level-heading">
+                                <p>National Certificate</p>
+                                <h3 id="tesda-level-{{ $loop->index }}">{{ $level }}</h3>
                             </div>
-                        @endif
-                    </article>
+                            <span class="tesda-level-count">{{ $levelPrograms->count() }} {{ $levelPrograms->count() === 1 ? 'program' : 'programs' }}</span>
+                        </header>
+                        <ul class="tesda-offers">
+                            @foreach ($levelPrograms as $program)
+                                <li class="tesda-offer">
+                                    <div class="tesda-offer-main">
+                                        <h4>{{ $program->title }}</h4>
+                                        @if ($program->description)
+                                            <p>{{ $program->description }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="tesda-offer-meta">
+                                        @if ($program->duration_hours)<span>{{ $program->duration_hours }} training hours</span>@endif
+                                        @if ($program->schedule_note)<span>{{ $program->schedule_note }}</span>@endif
+                                        @if ($program->last_verified_at)<small>Checked {{ $program->last_verified_at->format('M Y') }}</small>@endif
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </section>
                 @endforeach
             </div>
-            <div class="tesda-pagination">{{ $programs->links() }}</div>
         @endif
     </section>
 

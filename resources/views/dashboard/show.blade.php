@@ -32,7 +32,7 @@
                             'job_roles' => 'Suggested job roles',
                             'tesda_training' => 'TESDA training to consider',
                         ] as $key => $label)
-                            <section class="profile-insights__group">
+                            <section class="profile-insights__group {{ $key === 'tesda_training' ? 'profile-insights__group--tesda' : '' }}">
                                 <h3>{{ $label }}</h3>
                                 @if (count($profileInsights[$key]) > 0)
                                     <ul>
@@ -40,6 +40,9 @@
                                             <li>{{ $item }}</li>
                                         @endforeach
                                     </ul>
+                                @elseif ($key === 'tesda_training')
+                                    <p>Scan a resume or certificate to get optional TESDA program suggestions matched to skills and career interests.</p>
+                                    <a href="{{ route('tesda.index') }}">Browse TESDA programs</a>
                                 @else
                                     <p>Nothing saved yet.</p>
                                 @endif
