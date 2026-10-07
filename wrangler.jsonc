@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tuklas-edge",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-10-07",
+  "workers_dev": true,
+  "vars": {
+    "RAILWAY_ORIGIN": "https://tuklasprojectt.up.railway.app"
+  }
+}
