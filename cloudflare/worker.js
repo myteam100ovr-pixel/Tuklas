@@ -1,4 +1,36 @@
 const DEFAULT_RAILWAY_ORIGIN = 'https://tuklasprojectt.up.railway.app';
+const URL_ATTRIBUTES = ['href', 'src', 'action', 'formaction', 'poster'];
+
+class RewriteRailwayUrls {
+    constructor(railwayOrigin, publicUrl) {
+        this.railwayOrigin = railwayOrigin;
+        this.publicUrl = publicUrl;
+    }
+
+    element(element) {
+        for (const attribute of URL_ATTRIBUTES) {
+            const value = element.getAttribute(attribute);
+            if (!value) {
+                continue;
+            }
+
+            let targetUrl;
+            try {
+                targetUrl = new URL(value, this.railwayOrigin);
+            } catch {
+                continue;
+            }
+
+            if (targetUrl.origin !== this.railwayOrigin.origin) {
+                continue;
+            }
+
+            targetUrl.protocol = this.publicUrl.protocol;
+            targetUrl.host = this.publicUrl.host;
+            element.setAttribute(attribute, targetUrl.toString());
+        }
+    }
+}
 
 export default {
     async fetch(request, env) {
@@ -38,6 +70,13 @@ export default {
                     headers: responseHeaders,
                 });
             }
+        }
+
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) {
+            return new HTMLRewriter()
+                .on('*', new RewriteRailwayUrls(originUrl, publicUrl))
+                .transform(response);
         }
 
         return response;
