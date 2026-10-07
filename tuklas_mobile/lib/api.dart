@@ -171,13 +171,22 @@ class ApiClient {
 
   Future<Map<String, dynamic>> dashboard() => _send('GET', '/dashboard');
 
-  Future<String> careerChat(List<Map<String, String>> messages) async {
+  Future<Map<String, dynamic>> careerChat(
+    List<Map<String, String>> messages,
+  ) async {
     final response = await _send(
       'POST',
       '/career-chat',
       body: {'messages': messages},
     );
-    return response['reply'] as String;
+    if (response['reply'] is! String) {
+      throw ApiException('The career assistant returned an invalid reply.');
+    }
+
+    return {
+      'reply': response['reply'] as String,
+      'sources': response['sources'] is List ? response['sources'] as List : [],
+    };
   }
 
   Future<Map<String, dynamic>> tesdaCatalog({int page = 1}) =>

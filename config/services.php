@@ -40,7 +40,9 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI') ?: env('APP_URL').'/auth/google/callback',
         'gemini_api_key' => env('GOOGLE_AI_API_KEY') ?: env('GEMINI_API_KEY'),
-        'gemini_model' => env('GEMINI_MODEL', 'gemini-3.7-flash'),
+        'gemini_model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
+        'gemini_chat_web_search' => (bool) env('GEMINI_CHAT_WEB_SEARCH', false),
+        'gemini_chat_url_context' => (bool) env('GEMINI_CHAT_URL_CONTEXT', true),
     ],
 
     'facebook' => [

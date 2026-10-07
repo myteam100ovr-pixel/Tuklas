@@ -493,6 +493,8 @@ html[data-theme='dark'] .min-h-screen:has(.role-dashboard) { background: var(--s
 .career-chat__messages { display: grid; min-height: 8rem; max-height: 17rem; align-content: start; gap: .55rem; overflow-y: auto; padding: .2rem; }
 .career-chat__message { max-width: 92%; margin: 0; padding: .6rem .7rem; border-radius: .7rem; color: var(--system-text); background: var(--system-card); font-size: .7rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .career-chat__message.is-user { justify-self: end; color: #fff; background: var(--role-accent); }
+.career-chat__sources { display: inline-block; margin-top: .35rem; color: var(--system-muted); font-size: .62rem; }
+.career-chat__sources a { color: var(--role-accent); text-decoration: underline; text-underline-offset: .12em; }
 .career-chat__suggestions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
 .career-chat__suggestions button { min-height: 2.25rem; padding: .4rem .5rem; border: 1px solid var(--system-line); border-radius: .55rem; color: var(--system-text); background: var(--system-card); font: inherit; font-size: .62rem; line-height: 1.3; text-align: left; cursor: pointer; }
 .career-chat__suggestions button:hover { border-color: var(--role-accent); }

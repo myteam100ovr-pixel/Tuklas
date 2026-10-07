@@ -11,10 +11,42 @@ if (chat) {
     const messages = [];
     let isSending = false;
 
-    const appendMessage = (role, text) => {
+    const appendMessage = (role, text, sources = []) => {
         const message = document.createElement('p');
         message.className = `career-chat__message${role === 'user' ? ' is-user' : ''}`;
         message.textContent = text;
+
+        if (role !== 'user' && Array.isArray(sources) && sources.length > 0) {
+            const sourceList = document.createElement('span');
+            sourceList.className = 'career-chat__sources';
+            sourceList.append(document.createTextNode('Sources: '));
+
+            sources.forEach((source, index) => {
+                try {
+                    const url = new URL(source.url);
+
+                    if (!['http:', 'https:'].includes(url.protocol)) {
+                        return;
+                    }
+
+                    if (index > 0) {
+                        sourceList.append(document.createTextNode(' · '));
+                    }
+
+                    const link = document.createElement('a');
+                    link.href = url.href;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = source.title || url.hostname;
+                    sourceList.append(link);
+                } catch {
+                    // Ignore malformed source URLs from the provider response.
+                }
+            });
+
+            message.append(document.createElement('br'), sourceList);
+        }
+
         transcript.append(message);
         transcript.scrollTop = transcript.scrollHeight;
     };
@@ -37,7 +69,7 @@ if (chat) {
         isSending = true;
         input.disabled = true;
         sendButton.disabled = true;
-        status.textContent = 'Gemini is thinking...';
+        status.textContent = 'Thinking...';
         delete status.dataset.kind;
 
         try {
@@ -59,7 +91,7 @@ if (chat) {
             }
 
             messages.push({ role: 'model', text: payload.reply });
-            appendMessage('model', payload.reply);
+            appendMessage('model', payload.reply, payload.sources);
             status.textContent = '';
         } catch (error) {
             status.textContent = error.message;

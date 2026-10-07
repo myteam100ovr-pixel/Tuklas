@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../theme.dart';
@@ -921,7 +922,7 @@ class _CareerChatCard extends StatefulWidget {
 
 class _CareerChatCardState extends State<_CareerChatCard> {
   final _messageController = TextEditingController();
-  final _messages = <Map<String, String>>[];
+  final _messages = <Map<String, dynamic>>[];
   bool _sending = false;
   String? _error;
 
@@ -940,11 +941,16 @@ class _CareerChatCardState extends State<_CareerChatCard> {
       (_messages.length - 9).clamp(0, _messages.length),
     );
     final requestMessages = [
-      ...history.map((message) => Map<String, String>.from(message)),
+      ...history.map(
+        (message) => {
+          'role': message['role'] as String,
+          'text': message['text'] as String,
+        },
+      ),
       {'role': 'user', 'text': text},
     ];
     setState(() {
-      _messages.add({'role': 'user', 'text': text});
+      _messages.add({'role': 'user', 'text': text, 'sources': const []});
       if (_messages.length > 20) {
         _messages.removeRange(0, _messages.length - 20);
       }
@@ -953,10 +959,20 @@ class _CareerChatCardState extends State<_CareerChatCard> {
     });
 
     try {
-      final reply = await ApiClient.instance.careerChat(requestMessages);
+      final response = await ApiClient.instance.careerChat(requestMessages);
       if (!mounted) return;
+      final sources = response['sources'] is List
+          ? (response['sources'] as List)
+                .whereType<Map>()
+                .map((source) => Map<String, dynamic>.from(source))
+                .toList()
+          : <Map<String, dynamic>>[];
       setState(() {
-        _messages.add({'role': 'model', 'text': reply});
+        _messages.add({
+          'role': 'model',
+          'text': response['reply'] as String,
+          'sources': sources,
+        });
         if (_messages.length > 20) {
           _messages.removeRange(0, _messages.length - 20);
         }
@@ -971,18 +987,77 @@ class _CareerChatCardState extends State<_CareerChatCard> {
     }
   }
 
+  Future<void> _openSource(String rawUrl) async {
+    final uri = Uri.tryParse(rawUrl);
+
+    if (uri == null || !['http', 'https'].contains(uri.scheme)) {
+      return;
+    }
+
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open this source.')),
+      );
+    }
+  }
+
+  List<Widget> _sourceLinks(BuildContext context, dynamic rawSources) {
+    if (rawSources is! List) {
+      return const [];
+    }
+
+    final colors = TkColors.of(context);
+    final links = rawSources
+        .whereType<Map>()
+        .map((source) {
+          final url = source['url'];
+          final title = source['title'];
+          final uri = url is String ? Uri.tryParse(url) : null;
+
+          if (uri == null || !['http', 'https'].contains(uri.scheme)) {
+            return null;
+          }
+
+          return ActionChip(
+            avatar: const Icon(
+              Icons.open_in_new,
+              size: 14,
+              color: TkColors.violet,
+            ),
+            label: Text(title is String && title.isNotEmpty ? title : uri.host),
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _openSource(uri.toString()),
+          );
+        })
+        .whereType<Widget>()
+        .toList();
+
+    if (links.isEmpty) {
+      return const [];
+    }
+
+    return [
+      const SizedBox(height: 6),
+      Text('Sources', style: tkText(context, size: 11.5, color: colors.muted)),
+      const SizedBox(height: 3),
+      Wrap(spacing: 4, runSpacing: 2, children: links),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = TkColors.of(context);
     final suggestions = [
       'Explore careers',
-      'Find skills training',
+      'AI skills + TESDA',
       'Plan a next step',
       'Build my skills',
     ];
     final prompts = [
       'Help me explore careers that match my interests.',
-      'How can I find skills training that fits my goals?',
+      'I want to work in AI. What skills should I develop, and which TESDA NC or online TESDA course should I consider first?',
       'Help me make a practical plan for my next step.',
       'What skills should I build for the kind of work I want?',
     ];
@@ -999,7 +1074,7 @@ class _CareerChatCardState extends State<_CareerChatCard> {
             ),
           ),
           Text(
-            'Ask Tuklas about careers, skills training, or a practical next step.',
+            'Ask Tuklas about careers, AI skills, TESDA training, or a practical next step.',
             style: tkText(context, size: 13, color: colors.muted, height: 1.4),
           ),
           const SizedBox(height: 12),
@@ -1029,16 +1104,24 @@ class _CareerChatCardState extends State<_CareerChatCard> {
                               : colors.surface,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          message['text']!,
-                          style: tkText(
-                            context,
-                            size: 13,
-                            color: message['role'] == 'user'
-                                ? Colors.white
-                                : colors.ink,
-                            height: 1.4,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              message['text'] as String,
+                              style: tkText(
+                                context,
+                                size: 13,
+                                color: message['role'] == 'user'
+                                    ? Colors.white
+                                    : colors.ink,
+                                height: 1.4,
+                              ),
+                            ),
+                            if (message['role'] != 'user')
+                              ..._sourceLinks(context, message['sources']),
+                          ],
                         ),
                       ),
                     ),
@@ -1103,7 +1186,7 @@ class _CareerChatCardState extends State<_CareerChatCard> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Messages are sent to Google Gemini. Avoid sharing private information.',
+            'Messages are sent to Google Gemini. For career questions, limited skills and job matches from your latest resume or certificate scan may also be shared to personalize suggestions.',
             style: tkText(context, size: 11.5, color: colors.muted),
           ),
         ],

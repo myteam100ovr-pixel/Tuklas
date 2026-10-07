@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Http\Requests\SendCareerChatRequest;
+use App\Models\User;
 use App\Services\GeminiCareerAssistant;
 use Illuminate\Http\JsonResponse;
 use Throwable;
@@ -18,8 +20,14 @@ class CareerChatController
         }
 
         try {
+            $result = $assistant->reply(
+                $request->validated('messages'),
+                $this->latestCareerContext($request->user()),
+            );
+
             return response()->json([
-                'reply' => $assistant->reply($request->validated('messages')),
+                'reply' => $result['reply'],
+                'sources' => $result['sources'],
             ]);
         } catch (Throwable $exception) {
             report($exception);
@@ -30,5 +38,43 @@ class CareerChatController
                     : 'Gemini could not reply right now. Please try again.',
             ], 502);
         }
+    }
+
+    /** @return array<string, array<int, string>> */
+    private function latestCareerContext(?User $user): array
+    {
+        if (! $user instanceof User || ! $user->hasRole(Role::Youth)) {
+            return [];
+        }
+
+        $analysis = $user->documentScans()
+            ->where('status', 'done')
+            ->latest('processed_at')
+            ->first(['result'])
+            ?->result;
+
+        if (! is_array($analysis) || ! in_array($analysis['documentType'] ?? null, ['resume', 'certificate'], true)) {
+            return [];
+        }
+
+        $cleanStrings = fn (mixed $values): array => collect(is_array($values) ? $values : [])
+            ->filter(fn (mixed $value): bool => is_string($value) && trim($value) !== '')
+            ->map(fn (string $value): string => mb_substr(trim($value), 0, 120))
+            ->take(8)
+            ->values()
+            ->all();
+
+        $careerMatches = collect(is_array($analysis['careerMatches'] ?? null) ? $analysis['careerMatches'] : [])
+            ->map(fn (mixed $match): mixed => is_array($match) ? ($match['name'] ?? null) : $match);
+        $jobRecommendations = collect(is_array($analysis['jobRecommendations'] ?? null) ? $analysis['jobRecommendations'] : [])
+            ->map(fn (mixed $recommendation): mixed => is_array($recommendation) ? ($recommendation['title'] ?? null) : null);
+
+        return array_filter([
+            'skills_detected' => $cleanStrings($analysis['skillsDetected'] ?? []),
+            'credentials' => $cleanStrings($analysis['credentials'] ?? []),
+            'career_matches' => $cleanStrings($careerMatches->all()),
+            'job_recommendations' => $cleanStrings($jobRecommendations->all()),
+            'skill_gaps' => $cleanStrings($analysis['skillGaps'] ?? []),
+        ], fn (array $values): bool => $values !== []);
     }
 }
