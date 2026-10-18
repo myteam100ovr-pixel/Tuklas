@@ -98,24 +98,11 @@ class _DashboardViewState extends State<DashboardView> {
                 final wide = box.maxWidth >= 1100;
                 final leftWidth = wide ? box.maxWidth - 376 - 16 : box.maxWidth;
 
-                final title = Padding(
-                  padding: const EdgeInsets.only(top: 4, bottom: 18),
-                  child: Text(
-                    '${data['title'] ?? ''}',
-                    style: tkText(
-                      context,
-                      size: 27,
-                      weight: 500,
-                      spacing: -0.7,
-                    ),
-                  ),
-                );
+                final title = _overviewHeader(context, data);
 
                 final left = Column(
                   children: [
                     _stats(context, asList(data['stats']), leftWidth >= 640),
-                    const SizedBox(height: 16),
-                    _chartCard(context, asMap(data['chart']), leftWidth),
                     if (data['profileInsights'] is Map) ...[
                       const SizedBox(height: 16),
                       _profileInsightsCard(
@@ -124,6 +111,8 @@ class _DashboardViewState extends State<DashboardView> {
                       ),
                     ],
                     const SizedBox(height: 16),
+                    _chartCard(context, asMap(data['chart']), leftWidth),
+                    const SizedBox(height: 16),
                     _tableCard(context, asMap(data['table'])),
                   ],
                 );
@@ -131,8 +120,6 @@ class _DashboardViewState extends State<DashboardView> {
                 final right = Column(
                   children: [
                     _tasksCard(context, asMap(data['tasks'])),
-                    const SizedBox(height: 16),
-                    _quickCard(context, asList(data['actions'])),
                     const SizedBox(height: 16),
                     const _CareerChatCard(),
                   ],
@@ -143,6 +130,8 @@ class _DashboardViewState extends State<DashboardView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       title,
+                      _quickCard(context, asList(data['actions'])),
+                      const SizedBox(height: 20),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -156,7 +145,14 @@ class _DashboardViewState extends State<DashboardView> {
                 }
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [title, left, const SizedBox(height: 16), right],
+                  children: [
+                    title,
+                    _quickCard(context, asList(data['actions'])),
+                    const SizedBox(height: 20),
+                    left,
+                    const SizedBox(height: 20),
+                    right,
+                  ],
                 );
               },
             ),
@@ -167,6 +163,56 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   /* ---------------- stat cards ---------------- */
+
+  Widget _overviewHeader(BuildContext context, Map<String, dynamic> data) {
+    final c = TkColors.of(context);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 8, bottom: 20),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color.alphaBlend(TkColors.violet.withValues(alpha: .11), c.surface),
+            Color.alphaBlend(TkColors.pink.withValues(alpha: .08), c.surface),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: c.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'YOUR TUKLAS OVERVIEW',
+            style: tkText(
+              context,
+              size: 10,
+              weight: 600,
+              spacing: 1.6,
+              color: c.taskMeta,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            '${data['title'] ?? 'Your next step starts here.'}',
+            style: tkText(
+              context,
+              size: 30,
+              weight: 600,
+              spacing: -1,
+              height: 1.12,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Your activity, opportunities, and next steps in one place.',
+            style: tkText(context, size: 13, color: c.ink2, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _stats(BuildContext context, List<dynamic> stats, bool row) {
     final cards = [for (final s in stats) _statCard(context, asMap(s))];
@@ -621,7 +667,7 @@ class _DashboardViewState extends State<DashboardView> {
       ('skills', 'Skills'),
       ('credentials', 'Qualifications and certificates'),
       ('job_roles', 'Suggested job roles'),
-      ('tesda_training', 'TESDA training to consider'),
+      ('tesda_training', 'AI TESDA recommendations'),
       ('job_recommendations', 'PESO job matches'),
       ('skill_gaps', 'Skills to develop'),
       ('learning_recommendations', 'Free learning and practice'),

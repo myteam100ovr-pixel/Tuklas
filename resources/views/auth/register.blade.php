@@ -5,9 +5,16 @@
         <form method="POST" action="{{ route('register') }}" class="auth-form auth-form--register">
             @csrf
 
-            <div class="auth-field">
-                <x-label for="name" value="{{ __('Full name') }}" class="auth-label" />
-                <x-input id="name" class="auth-input" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Your name" />
+            <div class="auth-name-row">
+                <div class="auth-field">
+                    <x-label for="first_name" value="{{ __('First Name') }}" class="auth-label" />
+                    <x-input id="first_name" class="auth-input" type="text" name="first_name" :value="old('first_name')" required autofocus autocomplete="given-name" maxlength="127" placeholder="Your first name" />
+                </div>
+
+                <div class="auth-field">
+                    <x-label for="last_name" value="{{ __('Last Name') }}" class="auth-label" />
+                    <x-input id="last_name" class="auth-input" type="text" name="last_name" :value="old('last_name')" required autocomplete="family-name" maxlength="127" placeholder="Your last name" />
+                </div>
             </div>
 
             <div class="auth-field">

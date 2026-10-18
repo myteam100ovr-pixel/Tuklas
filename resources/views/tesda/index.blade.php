@@ -11,7 +11,7 @@
         <title>TESDA training and services | {{ config('app.name', 'Tuklas') }}</title>
         <meta name="description" content="Search TESDA NC I to IV registered training programs in Pangasinan and browse official learning, scholarship, and certification resources.">
         @include('partials.theme-boot')
-        @vite('resources/css/landing.css')
+        @vite(['resources/css/landing.css', 'resources/js/ui.js'])
     </head>
     <body class="tesda-body">
         <header class="hdr" id="hdr">

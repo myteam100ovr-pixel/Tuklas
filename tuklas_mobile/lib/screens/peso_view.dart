@@ -73,9 +73,9 @@ class _PesoViewState extends State<PesoView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'PESO job matches',
-                      style: tkText(context, size: 27, weight: 500, spacing: -0.7),
+                    const TkPageHeading(
+                      eyebrow: 'CAREER POSSIBILITIES',
+                      title: 'PESO job matches',
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -198,7 +198,9 @@ class _PesoViewState extends State<PesoView> {
                 );
                 if (!opened && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Could not open this resource.')),
+                    const SnackBar(
+                      content: Text('Could not open this resource.'),
+                    ),
                   );
                 }
               },

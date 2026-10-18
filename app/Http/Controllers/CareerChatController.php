@@ -33,9 +33,13 @@ class CareerChatController
             report($exception);
 
             return response()->json([
-                'message' => $exception->getCode() === 429
-                    ? 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.'
-                    : 'Gemini could not reply right now. Please try again.',
+                'message' => match ($exception->getCode()) {
+                    429 => 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.',
+                    500, 502, 503, 504 => 'Gemini is temporarily busy. Please try again shortly.',
+                    401, 403 => 'Gemini authentication failed. Ask the administrator to check the server API key.',
+                    404 => 'The configured Gemini model is unavailable. Ask the administrator to check the model configuration.',
+                    default => 'Gemini could not reply right now. Please try again.',
+                },
             ], 502);
         }
     }

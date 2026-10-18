@@ -1,30 +1,12 @@
-<main class="tesda-main">
+<div class="tesda-main suite-tesda">
     <section class="tesda-intro" aria-labelledby="tesda-title">
-        <p class="tesda-eyebrow">TESDA Lingayen · Pangasinan</p>
+        <p class="tesda-eyebrow">TESDA · National qualifications</p>
         <h1 id="tesda-title">Explore training and services.</h1>
-        <p>Browse programs published by TESDA Lingayen in Tuklas, or search TESDA’s live registered-provider directory for National Certificates I to IV across Pangasinan.</p>
+        <p>Explore the official NC I–IV qualification catalog, find registered providers, and browse locally published training programs.</p>
         <a class="btn btn-violet" href="#nc-offerings">Browse NC I–IV offerings</a>
     </section>
 
-    <section class="tesda-section" id="nc-offerings" aria-labelledby="nc-offerings-title">
-        <div class="tesda-section-heading">
-            <div>
-                <p class="tesda-eyebrow">Live TESDA provider directory · Pangasinan</p>
-                <h2 id="nc-offerings-title">Find registered programs by NC level</h2>
-            </div>
-        </div>
-        <p class="tesda-note">These links search TESDA’s registered training-provider directory by certificate level. Results depend on TESDA’s current registrations; contact the provider to confirm schedules, slots, fees, and eligibility.</p>
-        <div class="tesda-resource-grid">
-            @foreach (['NC I', 'NC II', 'NC III', 'NC IV'] as $level)
-                <article class="tesda-resource">
-                    <span class="tesda-resource-number">{{ $level }}</span>
-                    <h3>{{ $level }} registered programs</h3>
-                    <p>Search TESDA’s current Pangasinan provider listings for {{ $level }} programs.</p>
-                    <a href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse={{ urlencode($level) }}&amp;SearchLoc=pangasinan" target="_blank" rel="noopener">View TESDA results <span aria-hidden="true">↗</span></a>
-                </article>
-            @endforeach
-        </div>
-    </section>
+    @include('tesda.qualifications')
 
     <section class="tesda-section" id="local-programs" aria-labelledby="local-programs-title">
         <div class="tesda-section-heading">
@@ -39,7 +21,7 @@
         @if ($programCount === 0)
             <div class="tesda-empty">
                 <h3>No local programs have been published yet.</h3>
-                <p>Use the NC I–IV searches above to find current Pangasinan provider listings on TESDA’s website.</p>
+                <p>Explore the qualifications above and use “Find a provider” to check TESDA’s registered schools, including providers in Pangasinan.</p>
             </div>
         @else
             <div class="tesda-level-list">
@@ -110,7 +92,7 @@
             </article>
         </div>
     </section>
-</main>
+</div>
 
 <footer class="tesda-footer">
     <a href="{{ route('home') }}">← Back to Tuklas</a>

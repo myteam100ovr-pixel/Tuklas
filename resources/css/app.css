@@ -218,7 +218,7 @@ html[data-theme='dark'] {
     --system-field: #25252c;
 }
 
-html[data-theme='dark'] body,
+html[data-theme='dark'] body:not(.tk-body),
 html[data-theme='dark'] .min-h-screen {
     color: var(--system-text);
     background-color: var(--system-background) !important;

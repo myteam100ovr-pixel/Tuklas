@@ -42,6 +42,46 @@ BoxDecoration _navigationPanelDecoration(BuildContext context) => BoxDecoration(
   borderRadius: BorderRadius.circular(18),
 );
 
+class TkPageHeading extends StatelessWidget {
+  const TkPageHeading({super.key, required this.eyebrow, required this.title});
+
+  final String eyebrow;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            eyebrow,
+            style: tkText(
+              context,
+              size: 10,
+              weight: 600,
+              spacing: 1.5,
+              color: TkColors.of(context).taskMeta,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: tkText(
+              context,
+              size: 30,
+              weight: 600,
+              spacing: -1,
+              height: 1.15,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class TkCard extends StatelessWidget {
   const TkCard({
     super.key,
@@ -60,15 +100,15 @@ class TkCard extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: c.surface,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: c.line),
         boxShadow: c.isDark
             ? null
             : const [
                 BoxShadow(
-                  color: Color(0x0D140A3C),
-                  blurRadius: 28,
-                  offset: Offset(0, 10),
+                  color: Color(0x06140A3C),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
                 ),
               ],
       ),
@@ -188,16 +228,34 @@ class TkHeader extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              'tuklas',
+              'tuklas.',
               style: tkText(
                 context,
                 size: 27,
-                weight: 500,
+                weight: 700,
                 spacing: -1.4,
                 height: 1,
               ),
             ),
             const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: TkColors.violet.withValues(alpha: .09),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Text(
+                'WORKSPACE',
+                style: tkText(
+                  context,
+                  size: 9,
+                  weight: 600,
+                  spacing: 1,
+                  color: TkColors.of(context).taskMeta,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
             TkIconButton(
               icon: dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
               tooltip: 'Light / dark mode',

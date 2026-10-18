@@ -8,11 +8,41 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class CareerChatControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function test_chat_retries_temporary_provider_errors(bool $recovers): void
+    {
+        Sleep::fake();
+        config()->set('services.google.gemini_api_key', 'test-key');
+        Http::preventStrayRequests();
+        $sequence = Http::sequence()->pushStatus(503);
+        if ($recovers) {
+            $sequence->push(['candidates' => [['content' => ['parts' => [['text' => 'Hello!']]]]]]);
+        } else {
+            $sequence->pushStatus(503)->pushStatus(503);
+        }
+        Http::fake(['generativelanguage.googleapis.com/*' => $sequence]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $response = $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Hello']],
+        ]);
+
+        if ($recovers) {
+            $response->assertOk()->assertJsonPath('reply', 'Hello!');
+        } else {
+            $response->assertStatus(502)->assertJsonPath('message', 'Gemini is temporarily busy. Please try again shortly.');
+        }
+        Http::assertSentCount($recovers ? 2 : 3);
+    }
 
     public function test_ai_skill_and_tesda_questions_use_search_and_offer_a_grounded_plan(): void
     {

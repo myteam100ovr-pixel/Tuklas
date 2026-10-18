@@ -1,8 +1,6 @@
 <x-app-layout>
-    <div class="dash-title">
-        <h1>User directory</h1>
-        <p>All registered accounts, including administrator accounts.</p>
-    </div>
+    <div class="suite-page suite-people">
+    <x-workspace-heading eyebrow="COMMUNITY · PEOPLE" title="The people behind the possibilities" description="A clear view of registered accounts, roles, and account status across your community." />
 
     <section class="card tbl users-directory" aria-labelledby="users-directory-title">
         <div class="card-head">
@@ -62,4 +60,5 @@
             </div>
         @endif
     </section>
+    </div>
 </x-app-layout>

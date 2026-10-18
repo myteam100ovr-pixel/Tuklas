@@ -227,18 +227,11 @@ class _ProfileViewState extends State<ProfileView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, bottom: 18),
-                      child: Text(
-                        'Edit profile',
-                        style: tkText(
-                          context,
-                          size: 27,
-                          weight: 500,
-                          spacing: -0.7,
-                        ),
-                      ),
+                    const TkPageHeading(
+                      eyebrow: 'YOUR PROFILE',
+                      title: 'A profile that grows with you',
                     ),
+                    const SizedBox(height: 12),
                     _accountCard(context, asMap(data['account'])),
                     const SizedBox(height: 16),
                     if (youth is Map)

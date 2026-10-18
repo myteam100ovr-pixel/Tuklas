@@ -1,11 +1,16 @@
 @import './theme.css';
+@import './workspace.css';
+@import './tesda-catalog.css';
+@import './tesda-workspace.css';
+@import './sections.css';
+@import './workspace-shell.css';
 @import '@fontsource/schibsted-grotesk/400.css';
 @import '@fontsource/schibsted-grotesk/500.css';
 
 :root { --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif; --pad: clamp(1rem, 3.5vw, 3rem); }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
 body.tk-body { font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.45; -webkit-font-smoothing: antialiased; min-height: 100vh; transition: background .25s, color .25s; }
 .document-scanner { --system-background: var(--bg); --system-surface: var(--surface-2); --system-card: var(--surface); --system-text: var(--ink); --system-muted: var(--muted); --system-line: var(--line); --role-accent: var(--violet); --role-accent-soft: color-mix(in srgb, var(--violet) 12%, var(--surface)); }
 a { color: inherit; text-decoration: none; }
@@ -28,6 +33,12 @@ h1, h2, h3, p { font-weight: 400; }
 .tk-tab:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 5%, transparent); }
 .tk-tab.is-active { border-color: transparent; color: #fff; background: var(--violet); box-shadow: var(--shadow); }
 .tk-tab.is-active .tk-tab__icon { color: var(--violet); background: #fff; }
+@view-transition { navigation: auto; }
+.tk-tabs--workspace .tk-tab.is-active { view-transition-name: workspace-active-tab; }
+::view-transition-group(workspace-active-tab) { animation-duration: .22s; animation-timing-function: ease-in-out; }
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 0s; }
+}
 .tk-right { display: flex; align-items: center; justify-content: flex-end; gap: .6rem; }
 .tk-ibtn { display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink-2); transition: border-color .2s, color .2s; }
 .tk-ibtn:hover { border-color: var(--muted); color: var(--ink); }
@@ -44,7 +55,7 @@ h1, h2, h3, p { font-weight: 400; }
 .tk-pop-item { display: flex; align-items: center; gap: .7rem; width: 100%; padding: .65rem .8rem; border-radius: .7rem; font-size: .88rem; text-align: left; }
 .tk-pop-item:hover { background: var(--surface-2); }
 
-.tk-main { max-width: 1500px; margin: 0 auto; padding: .5rem var(--pad) 3rem; }
+.tk-main { width: 100%; min-width: 0; margin: 0 auto; padding: .5rem var(--pad) 3rem; }
 
 /* ---------- Dashboard layout ---------- */
 .dash-title h1 { font-size: 1.7rem; font-weight: 500; letter-spacing: -.025em; margin: .3rem 0 1.1rem; }

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'api.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
+import 'screens/welcome_screen.dart';
 import 'theme.dart';
 
 void main() {
@@ -28,7 +29,7 @@ class TuklasApp extends StatelessWidget {
         theme: tkTheme(Brightness.light),
         darkTheme: tkTheme(Brightness.dark),
         themeMode: themeController.mode,
-        home: const Gate(),
+        home: const FirstLaunch(child: Gate()),
       ),
     );
   }

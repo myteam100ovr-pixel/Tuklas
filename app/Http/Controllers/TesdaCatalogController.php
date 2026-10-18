@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\TrainingProgram;
+use App\Services\TesdaQualificationCatalog;
 use Illuminate\View\View;
 
 class TesdaCatalogController extends Controller
 {
-    public function index(): View
+    public function index(TesdaQualificationCatalog $catalog): View
     {
         $programs = TrainingProgram::published()
             ->orderBy('title')
@@ -18,6 +19,7 @@ class TesdaCatalogController extends Controller
             ->sortBy(fn ($levelPrograms, string $level): int => $levelOrder[$level] ?? 5);
 
         return view('tesda.index', [
+            'nationalCatalog' => $catalog->all(),
             'programCount' => $programs->count(),
             'programGroups' => $programGroups,
         ]);

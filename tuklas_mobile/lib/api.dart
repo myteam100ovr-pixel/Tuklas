@@ -213,6 +213,7 @@ class ApiClient {
   Future<Map<String, dynamic>> uploadDocument({
     required Uint8List bytes,
     required String filename,
+    String goal = '',
   }) async {
     final bearer = await token;
     if (bearer == null) throw ApiException('Please sign in.');
@@ -229,6 +230,9 @@ class ApiClient {
           ..files.add(
             http.MultipartFile.fromBytes('file', bytes, filename: filename),
           );
+    if (goal.trim().isNotEmpty) {
+      request.fields['goal'] = goal.trim();
+    }
     request.headers['Authorization'] = 'Bearer $bearer';
     final streamedResponse = await request.send().timeout(
       const Duration(seconds: 260),

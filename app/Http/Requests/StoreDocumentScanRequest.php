@@ -23,6 +23,7 @@ class StoreDocumentScanRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'goal' => ['nullable', 'string', 'max:1000'],
             'document_type' => ['sometimes', 'required', 'in:resume,certificate'],
             'file' => [
                 'required',

@@ -7,10 +7,12 @@ use App\Http\Requests\StoreDocumentScanRequest;
 use App\Models\DocumentScan;
 use App\Models\TrainingProgram;
 use App\Services\GeminiDocumentScanner;
+use App\Services\TesdaQualificationCatalog;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -29,7 +31,7 @@ class DocumentScanController extends Controller
         return response()->json(['documents' => $documents]);
     }
 
-    public function store(StoreDocumentScanRequest $request, GeminiDocumentScanner $scanner): JsonResponse
+    public function store(StoreDocumentScanRequest $request, GeminiDocumentScanner $scanner, TesdaQualificationCatalog $catalog): JsonResponse
     {
         if (! $scanner->isConfigured()) {
             return response()->json([
@@ -46,16 +48,6 @@ class DocumentScanController extends Controller
             return response()->json(['message' => 'The document could not be saved. Please try again.'], 500);
         }
 
-        $scan = $user->documentScans()->create([
-            'doc_type' => $validated['document_type'] ?? 'document',
-            'original_name' => mb_substr($file->getClientOriginalName(), 0, 255),
-            'stored_path' => $path,
-            'mime' => $file->getMimeType(),
-            'size' => $file->getSize(),
-            'status' => 'processing',
-            'progress' => 0,
-        ]);
-
         try {
             $publishedPrograms = TrainingProgram::published()
                 ->orderBy('title')
@@ -67,44 +59,51 @@ class DocumentScanController extends Controller
                     'description' => Str::limit($program->description ?? '', 180),
                 ])->all();
 
-            $analysis = $scanner->analyze($file, $publishedPrograms);
+            $programs = collect($catalog->forScanner())->concat($publishedPrograms)->unique('title')->values()->all();
+            $analysis = $scanner->analyze($file, $programs, $validated['goal'] ?? '');
 
-            if ($user->hasRole(Role::Youth)
-                && in_array($analysis['documentType'] ?? 'other', ['resume', 'certificate'], true)) {
-                $profile = $user->youthProfile()->firstOrNew();
-                $profile->skills = $this->mergeProfileValues($profile->skills ?? [], $analysis['skills'] ?? []);
-                $profile->credentials = $this->mergeProfileValues($profile->credentials ?? [], $analysis['credentials'] ?? []);
-
-                if (! $profile->exists && ($profile->skills !== [] || $profile->credentials !== [])) {
-                    $profile->save();
-                } elseif ($profile->exists && ($analysis['skills'] !== [] || $analysis['credentials'] !== [])) {
-                    $profile->save();
-                }
+            if (! in_array($analysis['documentType'] ?? null, ['resume', 'certificate'], true)) {
+                return response()->json([
+                    'message' => 'This file is not a readable resume or certificate. Upload a resume or certificate to receive career and TESDA recommendations. Nothing was saved.',
+                    'errors' => ['file' => ['Only readable resumes and certificates are accepted.']],
+                ], 422);
             }
 
-            $scan->update([
-                'status' => 'done',
-                'progress' => 100,
-                'result' => $analysis,
-                'processed_at' => now(),
-            ]);
+            $scan = DB::transaction(function () use ($user, $file, $analysis): DocumentScan {
+                if ($user->hasRole(Role::Youth)
+                    && in_array($analysis['documentType'] ?? 'other', ['resume', 'certificate'], true)) {
+                    $profile = $user->youthProfile()->firstOrNew();
+                    $profile->skills = $this->mergeProfileValues($profile->skills ?? [], $analysis['skills'] ?? []);
+                    $profile->credentials = $this->mergeProfileValues($profile->credentials ?? [], $analysis['credentials'] ?? []);
+
+                    if (! $profile->exists && ($profile->skills !== [] || $profile->credentials !== [])) {
+                        $profile->save();
+                    } elseif ($profile->exists && ($analysis['skills'] !== [] || $analysis['credentials'] !== [])) {
+                        $profile->save();
+                    }
+                }
+
+                return $user->documentScans()->create([
+                    'doc_type' => $analysis['documentType'],
+                    'original_name' => mb_substr($file->getClientOriginalName(), 0, 255),
+                    'stored_path' => null,
+                    'mime' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'status' => 'done',
+                    'progress' => 100,
+                    'result' => $analysis,
+                    'processed_at' => now(),
+                ]);
+            });
         } catch (Throwable $exception) {
             report($exception);
             $failureMessage = $this->failureMessage($exception);
 
-            $scan->update([
-                'status' => 'failed',
-                'error' => $failureMessage,
-                'processed_at' => now(),
-            ]);
-
             return response()->json([
                 'message' => $failureMessage,
-                'document' => $this->presentDocument($scan),
             ], 502);
         } finally {
             Storage::disk('local')->delete($path);
-            $scan->update(['stored_path' => null]);
         }
 
         return response()->json([
@@ -134,9 +133,10 @@ class DocumentScanController extends Controller
 
         $previous = $exception->getPrevious();
 
-        if ($previous instanceof RequestException
-            && in_array($previous->response->status(), [502, 503, 504], true)) {
-            return 'Gemini 3.7 Flash is under high demand right now. Please wait a moment and try the scan again.';
+        if (in_array($exception->getCode(), [500, 502, 503, 504], true)
+            || ($previous instanceof RequestException
+                && in_array($previous->response->status(), [500, 502, 503, 504], true))) {
+            return 'Gemini is temporarily busy. Please try the scan again shortly.';
         }
 
         if ($previous instanceof ConnectionException) {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentScanController;
+use App\Http\Controllers\SkillsAssessmentController;
 use App\Http\Controllers\TesdaCatalogController;
 use App\Http\Controllers\YouthProfileController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    'role:super_admin,trainer,youth',
 ])->group(function () {
     Route::get('/dashboard', fn () => redirect()->route(auth()->user()->role->homeRoute()))
         ->name('dashboard');
@@ -48,6 +50,8 @@ Route::middleware([
 
     Route::middleware('role:youth')->prefix('youth')->name('youth.')->group(function () {
         Route::get('/', [DashboardController::class, 'youth'])->name('dashboard');
+        Route::get('/skills-assessment', [SkillsAssessmentController::class, 'index'])->name('assessment.index');
+        Route::post('/skills-assessment', [SkillsAssessmentController::class, 'store'])->name('assessment.store');
         Route::put('/profile', [YouthProfileController::class, 'update'])->name('profile.update');
     });
 });

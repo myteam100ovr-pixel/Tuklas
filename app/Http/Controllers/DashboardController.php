@@ -7,12 +7,15 @@ use App\Models\CareerPath;
 use App\Models\DocumentScan;
 use App\Models\TrainingProgram;
 use App\Models\User;
+use App\Services\TesdaQualificationCatalog;
 use App\Support\ProfileCompletion;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(private readonly TesdaQualificationCatalog $catalog) {}
+
     public function admin(): View
     {
         $since = now()->subDays(29)->startOfDay();
@@ -43,6 +46,7 @@ class DashboardController extends Controller
 
         return view('dashboard.show', [
             'title' => 'PESO Bugallon overview',
+            'nationalCatalog' => $this->catalog->all(),
             'stats' => [
                 $this->stat('Youth accounts', $youthTotal, $youthNew > 0 ? '+'.$youthNew : null, 'good', 'Last 30 days'),
                 $this->stat('Trainer accounts', $trainers, null, 'neutral', 'TESDA Lingayen'),
@@ -104,6 +108,7 @@ class DashboardController extends Controller
 
         return view('dashboard.show', [
             'title' => 'TESDA Lingayen overview',
+            'nationalCatalog' => $this->catalog->all(),
             'stats' => [
                 $this->stat('My programs', $total, null, 'neutral', 'All statuses'),
                 $this->stat('Published', $published, null, 'neutral', 'Visible to youth'),
@@ -183,9 +188,19 @@ class DashboardController extends Controller
             ->filter(fn ($recommendation): bool => is_array($recommendation))
             ->values()
             ->all();
+        $tesdaRecommendations = collect($latestAnalysis['tesdaRecommendations'] ?? [])
+            ->filter(fn ($recommendation): bool => is_string($recommendation) && trim($recommendation) !== '')
+            ->values();
+
+        if ($tesdaRecommendations->isEmpty()) {
+            $tesdaRecommendations = collect($latestAnalysis['tesda_training'] ?? [])
+                ->filter(fn ($recommendation): bool => is_string($recommendation) && trim($recommendation) !== '')
+                ->values();
+        }
 
         return view('dashboard.show', [
             'title' => 'Hi, '.explode(' ', trim($user->name))[0],
+            'nationalCatalog' => $this->catalog->all(),
             'stats' => [
                 $this->stat('Profile strength', $completion['percent'].'%', null, 'neutral', 'Complete it for better guidance'),
                 $this->stat('Documents scanned', $scanned, null, 'neutral', 'Resumes and certificates'),
@@ -195,7 +210,8 @@ class DashboardController extends Controller
                 'skills' => $user->youthProfile?->skills ?? [],
                 'credentials' => $user->youthProfile?->credentials ?? [],
                 'job_roles' => $careerMatches,
-                'tesda_training' => $latestAnalysis['tesda_training'] ?? [],
+                'tesda_training' => $tesdaRecommendations->all(),
+                'has_scan' => $scanned > 0,
                 'job_recommendations' => $jobRecommendations,
                 'skill_gaps' => $skillGaps,
                 'learning_recommendations' => $learningRecommendations,
@@ -231,15 +247,15 @@ class DashboardController extends Controller
                     Route::has('scanner.index')
                         ? $this->task('Scan a resume or certificate', $scanned.' scanned', 'Let Google Gemini suggest skills and credentials.', $scanned > 0, route('scanner.index'))
                         : null,
-                    $this->task('Take the skills assessment', 'Coming soon', 'Answer a short set of questions.', false),
+                    $this->task('Take the skills assessment', 'Self-assessment', 'Reflect on your skills and training interests.', false, route('youth.assessment.index')),
                     $this->task('See PESO job matches', $scanned.' documents scanned', 'View job suggestions based on your completed resume and certificate scans.', $scanned > 0, route('peso.index')),
                 ])),
             ],
             'actions' => $this->actions([
                 ['Edit profile', 'profile.show', 'user'],
                 ['Scanner', 'scanner.index', 'scan'],
-                ['Careers', 'youth.careers.index', 'briefcase'],
-                ['Trainings', 'youth.trainings.index', 'cap'],
+                ['Careers', 'peso.index', 'briefcase'],
+                ['Trainings', 'tesda.index', 'cap'],
             ]),
         ]);
     }

@@ -254,6 +254,7 @@ if (scanner) {
         const request = new XMLHttpRequest();
         const formData = new FormData();
         formData.append('file', file, file.name);
+        formData.append('goal', scanner.querySelector('[data-document-goal]')?.value.trim() ?? '');
 
         request.open('POST', scanner.dataset.uploadUrl);
         request.timeout = 260000;
@@ -335,6 +336,8 @@ if (scanner) {
         if (succeeded) {
             setProgress(100, 'Scan complete');
             setStatus('Document scanned. Review the insights.', 'success');
+        } else {
+            progress.hidden = true;
         }
         selectedFiles = [];
         input.value = '';

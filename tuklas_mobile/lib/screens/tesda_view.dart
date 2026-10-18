@@ -94,14 +94,9 @@ class _TesdaViewState extends State<TesdaView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'TESDA training and services',
-                      style: tkText(
-                        context,
-                        size: 27,
-                        weight: 500,
-                        spacing: -0.7,
-                      ),
+                    const TkPageHeading(
+                      eyebrow: 'LEARN WHAT COMES NEXT',
+                      title: 'TESDA training and services',
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -138,14 +133,14 @@ class _TesdaViewState extends State<TesdaView> {
                             runSpacing: 8,
                             children: [
                               for (final resource in resources)
-                                if ('${asMap(resource)['title']}'.startsWith('NC '))
+                                if ('${asMap(resource)['title']}'.startsWith(
+                                  'NC ',
+                                ))
                                   OutlinedButton(
                                     onPressed: () => _openResource(
                                       '${asMap(resource)['url']}',
                                     ),
-                                    child: Text(
-                                      '${asMap(resource)['title']}',
-                                    ),
+                                    child: Text('${asMap(resource)['title']}'),
                                   ),
                             ],
                           ),
@@ -162,11 +157,7 @@ class _TesdaViewState extends State<TesdaView> {
                               Expanded(
                                 child: Text(
                                   'TESDA Lingayen programs',
-                                  style: tkText(
-                                    context,
-                                    size: 17,
-                                    weight: 500,
-                                  ),
+                                  style: tkText(context, size: 17, weight: 500),
                                 ),
                               ),
                               TkChip(label: '$total published'),
@@ -237,7 +228,9 @@ class _TesdaViewState extends State<TesdaView> {
                           ),
                           const SizedBox(height: 8),
                           for (final resource in resources)
-                            if (!'${asMap(resource)['title']}'.startsWith('NC '))
+                            if (!'${asMap(resource)['title']}'.startsWith(
+                              'NC ',
+                            ))
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 title: Text(
@@ -248,9 +241,8 @@ class _TesdaViewState extends State<TesdaView> {
                                   Icons.open_in_new,
                                   size: 18,
                                 ),
-                                onTap: () => _openResource(
-                                  '${asMap(resource)['url']}',
-                                ),
+                                onTap: () =>
+                                    _openResource('${asMap(resource)['url']}'),
                               ),
                           const SizedBox(height: 4),
                           Text(
@@ -320,12 +312,7 @@ class _TesdaViewState extends State<TesdaView> {
             const SizedBox(height: 6),
             Text(
               '${program['description']}',
-              style: tkText(
-                context,
-                size: 13,
-                color: colors.ink2,
-                height: 1.4,
-              ),
+              style: tkText(context, size: 13, color: colors.ink2, height: 1.4),
             ),
           ],
           if (duration != null || program['schedule_note'] != null) ...[

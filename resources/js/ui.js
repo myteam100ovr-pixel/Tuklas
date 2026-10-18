@@ -1,4 +1,5 @@
 import './theme.js';
+import './tesda-catalog.js';
 import './career-chat.js';
 import './auth-carousel.js';
 
@@ -38,4 +39,16 @@ if (dob && guardian) {
     update();
 }
 
-document.querySelector('.tk-tab.is-active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+const workspaceTabs = document.querySelector('.tk-tabs--workspace');
+if (workspaceTabs) {
+    const revealActiveTab = () => {
+        const activeTab = workspaceTabs.querySelector('.tk-tab.is-active');
+        if (!activeTab || workspaceTabs.scrollWidth <= workspaceTabs.clientWidth) return;
+        const tabBounds = activeTab.getBoundingClientRect();
+        const navBounds = workspaceTabs.getBoundingClientRect();
+        workspaceTabs.scrollLeft += tabBounds.left - navBounds.left
+            - (workspaceTabs.clientWidth - tabBounds.width) / 2;
+    };
+    document.fonts.ready.then(revealActiveTab);
+    window.addEventListener('resize', revealActiveTab);
+}

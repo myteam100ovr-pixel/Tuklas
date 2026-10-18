@@ -20,6 +20,15 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        if (array_key_exists('first_name', $input) || array_key_exists('last_name', $input) || ! array_key_exists('name', $input)) {
+            $names = Validator::make($input, [
+                'first_name' => ['required', 'string', 'max:127'],
+                'last_name' => ['required', 'string', 'max:127'],
+            ])->validate();
+
+            $input['name'] = trim($names['first_name']).' '.trim($names['last_name']);
+        }
+
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -29,6 +38,8 @@ class CreateNewUser implements CreatesNewUsers
 
         return User::forceCreate([
             'name' => $input['name'],
+            'first_name' => isset($names) ? trim($names['first_name']) : null,
+            'last_name' => isset($names) ? trim($names['last_name']) : null,
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
             'role' => Role::Youth->value,

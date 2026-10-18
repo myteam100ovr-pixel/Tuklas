@@ -52,12 +52,19 @@
             </div>
         @endif
 
-        <!-- Name -->
-        <div class="col-span-6 sm:col-span-4">
-            <x-label for="name" value="{{ __('Name') }}" />
-            <x-input id="name" type="text" class="mt-1 block w-full" wire:model="state.name" required autocomplete="name" />
-            <x-input-error for="name" class="mt-2" />
+        <div class="field-row">
+            <div>
+                <x-label for="first_name" value="{{ __('First Name') }}" />
+                <x-input id="first_name" type="text" class="mt-1 block w-full" wire:model="state.first_name" required maxlength="127" autocomplete="given-name" />
+                <x-input-error for="first_name" class="mt-2" />
+            </div>
+            <div>
+                <x-label for="last_name" value="{{ __('Last Name') }}" />
+                <x-input id="last_name" type="text" class="mt-1 block w-full" wire:model="state.last_name" required maxlength="127" autocomplete="family-name" />
+                <x-input-error for="last_name" class="mt-2" />
+            </div>
         </div>
+        <p class="hint">Include all your given names in First Name and your complete family name in Last Name. Please check these fields if your account previously used a full name.</p>
 
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">

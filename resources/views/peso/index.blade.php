@@ -1,15 +1,7 @@
 <x-app-layout>
-    <header class="dash-title">
-        <h1>PESO job matches</h1>
-        <p>
-            @if ($isPESOAdmin)
-                Review AI career suggestions from youth resume and certificate scans.
-            @else
-                Review job suggestions based on your completed resume and certificate scans.
-            @endif
-        </p>
-    </header>
-
+    <div class="suite-page suite-peso">
+    <x-workspace-heading eyebrow="PESO · CAREER EXPLORATION" title="See where your skills could lead" :description="$isPESOAdmin ? 'Explore career suggestions grounded in youth resumes and certificates.' : 'Connect your experience to possible roles. Understand the evidence behind each suggestion and choose a practical next step.'" />
+    <div class="suite-split">
     <section class="card peso-matches" aria-labelledby="peso-matches-title">
         <div class="card-head">
             <h2 id="peso-matches-title">{{ $isPESOAdmin ? 'Youth job matches' : 'Your job matches' }}</h2>
@@ -55,6 +47,8 @@
 
                                     @if (is_string($recommendation['evidence'] ?? null) && filled($recommendation['evidence']))
                                         <p><strong>Relevant skills or credentials:</strong> {{ $recommendation['evidence'] }}</p>
+                                    @elseif (is_array($recommendation['evidence'] ?? null))
+                                        <ul class="suite-evidence">@foreach ($recommendation['evidence'] as $evidence)@if (is_string($evidence))<li>{{ $evidence }}</li>@endif @endforeach</ul>
                                     @endif
                                 </section>
                             @endforeach
@@ -90,4 +84,7 @@
             </div>
         @endif
     </section>
+    <aside class="suite-aside"><section class="suite-note"><span class="workspace-eyebrow">FROM POSSIBILITY TO PRACTICE</span><h2>Make your next move.</h2><p>Use your matches as a starting point. Compare the role’s requirements, build a missing skill, and confirm actual openings with PESO or the employer.</p><a href="{{ route('tesda.index') }}">Explore TESDA training ↗</a><a href="{{ route('scanner.index') }}">Add new document evidence ↗</a></section><x-career-chat /></aside>
+    </div>
+    </div>
 </x-app-layout>

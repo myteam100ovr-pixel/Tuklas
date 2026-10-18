@@ -6,6 +6,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Throwable;
 
 class GeminiCareerAssistant
 {
@@ -96,6 +97,13 @@ class GeminiCareerAssistant
                 $candidateResponse = Http::withHeaders(['x-goog-api-key' => $apiKey])
                     ->connectTimeout(10)
                     ->timeout(45)
+                    ->retry(
+                        3,
+                        fn (int $attempt, Throwable $exception): int => (1000 * (2 ** ($attempt - 1))) + random_int(0, 500),
+                        fn (Throwable $exception): bool => $exception instanceof RequestException
+                            && in_array($exception->response->status(), [500, 502, 503, 504], true),
+                        throw: false,
+                    )
                     ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($candidate).':generateContent', $requestBody);
 
                 if ($candidateResponse->successful()) {
@@ -117,7 +125,7 @@ class GeminiCareerAssistant
             } catch (ConnectionException $exception) {
                 $lastException = $exception;
             } catch (RequestException $exception) {
-                throw new RuntimeException('Gemini could not reply.', previous: $exception);
+                throw new RuntimeException('Gemini could not reply.', code: $exception->response->status(), previous: $exception);
             }
         }
 

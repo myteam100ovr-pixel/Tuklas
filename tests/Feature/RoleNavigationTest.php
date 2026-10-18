@@ -71,6 +71,49 @@ class RoleNavigationTest extends TestCase
             ->assertSee('Community Health Worker');
     }
 
+    public function test_youth_dashboard_shows_ai_tesda_recommendations_from_latest_scan(): void
+    {
+        $youth = User::factory()->create();
+        $youth->role = Role::Youth;
+        $youth->is_active = true;
+        $youth->email_verified_at = now();
+        $youth->save();
+
+        DocumentScan::factory()->for($youth)->create([
+            'result' => [
+                'tesdaRecommendations' => [
+                    'Cookery (NC II) — Could fit because your certificate shows food preparation; builds kitchen skills.',
+                ],
+            ],
+        ]);
+
+        $this->actingAs($youth)
+            ->get(route('youth.dashboard'))
+            ->assertOk()
+            ->assertSee('AI TESDA recommendations')
+            ->assertSee('Cookery (NC II)')
+            ->assertDontSee('No TESDA qualification was saved with your latest scan.');
+    }
+
+    public function test_youth_dashboard_explains_when_latest_scan_has_no_tesda_match(): void
+    {
+        $youth = User::factory()->create();
+        $youth->role = Role::Youth;
+        $youth->is_active = true;
+        $youth->email_verified_at = now();
+        $youth->save();
+
+        DocumentScan::factory()->for($youth)->create([
+            'result' => ['tesdaRecommendations' => []],
+        ]);
+
+        $this->actingAs($youth)
+            ->get(route('youth.dashboard'))
+            ->assertOk()
+            ->assertSee('No TESDA qualification was saved with your latest scan.')
+            ->assertDontSee('Scan a resume or certificate to get AI TESDA recommendations based on your documented skills.');
+    }
+
     public function test_youth_overview_shows_skill_gaps_and_open_learning_resources_from_their_scan(): void
     {
         $youth = User::factory()->create();

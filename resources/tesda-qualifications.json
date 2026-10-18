@@ -1,0 +1,3031 @@
+{
+    "fetched_at": "2026-10-13T14:24:52+00:00",
+    "source": "https://www.tesda.gov.ph/Download/Training_Regulations",
+    "pages": 39,
+    "qualifications": [
+        {
+            "id": "123",
+            "title": "2D Animation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=2D+Animation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=2D+Animation+NC+III&SearchLoc="
+        },
+        {
+            "id": "1838",
+            "title": "2D Animation NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=2D+Animation+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=2D+Animation+NC+III&SearchLoc="
+        },
+        {
+            "id": "464",
+            "title": "2D Game Art Development NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=2D+Game+Art+Development+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=2D+Game+Art+Development+NC+III&SearchLoc="
+        },
+        {
+            "id": "251",
+            "title": "3D Animation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=3D+Animation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=3D+Animation+NC+III&SearchLoc="
+        },
+        {
+            "id": "1839",
+            "title": "3D Animation NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=3D+Animation+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=3D+Animation+NC+III&SearchLoc="
+        },
+        {
+            "id": "477",
+            "title": "3D Game Art Development NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=3D+Game+Art+Development+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=3D+Game+Art+Development+NC+III&SearchLoc="
+        },
+        {
+            "id": "1901",
+            "title": "5-Axis CNC Machine Operation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=5-Axis+CNC+Machine+Operation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=5-Axis+CNC+Machine+Operation+NC+III&SearchLoc="
+        },
+        {
+            "id": "727",
+            "title": "Able Seafarer Deck NC II (II-5)",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Able+Seafarer+Deck+NC+II+%28II-5%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Able+Seafarer+Deck+NC+II+%28II-5%29&SearchLoc="
+        },
+        {
+            "id": "728",
+            "title": "Able Seafarer Engine NC II (III-5)",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Able+Seafarer+Engine+NC+II+%28III-5%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Able+Seafarer+Engine+NC+II+%28III-5%29&SearchLoc="
+        },
+        {
+            "id": "49",
+            "title": "Agricultural Crops Production NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agricultural+Crops+Production+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agricultural+Crops+Production+NC+I&SearchLoc="
+        },
+        {
+            "id": "766",
+            "title": "Agricultural Crops Production NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agricultural+Crops+Production+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agricultural+Crops+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "115",
+            "title": "Agricultural Crops Production NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agricultural+Crops+Production+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agricultural+Crops+Production+NC+III&SearchLoc="
+        },
+        {
+            "id": "1787",
+            "title": "Agricultural Machinery Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agricultural+Machinery+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agricultural+Machinery+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "1881",
+            "title": "Agricultural Machinery Servicing (4-Wheel Tractor) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agricultural+Machinery+Servicing+%284-Wheel+Tractor%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agricultural+Machinery+Servicing+%284-Wheel+Tractor%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "1793",
+            "title": "Agroentrepreneurship NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agroentrepreneurship+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agroentrepreneurship+NC+II&SearchLoc="
+        },
+        {
+            "id": "1794",
+            "title": "Agroentrepreneurship NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agroentrepreneurship+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agroentrepreneurship+NC+III&SearchLoc="
+        },
+        {
+            "id": "1795",
+            "title": "Agroentrepreneurship NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Agroentrepreneurship+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Agroentrepreneurship+NC+IV&SearchLoc="
+        },
+        {
+            "id": "210",
+            "title": "Air Duct Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Air+Duct+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Air+Duct+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "250",
+            "title": "Animal Health Care and Management NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Animal+Health+Care+and+Management+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Animal+Health+Care+and+Management+NC+III&SearchLoc="
+        },
+        {
+            "id": "769",
+            "title": "Animal Production (Poultry-Chicken) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Animal+Production+%28Poultry-Chicken%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Animal+Production+%28Poultry-Chicken%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "768",
+            "title": "Animal Production (Ruminants) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Animal+Production+%28Ruminants%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Animal+Production+%28Ruminants%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "767",
+            "title": "Animal Production (Swine) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Animal+Production+%28Swine%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Animal+Production+%28Swine%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "38",
+            "title": "Animation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Animation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Animation+NC+II&SearchLoc="
+        },
+        {
+            "id": "1840",
+            "title": "Animation NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Animation+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Animation+NC+II&SearchLoc="
+        },
+        {
+            "id": "2241",
+            "title": "Aquaculture (Grow-Out Operation) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Aquaculture+%28Grow-Out+Operation%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Aquaculture+%28Grow-Out+Operation%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2247",
+            "title": "Aquaculture (Hatchery Operation) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Aquaculture+%28Hatchery+Operation%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Aquaculture+%28Hatchery+Operation%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2240",
+            "title": "Aquaculture (Tilapia Culture) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Aquaculture+%28Tilapia+Culture%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Aquaculture+%28Tilapia+Culture%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "11",
+            "title": "Aquaculture NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Aquaculture+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Aquaculture+NC+II&SearchLoc="
+        },
+        {
+            "id": "465",
+            "title": "Artificial Insemination (Large Ruminants) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Artificial+Insemination+%28Large+Ruminants%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Artificial+Insemination+%28Large+Ruminants%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "466",
+            "title": "Artificial Insemination (Swine) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Artificial+Insemination+%28Swine%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Artificial+Insemination+%28Swine%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2390",
+            "title": "Assistive Rehabilitation Technology Services (Orthotics) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Assistive+Rehabilitation+Technology+Services+%28Orthotics%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Assistive+Rehabilitation+Technology+Services+%28Orthotics%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2389",
+            "title": "Assistive Rehabilitation Technology Services (Prosthetics) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Assistive+Rehabilitation+Technology+Services+%28Prosthetics%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Assistive+Rehabilitation+Technology+Services+%28Prosthetics%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2391",
+            "title": "Assistive Rehabilitation Technology Services (Wheelchair) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Assistive+Rehabilitation+Technology+Services+%28Wheelchair%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Assistive+Rehabilitation+Technology+Services+%28Wheelchair%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "245",
+            "title": "Attractions and Theme Parks Operations NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Attractions+and+Theme+Parks+Operations+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Attractions+and+Theme+Parks+Operations+NC+II&SearchLoc="
+        },
+        {
+            "id": "2230",
+            "title": "Audio Production Services NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Audio+Production+Services+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Audio+Production+Services+NC+I&SearchLoc="
+        },
+        {
+            "id": "25",
+            "title": "Auto Engine Rebuilding NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Auto+Engine+Rebuilding+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Auto+Engine+Rebuilding+NC+II&SearchLoc="
+        },
+        {
+            "id": "24",
+            "title": "Automotive Body Painting/Finishing NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Body+Painting%2FFinishing+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Body+Painting%2FFinishing+NC+I&SearchLoc="
+        },
+        {
+            "id": "185",
+            "title": "Automotive Body Painting/Finishing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Body+Painting%2FFinishing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Body+Painting%2FFinishing+NC+III&SearchLoc="
+        },
+        {
+            "id": "2254",
+            "title": "Automotive Body Repairing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Body+Repairing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Body+Repairing+NC+II&SearchLoc="
+        },
+        {
+            "id": "2790",
+            "title": "Automotive Diagnosis (Chassis) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Diagnosis+%28Chassis%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Diagnosis+%28Chassis%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2791",
+            "title": "Automotive Diagnosis (Electrical) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Diagnosis+%28Electrical%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Diagnosis+%28Electrical%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2792",
+            "title": "Automotive Diagnosis (Engine) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Diagnosis+%28Engine%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Diagnosis+%28Engine%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "384",
+            "title": "Automotive Electrical Assembly NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Electrical+Assembly+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Electrical+Assembly+NC+II&SearchLoc="
+        },
+        {
+            "id": "279",
+            "title": "Automotive Electrical Assembly NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Electrical+Assembly+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Electrical+Assembly+NC+III&SearchLoc="
+        },
+        {
+            "id": "385",
+            "title": "Automotive Mechanical Assembly NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Mechanical+Assembly+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Mechanical+Assembly+NC+II&SearchLoc="
+        },
+        {
+            "id": "365",
+            "title": "Automotive Mechanical Assembly NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Mechanical+Assembly+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Mechanical+Assembly+NC+III&SearchLoc="
+        },
+        {
+            "id": "2255",
+            "title": "Automotive Painting NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Painting+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Painting+NC+II&SearchLoc="
+        },
+        {
+            "id": "2248",
+            "title": "Automotive Servicing (Chassis Repair) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+%28Chassis+Repair%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+%28Chassis+Repair%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2249",
+            "title": "Automotive Servicing (Electrical Repair) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+%28Electrical+Repair%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+%28Electrical+Repair%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2250",
+            "title": "Automotive Servicing (Engine Repair) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+%28Engine+Repair%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+%28Engine+Repair%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "186",
+            "title": "Automotive Servicing NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+NC+I&SearchLoc="
+        },
+        {
+            "id": "1850",
+            "title": "Automotive Servicing NC I (Superseded)",
+            "nc_level": "NC I",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+NC+I+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+NC+I&SearchLoc="
+        },
+        {
+            "id": "27",
+            "title": "Automotive Servicing NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "418",
+            "title": "Automotive Servicing NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "116",
+            "title": "Automotive Servicing NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Servicing+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Servicing+NC+IV&SearchLoc="
+        },
+        {
+            "id": "301",
+            "title": "Automotive Wiring Harness Assembly NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Automotive+Wiring+Harness+Assembly+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Automotive+Wiring+Harness+Assembly+NC+II&SearchLoc="
+        },
+        {
+            "id": "1882",
+            "title": "Bamboo Processing (Engineered-Bamboo) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Bamboo+Processing+%28Engineered-Bamboo%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Bamboo+Processing+%28Engineered-Bamboo%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "1833",
+            "title": "Bamboo Production NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Bamboo+Production+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Bamboo+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "1886",
+            "title": "Barangay Health Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Barangay+Health+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Barangay+Health+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "1887",
+            "title": "Barangay Health Services NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Barangay+Health+Services+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Barangay+Health+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "447",
+            "title": "Barbering NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Barbering+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Barbering+NC+II&SearchLoc="
+        },
+        {
+            "id": "2393",
+            "title": "Barbering NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Barbering+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Barbering+NC+II&SearchLoc="
+        },
+        {
+            "id": "739",
+            "title": "Barista NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Barista+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Barista+NC+II&SearchLoc="
+        },
+        {
+            "id": "28",
+            "title": "Bartending NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Bartending+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Bartending+NC+II&SearchLoc="
+        },
+        {
+            "id": "457",
+            "title": "Beauty Care (Nail Care) Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beauty+Care+%28Nail+Care%29+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beauty+Care+%28Nail+Care%29+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "2242",
+            "title": "Beauty Care (Nail Enhancement Technology) Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beauty+Care+%28Nail+Enhancement+Technology%29+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beauty+Care+%28Nail+Enhancement+Technology%29+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "51",
+            "title": "Beauty Care (Skin Care) Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beauty+Care+%28Skin+Care%29+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beauty+Care+%28Skin+Care%29+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "1896",
+            "title": "Beauty Care NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beauty+Care+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beauty+Care+NC+II&SearchLoc="
+        },
+        {
+            "id": "52",
+            "title": "Beauty Care NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beauty+Care+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beauty+Care+NC+III&SearchLoc="
+        },
+        {
+            "id": "2411",
+            "title": "Beauty Care Services (Nail Care) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beauty+Care+Services+%28Nail+Care%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beauty+Care+Services+%28Nail+Care%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "458",
+            "title": "Beauty Care Services (Nail Care) NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beauty+Care+Services+%28Nail+Care%29+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beauty+Care+Services+%28Nail+Care%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2252",
+            "title": "Beekeeping NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Beekeeping+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Beekeeping+NC+II&SearchLoc="
+        },
+        {
+            "id": "2225",
+            "title": "Biogas Plant Installation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Biogas+Plant+Installation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Biogas+Plant+Installation+NC+III&SearchLoc="
+        },
+        {
+            "id": "119",
+            "title": "Biomedical Equipment Servicing NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Biomedical+Equipment+Servicing+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Biomedical+Equipment+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "242",
+            "title": "Bookkeeping NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Bookkeeping+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Bookkeeping+NC+III&SearchLoc="
+        },
+        {
+            "id": "306",
+            "title": "Bread and Pastry Production NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Bread+and+Pastry+Production+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Bread+and+Pastry+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "414",
+            "title": "Broadband Installation (Fixed Wireless Systems) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Broadband+Installation+%28Fixed+Wireless+Systems%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Broadband+Installation+%28Fixed+Wireless+Systems%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "244",
+            "title": "Cable TV Installation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Cable+TV+Installation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Cable+TV+Installation+NC+II&SearchLoc="
+        },
+        {
+            "id": "387",
+            "title": "Cable TV Operation and Maintenance NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Cable+TV+Operation+and+Maintenance+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Cable+TV+Operation+and+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "307",
+            "title": "CAD/CAM Operation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=CAD%2FCAM+Operation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=CAD%2FCAM+Operation+NC+III&SearchLoc="
+        },
+        {
+            "id": "2243",
+            "title": "Caregiving (Clients with Special Needs) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Caregiving+%28Clients+with+Special+Needs%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Caregiving+%28Clients+with+Special+Needs%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2244",
+            "title": "Caregiving (Elderly) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Caregiving+%28Elderly%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Caregiving+%28Elderly%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2245",
+            "title": "Caregiving (Grade Schooler to Adolescent) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Caregiving+%28Grade+Schooler+to+Adolescent%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Caregiving+%28Grade+Schooler+to+Adolescent%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2246",
+            "title": "Caregiving (Newborn to Pre-Schooler) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Caregiving+%28Newborn+to+Pre-Schooler%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Caregiving+%28Newborn+to+Pre-Schooler%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "252",
+            "title": "Caregiving NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Caregiving+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Caregiving+NC+II&SearchLoc="
+        },
+        {
+            "id": "29",
+            "title": "Carpentry NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Carpentry+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Carpentry+NC+II&SearchLoc="
+        },
+        {
+            "id": "1871",
+            "title": "Carpentry NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Carpentry+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Carpentry+NC+II&SearchLoc="
+        },
+        {
+            "id": "187",
+            "title": "Carpentry NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Carpentry+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Carpentry+NC+III&SearchLoc="
+        },
+        {
+            "id": "1872",
+            "title": "Carpentry NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Carpentry+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Carpentry+NC+III&SearchLoc="
+        },
+        {
+            "id": "1788",
+            "title": "Chemical Process Operations NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Chemical+Process+Operations+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Chemical+Process+Operations+NC+III&SearchLoc="
+        },
+        {
+            "id": "1900",
+            "title": "CNC Electric Discharge Machine (EDM) Wire Cut Operation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=CNC+Electric+Discharge+Machine+%28EDM%29+Wire+Cut+Operation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=CNC+Electric+Discharge+Machine+%28EDM%29+Wire+Cut+Operation+NC+III&SearchLoc="
+        },
+        {
+            "id": "308",
+            "title": "CNC Lathe Machine Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=CNC+Lathe+Machine+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=CNC+Lathe+Machine+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "309",
+            "title": "CNC Lathe Machine Operation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=CNC+Lathe+Machine+Operation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=CNC+Lathe+Machine+Operation+NC+III&SearchLoc="
+        },
+        {
+            "id": "50",
+            "title": "CNC Milling Machine Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=CNC+Milling+Machine+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=CNC+Milling+Machine+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "310",
+            "title": "CNC Milling Machine Operation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=CNC+Milling+Machine+Operation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=CNC+Milling+Machine+Operation+NC+III&SearchLoc="
+        },
+        {
+            "id": "2445",
+            "title": "Commercial Air-conditioning Installation and Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Commercial+Air-conditioning+Installation+and+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Commercial+Air-conditioning+Installation+and+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "253",
+            "title": "Commercial Cooking NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Commercial+Cooking+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Commercial+Cooking+NC+III&SearchLoc="
+        },
+        {
+            "id": "254",
+            "title": "Commercial Cooking NC IV (Superseded)",
+            "nc_level": "NC IV",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Commercial+Cooking+NC+IV+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Commercial+Cooking+NC+IV&SearchLoc="
+        },
+        {
+            "id": "2444",
+            "title": "Commercial Refrigeration Installation and Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Commercial+Refrigeration+Installation+and+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Commercial+Refrigeration+Installation+and+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "2517",
+            "title": "Community Nutrition Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Community+Nutrition+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Community+Nutrition+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "763",
+            "title": "Computer Systems Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Computer+Systems+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Computer+Systems+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "467",
+            "title": "Construction Lift Passenger/Material Elevator Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Construction+Lift+Passenger%2FMaterial+Elevator+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Construction+Lift+Passenger%2FMaterial+Elevator+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "188",
+            "title": "Construction Painting NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Construction+Painting+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Construction+Painting+NC+II&SearchLoc="
+        },
+        {
+            "id": "180",
+            "title": "Construction Painting NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Construction+Painting+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Construction+Painting+NC+III&SearchLoc="
+        },
+        {
+            "id": "193",
+            "title": "Consumer Electronics Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Consumer+Electronics+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Consumer+Electronics+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "153",
+            "title": "Consumer Electronics Servicing NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Consumer+Electronics+Servicing+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Consumer+Electronics+Servicing+NC+IV&SearchLoc="
+        },
+        {
+            "id": "196",
+            "title": "Contact Center Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Contact+Center+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Contact+Center+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "2441",
+            "title": "Contact Tracing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Contact+Tracing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Contact+Tracing+NC+II&SearchLoc="
+        },
+        {
+            "id": "30",
+            "title": "Cookery NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Cookery+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Cookery+NC+II&SearchLoc="
+        },
+        {
+            "id": "411",
+            "title": "Customer Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Customer+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Customer+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "2789",
+            "title": "Cyber Threat Mitigation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Cyber+Threat+Mitigation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Cyber+Threat+Mitigation+NC+II&SearchLoc="
+        },
+        {
+            "id": "2788",
+            "title": "Cyber Threat Monitoring NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Cyber+Threat+Monitoring+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Cyber+Threat+Monitoring+NC+I&SearchLoc="
+        },
+        {
+            "id": "439",
+            "title": "Dental Laboratory Technology Services (Fixed Dentures/Restorations) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Dental+Laboratory+Technology+Services+%28Fixed+Dentures%2FRestorations%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Dental+Laboratory+Technology+Services+%28Fixed+Dentures%2FRestorations%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "436",
+            "title": "Dental Laboratory Technology Services (Removable Dentures/Appliances) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Dental+Laboratory+Technology+Services+%28Removable+Dentures%2FAppliances%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Dental+Laboratory+Technology+Services+%28Removable+Dentures%2FAppliances%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "290",
+            "title": "Dental Laboratory Technology Services NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Dental+Laboratory+Technology+Services+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Dental+Laboratory+Technology+Services+NC+I&SearchLoc="
+        },
+        {
+            "id": "441",
+            "title": "Dental Technology NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Dental+Technology+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Dental+Technology+NC+IV&SearchLoc="
+        },
+        {
+            "id": "1898",
+            "title": "Die Designing NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Die+Designing+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Die+Designing+NC+IV&SearchLoc="
+        },
+        {
+            "id": "415",
+            "title": "Diesel Power Plant Maintenance NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Diesel+Power+Plant+Maintenance+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Diesel+Power+Plant+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "416",
+            "title": "Diesel Power Plant Operation and Maintenance NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Diesel+Power+Plant+Operation+and+Maintenance+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Diesel+Power+Plant+Operation+and+Maintenance+NC+II&SearchLoc="
+        },
+        {
+            "id": "417",
+            "title": "Diesel Power Plant Operation and Maintenance NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Diesel+Power+Plant+Operation+and+Maintenance+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Diesel+Power+Plant+Operation+and+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "2458",
+            "title": "Domestic Work NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Domestic+Work+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Domestic+Work+NC+II&SearchLoc="
+        },
+        {
+            "id": "82",
+            "title": "Domestic Work NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Domestic+Work+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Domestic+Work+NC+II&SearchLoc="
+        },
+        {
+            "id": "33",
+            "title": "Dressmaking NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Dressmaking+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Dressmaking+NC+II&SearchLoc="
+        },
+        {
+            "id": "53",
+            "title": "Driving (Articulated Vehicle) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Driving+%28Articulated+Vehicle%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Driving+%28Articulated+Vehicle%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "446",
+            "title": "Driving (Passenger Bus/Straight Truck) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Driving+%28Passenger+Bus%2FStraight+Truck%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Driving+%28Passenger+Bus%2FStraight+Truck%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "34",
+            "title": "Driving NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Driving+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Driving+NC+II&SearchLoc="
+        },
+        {
+            "id": "1796",
+            "title": "Drying and Milling Plant Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Drying+and+Milling+Plant+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Drying+and+Milling+Plant+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "2693",
+            "title": "Early Childhood Care and Development Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Early+Childhood+Care+and+Development+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Early+Childhood+Care+and+Development+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "412",
+            "title": "Electrical Installation and Maintenance NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electrical+Installation+and+Maintenance+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electrical+Installation+and+Maintenance+NC+II&SearchLoc="
+        },
+        {
+            "id": "366",
+            "title": "Electrical Installation and Maintenance NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electrical+Installation+and+Maintenance+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electrical+Installation+and+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "407",
+            "title": "Electrical Installation and Maintenance NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electrical+Installation+and+Maintenance+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electrical+Installation+and+Maintenance+NC+IV&SearchLoc="
+        },
+        {
+            "id": "1902",
+            "title": "Electric Discharge Machine (EDM) Sinking Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electric+Discharge+Machine+%28EDM%29+Sinking+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electric+Discharge+Machine+%28EDM%29+Sinking+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "1852",
+            "title": "Electric Power Distribution Line Construction NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electric+Power+Distribution+Line+Construction+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electric+Power+Distribution+Line+Construction+NC+II&SearchLoc="
+        },
+        {
+            "id": "1853",
+            "title": "Electric Power Distribution Operation and Maintenance NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electric+Power+Distribution+Operation+and+Maintenance+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electric+Power+Distribution+Operation+and+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "1854",
+            "title": "Electric Power Distribution Operation and Maintenance NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electric+Power+Distribution+Operation+and+Maintenance+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electric+Power+Distribution+Operation+and+Maintenance+NC+IV&SearchLoc="
+        },
+        {
+            "id": "764",
+            "title": "Electronic Products Assembly and Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electronic+Products+Assembly+and+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electronic+Products+Assembly+and+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "1834",
+            "title": "Electronics/Semiconductor Production Line Machine Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electronics%2FSemiconductor+Production+Line+Machine+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electronics%2FSemiconductor+Production+Line+Machine+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "1778",
+            "title": "Electronics Back-end Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electronics+Back-end+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electronics+Back-end+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "1779",
+            "title": "Electronics Front-of-line Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Electronics+Front-of-line+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Electronics+Front-of-line+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "205",
+            "title": "Emergency Medical Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Emergency+Medical+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Emergency+Medical+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "2256",
+            "title": "Emergency Medical Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Emergency+Medical+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Emergency+Medical+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "246",
+            "title": "Events Management Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Events+Management+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Events+Management+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "459",
+            "title": "Fashion Design (Apparel) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Fashion+Design+%28Apparel%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Fashion+Design+%28Apparel%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2392",
+            "title": "Film and Video Postproduction NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Film+and+Video+Postproduction+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Film+and+Video+Postproduction+NC+III&SearchLoc="
+        },
+        {
+            "id": "54",
+            "title": "Fish Capture NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Fish+Capture+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Fish+Capture+NC+I&SearchLoc="
+        },
+        {
+            "id": "23",
+            "title": "Fish Capture NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Fish+Capture+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Fish+Capture+NC+II&SearchLoc="
+        },
+        {
+            "id": "258",
+            "title": "Fishing Gear Repair and Maintenance NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Fishing+Gear+Repair+and+Maintenance+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Fishing+Gear+Repair+and+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "233",
+            "title": "Fishport/Wharf Operation NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Fishport%2FWharf+Operation+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Fishport%2FWharf+Operation+NC+I&SearchLoc="
+        },
+        {
+            "id": "257",
+            "title": "Fish Products Packaging NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Fish+Products+Packaging+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Fish+Products+Packaging+NC+II&SearchLoc="
+        },
+        {
+            "id": "128",
+            "title": "Flux-Cored Arc Welding (FCAW) NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Flux-Cored+Arc+Welding+%28FCAW%29+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Flux-Cored+Arc+Welding+%28FCAW%29+NC+I&SearchLoc="
+        },
+        {
+            "id": "219",
+            "title": "Flux-Cored Arc Welding (FCAW) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Flux-Cored+Arc+Welding+%28FCAW%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Flux-Cored+Arc+Welding+%28FCAW%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "206",
+            "title": "Flux-Cored Arc Welding (FCAW) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Flux-Cored+Arc+Welding+%28FCAW%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Flux-Cored+Arc+Welding+%28FCAW%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2794",
+            "title": "Food and Beverage Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+and+Beverage+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+and+Beverage+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "35",
+            "title": "Food and Beverage Services NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+and+Beverage+Services+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+and+Beverage+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "69",
+            "title": "Food and Beverage Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+and+Beverage+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+and+Beverage+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "1873",
+            "title": "Food and Beverage Services NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+and+Beverage+Services+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+and+Beverage+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "256",
+            "title": "Food and Beverage Services NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+and+Beverage+Services+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+and+Beverage+Services+NC+IV&SearchLoc="
+        },
+        {
+            "id": "1874",
+            "title": "Food and Beverage Services NC IV (Superseded)",
+            "nc_level": "NC IV",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+and+Beverage+Services+NC+IV+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+and+Beverage+Services+NC+IV&SearchLoc="
+        },
+        {
+            "id": "2396",
+            "title": "Food Processing NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Processing+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Processing+NC+I&SearchLoc="
+        },
+        {
+            "id": "381",
+            "title": "Food Processing NC I (Superseded)",
+            "nc_level": "NC I",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Processing+NC+I+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Processing+NC+I&SearchLoc="
+        },
+        {
+            "id": "2450",
+            "title": "Food Processing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Processing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Processing+NC+II&SearchLoc="
+        },
+        {
+            "id": "2453",
+            "title": "Food Processing NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Processing+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Processing+NC+II&SearchLoc="
+        },
+        {
+            "id": "199",
+            "title": "Food Processing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Processing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Processing+NC+III&SearchLoc="
+        },
+        {
+            "id": "382",
+            "title": "Food Processing NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Processing+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Processing+NC+IV&SearchLoc="
+        },
+        {
+            "id": "2795",
+            "title": "Food Production (Bread and Patisserie) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Production+%28Bread+and+Patisserie%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Production+%28Bread+and+Patisserie%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2227",
+            "title": "Food Production (Professional Cookery) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Production+%28Professional+Cookery%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Production+%28Professional+Cookery%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2228",
+            "title": "Food Production (Professional Cookery) NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Food+Production+%28Professional+Cookery%29+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Food+Production+%28Professional+Cookery%29+NC+IV&SearchLoc="
+        },
+        {
+            "id": "64",
+            "title": "Footwear Making NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Footwear+Making+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Footwear+Making+NC+II&SearchLoc="
+        },
+        {
+            "id": "304",
+            "title": "Forging NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Forging+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Forging+NC+II&SearchLoc="
+        },
+        {
+            "id": "305",
+            "title": "Forging NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Forging+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Forging+NC+III&SearchLoc="
+        },
+        {
+            "id": "234",
+            "title": "Foundry Melting/Casting NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Foundry+Melting%2FCasting+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Foundry+Melting%2FCasting+NC+II&SearchLoc="
+        },
+        {
+            "id": "367",
+            "title": "Foundry Melting/Casting NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Foundry+Melting%2FCasting+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Foundry+Melting%2FCasting+NC+III&SearchLoc="
+        },
+        {
+            "id": "235",
+            "title": "Foundry Molding NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Foundry+Molding+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Foundry+Molding+NC+II&SearchLoc="
+        },
+        {
+            "id": "368",
+            "title": "Foundry Molding NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Foundry+Molding+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Foundry+Molding+NC+III&SearchLoc="
+        },
+        {
+            "id": "390",
+            "title": "Foundry Pattern Making NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Foundry+Pattern+Making+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Foundry+Pattern+Making+NC+II&SearchLoc="
+        },
+        {
+            "id": "369",
+            "title": "Foundry Pattern Making NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Foundry+Pattern+Making+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Foundry+Pattern+Making+NC+III&SearchLoc="
+        },
+        {
+            "id": "56",
+            "title": "Front Office Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Front+Office+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Front+Office+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "2231",
+            "title": "Front Office Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Front+Office+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Front+Office+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "2232",
+            "title": "Front Office Services NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Front+Office+Services+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Front+Office+Services+NC+IV&SearchLoc="
+        },
+        {
+            "id": "343",
+            "title": "Furniture Making (Finishing) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Furniture+Making+%28Finishing%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Furniture+Making+%28Finishing%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "478",
+            "title": "Game Programming NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Game+Programming+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Game+Programming+NC+III&SearchLoc="
+        },
+        {
+            "id": "782",
+            "title": "Garbage Collection NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Garbage+Collection+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Garbage+Collection+NC+I&SearchLoc="
+        },
+        {
+            "id": "192",
+            "title": "Gas Metal Arc Welding (GMAW) NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Gas+Metal+Arc+Welding+%28GMAW%29+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Gas+Metal+Arc+Welding+%28GMAW%29+NC+I&SearchLoc="
+        },
+        {
+            "id": "191",
+            "title": "Gas Metal Arc Welding (GMAW) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Gas+Metal+Arc+Welding+%28GMAW%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Gas+Metal+Arc+Welding+%28GMAW%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "207",
+            "title": "Gas Metal Arc Welding (GMAW) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Gas+Metal+Arc+Welding+%28GMAW%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Gas+Metal+Arc+Welding+%28GMAW%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "112",
+            "title": "Gas Tungsten Arc Welding (GTAW) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Gas+Tungsten+Arc+Welding+%28GTAW%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Gas+Tungsten+Arc+Welding+%28GTAW%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "202",
+            "title": "Gas Tungsten Arc Welding (GTAW) NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Gas+Tungsten+Arc+Welding+%28GTAW%29+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Gas+Tungsten+Arc+Welding+%28GTAW%29+NC+IV&SearchLoc="
+        },
+        {
+            "id": "190",
+            "title": "Gas Welding NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Gas+Welding+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Gas+Welding+NC+I&SearchLoc="
+        },
+        {
+            "id": "129",
+            "title": "GAS Welding NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=GAS+Welding+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=GAS+Welding+NC+II&SearchLoc="
+        },
+        {
+            "id": "1785",
+            "title": "Grains Production NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Grains+Production+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Grains+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "57",
+            "title": "Hairdressing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Hairdressing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Hairdressing+NC+II&SearchLoc="
+        },
+        {
+            "id": "2394",
+            "title": "Hairdressing NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Hairdressing+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Hairdressing+NC+II&SearchLoc="
+        },
+        {
+            "id": "58",
+            "title": "Hairdressing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Hairdressing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Hairdressing+NC+III&SearchLoc="
+        },
+        {
+            "id": "2395",
+            "title": "Hairdressing NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Hairdressing+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Hairdressing+NC+III&SearchLoc="
+        },
+        {
+            "id": "2833",
+            "title": "Handloom Weaving (Backstrap) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Handloom+Weaving+%28Backstrap%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Handloom+Weaving+%28Backstrap%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2226",
+            "title": "Handloom Weaving (Upright) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Handloom+Weaving+%28Upright%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Handloom+Weaving+%28Upright%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "1782",
+            "title": "Hard Disk Drive (HDD) Front-of-line (FOL) Operations NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Hard+Disk+Drive+%28HDD%29+Front-of-line+%28FOL%29+Operations+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Hard+Disk+Drive+%28HDD%29+Front-of-line+%28FOL%29+Operations+NC+II&SearchLoc="
+        },
+        {
+            "id": "59",
+            "title": "Health Care Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Health+Care+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Health+Care+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "370",
+            "title": "Heat Treatment NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heat+Treatment+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heat+Treatment+NC+II&SearchLoc="
+        },
+        {
+            "id": "237",
+            "title": "Heavy Equipment Operation (Articulated Off-Highway Dump Truck) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Articulated+Off-Highway+Dump+Truck%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Articulated+Off-Highway+Dump+Truck%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "386",
+            "title": "Heavy Equipment Operation (Backhoe Loader) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Backhoe+Loader%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Backhoe+Loader%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "66",
+            "title": "Heavy Equipment Operation (Bulldozer) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Bulldozer%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Bulldozer%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "238",
+            "title": "Heavy Equipment Operation (Concrete Pump) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Concrete+Pump%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Concrete+Pump%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "454",
+            "title": "Heavy Equipment Operation (Container Stacker) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Container+Stacker%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Container+Stacker%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "255",
+            "title": "Heavy Equipment Operation (Crawler Crane) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Crawler+Crane%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Crawler+Crane%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2222",
+            "title": "Heavy Equipment Operation (Crawler Crane) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Crawler+Crane%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Crawler+Crane%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2217",
+            "title": "Heavy Equipment Operation (Forklift) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Forklift%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Forklift%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "259",
+            "title": "Heavy Equipment Operation (Forklift) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Forklift%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Forklift%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "388",
+            "title": "Heavy Equipment Operation (Gantry Crane) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Gantry+Crane%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Gantry+Crane%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2219",
+            "title": "Heavy Equipment Operation (Hydraulic Excavator) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Hydraulic+Excavator%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Hydraulic+Excavator%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "260",
+            "title": "Heavy Equipment Operation (Hydraulic Excavator) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Hydraulic+Excavator%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Hydraulic+Excavator%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "261",
+            "title": "Heavy Equipment Operation (Motor Grader) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Motor+Grader%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Motor+Grader%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2224",
+            "title": "Heavy Equipment Operation (Overhead and Gantry Crane) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Overhead+and+Gantry+Crane%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Overhead+and+Gantry+Crane%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "239",
+            "title": "Heavy Equipment Operation (Paver) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Paver%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Paver%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "455",
+            "title": "Heavy Equipment Operation (Rigid Off-Highway Dump Truck) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Rigid+Off-Highway+Dump+Truck%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Rigid+Off-Highway+Dump+Truck%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2218",
+            "title": "Heavy Equipment Operation (Rigid On-Highway Dump Truck) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Rigid+On-Highway+Dump+Truck%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Rigid+On-Highway+Dump+Truck%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "389",
+            "title": "Heavy Equipment Operation (Rigid On-Highway Dump Truck) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Rigid+On-Highway+Dump+Truck%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Rigid+On-Highway+Dump+Truck%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "456",
+            "title": "Heavy Equipment Operation (Road Roller) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Road+Roller%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Road+Roller%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "263",
+            "title": "Heavy Equipment Operation (Rough-Terrain Crane) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Rough-Terrain+Crane%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Rough-Terrain+Crane%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2221",
+            "title": "Heavy Equipment Operation (Rough Terrain Crane) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Rough+Terrain+Crane%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Rough+Terrain+Crane%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "236",
+            "title": "Heavy Equipment Operation (Screed) NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Screed%29+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Screed%29+NC+I&SearchLoc="
+        },
+        {
+            "id": "378",
+            "title": "Heavy Equipment Operation (Tower Crane) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Tower+Crane%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Tower+Crane%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2223",
+            "title": "Heavy Equipment Operation (Tower Crane) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Tower+Crane%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Tower+Crane%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "241",
+            "title": "Heavy Equipment Operation (Transit Mixer) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Transit+Mixer%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Transit+Mixer%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "379",
+            "title": "Heavy Equipment Operation (Truck Mounted Crane) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Truck+Mounted+Crane%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Truck+Mounted+Crane%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2220",
+            "title": "Heavy Equipment Operation (Truck Mounted Crane) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Truck+Mounted+Crane%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Truck+Mounted+Crane%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "380",
+            "title": "Heavy Equipment Operation (Wheel Loader) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Operation+%28Wheel+Loader%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Operation+%28Wheel+Loader%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "211",
+            "title": "Heavy Equipment Servicing (Mechanical) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Heavy+Equipment+Servicing+%28Mechanical%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Heavy+Equipment+Servicing+%28Mechanical%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "408",
+            "title": "Hilot (Wellness Massage) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Hilot+%28Wellness+Massage%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Hilot+%28Wellness+Massage%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "179",
+            "title": "Horticulture NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Horticulture+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Horticulture+NC+III&SearchLoc="
+        },
+        {
+            "id": "765",
+            "title": "Housekeeping NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Housekeeping+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Housekeeping+NC+II&SearchLoc="
+        },
+        {
+            "id": "247",
+            "title": "Housekeeping NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Housekeeping+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Housekeeping+NC+III&SearchLoc="
+        },
+        {
+            "id": "248",
+            "title": "Housekeeping NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Housekeeping+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Housekeeping+NC+IV&SearchLoc="
+        },
+        {
+            "id": "209",
+            "title": "Ice Plant Refrigeration Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Ice+Plant+Refrigeration+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Ice+Plant+Refrigeration+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "371",
+            "title": "Illustration NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Illustration+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Illustration+NC+II&SearchLoc="
+        },
+        {
+            "id": "154",
+            "title": "Instrumentation and Control Servicing NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Instrumentation+and+Control+Servicing+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Instrumentation+and+Control+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "155",
+            "title": "Instrumentation and Control Servicing NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Instrumentation+and+Control+Servicing+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Instrumentation+and+Control+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "156",
+            "title": "Instrumentation and Control Servicing NC IV (Superseded)",
+            "nc_level": "NC IV",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Instrumentation+and+Control+Servicing+NC+IV+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Instrumentation+and+Control+Servicing+NC+IV&SearchLoc="
+        },
+        {
+            "id": "443",
+            "title": "Jewelry Making (Fine Jewelry) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Jewelry+Making+%28Fine+Jewelry%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Jewelry+Making+%28Fine+Jewelry%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "444",
+            "title": "Jewelry Making (Fine Jewelry) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Jewelry+Making+%28Fine+Jewelry%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Jewelry+Making+%28Fine+Jewelry%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "291",
+            "title": "Laboratory and Metrology/Calibration Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Laboratory+and+Metrology%2FCalibration+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Laboratory+and+Metrology%2FCalibration+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "300",
+            "title": "Laboratory and Metrology/Calibration Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Laboratory+and+Metrology%2FCalibration+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Laboratory+and+Metrology%2FCalibration+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "2443",
+            "title": "Land-Based Transport Mobile Air-conditioning (MAC) Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Land-Based+Transport+Mobile+Air-conditioning+%28MAC%29+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Land-Based+Transport+Mobile+Air-conditioning+%28MAC%29+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "1783",
+            "title": "Land-Based Transport Refrigeration Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Land-Based+Transport+Refrigeration+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Land-Based+Transport+Refrigeration+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "322",
+            "title": "Landscape Installation and Maintenance (Softscape) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Landscape+Installation+and+Maintenance+%28Softscape%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Landscape+Installation+and+Maintenance+%28Softscape%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "778",
+            "title": "Lifeguard Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Lifeguard+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Lifeguard+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "779",
+            "title": "Lifeguard Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Lifeguard+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Lifeguard+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "2229",
+            "title": "Lighting for Live Performances NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Lighting+for+Live+Performances+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Lighting+for+Live+Performances+NC+II&SearchLoc="
+        },
+        {
+            "id": "445",
+            "title": "Line Construction (Electric Power Distribution) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Line+Construction+%28Electric+Power+Distribution%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Line+Construction+%28Electric+Power+Distribution%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "46",
+            "title": "Local Guiding Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Local+Guiding+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Local+Guiding+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "120",
+            "title": "Machining NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Machining+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Machining+NC+I&SearchLoc="
+        },
+        {
+            "id": "1890",
+            "title": "Machining NC I (Superseded)",
+            "nc_level": "NC I",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Machining+NC+I+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Machining+NC+I&SearchLoc="
+        },
+        {
+            "id": "70",
+            "title": "Machining NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Machining+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Machining+NC+II&SearchLoc="
+        },
+        {
+            "id": "121",
+            "title": "Machining NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Machining+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Machining+NC+III&SearchLoc="
+        },
+        {
+            "id": "2518",
+            "title": "Manual Metal Arc Welding (MMAW) NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Manual+Metal+Arc+Welding+%28MMAW%29+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Manual+Metal+Arc+Welding+%28MMAW%29+NC+I&SearchLoc="
+        },
+        {
+            "id": "2519",
+            "title": "Manual Metal Arc Welding (MMAW) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Manual+Metal+Arc+Welding+%28MMAW%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Manual+Metal+Arc+Welding+%28MMAW%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2520",
+            "title": "Manual Metal Arc Welding (MMAW) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Manual+Metal+Arc+Welding+%28MMAW%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Manual+Metal+Arc+Welding+%28MMAW%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2521",
+            "title": "Manual Metal Arc Welding (MMAW) NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Manual+Metal+Arc+Welding+%28MMAW%29+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Manual+Metal+Arc+Welding+%28MMAW%29+NC+IV&SearchLoc="
+        },
+        {
+            "id": "409",
+            "title": "Marine Electricity NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Marine+Electricity+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Marine+Electricity+NC+II&SearchLoc="
+        },
+        {
+            "id": "117",
+            "title": "Masonry NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Masonry+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Masonry+NC+I&SearchLoc="
+        },
+        {
+            "id": "1875",
+            "title": "Masonry NC I (Superseded)",
+            "nc_level": "NC I",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Masonry+NC+I+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Masonry+NC+I&SearchLoc="
+        },
+        {
+            "id": "42",
+            "title": "Masonry NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Masonry+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Masonry+NC+II&SearchLoc="
+        },
+        {
+            "id": "1876",
+            "title": "Masonry NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Masonry+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Masonry+NC+II&SearchLoc="
+        },
+        {
+            "id": "118",
+            "title": "Masonry NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Masonry+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Masonry+NC+III&SearchLoc="
+        },
+        {
+            "id": "1877",
+            "title": "Masonry NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Masonry+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Masonry+NC+III&SearchLoc="
+        },
+        {
+            "id": "181",
+            "title": "Massage Therapy NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Massage+Therapy+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Massage+Therapy+NC+II&SearchLoc="
+        },
+        {
+            "id": "342",
+            "title": "Mechanical Drafting NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Mechanical+Drafting+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Mechanical+Drafting+NC+I&SearchLoc="
+        },
+        {
+            "id": "195",
+            "title": "Mechatronics Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Mechatronics+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Mechatronics+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "157",
+            "title": "Mechatronics Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Mechatronics+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Mechatronics+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "133",
+            "title": "Mechatronics Servicing NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Mechatronics+Servicing+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Mechatronics+Servicing+NC+IV&SearchLoc="
+        },
+        {
+            "id": "463",
+            "title": "Medical Coding and Claims Processing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Medical+Coding+and+Claims+Processing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Medical+Coding+and+Claims+Processing+NC+III&SearchLoc="
+        },
+        {
+            "id": "184",
+            "title": "Medical Transcription NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Medical+Transcription+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Medical+Transcription+NC+II&SearchLoc="
+        },
+        {
+            "id": "303",
+            "title": "Metal Stamping NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Metal+Stamping+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Metal+Stamping+NC+II&SearchLoc="
+        },
+        {
+            "id": "440",
+            "title": "Microfinance Technology NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Microfinance+Technology+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Microfinance+Technology+NC+II&SearchLoc="
+        },
+        {
+            "id": "479",
+            "title": "Microfinance Technology NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Microfinance+Technology+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Microfinance+Technology+NC+IV&SearchLoc="
+        },
+        {
+            "id": "2233",
+            "title": "Microinsurance Services (Mutual Benefit) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Microinsurance+Services+%28Mutual+Benefit%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Microinsurance+Services+%28Mutual+Benefit%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "1797",
+            "title": "Milking Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Milking+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Milking+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "2341",
+            "title": "Mobile Phones and Handheld Gadgets Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Mobile+Phones+and+Handheld+Gadgets+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Mobile+Phones+and+Handheld+Gadgets+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "1897",
+            "title": "Mold Designing NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Mold+Designing+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Mold+Designing+NC+IV&SearchLoc="
+        },
+        {
+            "id": "302",
+            "title": "Moldmaking NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Moldmaking+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Moldmaking+NC+II&SearchLoc="
+        },
+        {
+            "id": "1899",
+            "title": "Mold Making NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Mold+Making+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Mold+Making+NC+III&SearchLoc="
+        },
+        {
+            "id": "72",
+            "title": "Motorcycle/Small Engine Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Motorcycle%2FSmall+Engine+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Motorcycle%2FSmall+Engine+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "2237",
+            "title": "Multimodal Transport Operations and Logistics (Seafreight Import) Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Multimodal+Transport+Operations+and+Logistics+%28Seafreight+Import%29+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Multimodal+Transport+Operations+and+Logistics+%28Seafreight+Import%29+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "2238",
+            "title": "Multimodal Transport Operations and Logistics (Seafreight Import) Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Multimodal+Transport+Operations+and+Logistics+%28Seafreight+Import%29+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Multimodal+Transport+Operations+and+Logistics+%28Seafreight+Import%29+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "2239",
+            "title": "Multimodal Transport Operations and Logistics (Seafreight Import) Services NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Multimodal+Transport+Operations+and+Logistics+%28Seafreight+Import%29+Services+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Multimodal+Transport+Operations+and+Logistics+%28Seafreight+Import%29+Services+NC+IV&SearchLoc="
+        },
+        {
+            "id": "344",
+            "title": "Ophthalmic Lens Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Ophthalmic+Lens+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Ophthalmic+Lens+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "480",
+            "title": "Organic Agriculture Production NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Organic+Agriculture+Production+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Organic+Agriculture+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "316",
+            "title": "Painting Machine Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Painting+Machine+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Painting+Machine+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "345",
+            "title": "Performing Arts (Ballroom Dancing) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Performing+Arts+%28Ballroom+Dancing%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Performing+Arts+%28Ballroom+Dancing%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "60",
+            "title": "Performing Arts (Dance) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Performing+Arts+%28Dance%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Performing+Arts+%28Dance%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2451",
+            "title": "Performing Arts (Magician) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Performing+Arts+%28Magician%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Performing+Arts+%28Magician%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "61",
+            "title": "Performing Arts (Song) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Performing+Arts+%28Song%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Performing+Arts+%28Song%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "262",
+            "title": "Pest Management (Vegetables) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Pest+Management+%28Vegetables%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Pest+Management+%28Vegetables%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "410",
+            "title": "Pharmacy Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Pharmacy+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Pharmacy+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "243",
+            "title": "Photography NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Photography+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Photography+NC+II&SearchLoc="
+        },
+        {
+            "id": "1870",
+            "title": "Pipefitting (Metallic) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Pipefitting+%28Metallic%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Pipefitting+%28Metallic%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "1878",
+            "title": "Pipefitting NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Pipefitting+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Pipefitting+NC+II&SearchLoc="
+        },
+        {
+            "id": "340",
+            "title": "Plant Maintenance NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Plant+Maintenance+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Plant+Maintenance+NC+I&SearchLoc="
+        },
+        {
+            "id": "318",
+            "title": "Plastic Machine Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Plastic+Machine+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Plastic+Machine+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "372",
+            "title": "Plastic Machine Operation NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Plastic+Machine+Operation+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Plastic+Machine+Operation+NC+III&SearchLoc="
+        },
+        {
+            "id": "203",
+            "title": "Plumbing NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Plumbing+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Plumbing+NC+I&SearchLoc="
+        },
+        {
+            "id": "65",
+            "title": "Plumbing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Plumbing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Plumbing+NC+II&SearchLoc="
+        },
+        {
+            "id": "204",
+            "title": "Plumbing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Plumbing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Plumbing+NC+III&SearchLoc="
+        },
+        {
+            "id": "265",
+            "title": "Press Machine Operation NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Press+Machine+Operation+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Press+Machine+Operation+NC+I&SearchLoc="
+        },
+        {
+            "id": "1883",
+            "title": "Pressurized Irrigation System Installation and Maintenance NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Pressurized+Irrigation+System+Installation+and+Maintenance+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Pressurized+Irrigation+System+Installation+and+Maintenance+NC+II&SearchLoc="
+        },
+        {
+            "id": "2782",
+            "title": "Printing Services (Prepress Technical Operations) NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Printing+Services+%28Prepress+Technical+Operations%29+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Printing+Services+%28Prepress+Technical+Operations%29+NC+I&SearchLoc="
+        },
+        {
+            "id": "2783",
+            "title": "Printing Services (Prepress Technical Operations) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Printing+Services+%28Prepress+Technical+Operations%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Printing+Services+%28Prepress+Technical+Operations%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "319",
+            "title": "Process Inspection NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Process+Inspection+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Process+Inspection+NC+II&SearchLoc="
+        },
+        {
+            "id": "293",
+            "title": "Process Inspection NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Process+Inspection+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Process+Inspection+NC+III&SearchLoc="
+        },
+        {
+            "id": "1802",
+            "title": "Programming (.Net Technology) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Programming+%28.Net+Technology%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Programming+%28.Net+Technology%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2397",
+            "title": "Programming (JAVA) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Programming+%28JAVA%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Programming+%28JAVA%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "1803",
+            "title": "Programming (JAVA) NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Programming+%28JAVA%29+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Programming+%28JAVA%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "1804",
+            "title": "Programming (Oracle Database) NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Programming+%28Oracle+Database%29+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Programming+%28Oracle+Database%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "2236",
+            "title": "Public Employment Services NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Public+Employment+Services+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Public+Employment+Services+NC+IV&SearchLoc="
+        },
+        {
+            "id": "373",
+            "title": "PV System Design NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=PV+System+Design+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=PV+System+Design+NC+III&SearchLoc="
+        },
+        {
+            "id": "406",
+            "title": "PV Systems Installation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=PV+Systems+Installation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=PV+Systems+Installation+NC+II&SearchLoc="
+        },
+        {
+            "id": "374",
+            "title": "PV Systems Servicing NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=PV+Systems+Servicing+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=PV+Systems+Servicing+NC+III&SearchLoc="
+        },
+        {
+            "id": "43",
+            "title": "Pyrotechnics NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Pyrotechnics+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Pyrotechnics+NC+II&SearchLoc="
+        },
+        {
+            "id": "2442",
+            "title": "RAC Servicing (DomRAC) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=RAC+Servicing+%28DomRAC%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=RAC+Servicing+%28DomRAC%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "462",
+            "title": "RAC Servicing (DomRAC) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=RAC+Servicing+%28DomRAC%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=RAC+Servicing+%28DomRAC%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "44",
+            "title": "RAC Servicing (PACU-CRE) NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=RAC+Servicing+%28PACU-CRE%29+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=RAC+Servicing+%28PACU-CRE%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "729",
+            "title": "Rating Forming Part of a Navigational Watch NC II (II-4)",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Rating+Forming+Part+of+a+Navigational+Watch+NC+II+%28II-4%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Rating+Forming+Part+of+a+Navigational+Watch+NC+II+%28II-4%29&SearchLoc="
+        },
+        {
+            "id": "730",
+            "title": "Rating Forming Part of an Engineering Watch NC II (III-4)",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Rating+Forming+Part+of+an+Engineering+Watch+NC+II+%28III-4%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Rating+Forming+Part+of+an+Engineering+Watch+NC+II+%28III-4%29&SearchLoc="
+        },
+        {
+            "id": "1884",
+            "title": "Real Estate Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Real+Estate+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Real+Estate+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "264",
+            "title": "Reinforcing Steel Works NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Reinforcing+Steel+Works+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Reinforcing+Steel+Works+NC+II&SearchLoc="
+        },
+        {
+            "id": "391",
+            "title": "Rice Machinery Operations NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Rice+Machinery+Operations+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Rice+Machinery+Operations+NC+II&SearchLoc="
+        },
+        {
+            "id": "240",
+            "title": "Rigging NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Rigging+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Rigging+NC+I&SearchLoc="
+        },
+        {
+            "id": "468",
+            "title": "Rubber Processing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Rubber+Processing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Rubber+Processing+NC+II&SearchLoc="
+        },
+        {
+            "id": "2340",
+            "title": "Rubber Production NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Rubber+Production+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Rubber+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "469",
+            "title": "Rubber Production NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Rubber+Production+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Rubber+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "780",
+            "title": "Sanitary Landfill Operations NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Sanitary+Landfill+Operations+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Sanitary+Landfill+Operations+NC+II&SearchLoc="
+        },
+        {
+            "id": "781",
+            "title": "Sanitary Landfill Operations NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Sanitary+Landfill+Operations+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Sanitary+Landfill+Operations+NC+III&SearchLoc="
+        },
+        {
+            "id": "1879",
+            "title": "Scaffold Erection NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Scaffold+Erection+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Scaffold+Erection+NC+II&SearchLoc="
+        },
+        {
+            "id": "1869",
+            "title": "Scaffolding Works NC II (Supported Type Scaffold)",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Scaffolding+Works+NC+II+%28Supported+Type+Scaffold%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Scaffolding+Works+NC+II+%28Supported+Type+Scaffold%29&SearchLoc="
+        },
+        {
+            "id": "1789",
+            "title": "Seaweed Production NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Seaweed+Production+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Seaweed+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "62",
+            "title": "Security Services NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Security+Services+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Security+Services+NC+I&SearchLoc="
+        },
+        {
+            "id": "376",
+            "title": "Security Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Security+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Security+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "1780",
+            "title": "Semiconductor Back-End Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Semiconductor+Back-End+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Semiconductor+Back-End+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "1781",
+            "title": "Semiconductor Front-of-Line Operation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Semiconductor+Front-of-Line+Operation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Semiconductor+Front-of-Line+Operation+NC+II&SearchLoc="
+        },
+        {
+            "id": "122",
+            "title": "Shielded Metal Arc Welding (SMAW) NC I (Superseded)",
+            "nc_level": "NC I",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+I+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+I&SearchLoc="
+        },
+        {
+            "id": "216",
+            "title": "Shielded Metal Arc Welding (SMAW) NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "124",
+            "title": "Shielded Metal Arc Welding (SMAW) NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+III&SearchLoc="
+        },
+        {
+            "id": "208",
+            "title": "Shielded Metal Arc Welding (SMAW) NC IV (Superseded)",
+            "nc_level": "NC IV",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+IV+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Shielded+Metal+Arc+Welding+%28SMAW%29+NC+IV&SearchLoc="
+        },
+        {
+            "id": "718",
+            "title": "Ship's Catering Services NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Ship%27s+Catering+Services+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Ship%27s+Catering+Services+NC+I&SearchLoc="
+        },
+        {
+            "id": "720",
+            "title": "Ships' Catering NC III (Ships' Cooks)",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Ships%27+Catering+NC+III+%28Ships%27+Cooks%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Ships%27+Catering+NC+III+%28Ships%27+Cooks%29&SearchLoc="
+        },
+        {
+            "id": "114",
+            "title": "Slaughtering Operations (Large Animal) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Slaughtering+Operations+%28Large+Animal%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Slaughtering+Operations+%28Large+Animal%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "1784",
+            "title": "Slaughtering Operations (Swine) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Slaughtering+Operations+%28Swine%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Slaughtering+Operations+%28Swine%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "2251",
+            "title": "Speed Limitation Device Servicing NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Speed+Limitation+Device+Servicing+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Speed+Limitation+Device+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "320",
+            "title": "Structural Erection NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Structural+Erection+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Structural+Erection+NC+II&SearchLoc="
+        },
+        {
+            "id": "131",
+            "title": "Submerged Arc Welding (SAW) NC I",
+            "nc_level": "NC I",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Submerged+Arc+Welding+%28SAW%29+NC+I",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Submerged+Arc+Welding+%28SAW%29+NC+I&SearchLoc="
+        },
+        {
+            "id": "132",
+            "title": "Submerged Arc Welding (SAW) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Submerged+Arc+Welding+%28SAW%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Submerged+Arc+Welding+%28SAW%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "1786",
+            "title": "Sugarcane Production NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Sugarcane+Production+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Sugarcane+Production+NC+II&SearchLoc="
+        },
+        {
+            "id": "470",
+            "title": "System Formworks Installation NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=System+Formworks+Installation+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=System+Formworks+Installation+NC+II&SearchLoc="
+        },
+        {
+            "id": "67",
+            "title": "Tailoring NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tailoring+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tailoring+NC+II&SearchLoc="
+        },
+        {
+            "id": "437",
+            "title": "Technical Drafting NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Technical+Drafting+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Technical+Drafting+NC+II&SearchLoc="
+        },
+        {
+            "id": "460",
+            "title": "Telecom OSP and Subscriber Line Installation (Copper Cable/POTS and DSL) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Telecom+OSP+and+Subscriber+Line+Installation+%28Copper+Cable%2FPOTS+and+DSL%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Telecom+OSP+and+Subscriber+Line+Installation+%28Copper+Cable%2FPOTS+and+DSL%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "461",
+            "title": "Telecom OSP Installation (Fiber Optic Cable) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Telecom+OSP+Installation+%28Fiber+Optic+Cable%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Telecom+OSP+Installation+%28Fiber+Optic+Cable%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "377",
+            "title": "Tile Setting NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tile+Setting+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tile+Setting+NC+II&SearchLoc="
+        },
+        {
+            "id": "1880",
+            "title": "Tile Setting NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tile+Setting+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tile+Setting+NC+II&SearchLoc="
+        },
+        {
+            "id": "321",
+            "title": "Tinsmithing (Automotive Manufacturing) NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tinsmithing+%28Automotive+Manufacturing%29+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tinsmithing+%28Automotive+Manufacturing%29+NC+II&SearchLoc="
+        },
+        {
+            "id": "341",
+            "title": "Tool and Die Making NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tool+and+Die+Making+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tool+and+Die+Making+NC+II&SearchLoc="
+        },
+        {
+            "id": "2522",
+            "title": "Tour Guiding Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tour+Guiding+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tour+Guiding+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "249",
+            "title": "Tourism Promotion Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tourism+Promotion+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tourism+Promotion+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "1885",
+            "title": "Tour Packaging (Fit Ad Hoc Domestic) Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Tour+Packaging+%28Fit+Ad+Hoc+Domestic%29+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Tour+Packaging+%28Fit+Ad+Hoc+Domestic%29+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "1843",
+            "title": "Transmission Line Installation and Maintenance NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Transmission+Line+Installation+and+Maintenance+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Transmission+Line+Installation+and+Maintenance+NC+II&SearchLoc="
+        },
+        {
+            "id": "419",
+            "title": "Transmission Line Installation and Maintenance NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Transmission+Line+Installation+and+Maintenance+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Transmission+Line+Installation+and+Maintenance+NC+II&SearchLoc="
+        },
+        {
+            "id": "1842",
+            "title": "Transmission Line Installation and Maintenance NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Transmission+Line+Installation+and+Maintenance+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Transmission+Line+Installation+and+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "413",
+            "title": "Transmission Line Installation and Maintenance NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Transmission+Line+Installation+and+Maintenance+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Transmission+Line+Installation+and+Maintenance+NC+III&SearchLoc="
+        },
+        {
+            "id": "1835",
+            "title": "Transmission Line Installation and Maintenance NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Transmission+Line+Installation+and+Maintenance+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Transmission+Line+Installation+and+Maintenance+NC+IV&SearchLoc="
+        },
+        {
+            "id": "68",
+            "title": "Transport RAC Servicing NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Transport+RAC+Servicing+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Transport+RAC+Servicing+NC+II&SearchLoc="
+        },
+        {
+            "id": "1903",
+            "title": "Travel Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Travel+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Travel+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "1891",
+            "title": "Travel Services NC II (Superseded)",
+            "nc_level": "NC II",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Travel+Services+NC+II+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Travel+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "383",
+            "title": "Visual Graphic Design NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Visual+Graphic+Design+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Visual+Graphic+Design+NC+III&SearchLoc="
+        },
+        {
+            "id": "1837",
+            "title": "Visual Graphic Design NC III (Superseded)",
+            "nc_level": "NC III",
+            "status": "archived",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Visual+Graphic+Design+NC+III+%28Superseded%29",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Visual+Graphic+Design+NC+III&SearchLoc="
+        },
+        {
+            "id": "1801",
+            "title": "Warehousing Services NC II",
+            "nc_level": "NC II",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Warehousing+Services+NC+II",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Warehousing+Services+NC+II&SearchLoc="
+        },
+        {
+            "id": "2234",
+            "title": "Warehousing Services NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Warehousing+Services+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Warehousing+Services+NC+III&SearchLoc="
+        },
+        {
+            "id": "2235",
+            "title": "Warehousing Services NC IV",
+            "nc_level": "NC IV",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Warehousing+Services+NC+IV",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Warehousing+Services+NC+IV&SearchLoc="
+        },
+        {
+            "id": "1836",
+            "title": "Web Development NC III",
+            "nc_level": "NC III",
+            "status": "current",
+            "source_url": "https://www.tesda.gov.ph/Download/Training_Regulations?SearchTitle=Web+Development+NC+III",
+            "provider_url": "https://www.tesda.gov.ph/Tvi/Result?SearchCourse=Web+Development+NC+III&SearchLoc="
+        }
+    ]
+}

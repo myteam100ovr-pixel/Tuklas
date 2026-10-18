@@ -17,6 +17,22 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      */
     public function update(User $user, array $input): void
     {
+        $names = ['first_name' => null, 'last_name' => null];
+
+        if (array_key_exists('first_name', $input) || array_key_exists('last_name', $input)) {
+            $names = Validator::make($input, [
+                'first_name' => ['required', 'string', 'max:127'],
+                'last_name' => ['required', 'string', 'max:127'],
+            ])->validateWithBag('updateProfileInformation');
+
+            $names = array_map(trim(...), $names);
+            $input['name'] = $names['first_name'].' '.$names['last_name'];
+        } elseif (($input['name'] ?? null) === $user->name) {
+            $names = ['first_name' => $user->first_name, 'last_name' => $user->last_name];
+        }
+
+        $input = array_merge($input, $names);
+
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -33,6 +49,8 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         } else {
             $user->forceFill([
                 'name' => $input['name'],
+                'first_name' => $input['first_name'],
+                'last_name' => $input['last_name'],
                 'email' => $input['email'],
             ])->save();
         }
@@ -47,6 +65,8 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
     {
         $user->forceFill([
             'name' => $input['name'],
+            'first_name' => $input['first_name'],
+            'last_name' => $input['last_name'],
             'email' => $input['email'],
             'email_verified_at' => null,
         ])->save();

@@ -1,0 +1,91 @@
+/* Shared signed-in design system. Public pages retain their own theme. */
+body.tk-workspace {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f7f7f8;
+    --ink: #0d0d0f;
+    --ink-2: #3a3a44;
+    --muted: #7a7a86;
+    --line: #ebebee;
+    --violet: #5b17ff;
+    --pink: #f55ba8;
+    --deep: #4510b9;
+    --gray: #f7f7f8;
+    --shadow: 0 3px 14px rgb(20 10 60 / .04);
+    --pad: clamp(1.25rem, 2.8vw, 3rem);
+    padding-left: 238px;
+}
+[data-theme="dark"] body.tk-workspace {
+    --bg: #0c0b12;
+    --surface: #17161f;
+    --surface-2: #1d1c28;
+    --ink: #f4f3fa;
+    --ink-2: #d4d2e2;
+    --muted: #9b98ad;
+    --line: #2a2838;
+    --violet: #a786ff;
+    --pink: #f55ba8;
+    --deep: #a786ff;
+    --gray: #17161f;
+}
+.tk-workspace .tk-sidebar { position:fixed; inset:0 auto 0 0; width:238px; z-index:45; display:flex; flex-direction:column; padding:32px 18px 20px; background:var(--surface); border-right:1px solid var(--line); overflow-y:auto; }
+.tk-workspace .tk-brand { display:flex; align-items:center; gap:9px; padding:0 13px; font-size:1.8rem; letter-spacing:-.075em; }
+.tk-brand-symbol { display:grid; place-items:center; width:34px; height:36px; border-radius:10px 10px 10px 2px; background:var(--violet); color:var(--surface); font-size:1.5rem; }
+.tk-brand-dot { color:var(--violet); margin-left:-8px; }
+.tk-nav-caption { font-size:.63rem; letter-spacing:.16em; color:var(--muted); padding:45px 14px 15px; }
+.tk-workspace .tk-tabs--workspace { display:flex; flex-direction:column; order:0; gap:6px; background:none; border:0; padding:0; border-radius:0; overflow:visible; width:100%; }
+.tk-workspace .tk-tabs--workspace .tk-tab { flex:none; justify-content:flex-start; min-height:46px; padding:10px 13px; border-radius:8px; gap:12px; font-size:.82rem; }
+.tk-workspace .tk-tab__icon { padding:0; background:none; border-radius:0; width:19px; height:19px; color:inherit; }
+.tk-workspace .tk-tab.is-active { color:var(--violet); background:var(--surface-2); box-shadow:inset 3px 0 var(--violet); font-weight:500; }
+.tk-workspace .tk-tab.is-active .tk-tab__icon { background:none; color:inherit; }
+.tk-sidebar-guide { display:grid; gap:10px; margin: auto 4px 22px; padding:20px 14px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); }
+.tk-sidebar-guide > .ic { color:var(--violet); width:24px; height:24px; }
+.tk-sidebar-guide strong { font-size:.8rem; font-weight:500; }
+.tk-sidebar-guide p { font-size:.72rem; color:var(--muted); line-height:1.6; }
+.tk-sidebar-guide a { display:flex; justify-content:space-between; font-size:.72rem; font-weight:500; color:var(--violet); padding-top:6px; }
+.tk-workspace .tk-tabs { margin-bottom:32px; }
+.tk-sidebar-role { display:flex; align-items:center; gap:9px; padding:12px 14px 0; border-top:1px solid var(--line); color:var(--ink-2); font-size:.72rem; }
+.tk-status-dot { width:7px; height:7px; background:var(--violet); border-radius:50%; }
+.tk-workspace .tk-head { display:flex; justify-content:space-between; min-height:78px; padding:16px var(--pad); background:var(--surface); border-bottom:1px solid var(--line); backdrop-filter:none; }
+.tk-context { display:flex; align-items:center; gap:12px; font-size:.76rem; color:var(--muted); }
+.tk-context strong { color:var(--ink); font-weight:500; }
+.tk-account-name { font-size:.75rem; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:10px; }
+.tk-workspace .tk-ibtn,.tk-workspace .tk-avatar { width:34px; height:34px; border-radius:9px; }
+.tk-workspace .tk-avatar { background:var(--surface-2); color:var(--violet); border:1px solid var(--line); }
+.tk-workspace .tk-main { padding:30px var(--pad) 40px; max-width:1800px; }
+.tk-skip { position:fixed; top:-80px; left:16px; padding:12px 20px; z-index:100; background:var(--surface); color:var(--ink); border:2px solid var(--violet); border-radius:8px; }
+.tk-skip:focus { top:12px; }
+.tk-workspace .btn-primary { background:#5b17ff; color:#fff; }
+.tk-workspace .card,.tk-workspace .career-chat { border-radius:12px; box-shadow:var(--shadow); }
+.tk-workspace .suite-page { padding-top:0; }
+.tk-workspace .suite-heading { padding:0 0 24px; }
+.tk-workspace .suite-heading h1,.tk-workspace .tesda-intro h1 { font-size:clamp(1.8rem,3vw,2.5rem); letter-spacing:-.045em; }
+.tk-workspace .suite-heading-art { display:none; }
+.tk-workspace .suite-description { font-size:.84rem; }
+.tk-workspace .tesda-main { padding-top:0; }
+.tk-workspace .bar { background:var(--violet); border-radius:4px 4px 0 0; }
+.tk-workspace .task-meta { color:var(--violet); }
+.tk-workspace .career-chat__send,.tk-workspace .career-chat__message.is-user { background:#5b17ff; color:#fff; }
+.tk-workspace .document-scanner__submit { background:#5b17ff; color:#fff; }
+.tk-workspace .tbl-t th { padding:12px; background:var(--surface-2); font-weight:500; }
+.tk-workspace .tbl-t td { padding:15px 12px; }
+@media (max-width:1100px) {
+    body.tk-workspace { padding-left:200px; }
+    .tk-workspace .tk-sidebar { width:200px; padding-inline:12px; }
+    .tk-account-name { display:none; }
+}
+@media (max-width:760px) {
+    body.tk-workspace { padding-left:0; }
+    .tk-workspace .tk-sidebar { position:relative; width:100%; padding:18px 16px 0; border-right:0; border-bottom:1px solid var(--line); overflow:visible; }
+    .tk-workspace .tk-brand { padding:0 2px; font-size:1.5rem; }
+    .tk-brand-symbol { width:28px; height:30px; font-size:1.25rem; }
+    .tk-nav-caption,.tk-sidebar-guide,.tk-sidebar-role { display:none; }
+    .tk-workspace .tk-tabs--workspace { flex-direction:row; overflow-x:auto; margin:18px 0 0; gap:4px; padding-bottom:8px; scrollbar-width:thin; }
+    .tk-workspace .tk-tabs--workspace .tk-tab { min-height:42px; padding:10px 12px; font-size:.75rem; }
+    .tk-workspace .tk-tab.is-active { box-shadow:inset 0 -2px var(--violet); }
+    .tk-workspace .tk-head { min-height:62px; padding:12px 18px; }
+    .tk-workspace .tk-main { padding:24px 18px 32px; }
+    .tk-context { font-size:.7rem; gap:8px; }
+    .tk-workspace .tk-right { gap:6px; }
+    .tk-workspace .tk-pop { position:absolute; left:auto; right:0; top:calc(100% + 10px); width:min(17rem,calc(100vw - 36px)); }
+}

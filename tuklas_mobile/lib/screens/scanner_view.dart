@@ -16,6 +16,7 @@ class ScannerView extends StatefulWidget {
 }
 
 class _ScannerViewState extends State<ScannerView> {
+  final TextEditingController _goalController = TextEditingController();
   PlatformFile? _selectedFile;
   Map<String, dynamic>? _latestDocument;
   late Future<List<dynamic>> _history;
@@ -27,6 +28,12 @@ class _ScannerViewState extends State<ScannerView> {
   void initState() {
     super.initState();
     _history = ApiClient.instance.documentScans();
+  }
+
+  @override
+  void dispose() {
+    _goalController.dispose();
+    super.dispose();
   }
 
   Future<void> _pickDocument() async {
@@ -88,11 +95,13 @@ class _ScannerViewState extends State<ScannerView> {
       final document = await ApiClient.instance.uploadDocument(
         bytes: file.bytes!,
         filename: file.name,
+        goal: _goalController.text,
       );
       if (!mounted) return;
       setState(() {
         _latestDocument = document;
         _selectedFile = null;
+        _goalController.clear();
         _consent = false;
         _history = ApiClient.instance.documentScans();
       });
@@ -120,9 +129,9 @@ class _ScannerViewState extends State<ScannerView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Document scanner',
-                  style: tkText(context, size: 27, weight: 500, spacing: -0.7),
+                const TkPageHeading(
+                  eyebrow: 'YOUR SKILLS, DISCOVERED',
+                  title: 'Document scanner',
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -159,7 +168,24 @@ class _ScannerViewState extends State<ScannerView> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const SizedBox(height: 18),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: colors.warnBg,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Gemini is an AI and can get details or TESDA matches wrong. Check the result and confirm training and assessment requirements with TESDA or the provider.',
+                          style: tkText(
+                            context,
+                            size: 12.5,
+                            color: colors.warn,
+                            height: 1.45,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       OutlinedButton.icon(
                         onPressed: _scanning ? null : _pickDocument,
                         icon: const Icon(Icons.attach_file),
@@ -177,6 +203,19 @@ class _ScannerViewState extends State<ScannerView> {
                         style: tkText(context, size: 12, color: colors.muted),
                       ),
                       const SizedBox(height: 12),
+                      TextField(
+                        controller: _goalController,
+                        maxLength: 1000,
+                        maxLines: 3,
+                        minLines: 2,
+                        enabled: !_scanning,
+                        decoration: const InputDecoration(
+                          labelText: 'What should Gemini focus on? (optional)',
+                          hintText: 'Example: Match my certificate to a TESDA qualification and explain why.',
+                          alignLabelWithHint: true,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
                       CheckboxListTile(
                         contentPadding: EdgeInsets.zero,
                         value: _consent,

@@ -63,7 +63,7 @@ class TkColors {
 
   static const dark = TkColors(
     isDark: true,
-    bg: Color(0xFF0C0B12),
+    bg: Color(0xFF111114),
     surface: Color(0xFF15141D),
     surface2: Color(0xFF1D1C28),
     ink: Color(0xFFF4F3FA),

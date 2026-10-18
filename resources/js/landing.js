@@ -62,12 +62,13 @@ let heroTl = null;
 
 function updateNav() {
     let dark = false;
+    const featuresTop = $('#features').getBoundingClientRect().top;
     if (!noPin && heroTl) {
         const filled = heroTl.time() >= 1.299;
-        const anTop = $('#features').getBoundingClientRect().top;
-        dark = filled && anTop > 64;
+        dark = filled && featuresTop > 64;
     }
     hdr.classList.toggle('dark', dark);
+    hdr.classList.toggle('is-blurred', featuresTop <= hdr.offsetHeight);
 }
 
 /* ------------------------------------------------------------------ */
@@ -289,10 +290,11 @@ if (!noPin) {
     pw.to({}, { duration: 0.15 }, 0.85);
 
     /* ---- Nav theme follows scroll ---- */
-    ScrollTrigger.create({ start: 0, end: 'max', onUpdate: updateNav });
-    updateNav();
     updateCounts(0);
 }
+
+ScrollTrigger.create({ start: 0, end: 'max', onUpdate: updateNav, onRefresh: updateNav });
+updateNav();
 
 /* ------------------------------------------------------------------ */
 /* Tech stack: duplicate the list once so the loop has no gap          */

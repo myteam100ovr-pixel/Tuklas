@@ -6,20 +6,19 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Tuklas') }}</title>
     @include('partials.theme-boot')
-    @vite(['resources/css/ui.css', 'resources/js/ui.js'])
-    @if (request()->routeIs('tesda.index'))
-        @vite('resources/css/landing.css')
-    @endif
+    @vite(['resources/css/ui.css', 'resources/css/app.css', 'resources/js/ui.js'])
     @if (request()->routeIs('scanner.index', 'peso.index', 'admin.dashboard', 'admin.recommendations.index', 'trainer.dashboard', 'youth.dashboard'))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/js/app.js'])
     @endif
     @livewireStyles
 </head>
-<body class="tk-body {{ request()->routeIs('tesda.index') ? 'tesda-body' : '' }}">
+<body class="tk-body tk-workspace">
     @include('partials.sprite')
 
-    <header class="tk-head">
-        <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home">tuklas</a>
+    <a class="tk-skip" href="#main-content">Skip to content</a>
+    <aside class="tk-sidebar">
+        <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home"><span class="tk-brand-symbol" aria-hidden="true">t</span>tuklas<span class="tk-brand-dot">.</span></a>
+        <p class="tk-nav-caption">WORKSPACE</p>
 
         <nav class="tk-tabs tk-tabs--workspace" aria-label="Primary">
             @foreach ($navTabs as $tab)
@@ -30,7 +29,20 @@
             @endforeach
         </nav>
 
+        <div class="tk-sidebar-guide">
+            <svg class="ic" aria-hidden="true"><use href="#i-cap"/></svg>
+            <strong>A step toward more.</strong>
+            <p>Discover training for your next opportunity.</p>
+            <a href="{{ route('tesda.index') }}">Explore TESDA <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="tk-sidebar-role"><span class="tk-status-dot" aria-hidden="true"></span>{{ $navUser['role'] }}</div>
+    </aside>
+
+    <header class="tk-head">
+        <div class="tk-context"><span>Workspace</span><span aria-hidden="true">/</span><strong>@foreach ($navTabs as $tab)@if ($tab['active']){{ $tab['label'] }}@endif @endforeach</strong></div>
+
         <div class="tk-right">
+            <span class="tk-account-name">{{ $navUser['name'] }}</span>
             <button type="button" class="tk-ibtn" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
                 <svg class="ic ic-sun"><use href="#i-sun"/></svg><svg class="ic ic-moon"><use href="#i-moon"/></svg>
             </button>
@@ -56,7 +68,7 @@
         </div>
     </header>
 
-    <main class="tk-main">{{ $slot }}</main>
+    <main class="tk-main" id="main-content" tabindex="-1">{{ $slot }}</main>
 
     @stack('modals')
     @livewireScripts

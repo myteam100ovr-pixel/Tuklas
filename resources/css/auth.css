@@ -96,6 +96,14 @@ body { margin: 0; }
 .auth-status { margin-bottom: 1rem; padding: .8rem 1rem; border: 1px solid #cde9d7; border-radius: .7rem; color: #236b3d; background: #f3fbf5; font-size: .8rem; }
 .auth-mobile-brand { display: none; }
 
+.auth-name-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.auth-name-row .auth-field { min-width: 0; }
+.auth-page--register .auth-form-panel { justify-content: flex-start; padding-block: 3rem 1.5rem; }
+.auth-page--register .auth-form-wrap { flex: 0 0 auto; margin-block: auto; }
+.auth-page--register .auth-back { margin-bottom: 1.5rem; }
+.auth-page--register .auth-heading { margin-bottom: 1.5rem; }
+.auth-page--register .auth-legal { position: static; flex: 0 0 auto; margin: 1.5rem auto 0; }
+
 @media (max-width: 900px) {
     .auth-layout { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
     .auth-story { padding: 2rem; }
@@ -173,6 +181,37 @@ body { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
     .auth-page *, .auth-page *::before, .auth-page *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+@media (max-width: 680px) {
+    .tk-body:has(.auth-page--register) { height: auto; min-height: 100svh; overflow: auto; }
+    .tk-guest-main:has(.auth-page--register) { height: auto; }
+    .auth-page--register .auth-layout { height: auto; min-height: 100svh; overflow: visible; }
+    .auth-page--register .auth-form-panel { flex: 1 0 auto; overflow: visible; padding: 1rem 1.1rem; }
+    .auth-page--register .auth-story { padding: 1rem 1.1rem; }
+    .auth-page--register .auth-story-copy,
+    .auth-page--register .auth-feature-controls { display: none; }
+    .auth-page--register .auth-form-wrap { margin-block: 0; }
+    .auth-page--register .auth-back { margin-bottom: .75rem; }
+    .auth-page--register .auth-heading { margin-bottom: 1rem; }
+    .auth-page--register .auth-form-kicker { margin-bottom: .4rem; }
+    .auth-page--register .auth-heading h2 { font-size: 1.8rem; }
+    .auth-page--register .auth-heading > p:last-child { margin-top: .45rem; font-size: .82rem; line-height: 1.4; }
+    .auth-page--register .auth-form { gap: .75rem; }
+    .auth-page--register .auth-field { gap: .35rem; }
+    .auth-page--register .auth-name-row { gap: .65rem; }
+    .auth-page--register .auth-input { min-height: 2.75rem; padding: .6rem .7rem !important; font-size: 1rem !important; }
+    .auth-page--register .auth-submit { min-height: 2.75rem; padding: .65rem 1rem; }
+    .auth-page--register .auth-divider { margin: 1rem 0 .75rem; }
+    .auth-page--register .auth-social { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .auth-page--register .auth-social-button { min-height: 2.75rem; font-size: .7rem; }
+    .auth-page--register .auth-switch { margin-top: 1rem; }
+    .auth-page--register .auth-legal { margin-top: 1rem; }
+}
+
+@media (max-width: 340px) {
+    .auth-page--register .auth-name-row,
+    .auth-page--register .auth-social { grid-template-columns: minmax(0, 1fr); }
 }
 
 .theme-toggle--guest { position: fixed; z-index: 120; top: 1rem; right: 1rem; }
