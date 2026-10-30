@@ -14,6 +14,19 @@ class TrainerTeachingAssignmentTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_qualification_trainer_is_visible_to_all_viewers(): void
+    {
+        $qualification = collect(app(TesdaQualificationCatalog::class)->all()['qualifications'])->firstWhere('status', 'current');
+        $trainer = User::factory()->create(['role' => Role::Trainer, 'name' => 'Trainer Unique Name', 'is_active' => true]);
+        $trainer->trainerQualifications()->create(['qualification_id' => $qualification['id'], 'title' => $qualification['title'], 'nc_level' => $qualification['nc_level']]);
+
+        $this->get(route('tesda.index'))->assertOk()->assertSee('Trainer Unique Name');
+        foreach ([Role::Youth, Role::Trainer, Role::SuperAdmin] as $role) {
+            $viewer = User::factory()->create(['role' => $role, 'is_active' => true]);
+            $this->actingAs($viewer)->get(route('tesda.index'))->assertOk()->assertSee('Trainer Unique Name');
+        }
+    }
+
     public function test_youth_can_see_the_assigned_trainer_hours_and_schedule(): void
     {
         $trainer = User::factory()->create(['role' => Role::Trainer, 'name' => 'Course Instructor']);

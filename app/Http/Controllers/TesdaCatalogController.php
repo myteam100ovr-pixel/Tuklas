@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
+use App\Models\TrainerQualification;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Services\TesdaQualificationCatalog;
@@ -51,6 +52,10 @@ class TesdaCatalogController extends Controller
             'choiceUser' => $choiceUser,
             'teachingByProgram' => $teachingByProgram,
             'trainerQualifications' => $trainerQualifications,
+            'qualificationTrainers' => TrainerQualification::query()
+                ->with('trainer:id,name')
+                ->get(['id', 'qualification_id', 'user_id'])
+                ->groupBy('qualification_id'),
         ]);
     }
 }

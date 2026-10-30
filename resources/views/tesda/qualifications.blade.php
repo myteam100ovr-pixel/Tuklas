@@ -40,6 +40,7 @@
             <article class="qualification-card" data-qualification data-title="{{ $qualification['title'] }}" data-level="{{ $qualification['nc_level'] }}" data-status="{{ $qualification['status'] }}">
                 <div class="qualification-card-top"><span>{{ $qualification['nc_level'] }}</span><small>{{ $qualification['status'] === 'current' ? 'National qualification' : 'Archived / superseded' }}</small></div>
                 <h3>{{ $qualification['title'] }}</h3>
+                <p class="qualification-trainers">Trainer: {{ ($qualificationTrainers->get($qualification['id']) ?? collect())->pluck('trainer.name')->filter()->unique()->implode(', ') ?: 'None selected yet' }}</p>
                 <div class="qualification-links"><a href="{{ $qualification['source_url'] }}" target="_blank" rel="noopener noreferrer">Training regulations ↗</a>@if ($qualification['status'] === 'current')<a href="{{ $qualification['provider_url'] }}" target="_blank" rel="noopener noreferrer">Find a provider ↗</a>@endif</div>
                 @if (($choiceUser ?? null) && $qualification['status'] === 'current')
                     <form method="POST" action="{{ route('tesda.choice.store') }}" class="qualification-choice-form">
