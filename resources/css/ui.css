@@ -1,11 +1,15 @@
 @import './theme.css';
 @import './workspace.css';
+@import './assessment.css';
 @import './tesda-catalog.css';
 @import './tesda-workspace.css';
 @import './sections.css';
 @import './workspace-shell.css';
 @import '@fontsource/schibsted-grotesk/400.css';
 @import '@fontsource/schibsted-grotesk/500.css';
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+@import '@fontsource/dm-sans/600.css';
 
 :root { --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif; --pad: clamp(1rem, 3.5vw, 3rem); }
 
@@ -105,6 +109,24 @@ h1, h2, h3, p { font-weight: 400; }
 .users-directory__pagination a { padding: .45rem .7rem; border: 1px solid var(--line); border-radius: .55rem; color: var(--ink); text-decoration: none; }
 .users-directory__pagination a:hover { border-color: var(--violet); }
 .users-directory__pagination [aria-disabled='true'] { padding: .45rem .7rem; opacity: .5; }
+.users-directory__toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:1rem 0; }
+.users-directory__toolbar > div,.users-directory__actions { display:flex; align-items:center; flex-wrap:wrap; gap:.6rem; }
+.users-directory__toolbar a,.users-directory__toolbar button,.users-directory__actions a,.users-directory__actions button,.notifications-list button { display:inline-flex; padding:.55rem .7rem; border:1px solid var(--line); border-radius:.55rem; color:var(--ink); background:var(--surface); font:inherit; font-size:.75rem; cursor:pointer; }
+.users-directory__toolbar a[aria-current='page'] { border-color:var(--violet); color:var(--violet); }
+.users-directory__actions details { position:relative; }
+.users-directory__actions summary { padding:.55rem .7rem; color:#b44838; cursor:pointer; }
+.users-directory__actions details form { position:absolute; right:0; z-index:5; width:16rem; padding:1rem; border:1px solid var(--line); border-radius:.7rem; background:var(--surface); box-shadow:0 8px 30px #0002; }
+.users-directory__actions details p { margin:0 0 .75rem; line-height:1.5; }
+.users-form__fieldset { display:grid; gap:1rem; padding:1rem; border:1px solid var(--line); border-radius:.7rem; }
+.users-form__fieldset legend { padding:0 .4rem; color:var(--muted); font-size:.8rem; }
+.tk-notification-link { position:relative; }
+.tk-notification-count { position:absolute; top:-.35rem; right:-.35rem; min-width:1.1rem; padding:.08rem .25rem; border-radius:1rem; color:white; background:var(--violet); font-size:.58rem; text-align:center; }
+.notifications-list { display:grid; gap:.75rem; }
+.notifications-list__item { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.2rem; border:1px solid var(--line); border-radius:.8rem; background:var(--surface); }
+.notifications-list__item.is-unread { border-color:var(--violet); background:var(--surface-2); }
+.notifications-list__item p { margin:.3rem 0; font-size:.86rem; }
+.notifications-list__item small { color:var(--muted); font-size:.72rem; }
+@media(max-width:680px) { .users-directory__toolbar,.notifications-list__item { align-items:flex-start; flex-direction:column; } }
 .cell { display: flex; align-items: center; gap: .75rem; }
 .av { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--surface-2); font-size: .72rem; font-weight: 500; flex: none; }
 .cell-t { display: block; font-size: .88rem; }
@@ -256,6 +278,17 @@ textarea.input { resize: vertical; }
 .career-chat__status { min-height: 1em; margin: 0; color: var(--system-muted); font-size: .65rem; line-height: 1.4; }
 .career-chat__status[data-kind='error'] { color: #c34248; }
 .career-chat__privacy { grid-column: 1 / -1; margin: -.25rem 0 0; color: var(--system-muted); font-size: .6rem; line-height: 1.4; }
+.career-chat { font-family: 'DM Sans', var(--font); }
+.career-chat__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+.career-chat__expand { display: grid; width: 2.2rem; height: 2.2rem; flex: 0 0 auto; place-items: center; border: 1px solid var(--system-line); border-radius: .55rem; color: var(--system-text); background: var(--system-card); font-size: 1.2rem; }
+.career-chat__expand:hover { border-color: var(--role-accent); }
+.career-chat.is-expanded { position: fixed; z-index: 90; right: clamp(1rem, 3vw, 3rem); bottom: clamp(1rem, 3vw, 3rem); width: min(46rem, calc(100vw - 2rem)); height: min(45rem, calc(100dvh - 2rem)); min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto auto auto auto; padding: clamp(1rem, 2vw, 1.5rem); box-shadow: 0 24px 80px rgb(20 10 60 / .25); }
+.career-chat.is-expanded .career-chat__messages { max-height: none; min-height: 0; }
+.career-chat.is-expanded .career-chat__message { font-size: .92rem; }
+.career-chat.is-expanded .career-chat__input { font-size: .92rem; }
+@media(max-width:600px) {
+    .career-chat.is-expanded { inset: .5rem; width: auto; height: calc(100dvh - 1rem); padding: 1rem; }
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {

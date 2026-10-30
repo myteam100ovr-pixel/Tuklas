@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\YouthProfile;
+use App\Support\ActivityNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class YouthProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request): RedirectResponse|JsonResponse
+    public function update(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $user = $request->user();
         $minor = $this->isMinor($request->input('date_of_birth'));
@@ -72,6 +73,7 @@ class YouthProfileController extends Controller
         }
 
         $user->youthProfile()->updateOrCreate([], $data);
+        $activity->record($user, 'updated their youth profile.');
 
         if ($request->expectsJson()) {
             return $this->show($request);

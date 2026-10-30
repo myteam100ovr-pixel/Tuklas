@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -19,6 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use HasProfilePhoto;
     use Notifiable;
+    use SoftDeletes;
     use TwoFactorAuthenticatable;
 
     // role and is_active are deliberately NOT fillable. Roles are assigned in code only.
@@ -46,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'role' => Role::class,
             'date_of_birth' => 'date',
+            'admin_password_reset_requested_at' => 'datetime',
             'is_active' => 'boolean',
         ];
     }
@@ -63,6 +66,31 @@ class User extends Authenticatable implements MustVerifyEmail
     public function documentScans(): HasMany
     {
         return $this->hasMany(DocumentScan::class);
+    }
+
+    public function careerChatMessages(): HasMany
+    {
+        return $this->hasMany(CareerChatMessage::class);
+    }
+
+    public function tesdaChoice(): HasOne
+    {
+        return $this->hasOne(TesdaChoice::class);
+    }
+
+    public function trainingApplications(): HasMany
+    {
+        return $this->hasMany(TrainingApplication::class);
+    }
+
+    public function teachingAssignments(): HasMany
+    {
+        return $this->hasMany(TrainingAssignment::class);
+    }
+
+    public function trainerQualifications(): HasMany
+    {
+        return $this->hasMany(TrainerQualification::class);
     }
 
     public function hasRole(Role ...$roles): bool

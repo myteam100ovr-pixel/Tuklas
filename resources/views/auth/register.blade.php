@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <x-auth-shell mode="register" title="Create your account" description="Set up your account and start exploring what comes next.">
+    <x-auth-shell mode="register" title="Create your account" description="Create your Youth account to explore career guidance, skills, and local TESDA training.">
         <x-validation-errors class="auth-errors" />
 
         <form method="POST" action="{{ route('register') }}" class="auth-form auth-form--register">
@@ -20,6 +20,25 @@
             <div class="auth-field">
                 <x-label for="email" value="{{ __('Email address') }}" class="auth-label" />
                 <x-input id="email" class="auth-input" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="you@example.com" />
+            </div>
+
+            <div class="auth-name-row">
+                <div class="auth-field">
+                    <x-label for="contact_number" value="{{ __('Contact number') }}" class="auth-label" />
+                    <x-input id="contact_number" class="auth-input" type="tel" name="contact_number" :value="old('contact_number')" required autocomplete="tel" maxlength="30" placeholder="09XX XXX XXXX" />
+                </div>
+
+                <div class="auth-field">
+                    <x-label for="barangay" value="{{ __('Barangay') }}" class="auth-label" />
+                    <x-input id="barangay" class="auth-input" type="text" name="barangay" :value="old('barangay')" required autocomplete="address-level3" maxlength="100" placeholder="Barangay in Bugallon" />
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <x-label for="date_of_birth" value="{{ __('Date of birth') }}" class="auth-label" />
+                <x-input id="date_of_birth" class="auth-input" type="date" name="date_of_birth" :value="old('date_of_birth')" required autocomplete="bday" aria-describedby="birth-date-help" />
+                <p id="birth-date-help" class="auth-field-help">Tuklas is for youth aged 15 to 30.</p>
+                <output class="auth-field-help" for="date_of_birth" data-calculated-age aria-live="polite"></output>
             </div>
 
             <div class="auth-field">
@@ -56,5 +75,7 @@
                 Continue with Facebook
             </a>
         </div>
+
+        <x-demo-accounts />
     </x-auth-shell>
 </x-guest-layout>

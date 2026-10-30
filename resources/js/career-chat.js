@@ -6,9 +6,9 @@ if (chat) {
     const sendButton = chat.querySelector('[data-chat-send]');
     const transcript = chat.querySelector('[data-chat-messages]');
     const status = chat.querySelector('[data-chat-status]');
+    const expandButton = chat.querySelector('[data-chat-expand]');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const geminiReady = chat.dataset.geminiReady === 'true';
-    const messages = [];
     let isSending = false;
 
     const appendMessage = (role, text, sources = []) => {
@@ -49,7 +49,39 @@ if (chat) {
 
         transcript.append(message);
         transcript.scrollTop = transcript.scrollHeight;
+        return message;
     };
+
+    const loadHistory = async () => {
+        try {
+            const response = await fetch(chat.dataset.historyUrl, {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+            });
+            if (!response.ok) throw new Error('Could not load your saved chat.');
+            const payload = await response.json();
+            if (Array.isArray(payload.messages) && payload.messages.length > 0) {
+                transcript.replaceChildren();
+                payload.messages.forEach((item) => appendMessage(item.role, item.text, item.sources));
+            }
+        } catch {
+            status.textContent = 'Saved chat history could not be loaded.';
+            status.dataset.kind = 'error';
+        }
+    };
+
+    expandButton.addEventListener('click', () => {
+        const expanded = chat.classList.toggle('is-expanded');
+        expandButton.setAttribute('aria-expanded', String(expanded));
+        expandButton.setAttribute('aria-label', expanded ? 'Collapse chat' : 'Expand chat');
+        expandButton.title = expanded ? 'Collapse chat' : 'Expand chat';
+        expandButton.textContent = expanded ? '⤡' : '⤢';
+        if (expanded) input.focus();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && chat.classList.contains('is-expanded')) expandButton.click();
+    });
 
     const sendMessage = async (text) => {
         const message = text.trim();
@@ -58,13 +90,7 @@ if (chat) {
             return;
         }
 
-        messages.push({ role: 'user', text: message });
-
-        if (messages.length > 10) {
-            messages.splice(0, 2);
-        }
-
-        appendMessage('user', message);
+        const pendingMessage = appendMessage('user', message);
         input.value = '';
         isSending = true;
         input.disabled = true;
@@ -82,7 +108,7 @@ if (chat) {
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': csrfToken,
                 },
-                body: JSON.stringify({ messages }),
+                body: JSON.stringify({ messages: [{ role: 'user', text: message }] }),
             });
             const payload = await response.json().catch(() => ({}));
 
@@ -90,10 +116,11 @@ if (chat) {
                 throw new Error(payload.message ?? 'Gemini could not reply right now. Please try again.');
             }
 
-            messages.push({ role: 'model', text: payload.reply });
             appendMessage('model', payload.reply, payload.sources);
             status.textContent = '';
         } catch (error) {
+            pendingMessage.remove();
+            input.value = message;
             status.textContent = error.message;
             status.dataset.kind = 'error';
         } finally {
@@ -112,6 +139,8 @@ if (chat) {
     chat.querySelectorAll('[data-chat-prompt]').forEach((button) => {
         button.addEventListener('click', () => sendMessage(button.dataset.chatPrompt));
     });
+
+    loadHistory();
 
     if (!geminiReady) {
         input.disabled = true;

@@ -14,18 +14,22 @@ class NavComposer
             ['People', 'admin.users.index', 'i-users'],
             ['PESO', 'peso.index', 'i-briefcase'],
             ['AI Scanner', 'scanner.index', 'i-scan'],
+            ['TuklasBot', 'tuklasbot.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
         ],
         'trainer' => [
             ['Overview', 'trainer.dashboard', 'i-list'],
+            ['Teaching', 'trainer.programs.index', 'i-cap'],
             ['PESO', 'peso.index', 'i-briefcase'],
             ['AI Scanner', 'scanner.index', 'i-scan'],
+            ['TuklasBot', 'tuklasbot.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
         ],
         'youth' => [
             ['Overview', 'youth.dashboard', 'i-list'],
             ['PESO', 'peso.index', 'i-briefcase'],
             ['AI Scanner', 'scanner.index', 'i-scan'],
+            ['TuklasBot', 'tuklasbot.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
         ],
     ];
@@ -38,6 +42,7 @@ class NavComposer
         }
 
         $tabs = collect(self::TABS[$user->role->value] ?? [])
+            ->push(['Notifications', 'notifications.index', 'i-list'])
             ->push(['Profile', 'profile.show', 'i-user'])
             ->filter(fn ($tab) => Route::has($tab[1]))
             ->map(function (array $tab): array {
@@ -58,6 +63,7 @@ class NavComposer
 
         $view->with([
             'navTabs' => $tabs,
+            'unreadNotificationCount' => $user->unreadNotifications()->count(),
             'navUser' => [
                 'name' => $user->name,
                 'email' => $user->email,

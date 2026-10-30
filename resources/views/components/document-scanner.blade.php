@@ -4,7 +4,7 @@
         <h2 id="document-scanner-title">Find career and TESDA options from your resume or certificate.</h2>
         <p>Gemini checks the file first, identifies evidenced skills, and explains which published TESDA programs may fit. Unrelated or unreadable documents are rejected and are not saved.</p>
         <div class="document-scanner__privacy"><span aria-hidden="true">↗</span><span>Your file is temporarily stored and sent to Google Gemini, then deleted after processing. Only accepted resume and certificate scan results stay in your account.</span></div>
-        <div class="document-scanner__privacy" role="note"><span aria-hidden="true">!</span><span>Gemini is an AI and may misread a document or suggest an unsuitable career or TESDA program. Check the details and confirm training and assessment requirements with TESDA or the provider.</span></div>
+        <div class="document-scanner__privacy" role="note"><span aria-hidden="true">!</span><span>Gemini is an AI and may misread a document or suggest an unsuitable career or TESDA program. Skill percentages show documented skills from a listed set of role skills, not your chance of being hired. Check the details and confirm training and assessment requirements with TESDA or the provider.</span></div>
         @unless (filled(config('services.google.gemini_api_key')))
             <p class="document-scanner__setup" role="status">Gemini is not connected yet. Add <code>GOOGLE_AI_API_KEY</code> to the server environment to enable scans.</p>
         @endunless

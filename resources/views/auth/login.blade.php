@@ -43,5 +43,8 @@
                 Continue with Facebook
             </a>
         </div>
+
+
+        <x-demo-accounts />
     </x-auth-shell>
 </x-guest-layout>

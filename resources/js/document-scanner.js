@@ -96,6 +96,27 @@ if (scanner) {
                     ? [item.match, item.reason, item.description].filter(Boolean).join(' · ')
                     : '';
                 row.textContent = detail ? `${name} — ${detail}` : name;
+                if (['careerMatches', 'jobRecommendations'].includes(key) && typeof item === 'object' && item !== null) {
+                    const coverage = item.skillCoverage;
+                    const explanation = document.createElement('small');
+                    explanation.className = 'document-scanner__skill-coverage';
+                    explanation.textContent = coverage && Number.isInteger(coverage.percent)
+                        ? `${coverage.percent}% of listed role skills documented · ${coverage.matched}/${coverage.total} skills`
+                        : 'Rescan to calculate documented skill coverage.';
+                    row.append(explanation);
+                    if (Array.isArray(item.evidencedSkills) && item.evidencedSkills.length > 0) {
+                        const evidenced = document.createElement('small');
+                        evidenced.className = 'document-scanner__skill-evidence';
+                        evidenced.textContent = `From scan: ${item.evidencedSkills.join(', ')}`;
+                        row.append(evidenced);
+                    }
+                    if (Array.isArray(item.skillsToDevelop) && item.skillsToDevelop.length > 0) {
+                        const missing = document.createElement('small');
+                        missing.className = 'document-scanner__skill-evidence';
+                        missing.textContent = `To build or document: ${item.skillsToDevelop.join(', ')}`;
+                        row.append(missing);
+                    }
+                }
                 list.append(row);
 
                 const url = typeof item === 'object' && item !== null
@@ -264,11 +285,11 @@ if (scanner) {
 
         request.upload.addEventListener('progress', (event) => {
             if (!event.lengthComputable) {
-                setProgress(0, `Uploading ${file.name}`);
+                setProgress(0, `Uploading ${file.name}`, true);
                 return;
             }
 
-            const percent = Math.min(100, Math.round((event.loaded / Math.max(1, file.size)) * 100));
+            const percent = Math.min(100, Math.round((event.loaded / Math.max(1, event.total)) * 100));
             setProgress(percent, `Uploading ${file.name}`);
         });
 

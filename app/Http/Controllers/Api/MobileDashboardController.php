@@ -147,9 +147,9 @@ class MobileDashboardController extends Controller
                     ? 'You have not added a program yet. Only programs you publish can be recommended to youth.'
                     : 'Keep published programs verified so youth see current information.',
                 'items' => [
-                    ['label' => 'Published', 'pct' => $this->percentage($published, $total)],
-                    ['label' => 'Draft', 'pct' => $this->percentage($drafts, $total)],
-                    ['label' => 'Archived', 'pct' => $this->percentage($archived, $total)],
+                    ['label' => 'Published', 'pct' => $this->percentage($published, $total), 'total' => $total, 'detail' => $published.' of '.$total.' programs'],
+                    ['label' => 'Draft', 'pct' => $this->percentage($drafts, $total), 'total' => $total, 'detail' => $drafts.' of '.$total.' programs'],
+                    ['label' => 'Archived', 'pct' => $this->percentage($archived, $total), 'total' => $total, 'detail' => $archived.' of '.$total.' programs'],
                 ],
             ],
             'table' => [
@@ -211,14 +211,14 @@ class MobileDashboardController extends Controller
             'role' => Role::Youth->value,
             'title' => 'Hi, '.explode(' ', trim($user->name))[0],
             'stats' => [
-                $this->stat('Profile strength', $completion['percent'].'%', null, 'neutral', 'Complete it for better guidance'),
+                $this->stat('Profile completion', $completion['percent'].'%', null, 'neutral', $completion['completed'].' of '.$completion['total'].' details added'),
                 $this->stat('Documents scanned', $scanned, null, 'neutral', 'Resumes and certificates'),
                 $this->stat('Skills on profile', $skills, null, 'neutral', 'Added by you or from scans'),
             ],
             'profileInsights' => [
                 'skills' => $user->youthProfile?->skills ?? [],
                 'credentials' => $user->youthProfile?->credentials ?? [],
-                'job_roles' => $latestAnalysis['job_roles'] ?? [],
+                'job_roles' => $latestAnalysis['careerMatches'] ?? $latestAnalysis['job_roles'] ?? [],
                 'tesda_training' => $latestAnalysis['tesda_training'] ?? [],
                 'job_recommendations' => $latestAnalysis['jobRecommendations'] ?? [],
                 'skill_gaps' => $latestAnalysis['skillGaps'] ?? [],
@@ -262,8 +262,8 @@ class MobileDashboardController extends Controller
                 'items' => [
                     $this->task('Complete your profile', $completion['percent'].'% done', 'Schooling, skills, and interests shape your guidance.', $completion['percent'] >= 100, 'profile'),
                     $this->task('Scan a resume or certificate', $scanned.' scanned', 'Let Google Gemini suggest skills and credentials.', $scanned > 0, 'scanner'),
-                    $this->task('Take the skills assessment', 'Coming soon', 'Answer a short set of questions.', false),
-                    $this->task('See PESO job matches', $scanned > 0 ? 'View your career matches' : 'Scan a resume to get matches', 'Explore roles suggested from your scanned resume and certificates.', false, 'peso'),
+                    $this->task('Take the skills assessment', $user->youthProfile?->assessment_preferences !== null ? 'Saved on your account' : 'Available on the website', 'Reflect on your skills and training interests.', $user->youthProfile?->assessment_preferences !== null),
+                    $this->task('See PESO job matches', $scanned > 0 ? 'View your career matches' : 'Scan a resume to get matches', 'Explore roles suggested from your scanned resume and certificates.', $scanned > 0, 'peso'),
                 ],
             ],
             'actions' => $this->actions([
@@ -313,7 +313,7 @@ class MobileDashboardController extends Controller
         $max = max(1, max(array_column($bars, 'value')));
 
         return array_map(fn (array $bar): array => $bar + [
-            'h' => max(4, (int) round($bar['value'] / $max * 100)),
+            'h' => (int) round($bar['value'] / $max * 100),
         ], $bars);
     }
 

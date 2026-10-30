@@ -21,6 +21,23 @@ document.addEventListener('keydown', (e) => {
 });
 
 const dob = document.getElementById('date_of_birth');
+const ageOutput = document.querySelector('[data-calculated-age]');
+if (dob && ageOutput) {
+    const updateAge = () => {
+        const parts = dob.value.split('-').map(Number);
+        const birth = parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
+        const today = new Date();
+        if (!birth || Number.isNaN(birth.getTime()) || birth > today) {
+            ageOutput.textContent = '';
+            return;
+        }
+        let age = today.getFullYear() - birth.getFullYear();
+        if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age -= 1;
+        ageOutput.textContent = `Age: ${age} years old`;
+    };
+    dob.addEventListener('input', updateAge);
+    updateAge();
+}
 const guardian = document.querySelector('[data-guardian]');
 if (dob && guardian) {
     const update = () => {

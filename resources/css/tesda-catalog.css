@@ -4,6 +4,16 @@
 .qualification-heading h2 { font-size:clamp(1.6rem,3vw,2.4rem); line-height:1.15; letter-spacing:-.055em; margin:.6rem 0; }
 .qualification-heading > a { font-size:.75rem; white-space:nowrap; color:var(--violet); }
 .qualification-intro { max-width:760px; font-size:.85rem; line-height:1.7; color:var(--ink-2); }
+.qualification-assign-link { display:block; width:fit-content; margin-top:1rem; color:var(--violet); font-size:.85rem; font-weight:500; }
+.qualification-plan { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1.25rem; padding:1rem 1.2rem; border:1px solid var(--line); border-radius:.8rem; background:var(--surface-2); }
+.qualification-plan strong { font-size:.9rem; }
+.qualification-plan p { margin-top:.25rem; font-size:.85rem; line-height:1.5; }
+.qualification-plan small,.qualification-plan > span { color:var(--muted); font-size:.72rem; }
+.qualification-feedback { margin-top:.8rem; color:var(--violet); font-size:.8rem; }
+.qualification-feedback--error { color:#b44838; }
+.qualification-choice-form { margin-top:auto; }
+.qualification-choice-form button { width:100%; padding:.7rem .9rem; border-radius:.55rem; color:#fff; background:#5b17ff; font-size:.78rem; font-weight:500; }
+.qualification-choice-form button:disabled { color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line); cursor:default; }
 .qualification-checked { font-size:.68rem; color:var(--muted); margin-top:.8rem; }
 .qualification-filters { display:grid; grid-template-columns:2fr 1fr 1fr; gap:1rem; padding:1.5rem 0; margin-top:.75rem; }
 .qualification-filters label { display:grid; gap:.5rem; font-size:.72rem; font-weight:500; }
@@ -21,4 +31,4 @@
 .qualification-links a { color:var(--violet); }
 .qualification-empty { padding:2rem; background:var(--surface-2); border-radius:.7rem; font-size:.85rem; }
 @media(max-width:1000px) { .qualification-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:600px) { .qualification-heading { align-items:start; flex-direction:column; } .qualification-filters,.qualification-grid { grid-template-columns:1fr; } .qualification-card { padding:1rem; } }
+@media(max-width:600px) { .qualification-heading,.qualification-plan { align-items:start; flex-direction:column; } .qualification-filters,.qualification-grid { grid-template-columns:1fr; } .qualification-card { padding:1rem; } }

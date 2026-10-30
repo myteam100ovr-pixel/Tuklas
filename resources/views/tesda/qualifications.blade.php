@@ -4,6 +4,28 @@
         <a href="{{ $nationalCatalog['source'] }}" target="_blank" rel="noopener noreferrer">View official source ↗</a>
     </header>
     <p class="qualification-intro">Browse national qualifications from NC I to NC IV. These standards describe training and assessment; they do not confirm open enrollment or availability at a particular school.</p>
+    @auth
+        @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
+            <p class="qualification-assign-link">Choose the qualifications you plan to teach. Your choices appear in Teaching.</p>
+        @endif
+        @if (auth()->user()->hasRole(\App\Enums\Role::Trainer, \App\Enums\Role::SuperAdmin))
+            <a class="qualification-assign-link" href="{{ route('tesda.choices.index') }}">Choose training for a youth account ↗</a>
+        @endif
+        @if ($choiceUser)
+            <div class="qualification-plan" role="status">
+                <div>
+                    <strong>{{ $choiceUser->id === auth()->id() ? 'Your training plan' : $choiceUser->name.'’s training plan' }}</strong>
+                    <p>{{ $choiceUser->tesdaChoice ? $choiceUser->tesdaChoice->qualification_title.' · '.$choiceUser->tesdaChoice->nc_level : 'Choose a current qualification below to save a training goal.' }}</p>
+                    @if ($choiceUser->tesdaChoice && $choiceUser->tesdaChoice->selected_by !== $choiceUser->id)
+                        <small>Chosen by {{ $choiceUser->tesdaChoice->selector?->name ?? 'staff' }}</small>
+                    @endif
+                </div>
+                <span>Planning only · Check provider availability</span>
+            </div>
+        @endif
+        @if (session('status'))<p class="qualification-feedback" role="status">{{ session('status') }}</p>@endif
+        @error('qualification_id')<p class="qualification-feedback qualification-feedback--error">{{ $message }}</p>@enderror
+    @endauth
     @if ($nationalCatalog['fetched_at'])
         <p class="qualification-checked">Fetched {{ \Carbon\Carbon::parse($nationalCatalog['fetched_at'])->timezone('Asia/Manila')->format('M j, Y') }} · {{ $nationalCatalog['pages'] }} official pages · {{ count($nationalCatalog['qualifications']) }} entries including archived versions</p>
     @endif
@@ -19,6 +41,23 @@
                 <div class="qualification-card-top"><span>{{ $qualification['nc_level'] }}</span><small>{{ $qualification['status'] === 'current' ? 'National qualification' : 'Archived / superseded' }}</small></div>
                 <h3>{{ $qualification['title'] }}</h3>
                 <div class="qualification-links"><a href="{{ $qualification['source_url'] }}" target="_blank" rel="noopener noreferrer">Training regulations ↗</a>@if ($qualification['status'] === 'current')<a href="{{ $qualification['provider_url'] }}" target="_blank" rel="noopener noreferrer">Find a provider ↗</a>@endif</div>
+                @if (($choiceUser ?? null) && $qualification['status'] === 'current')
+                    <form method="POST" action="{{ route('tesda.choice.store') }}" class="qualification-choice-form">
+                        @csrf
+                        <input type="hidden" name="qualification_id" value="{{ $qualification['id'] }}">
+                        @if ($choiceUser->id !== auth()->id())<input type="hidden" name="user_id" value="{{ $choiceUser->id }}">@endif
+                        <button type="submit" @disabled($choiceUser->tesdaChoice?->qualification_id === $qualification['id'])>{{ $choiceUser->tesdaChoice?->qualification_id === $qualification['id'] ? 'Current plan' : 'Choose for training plan' }}</button>
+                    </form>
+                @endif
+                @auth
+                    @if (auth()->user()->hasRole(\App\Enums\Role::Trainer) && $qualification['status'] === 'current')
+                        @if ($trainerQualifications->has($qualification['id']))
+                            <form method="POST" action="{{ route('trainer.qualifications.destroy', $qualification['id']) }}" class="qualification-choice-form">@csrf @method('DELETE')<button type="submit">Remove from teaching</button></form>
+                        @else
+                            <form method="POST" action="{{ route('trainer.qualifications.store') }}" class="qualification-choice-form">@csrf<input type="hidden" name="qualification_id" value="{{ $qualification['id'] }}"><button type="submit">Choose to teach</button></form>
+                        @endif
+                    @endif
+                @endauth
             </article>
         @endforeach
     </div>

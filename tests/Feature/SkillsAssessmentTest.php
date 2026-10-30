@@ -57,4 +57,39 @@ class SkillsAssessmentTest extends TestCase
         $this->actingAs($trainer)->postJson(route('youth.assessment.store'), [])->assertForbidden();
         $this->assertDatabaseCount('youth_profiles', 0);
     }
+
+    public function test_updated_goals_replace_old_preferences_and_are_restored_in_the_form(): void
+    {
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user->youthProfile()->create([
+            'interests' => ['Agriculture'],
+            'assessment_preferences' => ['career_goal' => 'Old goal', 'support_needs' => ['Scholarship information']],
+        ]);
+
+        $this->actingAs($user)->post(route('youth.assessment.store'), [
+            'interests' => ['Food and beverage'],
+            'career_goal' => 'I want to open a bakery',
+            'learning_mode' => 'Hands-on / face-to-face',
+            'schedule' => 'Weekends',
+            'weekly_hours' => '5–10 hours',
+        ])->assertRedirectToRoute('youth.assessment.index');
+
+        $profile = $user->fresh()->youthProfile;
+        $this->assertSame(['Food and beverage'], $profile->interests);
+        $this->assertSame('I want to open a bakery', $profile->assessment_preferences['career_goal']);
+        $this->assertArrayNotHasKey('support_needs', $profile->assessment_preferences);
+        $this->get(route('youth.assessment.index'))->assertOk()->assertSee('I want to open a bakery');
+    }
+
+    public function test_invalid_preferences_are_rejected_without_saving(): void
+    {
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $this->actingAs($user)->postJson(route('youth.assessment.store'), [
+            'interests' => ['Agriculture'],
+            'learning_mode' => 'Unknown format',
+            'career_goal' => str_repeat('a', 501),
+            'support_needs' => ['Guaranteed admission'],
+        ])->assertUnprocessable()->assertJsonValidationErrors(['learning_mode', 'career_goal', 'support_needs.0']);
+        $this->assertDatabaseCount('youth_profiles', 0);
+    }
 }

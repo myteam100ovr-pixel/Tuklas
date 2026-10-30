@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use Database\Factories\TrainingProgramFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TrainingProgram extends Model
 {
+    /** @use HasFactory<TrainingProgramFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'title', 'nc_level', 'description', 'duration_hours', 'requirements',
         'schedule_note', 'status', 'source_reference', 'last_verified_at', 'created_by',
@@ -26,5 +32,15 @@ class TrainingProgram extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(TrainingApplication::class);
+    }
+
+    public function teachingAssignments(): HasMany
+    {
+        return $this->hasMany(TrainingAssignment::class);
     }
 }

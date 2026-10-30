@@ -7,6 +7,7 @@
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6L21 10l-4.5 4.2L17.8 21 12 17.8 6.2 21l1.3-6.8L3 10l6.4-1.4z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5"/></symbol>
     <symbol id="i-scan" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"/></symbol>
     <symbol id="i-briefcase" viewBox="0 0 24 24"><path d="M4 8h16v11H4zM9 8V6h6v2M4 13h16"/></symbol>
     <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5zM6 11v5c0 1 3 3 6 3s6-2 6-3v-5"/></symbol>

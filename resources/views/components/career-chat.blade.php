@@ -1,10 +1,10 @@
-<section class="career-chat" data-career-chat data-chat-url="{{ route('career-chat.store') }}" data-gemini-ready="{{ filled(config('services.google.gemini_api_key')) ? 'true' : 'false' }}" aria-labelledby="career-chat-title">
+<section class="career-chat" data-career-chat data-chat-url="{{ route('career-chat.store') }}" data-history-url="{{ route('career-chat.index') }}" data-gemini-ready="{{ filled(config('services.google.gemini_api_key')) ? 'true' : 'false' }}" aria-labelledby="career-chat-title">
     <header class="career-chat__heading">
-        <p>Google Gemini</p>
-        <h2 id="career-chat-title">How can I help you?</h2>
+        <div><p>TUKLASBOT · POWERED BY GEMINI</p><h2 id="career-chat-title">Ask TuklasBot</h2><small>Talk things through, explore ideas, or find useful sources.</small></div>
+        <button class="career-chat__expand" type="button" data-chat-expand aria-label="Expand chat" aria-expanded="false" title="Expand chat">⤢</button>
     </header>
     <div class="career-chat__messages" data-chat-messages aria-live="polite" aria-relevant="additions">
-        <p class="career-chat__message">Hey! What’s on your mind? Ask me about jobs, TESDA, skills, or anything else.</p>
+        <p class="career-chat__message">Hi, I’m TuklasBot. What would you like to talk about? I can help you explore a question and find sources when current information matters.</p>
     </div>
     <div class="career-chat__suggestions" aria-label="Suggested questions">
         <button type="button" data-chat-prompt="Can you help me find current job openings near Bugallon, Pangasinan?">Find jobs near me</button>
@@ -14,11 +14,11 @@
     </div>
     <form class="career-chat__form" data-chat-form>
         <label class="sr-only" for="career-chat-message">Your message</label>
-        <input class="career-chat__input" id="career-chat-message" data-chat-input type="text" maxlength="2000" placeholder="Message Tuklas..." autocomplete="off" required>
+        <input class="career-chat__input" id="career-chat-message" data-chat-input type="text" maxlength="2000" placeholder="Message TuklasBot..." autocomplete="off" required>
         <button class="career-chat__send" data-chat-send type="submit" aria-label="Send message" title="Send message" @disabled(! filled(config('services.google.gemini_api_key')))>
             <span aria-hidden="true">↗</span>
         </button>
     </form>
     <p class="career-chat__status" data-chat-status role="status" aria-live="polite"></p>
-    <p class="career-chat__privacy">Messages are sent to Google Gemini. For career questions, limited skills and job matches from your latest resume or certificate scan may also be shared to personalize suggestions.</p>
+    <p class="career-chat__privacy">Chat history is saved to your account. Messages are sent to Google Gemini. For career questions, limited skills and job matches from your latest resume or certificate scan may also be shared to personalize suggestions. Search links appear when live sources are available.</p>
 </section>

@@ -123,9 +123,9 @@ class DashboardController extends Controller
                     ? 'You have not added a program yet. Only programs you publish can be recommended to youth.'
                     : 'Keep published programs verified so youth see current information.',
                 'items' => [
-                    ['label' => 'Published', 'pct' => $pct($published)],
-                    ['label' => 'Draft', 'pct' => $pct($draft)],
-                    ['label' => 'Archived', 'pct' => $pct($archived)],
+                    ['label' => 'Published', 'pct' => $pct($published), 'total' => $total, 'detail' => $published.' of '.$total.' programs'],
+                    ['label' => 'Draft', 'pct' => $pct($draft), 'total' => $total, 'detail' => $draft.' of '.$total.' programs'],
+                    ['label' => 'Archived', 'pct' => $pct($archived), 'total' => $total, 'detail' => $archived.' of '.$total.' programs'],
                 ],
             ],
             'table' => [
@@ -165,8 +165,10 @@ class DashboardController extends Controller
         $recent = (clone $scans)->latest()->take(6)->get();
         $latestAnalysis = (clone $scans)->where('status', 'done')->latest('processed_at')->first(['result'])?->result ?? [];
         $careerMatches = collect($latestAnalysis['careerMatches'] ?? $latestAnalysis['job_roles'] ?? [])
-            ->map(fn ($match): mixed => is_array($match) ? ($match['name'] ?? $match['title'] ?? null) : $match)
-            ->filter(fn ($match): bool => is_string($match) && trim($match) !== '')
+            ->map(fn ($match): array => is_array($match)
+                ? ['name' => $match['name'] ?? $match['title'] ?? null, 'skillCoverage' => $match['skillCoverage'] ?? null, 'evidencedSkills' => $match['evidencedSkills'] ?? [], 'skillsToDevelop' => $match['skillsToDevelop'] ?? []]
+                : ['name' => $match, 'skillCoverage' => null, 'evidencedSkills' => [], 'skillsToDevelop' => []])
+            ->filter(fn (array $match): bool => is_string($match['name']) && trim($match['name']) !== '')
             ->values()
             ->all();
         $jobRecommendations = collect($latestAnalysis['jobRecommendations'] ?? [])
@@ -175,6 +177,9 @@ class DashboardController extends Controller
                 'title' => $recommendation['title'] ?? null,
                 'reason' => $recommendation['reason'] ?? null,
                 'evidence' => $recommendation['evidence'] ?? null,
+                'skillCoverage' => $recommendation['skillCoverage'] ?? null,
+                'evidencedSkills' => $recommendation['evidencedSkills'] ?? [],
+                'skillsToDevelop' => $recommendation['skillsToDevelop'] ?? [],
             ])
             ->filter(fn (array $recommendation): bool => is_string($recommendation['title']) && trim($recommendation['title']) !== '')
             ->take(6)
@@ -202,7 +207,7 @@ class DashboardController extends Controller
             'title' => 'Hi, '.explode(' ', trim($user->name))[0],
             'nationalCatalog' => $this->catalog->all(),
             'stats' => [
-                $this->stat('Profile strength', $completion['percent'].'%', null, 'neutral', 'Complete it for better guidance'),
+                $this->stat('Profile completion', $completion['percent'].'%', null, 'neutral', $completion['completed'].' of '.$completion['total'].' details added'),
                 $this->stat('Documents scanned', $scanned, null, 'neutral', 'Resumes and certificates'),
                 $this->stat('Skills on profile', $skills, null, 'neutral', 'Added by you or from scans'),
             ],
@@ -247,7 +252,7 @@ class DashboardController extends Controller
                     Route::has('scanner.index')
                         ? $this->task('Scan a resume or certificate', $scanned.' scanned', 'Let Google Gemini suggest skills and credentials.', $scanned > 0, route('scanner.index'))
                         : null,
-                    $this->task('Take the skills assessment', 'Self-assessment', 'Reflect on your skills and training interests.', false, route('youth.assessment.index')),
+                    $this->task('Take the skills assessment', $user->youthProfile?->assessment_preferences !== null ? 'Saved · Update anytime' : 'Not saved yet', 'Reflect on your skills and training interests.', $user->youthProfile?->assessment_preferences !== null, route('youth.assessment.index')),
                     $this->task('See PESO job matches', $scanned.' documents scanned', 'View job suggestions based on your completed resume and certificate scans.', $scanned > 0, route('peso.index')),
                 ])),
             ],
@@ -283,7 +288,7 @@ class DashboardController extends Controller
     {
         $max = max(1, max(array_column($bars, 'value')));
 
-        return array_map(fn ($b) => $b + ['h' => max(4, (int) round($b['value'] / $max * 100))], $bars);
+        return array_map(fn ($b) => $b + ['h' => (int) round($b['value'] / $max * 100)], $bars);
     }
 
     private function initials(string $text): string

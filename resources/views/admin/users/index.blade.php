@@ -1,10 +1,17 @@
 <x-app-layout>
     <div class="suite-page suite-people">
-    <x-workspace-heading eyebrow="COMMUNITY · PEOPLE" title="The people behind the possibilities" description="A clear view of registered accounts, roles, and account status across your community." />
+    <x-workspace-heading eyebrow="COMMUNITY · PEOPLE" title="Manage Tuklas accounts" description="Create, edit, restore, and reset accounts across every role." />
+
+    @if (session('status'))<p class="trainer-courses__feedback" role="status">{{ session('status') }}</p>@endif
+    @error('reset')<p class="trainer-courses__error" role="alert">{{ $message }}</p>@enderror
+    <div class="users-directory__toolbar">
+        <div><a href="{{ route('admin.users.index') }}" @if (request('status') !== 'deleted') aria-current="page" @endif>Active accounts</a><a href="{{ route('admin.users.index', ['status' => 'deleted']) }}" @if (request('status') === 'deleted') aria-current="page" @endif>Deleted accounts</a></div>
+        <a class="trainer-courses__primary" href="{{ route('admin.users.create') }}">Add a user</a>
+    </div>
 
     <section class="card tbl users-directory" aria-labelledby="users-directory-title">
         <div class="card-head">
-            <h2 id="users-directory-title">Database users</h2>
+            <h2 id="users-directory-title">{{ request('status') === 'deleted' ? 'Deleted accounts' : 'Users directory' }}</h2>
             <span class="users-directory__count">{{ number_format($users->total()) }} total</span>
         </div>
 
@@ -19,6 +26,7 @@
                             <th scope="col">Account status</th>
                             <th scope="col">Email status</th>
                             <th scope="col">Joined</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -30,6 +38,19 @@
                                 <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
                                 <td>{{ $user->email_verified_at ? 'Verified' : 'Unverified' }}</td>
                                 <td>{{ $user->created_at->format('M j, Y') }}</td>
+                                <td>
+                                    <div class="users-directory__actions">
+                                        @if (request('status') === 'deleted')
+                                            <form method="POST" action="{{ route('admin.users.restore', $user->id) }}">@csrf<button type="submit">Restore</button></form>
+                                        @else
+                                            <a href="{{ route('admin.users.edit', $user) }}">Edit</a>
+                                            <form method="POST" action="{{ route('admin.users.reset-password', $user) }}">@csrf<button type="submit">Reset password</button></form>
+                                            @if ($user->id !== auth()->id())
+                                                <details><summary>Delete</summary><form method="POST" action="{{ route('admin.users.destroy', $user) }}">@csrf @method('DELETE')<p>Delete {{ $user->name }}? You can restore this account later.</p><button type="submit">Confirm delete</button></form></details>
+                                            @endif
+                                        @endif
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

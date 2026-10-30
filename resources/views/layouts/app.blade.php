@@ -7,7 +7,7 @@
     <title>{{ config('app.name', 'Tuklas') }}</title>
     @include('partials.theme-boot')
     @vite(['resources/css/ui.css', 'resources/css/app.css', 'resources/js/ui.js'])
-    @if (request()->routeIs('scanner.index', 'peso.index', 'admin.dashboard', 'admin.recommendations.index', 'trainer.dashboard', 'youth.dashboard'))
+    @if (request()->routeIs('scanner.index', 'tuklasbot.index', 'peso.index', 'admin.dashboard', 'admin.recommendations.index', 'trainer.dashboard', 'youth.dashboard'))
         @vite(['resources/js/app.js'])
     @endif
     @livewireStyles
@@ -43,6 +43,10 @@
 
         <div class="tk-right">
             <span class="tk-account-name">{{ $navUser['name'] }}</span>
+            <a class="tk-ibtn tk-notification-link" href="{{ route('notifications.index') }}" aria-label="Notifications{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.' unread)' : '' }}" title="Notifications">
+                <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>
+                @if ($unreadNotificationCount)<span class="tk-notification-count">{{ $unreadNotificationCount }}</span>@endif
+            </a>
             <button type="button" class="tk-ibtn" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
                 <svg class="ic ic-sun"><use href="#i-sun"/></svg><svg class="ic ic-moon"><use href="#i-moon"/></svg>
             </button>

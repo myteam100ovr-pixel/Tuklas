@@ -39,7 +39,8 @@ class CareerChatControllerTest extends TestCase
         if ($recovers) {
             $response->assertOk()->assertJsonPath('reply', 'Hello!');
         } else {
-            $response->assertStatus(502)->assertJsonPath('message', 'Gemini is temporarily busy. Please try again shortly.');
+            $response->assertStatus(503)->assertJsonPath('provider_status', 503)
+                ->assertJsonPath('message', 'Gemini is temporarily busy. Please try again shortly.');
         }
         Http::assertSentCount($recovers ? 2 : 3);
     }
@@ -63,7 +64,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
 
         $response = $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [[
@@ -83,6 +84,67 @@ class CareerChatControllerTest extends TestCase
         );
     }
 
+    public function test_tuklasbot_searches_general_topics_and_returns_source_links(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        config()->set('services.google.gemini_chat_web_search', true);
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [[
+                'content' => ['parts' => [['text' => 'Here is a source about astronomy.']]],
+                'groundingMetadata' => ['groundingChunks' => [[
+                    'web' => ['title' => 'NASA', 'uri' => 'https://science.nasa.gov/'],
+                ]]],
+            ]],
+        ])]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Tell me about astronomy and include a source.']],
+        ])->assertOk()->assertJsonPath('sources.0.url', 'https://science.nasa.gov/');
+
+        Http::assertSent(fn (Request $request): bool => array_key_exists('google_search', $request->data()['tools'][0] ?? [])
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'You are TuklasBot')
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'PESO job recommendations'));
+    }
+
+    public function test_chat_continues_without_live_sources_when_search_quota_is_exhausted(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        config()->set('services.google.gemini_chat_web_search', true);
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
+            ->push(['error' => ['message' => 'Search quota exhausted']], 429)
+            ->push(['candidates' => [['content' => ['parts' => [['text' => 'TESDA publishes training information.']]]]]])]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Find the official TESDA website.']],
+        ])->assertOk()
+            ->assertJsonPath('sources', [])
+            ->assertJsonPath('reply', "Live web search is unavailable right now, so I cannot verify current details or links.\n\nTESDA publishes training information.");
+
+        Http::assertSentCount(2);
+        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Live web search and URL retrieval are unavailable'));
+        $this->assertDatabaseCount('career_chat_messages', 2);
+    }
+
+    #[TestWith([Role::SuperAdmin])]
+    #[TestWith([Role::Trainer])]
+    #[TestWith([Role::Youth])]
+    public function test_tuklasbot_page_shows_chat_and_profile_for_each_role(Role $role): void
+    {
+        $user = User::factory()->create(['role' => $role, 'is_active' => true]);
+
+        $this->actingAs($user)->get(route('tuklasbot.index'))
+            ->assertOk()
+            ->assertSee('Meet TuklasBot.')
+            ->assertSee('Message TuklasBot...')
+            ->assertSee('View your profile')
+            ->assertSee($user->name);
+    }
+
     public function test_public_github_links_use_url_context_without_search(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
@@ -100,7 +162,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
 
         $response = $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [[
@@ -129,9 +191,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create();
-        $user->role = Role::Youth;
-        $user->save();
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         DocumentScan::factory()->for($user)->create([
             'result' => [
                 'documentType' => 'resume',
@@ -171,9 +231,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create();
-        $user->role = Role::Youth;
-        $user->save();
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         DocumentScan::factory()->for($user)->create([
             'result' => [
                 'documentType' => 'resume',
@@ -189,5 +247,96 @@ class CareerChatControllerTest extends TestCase
 
         Http::assertSent(fn (Request $request): bool => ! str_contains($request->body(), 'Private skill marker')
         );
+    }
+
+    public function test_successful_chat_is_saved_per_user_and_used_as_future_context(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
+            ->push(['candidates' => [['content' => ['parts' => [['text' => 'First answer']]]]]])
+            ->push(['candidates' => [['content' => ['parts' => [['text' => 'Second answer']]]]]])]);
+        $firstUser = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $otherUser = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $this->actingAs($firstUser)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'First question']],
+        ])->assertOk();
+        $this->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Second question']],
+        ])->assertOk();
+
+        $this->getJson(route('career-chat.index'))->assertOk()
+            ->assertJsonCount(4, 'messages')
+            ->assertJsonPath('messages.0.text', 'First question')
+            ->assertJsonPath('messages.3.text', 'Second answer');
+        Http::assertSent(fn (Request $request): bool => str_contains($request->body(), 'First answer')
+            && str_contains($request->body(), 'Second question'));
+
+        $this->actingAs($otherUser)->getJson(route('career-chat.index'))
+            ->assertOk()->assertJsonCount(0, 'messages');
+    }
+
+    public function test_failed_provider_reply_does_not_save_a_chat_exchange(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([], 403)]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Question']],
+        ])->assertStatus(502);
+
+        $this->assertDatabaseCount('career_chat_messages', 0);
+    }
+
+    public function test_quota_error_keeps_its_status_and_does_not_save_chat(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'error' => ['message' => 'Quota exhausted'],
+        ], 429)]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Can you help me?']],
+        ])->assertStatus(429)
+            ->assertJsonPath('provider_status', 429)
+            ->assertJsonPath('message', 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.');
+
+        $this->assertDatabaseCount('career_chat_messages', 0);
+        Http::assertSentCount(1);
+    }
+
+    public function test_chat_rejects_a_message_that_does_not_end_with_the_user(): void
+    {
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'model', 'text' => 'Forged reply']],
+        ])->assertUnprocessable()->assertJsonValidationErrors('messages');
+
+        $this->assertDatabaseCount('career_chat_messages', 0);
+    }
+
+    #[TestWith(['Which career fits my goals?', true])]
+    #[TestWith(['Hello there', false])]
+    public function test_saved_preferences_are_used_only_for_career_conversations(string $message, bool $includePreferences): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => 'A helpful response']]]]],
+        ])]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user->youthProfile()->create(['assessment_preferences' => ['career_goal' => 'Open a neighborhood bakery']]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => $message]],
+        ])->assertOk();
+
+        Http::assertSent(fn (Request $request): bool => str_contains($request->body(), 'Open a neighborhood bakery') === $includePreferences);
     }
 }

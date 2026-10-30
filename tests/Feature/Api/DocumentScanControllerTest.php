@@ -102,6 +102,7 @@ class DocumentScanControllerTest extends TestCase
     public function test_certificate_scan_saves_tesda_recommendations_from_gemini(): void
     {
         $youth = $this->createYouth();
+        $youth->youthProfile()->create(['assessment_preferences' => ['career_goal' => 'Open a neighborhood bakery', 'schedule' => 'Weekends']]);
         Storage::fake('local');
         config()->set('services.google.gemini_api_key', 'test-key');
         config()->set('services.google.gemini_model', 'gemini-3.7-flash');
@@ -127,8 +128,49 @@ class DocumentScanControllerTest extends TestCase
         $this->assertSame([], Storage::disk('local')->allFiles());
         Http::assertSentCount(1);
         Http::assertSent(fn (Request $request): bool => str_contains(data_get($request->data(), 'contents.0.parts.0.text', ''), 'Help me pursue a culinary career.')
+            && str_contains($request->body(), 'Open a neighborhood bakery')
+            && str_contains($request->body(), 'Weekends')
             && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Cookery NC II')
             && ! str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), '2D Animation NC III (Superseded)'));
+    }
+
+    public function test_scan_calculates_career_skill_coverage_from_documented_role_skills(): void
+    {
+        $youth = $this->createYouth();
+        Storage::fake('local');
+        config()->set('services.google.gemini_api_key', 'test-key');
+        config()->set('services.google.gemini_model', 'gemini-3.7-flash');
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => json_encode([
+                'documentType' => 'resume',
+                'summary' => 'HTML and CSS projects are documented.',
+                'skillsDetected' => ['HTML', 'CSS'],
+                'careerMatches' => [[
+                    'name' => 'Web developer', 'match' => 'Some relevant projects',
+                    'roleSkills' => ['HTML', 'CSS', 'JavaScript', 'Git'],
+                    'evidencedSkills' => ['HTML', 'CSS', 'Unlisted skill'],
+                ]],
+                'jobRecommendations' => [[
+                    'title' => 'Web developer', 'reason' => 'Projects align with web work.',
+                    'roleSkills' => ['HTML', 'CSS', 'JavaScript', 'Git'],
+                    'evidencedSkills' => ['HTML', 'CSS'],
+                ]],
+                'tesdaRecommendations' => ['Web Development NC III — Explore a suitable program.'],
+            ])]]]]],
+        ])]);
+
+        $this->actingAs($youth)->postJson(route('document-scans.store'), [
+            'file' => UploadedFile::fake()->createWithContent('resume.pdf', "%PDF-1.4\nResume\n%%EOF"),
+        ])->assertCreated()
+            ->assertJsonPath('document.analysis.careerMatches.0.skillCoverage.percent', 50)
+            ->assertJsonPath('document.analysis.jobRecommendations.0.skillCoverage.matched', 2)
+            ->assertJsonPath('document.analysis.jobRecommendations.0.skillsToDevelop.0', 'JavaScript');
+
+        $this->assertSame(50, DocumentScan::query()->sole()->result['careerMatches'][0]['skillCoverage']['percent']);
+        $this->get(route('youth.dashboard'))->assertSee('50% of listed role skills documented');
+        $this->get(route('peso.index'))->assertSee('2 of 4 listed role skills documented in this scan');
+        $this->getJson(route('mobile.peso.index'))->assertJsonPath('matches.0.job_recommendations.0.skillCoverage.percent', 50);
     }
 
     public function test_scan_fills_missing_tesda_recommendations_with_a_catalog_checked_ai_match(): void
@@ -174,7 +216,7 @@ class DocumentScanControllerTest extends TestCase
 
         $this->actingAs($youth)->postJson(route('document-scans.store'), [
             'file' => UploadedFile::fake()->createWithContent('resume.pdf', "%PDF-1.4\nResume\n%%EOF"),
-        ])->assertStatus(502);
+        ])->assertStatus(429)->assertJsonPath('provider_status', 429);
 
         $this->assertDatabaseCount('document_scans', 0);
         $this->assertDatabaseCount('youth_profiles', 0);
@@ -217,7 +259,8 @@ class DocumentScanControllerTest extends TestCase
         if ($recovers) {
             $response->assertCreated();
         } else {
-            $response->assertStatus(502)->assertJsonPath('message', 'Gemini is temporarily busy. Please try the scan again shortly.');
+            $response->assertStatus(503)->assertJsonPath('provider_status', 503)
+                ->assertJsonPath('message', 'Gemini is temporarily busy. Please try the scan again shortly.');
         }
         $this->assertDatabaseCount('document_scans', $recovers ? 1 : 0);
         $this->assertSame([], Storage::disk('local')->allFiles());

@@ -17,6 +17,12 @@
             <span class="tesda-count">{{ $programCount }} published</span>
         </div>
         <p class="tesda-note">This list includes programs published in Tuklas by authorized local staff. Training dates, slots, requirements, and scholarship availability can change; confirm them with TESDA or the provider before applying.</p>
+        @auth
+            @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
+                <a class="tesda-manage-link" href="{{ route('trainer.programs.index') }}">My teaching courses ↗</a>
+            @endif
+            @if (session('status'))<p class="qualification-feedback" role="status">{{ session('status') }}</p>@endif
+        @endauth
 
         @if ($programCount === 0)
             <div class="tesda-empty">
@@ -45,9 +51,27 @@
                                         @endif
                                     </div>
                                     <div class="tesda-offer-meta">
-                                        @if ($program->duration_hours)<span>{{ $program->duration_hours }} training hours</span>@endif
-                                        @if ($program->schedule_note)<span>{{ $program->schedule_note }}</span>@endif
+                                        <span>{{ $program->duration_hours ? $program->duration_hours.' training hours' : 'Training hours not yet announced' }}</span>
+                                        <span>{{ $program->schedule_note ?: 'Schedule not yet announced' }}</span>
+                                        <span>Trainer: {{ $program->teachingAssignments->pluck('trainer.name')->filter()->unique()->implode(', ') ?: 'Not yet assigned' }}</span>
                                         @if ($program->last_verified_at)<small>Checked {{ $program->last_verified_at->format('M Y') }}</small>@endif
+                                        @auth
+                                            @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
+                                                @if ($teachingByProgram->has($program->id))
+                                                    <span class="tesda-application-state">On your teaching list</span>
+                                                    <form method="POST" action="{{ route('trainer.teaching.destroy', $program) }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="tesda-application-button is-secondary" type="submit">Stop teaching</button>
+                                                    </form>
+                                                @else
+                                                    <form method="POST" action="{{ route('trainer.teaching.store', $program) }}">
+                                                        @csrf
+                                                        <button class="tesda-application-button" type="submit">Choose to teach</button>
+                                                    </form>
+                                                @endif
+                                            @endif
+                                        @endauth
                                     </div>
                                 </li>
                             @endforeach

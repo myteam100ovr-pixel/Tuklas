@@ -8,6 +8,7 @@ use App\Models\DocumentScan;
 use App\Models\TrainingProgram;
 use App\Services\GeminiDocumentScanner;
 use App\Services\TesdaQualificationCatalog;
+use App\Support\ActivityNotifier;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
@@ -31,7 +32,7 @@ class DocumentScanController extends Controller
         return response()->json(['documents' => $documents]);
     }
 
-    public function store(StoreDocumentScanRequest $request, GeminiDocumentScanner $scanner, TesdaQualificationCatalog $catalog): JsonResponse
+    public function store(StoreDocumentScanRequest $request, GeminiDocumentScanner $scanner, TesdaQualificationCatalog $catalog, ActivityNotifier $activity): JsonResponse
     {
         if (! $scanner->isConfigured()) {
             return response()->json([
@@ -60,7 +61,8 @@ class DocumentScanController extends Controller
                 ])->all();
 
             $programs = collect($catalog->forScanner())->concat($publishedPrograms)->unique('title')->values()->all();
-            $analysis = $scanner->analyze($file, $programs, $validated['goal'] ?? '');
+            $preferences = $user->hasRole(Role::Youth) ? ($user->youthProfile?->careerPreferences() ?? []) : [];
+            $analysis = $scanner->analyze($file, $programs, $validated['goal'] ?? '', $preferences);
 
             if (! in_array($analysis['documentType'] ?? null, ['resume', 'certificate'], true)) {
                 return response()->json([
@@ -98,13 +100,22 @@ class DocumentScanController extends Controller
         } catch (Throwable $exception) {
             report($exception);
             $failureMessage = $this->failureMessage($exception);
+            $providerStatus = (int) $exception->getCode();
+            $responseStatus = match ($providerStatus) {
+                429 => 429,
+                500, 502, 503, 504 => 503,
+                default => 502,
+            };
 
             return response()->json([
                 'message' => $failureMessage,
-            ], 502);
+                'provider_status' => $providerStatus > 0 ? $providerStatus : null,
+            ], $responseStatus);
         } finally {
             Storage::disk('local')->delete($path);
         }
+
+        $activity->record($user, 'completed a document scan.');
 
         return response()->json([
             'document' => $this->presentDocument($scan),

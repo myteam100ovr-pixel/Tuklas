@@ -23,7 +23,7 @@ class YouthProfile extends Model
 
     protected $fillable = [
         'barangay', 'contact_number', 'educational_attainment', 'employment_status',
-        'livelihood_interests', 'interests', 'skills', 'credentials',
+        'livelihood_interests', 'interests', 'skills', 'credentials', 'assessment_preferences',
         'guardian_name', 'guardian_relationship', 'guardian_contact',
     ];
 
@@ -33,6 +33,7 @@ class YouthProfile extends Model
             'interests' => 'array',
             'skills' => 'array',
             'credentials' => 'array',
+            'assessment_preferences' => 'array',
             'scan_consent_at' => 'datetime',
         ];
     }
@@ -40,5 +41,21 @@ class YouthProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** @return array<string, array<int, string>> */
+    public function careerPreferences(): array
+    {
+        $preferences = [];
+        foreach (['interests' => $this->interests, ...($this->assessment_preferences ?? [])] as $key => $value) {
+            $values = is_array($value) ? $value : [$value];
+            $clean = collect($values)->filter(fn (mixed $item): bool => is_string($item) && trim($item) !== '')
+                ->map(fn (string $item): string => mb_substr(trim($item), 0, 500))->take(12)->values()->all();
+            if ($clean !== []) {
+                $preferences['user_preference_'.$key] = $clean;
+            }
+        }
+
+        return $preferences;
     }
 }
