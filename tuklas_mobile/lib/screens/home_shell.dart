@@ -8,6 +8,8 @@ import 'profile_view.dart';
 import 'peso_view.dart';
 import 'scanner_view.dart';
 import 'tesda_view.dart';
+import 'workspace_view.dart';
+import 'chat_view.dart';
 
 /// Branded header and bottom navigation around the selected app section.
 class HomeShell extends StatefulWidget {
@@ -30,6 +32,18 @@ class _HomeShellState extends State<HomeShell> {
     );
   }
 
+  Future<void> _openWorkspace(String section) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => section == 'TuklasBot'
+            ? const ChatView()
+            : WorkspaceView(section: section),
+      ),
+    );
+    if (mounted) setState(() => _version++);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +51,33 @@ class _HomeShellState extends State<HomeShell> {
         child: Column(
           children: [
             const TkHeader(),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  for (final section in [
+                    'TuklasBot',
+                    'Notifications',
+                    'Training plans',
+                    if (ApiClient.instance.user?['role'] == 'youth')
+                      'Skills assessment',
+                    if (ApiClient.instance.user?['role'] == 'trainer')
+                      'My programs',
+                    if (ApiClient.instance.user?['role'] == 'super_admin')
+                      'Users',
+                    'Account & security',
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ActionChip(
+                        label: Text(section),
+                        onPressed: () => _openWorkspace(section),
+                      ),
+                    ),
+                ],
+              ),
+            ),
             Expanded(
               child: switch (_tab) {
                 1 => const PesoView(),
@@ -56,6 +97,7 @@ class _HomeShellState extends State<HomeShell> {
                   onOpenScanner: () => setState(() => _tab = 2),
                   onOpenTesda: () => setState(() => _tab = 3),
                   onLogout: _logout,
+                  onOpenWorkspace: _openWorkspace,
                 ),
               },
             ),

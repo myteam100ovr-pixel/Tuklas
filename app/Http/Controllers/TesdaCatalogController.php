@@ -7,12 +7,13 @@ use App\Models\TrainerQualification;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Services\TesdaQualificationCatalog;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class TesdaCatalogController extends Controller
 {
-    public function index(Request $request, TesdaQualificationCatalog $catalog): View
+    public function index(Request $request, TesdaQualificationCatalog $catalog): View|JsonResponse
     {
         $choiceUser = null;
         if ($request->user()?->hasRole(Role::Youth)) {
@@ -45,7 +46,7 @@ class TesdaCatalogController extends Controller
             ? $request->user()->trainerQualifications()->get(['qualification_id', 'title', 'nc_level'])->keyBy('qualification_id')
             : collect();
 
-        return view('tesda.index', [
+        $data = [
             'nationalCatalog' => $catalog->all(),
             'programCount' => $programs->count(),
             'programGroups' => $programGroups,
@@ -56,6 +57,8 @@ class TesdaCatalogController extends Controller
                 ->with('trainer:id,name')
                 ->get(['id', 'qualification_id', 'user_id'])
                 ->groupBy('qualification_id'),
-        ]);
+        ];
+
+        return $request->routeIs('mobile.*') ? response()->json($data) : view('tesda.index', $data);
     }
 }

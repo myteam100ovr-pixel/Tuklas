@@ -8,12 +8,13 @@ use App\Models\DocumentScan;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CareerRecommendationController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         $user = $request->user();
         abort_unless($user instanceof User, 403);
@@ -51,6 +52,27 @@ class CareerRecommendationController extends Controller
 
             $recommendationGroups = collect([['name' => $user->name, 'scans' => $recommendationPages->getCollection()]]);
             $matchingScanCount = $recommendationPages->total();
+        }
+
+        if ($request->routeIs('mobile.*')) {
+            return response()->json([
+                'matches' => $recommendationGroups->flatMap(fn (array $group) => $group['scans']->map(fn (DocumentScan $scan): array => [
+                    'id' => $scan->id,
+                    'user_id' => $scan->user_id,
+                    'name' => $isPESOAdmin ? $group['name'] : null,
+                    'document_type' => $scan->doc_type,
+                    'original_name' => $scan->original_name,
+                    'processed_at' => $scan->processed_at,
+                    'job_recommendations' => data_get($scan->result, 'jobRecommendations', []),
+                    'skill_gaps' => data_get($scan->result, 'skillGaps', []),
+                    'learning_recommendations' => data_get($scan->result, 'learningRecommendations', []),
+                ]))->values(),
+                'pagination' => [
+                    'current_page' => $recommendationPages->currentPage(),
+                    'last_page' => $recommendationPages->lastPage(),
+                    'total' => $recommendationPages->total(),
+                ],
+            ]);
         }
 
         return view('peso.index', compact('recommendationPages', 'recommendationGroups', 'matchingScanCount', 'isPESOAdmin'));

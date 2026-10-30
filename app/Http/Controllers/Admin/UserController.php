@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
 use App\Support\ActivityNotifier;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ use Throwable;
 
 class UserController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         $users = User::query()
             ->when($request->query('status') === 'deleted', fn ($query) => $query->onlyTrashed())
@@ -26,7 +27,9 @@ class UserController extends Controller
             ->orderBy('id')
             ->paginate(20);
 
-        return view('admin.users.index', ['users' => $users]);
+        $data = ['users' => $users];
+
+        return $request->routeIs('mobile.*') ? response()->json($data) : view('admin.users.index', $data);
     }
 
     public function create(): View
@@ -34,7 +37,7 @@ class UserController extends Controller
         return view('admin.users.form', ['account' => new User]);
     }
 
-    public function store(Request $request, ActivityNotifier $activity): RedirectResponse
+    public function store(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $data = $this->validatedData($request);
         $data['is_active'] = (bool) $data['is_active'];
@@ -65,15 +68,21 @@ class UserController extends Controller
         $account->notify(new WorkspaceNotice('Account created', 'An administrator created your Tuklas account. You can sign in using the password they provided.'));
         $activity->record($request->user(), 'created '.$account->role->label().' account '.$account->name.'.');
 
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Account created and email verification completed.']);
+        }
+
         return redirect()->route('admin.users.index')->with('status', 'Account created and email verification completed.');
     }
 
-    public function edit(User $user): View
+    public function edit(Request $request, User $user): View|JsonResponse
     {
-        return view('admin.users.form', ['account' => $user->loadMissing('youthProfile')]);
+        $data = ['account' => $user->loadMissing('youthProfile')];
+
+        return $request->routeIs('mobile.*') ? response()->json($data) : view('admin.users.form', $data);
     }
 
-    public function update(Request $request, User $user, ActivityNotifier $activity): RedirectResponse
+    public function update(Request $request, User $user, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $data = $this->validatedData($request, $user);
         $data['is_active'] = (bool) $data['is_active'];
@@ -105,10 +114,14 @@ class UserController extends Controller
         $user->notify(new WorkspaceNotice('Account updated', 'An administrator updated your Tuklas account details.'));
         $activity->record($request->user(), 'updated account '.$user->name.'.');
 
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Account updated.']);
+        }
+
         return redirect()->route('admin.users.index')->with('status', 'Account updated.');
     }
 
-    public function destroy(Request $request, User $user, ActivityNotifier $activity): RedirectResponse
+    public function destroy(Request $request, User $user, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         abort_if($request->user()->is($user), 422, 'You cannot delete your own account.');
         $this->protectLastAdministrator($user, null, false);
@@ -116,19 +129,27 @@ class UserController extends Controller
         $user->delete();
         $activity->record($request->user(), 'deleted account '.$name.'.');
 
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Account deleted. It can be restored from Deleted accounts.']);
+        }
+
         return redirect()->route('admin.users.index')->with('status', 'Account deleted. It can be restored from Deleted accounts.');
     }
 
-    public function restore(Request $request, int $user, ActivityNotifier $activity): RedirectResponse
+    public function restore(Request $request, int $user, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $account = User::onlyTrashed()->findOrFail($user);
         $account->restore();
         $activity->record($request->user(), 'restored account '.$account->name.'.');
 
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Account restored.']);
+        }
+
         return redirect()->route('admin.users.index', ['status' => 'deleted'])->with('status', 'Account restored.');
     }
 
-    public function resetPassword(Request $request, User $user, ActivityNotifier $activity): RedirectResponse
+    public function resetPassword(Request $request, User $user, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $user->forceFill(['admin_password_reset_requested_at' => now()])->save();
         try {
@@ -140,6 +161,12 @@ class UserController extends Controller
 
         $user->notify(new WorkspaceNotice('Password reset requested', 'An administrator requested a password reset for your account. Use the reset action here within 60 minutes, or check your email for a reset link.', 'account', null, route('account.password-reset.edit')));
         $activity->record($request->user(), 'requested a password reset for '.$user->name.'.');
+
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => $status === Password::RESET_LINK_SENT
+            ? 'Reset action added to the user’s notifications and an email link sent.'
+            : 'Reset action added to the user’s notifications. The email link could not be sent.']);
+        }
 
         return back()->with('status', $status === Password::RESET_LINK_SENT
             ? 'Reset action added to the user’s notifications and an email link sent.'

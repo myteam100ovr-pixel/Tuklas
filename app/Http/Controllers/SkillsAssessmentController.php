@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\ActivityNotifier;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -23,17 +24,19 @@ class SkillsAssessmentController extends Controller
         'support_needs' => ['Free or low-cost training', 'Scholarship information', 'Nearby training providers', 'Flexible schedule', 'Access to a device or internet', 'Help preparing requirements'],
     ];
 
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
-        return view('youth.skills-assessment', [
+        $data = [
             'skills' => self::SKILLS,
             'interests' => self::INTERESTS,
             'profile' => $request->user()->youthProfile,
             'preferenceOptions' => self::PREFERENCES,
-        ]);
+        ];
+
+        return $request->routeIs('mobile.*') ? response()->json($data) : view('youth.skills-assessment', $data);
     }
 
-    public function store(Request $request, ActivityNotifier $activity): RedirectResponse
+    public function store(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $rules = [
             'skills' => ['sometimes', 'array', 'max:16'],
@@ -60,6 +63,10 @@ class SkillsAssessmentController extends Controller
         $profile->assessment_preferences = collect($validated)->except(['skills', 'interests'])->all();
         $profile->save();
         $activity->record($request->user(), 'updated their skills assessment.');
+
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Your skills and preferences are saved. Your next AI scan and career chat will consider your goals, interests, and training preferences.']);
+        }
 
         return redirect()->route('youth.assessment.index')->with('status', 'Your skills and preferences are saved. Your next AI scan and career chat will consider your goals, interests, and training preferences.');
     }

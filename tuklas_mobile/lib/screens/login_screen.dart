@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../config.dart';
 
 import '../api.dart';
 import '../theme.dart';
 import '../ui.dart';
 import 'home_shell.dart';
+import 'workspace_form.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +19,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _name = TextEditingController();
+  final _lastName = TextEditingController();
+  final _birthDate = TextEditingController();
+  final _contact = TextEditingController();
+  final _barangay = TextEditingController();
   final _password = TextEditingController();
   final _passwordConfirmation = TextEditingController();
   final _code = TextEditingController();
@@ -28,6 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _email.dispose();
     _name.dispose();
+    _lastName.dispose();
+    _birthDate.dispose();
+    _contact.dispose();
+    _barangay.dispose();
     _password.dispose();
     _passwordConfirmation.dispose();
     _code.dispose();
@@ -41,11 +53,21 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       if (_registering) {
-        final response = await ApiClient.instance.register(
-          name: _name.text.trim(),
-          email: _email.text.trim(),
-          password: _password.text,
-          passwordConfirmation: _passwordConfirmation.text,
+        final response = await ApiClient.instance.workspace(
+          '/auth/register',
+          method: 'POST',
+          auth: false,
+          data: {
+            'first_name': _name.text.trim(),
+            'last_name': _lastName.text.trim(),
+            'date_of_birth': _birthDate.text.trim(),
+            'contact_number': _contact.text.trim(),
+            'barangay': _barangay.text.trim(),
+            'email': _email.text.trim(),
+            'password': _password.text,
+            'password_confirmation': _passwordConfirmation.text,
+            'device_name': 'tuklas-mobile',
+          },
         );
         if (!mounted) return;
         setState(() {
@@ -168,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 16),
                             ],
                             if (_registering) ...[
-                              _label(context, 'Full name'),
+                              _label(context, 'First name'),
                               TextField(
                                 controller: _name,
                                 textCapitalization: TextCapitalization.words,
@@ -176,6 +198,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: tkText(context, size: 14.5),
                               ),
                               const SizedBox(height: 16),
+                              for (final field in [
+                                ('Last name', _lastName),
+                                ('Birth date (YYYY-MM-DD)', _birthDate),
+                                ('Contact number', _contact),
+                                ('Barangay', _barangay),
+                              ]) ...[
+                                _label(context, field.$1),
+                                TextField(
+                                  controller: field.$2,
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        field.$1 == 'Birth date (YYYY-MM-DD)'
+                                        ? 'YYYY-MM-DD'
+                                        : null,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
                             ],
                             _label(context, 'Email'),
                             TextField(
@@ -206,10 +246,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                             if (_needsCode) ...[
                               const SizedBox(height: 16),
-                              _label(context, 'Two-factor code'),
+                              _label(context, 'Authenticator or recovery code'),
                               TextField(
                                 controller: _code,
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.text,
                                 style: tkText(context, size: 14.5),
                               ),
                             ],
@@ -251,6 +291,73 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                               ),
                             ),
+                            if (!_registering)
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  for (final provider in ['google', 'facebook'])
+                                    OutlinedButton(
+                                      onPressed: _loading
+                                          ? null
+                                          : () async {
+                                              try {
+                                                final uri =
+                                                    Uri.parse(
+                                                      AppConfig.apiBase,
+                                                    ).resolve(
+                                                      '/auth/$provider/redirect?mobile=1',
+                                                    );
+                                                if (!await launchUrl(
+                                                  uri,
+                                                  mode: LaunchMode
+                                                      .externalApplication,
+                                                )) {
+                                                  throw StateError(
+                                                    'Could not open sign-in',
+                                                  );
+                                                }
+                                              } catch (_) {
+                                                if (mounted) {
+                                                  setState(
+                                                    () => _error = 'Could not open sign-in. Please try again.',
+                                                  );
+                                                }
+                                              }
+                                            },
+                                      child: Text(
+                                        'Continue with ${provider == 'google' ? 'Google' : 'Facebook'}',
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            if (!_registering)
+                              TextButton(
+                                onPressed: _loading
+                                    ? null
+                                    : () async {
+                                        final result = await openWorkspaceForm(
+                                          context,
+                                          title: 'Request password reset',
+                                          path: '/auth/forgot-password',
+                                          auth: false,
+                                          fields: const [
+                                            WorkspaceField(
+                                              'email',
+                                              'Email',
+                                              required: true,
+                                            ),
+                                          ],
+                                          initial: {'email': _email.text},
+                                        );
+                                        if (mounted && result != null) {
+                                          setState(
+                                            () => _notice =
+                                                '${result['message']}',
+                                          );
+                                        }
+                                      },
+                                child: const Text('Forgot password?'),
+                              ),
                             const SizedBox(height: 10),
                             Center(
                               child: TextButton(

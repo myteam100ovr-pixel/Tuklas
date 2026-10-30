@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api.dart';
+import 'workspace_view.dart';
 import '../theme.dart';
 import '../ui.dart';
 
@@ -291,8 +292,18 @@ class _ProfileViewState extends State<ProfileView> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Changing your password, two-factor authentication, and browser sessions are done on the Tuklas website.',
+            'Manage your account details, password, and two-factor authentication here.',
             style: tkText(context, size: 13, color: c.muted, height: 1.5),
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    const WorkspaceView(section: 'Account & security'),
+              ),
+            ),
+            child: const Text('Open account & security'),
           ),
         ],
       ),

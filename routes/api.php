@@ -1,11 +1,20 @@
 <?php
 
+use App\Http\Controllers\AccountPasswordResetController;
+use App\Http\Controllers\Admin\CareerRecommendationController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\MobileCatalogController;
 use App\Http\Controllers\Api\MobileDashboardController;
-use App\Http\Controllers\Api\MobilePesoController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DocumentScanController;
+use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\SkillsAssessmentController;
+use App\Http\Controllers\TesdaCatalogController;
+use App\Http\Controllers\TesdaChoiceController;
+use App\Http\Controllers\Trainer\TeachingAssignmentController;
+use App\Http\Controllers\Trainer\TrainerQualificationController;
+use App\Http\Controllers\Trainer\TrainingProgramController;
 use App\Http\Controllers\YouthProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,8 +55,31 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             ->middleware('throttle:6,1')->name('verification.send');
 
         Route::middleware('verified')->group(function () {
+            Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
+            Route::post('/notifications/read-all', [NotificationsController::class, 'readAll'])->name('notifications.read-all');
+            Route::post('/notifications/{notification}/read', [NotificationsController::class, 'read'])->name('notifications.read');
+            Route::put('/account/password-reset', [AccountPasswordResetController::class, 'update'])->name('account.password-reset');
+            Route::get('/tesda/choices', [TesdaChoiceController::class, 'index'])->name('tesda.choices');
+            Route::post('/tesda/choice', [TesdaChoiceController::class, 'store'])->name('tesda.choice');
+            Route::get('/tesda/workspace', [TesdaCatalogController::class, 'index'])->name('tesda.workspace');
+            Route::get('/trainer/programs', [TrainingProgramController::class, 'index'])->middleware('role:trainer')->name('trainer.programs.index');
+            Route::post('/trainer/programs', [TrainingProgramController::class, 'store'])->middleware('role:trainer')->name('trainer.programs.store');
+            Route::put('/trainer/programs/{program}', [TrainingProgramController::class, 'update'])->middleware('role:trainer')->name('trainer.programs.update');
+            Route::post('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'store'])->middleware('role:trainer')->name('trainer.teaching.store');
+            Route::delete('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->middleware('role:trainer')->name('trainer.teaching.destroy');
+            Route::post('/trainer/qualifications', [TrainerQualificationController::class, 'store'])->middleware('role:trainer')->name('trainer.qualifications.store');
+            Route::delete('/trainer/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->middleware('role:trainer')->name('trainer.qualifications.destroy');
+            Route::get('/admin/users', [UserController::class, 'index'])->middleware('role:super_admin')->name('admin.users.index');
+            Route::post('/admin/users', [UserController::class, 'store'])->middleware('role:super_admin')->name('admin.users.store');
+            Route::get('/admin/users/{user}', [UserController::class, 'edit'])->middleware('role:super_admin')->name('admin.users.show');
+            Route::put('/admin/users/{user}', [UserController::class, 'update'])->middleware('role:super_admin')->name('admin.users.update');
+            Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->middleware('role:super_admin')->name('admin.users.destroy');
+            Route::post('/admin/users/{user}/restore', [UserController::class, 'restore'])->middleware('role:super_admin')->name('admin.users.restore');
+            Route::post('/admin/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('role:super_admin')->middleware('throttle:5,1')->name('admin.users.reset-password');
+            Route::get('/assessment', [SkillsAssessmentController::class, 'index'])->middleware('role:youth')->name('assessment.index');
+            Route::post('/assessment', [SkillsAssessmentController::class, 'store'])->middleware('role:youth')->name('assessment.store');
             Route::get('/dashboard', [MobileDashboardController::class, 'index'])->name('dashboard');
-            Route::get('/peso', [MobilePesoController::class, 'index'])->name('peso.index');
+            Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
             Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
             Route::post('/career-chat', CareerChatController::class)
                 ->middleware('throttle:10,1')->name('career-chat.store');

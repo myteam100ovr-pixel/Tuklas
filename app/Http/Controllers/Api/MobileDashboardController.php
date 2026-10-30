@@ -104,9 +104,9 @@ class MobileDashboardController extends Controller
                 ],
             ],
             'actions' => $this->actions([
-                ['Manage users', null, 'users'],
-                ['Career paths', null, 'briefcase'],
-                ['Training catalog', null, 'cap'],
+                ['Manage users', 'users', 'users'],
+                ['Career paths', 'peso', 'briefcase'],
+                ['Training catalog', 'tesda', 'cap'],
                 ['Edit profile', 'profile', 'user'],
                 ['Scanner', 'scanner', 'scan'],
                 ['PESO job matches', 'peso', 'briefcase'],
@@ -183,8 +183,8 @@ class MobileDashboardController extends Controller
                 ],
             ],
             'actions' => $this->actions([
-                ['My programs', null, 'cap'],
-                ['Add a program', null, 'clipboard'],
+                ['My programs', 'programs', 'cap'],
+                ['Add a program', 'programs', 'clipboard'],
                 ['Edit profile', 'profile', 'user'],
                 ['Scanner', 'scanner', 'scan'],
                 ['PESO job matches', 'peso', 'briefcase'],
@@ -204,7 +204,7 @@ class MobileDashboardController extends Controller
         $recent = (clone $scans)->latest()->limit(6)->get();
         $latestAnalysis = (clone $scans)
             ->where('status', 'done')
-            ->latest()
+            ->latest('processed_at')
             ->value('result') ?? [];
 
         return [
@@ -219,7 +219,7 @@ class MobileDashboardController extends Controller
                 'skills' => $user->youthProfile?->skills ?? [],
                 'credentials' => $user->youthProfile?->credentials ?? [],
                 'job_roles' => $latestAnalysis['careerMatches'] ?? $latestAnalysis['job_roles'] ?? [],
-                'tesda_training' => $latestAnalysis['tesda_training'] ?? [],
+                'tesda_training' => $latestAnalysis['tesdaRecommendations'] ?? $latestAnalysis['tesda_training'] ?? [],
                 'job_recommendations' => $latestAnalysis['jobRecommendations'] ?? [],
                 'skill_gaps' => $latestAnalysis['skillGaps'] ?? [],
                 'learning_recommendations' => $latestAnalysis['learningRecommendations'] ?? [],
@@ -262,7 +262,7 @@ class MobileDashboardController extends Controller
                 'items' => [
                     $this->task('Complete your profile', $completion['percent'].'% done', 'Schooling, skills, and interests shape your guidance.', $completion['percent'] >= 100, 'profile'),
                     $this->task('Scan a resume or certificate', $scanned.' scanned', 'Let Google Gemini suggest skills and credentials.', $scanned > 0, 'scanner'),
-                    $this->task('Take the skills assessment', $user->youthProfile?->assessment_preferences !== null ? 'Saved on your account' : 'Available on the website', 'Reflect on your skills and training interests.', $user->youthProfile?->assessment_preferences !== null),
+                    $this->task('Take the skills assessment', $user->youthProfile?->assessment_preferences !== null ? 'Saved on your account' : 'Ready to complete', 'Reflect on your skills and training interests.', $user->youthProfile?->assessment_preferences !== null, 'assessment'),
                     $this->task('See PESO job matches', $scanned > 0 ? 'View your career matches' : 'Scan a resume to get matches', 'Explore roles suggested from your scanned resume and certificates.', $scanned > 0, 'peso'),
                 ],
             ],

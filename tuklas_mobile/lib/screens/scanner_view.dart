@@ -444,12 +444,11 @@ class _ScannerViewState extends State<ScannerView> {
     if (item is! Map) return '$item';
 
     final title = item['title'] ?? item['name'] ?? 'Recommendation';
-    final match = item['match'];
     final reason = item['reason'];
     final description = item['description'];
     final source = item['source'] ?? item['site'];
     final details = <String>[
-      if (match != null && '$match'.isNotEmpty) '$match match',
+      if (tkSkillCoverageDetails(item).isNotEmpty) tkSkillCoverageDetails(item),
       if (reason != null && '$reason'.isNotEmpty) '$reason',
       if (description != null && '$description'.isNotEmpty) '$description',
       if (source != null && '$source'.isNotEmpty) '$source',

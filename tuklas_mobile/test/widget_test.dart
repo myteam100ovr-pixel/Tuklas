@@ -36,7 +36,10 @@ void main() {
     await tester.tap(find.text('New to Tuklas? Create an account'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Full name'), findsOneWidget);
+    expect(find.text('First name'), findsOneWidget);
+    expect(find.text('Last name'), findsOneWidget);
+    expect(find.text('Barangay'), findsOneWidget);
+    expect(find.text('Birth date (YYYY-MM-DD)'), findsOneWidget);
     expect(find.text('Confirm password'), findsOneWidget);
     expect(find.text('Create account'), findsOneWidget);
     expect(find.text('Already have an account? Log in'), findsOneWidget);

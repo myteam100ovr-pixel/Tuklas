@@ -105,19 +105,19 @@ class ApiClient {
       case 'GET':
         response = await http
             .get(uri, headers: headers)
-            .timeout(const Duration(seconds: 15));
+            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
       case 'POST':
         response = await http
             .post(uri, headers: headers, body: encoded)
-            .timeout(const Duration(seconds: 15));
+            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
       case 'PUT':
         response = await http
             .put(uri, headers: headers, body: encoded)
-            .timeout(const Duration(seconds: 15));
+            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
       case 'DELETE':
         response = await http
             .delete(uri, headers: headers)
-            .timeout(const Duration(seconds: 15));
+            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
       default:
         throw ArgumentError('Unsupported method $method');
     }
@@ -137,12 +137,29 @@ class ApiClient {
         'email': email,
         'password': password,
         'device_name': 'tuklas-mobile',
-        if (code != null && code.isNotEmpty) 'code': code,
+        if (code != null && code.isNotEmpty)
+          (RegExp(r'^\d{6}$').hasMatch(code) ? 'code' : 'recovery_code'): code,
       },
     );
     await _storage.write(key: _tokenKey, value: body['token'] as String);
     user = Map<String, dynamic>.from(body['user'] as Map);
     return user!;
+  }
+
+  Future<void> exchangeSocialTicket(String ticket, {String code = ''}) async {
+    final body = await _send(
+      'POST',
+      '/auth/social/exchange',
+      auth: false,
+      body: {
+        'ticket': ticket,
+        'device_name': 'tuklas-mobile',
+        if (code.isNotEmpty)
+          (RegExp(r'^\d{6}$').hasMatch(code) ? 'code' : 'recovery_code'): code,
+      },
+    );
+    await _storage.write(key: _tokenKey, value: body['token'] as String);
+    user = Map<String, dynamic>.from(body['user'] as Map);
   }
 
   Future<Map<String, dynamic>> register({
@@ -168,6 +185,13 @@ class ApiClient {
     user = Map<String, dynamic>.from(body['user'] as Map);
     return user!;
   }
+
+  Future<Map<String, dynamic>> workspace(
+    String path, {
+    String method = 'GET',
+    Map<String, dynamic>? data,
+    bool auth = true,
+  }) => _send(method, path, body: data, auth: auth);
 
   Future<Map<String, dynamic>> dashboard() => _send('GET', '/dashboard');
 

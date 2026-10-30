@@ -35,7 +35,7 @@ class MobileAuthController extends Controller
         ]);
 
         $user = $createUser->create($request->only([
-            'name', 'email', 'password', 'password_confirmation', 'terms',
+            'name', 'first_name', 'last_name', 'contact_number', 'barangay', 'date_of_birth', 'email', 'password', 'password_confirmation', 'terms',
         ]));
 
         event(new Registered($user));

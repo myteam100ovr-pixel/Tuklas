@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Fortify\PasswordValidationRules;
 use App\Support\ActivityNotifier;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,7 @@ class AccountPasswordResetController extends Controller
         return view('notifications.reset-password');
     }
 
-    public function update(Request $request, ActivityNotifier $activity): RedirectResponse
+    public function update(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         abort_unless($this->hasPendingReset($request), 404);
         $data = $request->validate(['password' => $this->passwordRules()]);
@@ -30,6 +31,10 @@ class AccountPasswordResetController extends Controller
             'admin_password_reset_requested_at' => null,
         ])->save();
         $activity->record($user, 'completed an administrator-requested password reset.');
+
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Your password was updated.']);
+        }
 
         return redirect()->route('notifications.index')->with('status', 'Your password was updated.');
     }

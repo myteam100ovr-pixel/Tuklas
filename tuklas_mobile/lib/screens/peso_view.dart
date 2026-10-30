@@ -13,16 +13,17 @@ class PesoView extends StatefulWidget {
 }
 
 class _PesoViewState extends State<PesoView> {
-  late Future<List<dynamic>> _matches;
+  int _page = 1;
+  late Future<Map<String, dynamic>> _matches;
 
   @override
   void initState() {
     super.initState();
-    _matches = ApiClient.instance.pesoMatches();
+    _matches = ApiClient.instance.workspace('/peso?page=$_page');
   }
 
   Future<void> _reload() async {
-    final request = ApiClient.instance.pesoMatches();
+    final request = ApiClient.instance.workspace('/peso?page=$_page');
     setState(() => _matches = request);
     await request;
   }
@@ -31,7 +32,7 @@ class _PesoViewState extends State<PesoView> {
   Widget build(BuildContext context) {
     final colors = TkColors.of(context);
 
-    return FutureBuilder<List<dynamic>>(
+    return FutureBuilder<Map<String, dynamic>>(
       future: _matches,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
@@ -63,7 +64,8 @@ class _PesoViewState extends State<PesoView> {
           );
         }
 
-        final matches = snapshot.data ?? [];
+        final matches = asList(snapshot.data?['matches']);
+        final pagination = asMap(snapshot.data?['pagination']);
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
           children: [
@@ -94,6 +96,31 @@ class _PesoViewState extends State<PesoView> {
                       const SizedBox(height: 12),
                       _matchCard(context, asMap(raw)),
                     ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: _page > 1
+                              ? () {
+                                  _page--;
+                                  _reload();
+                                }
+                              : null,
+                          child: const Text('Previous'),
+                        ),
+                        Text('Page $_page of ${pagination['last_page'] ?? 1}'),
+                        TextButton(
+                          onPressed:
+                              _page < (pagination['last_page'] as num? ?? 1)
+                              ? () {
+                                  _page++;
+                                  _reload();
+                                }
+                              : null,
+                          child: const Text('Next'),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Suggestions are guidance, not guarantees of employment.',
@@ -160,7 +187,12 @@ class _PesoViewState extends State<PesoView> {
     final value = asMap(item);
     final title = value['title'] ?? value['name'] ?? item;
     final details = [
-      if (value['match'] != null) '${value['match']} match',
+      if (value['skillCoverage'] is Map)
+        '${value['skillCoverage']['percent']}% documented skill coverage (${value['skillCoverage']['matched']} of ${value['skillCoverage']['total']} listed skills)',
+      if (asList(value['evidencedSkills']).isNotEmpty)
+        'Documented: ${asList(value['evidencedSkills']).join(', ')}',
+      if (asList(value['skillsToDevelop']).isNotEmpty)
+        'To develop: ${asList(value['skillsToDevelop']).join(', ')}',
       if (value['reason'] != null) '${value['reason']}',
       if (value['description'] != null) '${value['description']}',
       if (value['evidence'] != null) 'Evidence: ${value['evidence']}',

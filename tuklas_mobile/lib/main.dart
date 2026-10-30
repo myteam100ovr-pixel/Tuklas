@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'api.dart';
+import 'screens/social_callback_screen.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/welcome_screen.dart';
@@ -30,6 +31,17 @@ class TuklasApp extends StatelessWidget {
         darkTheme: tkTheme(Brightness.dark),
         themeMode: themeController.mode,
         home: const FirstLaunch(child: Gate()),
+        onGenerateRoute: (settings) {
+          final uri = Uri.tryParse(settings.name ?? '');
+          if (uri != null &&
+              (uri.path == '/social' || uri.path == '/auth/social') &&
+              (!uri.hasScheme || uri.scheme == 'tuklas')) {
+            return MaterialPageRoute(
+              builder: (_) => SocialCallbackScreen(uri: uri),
+            );
+          }
+          return null;
+        },
       ),
     );
   }

@@ -354,3 +354,15 @@ class TkBottomNavigation extends StatelessWidget {
     );
   }
 }
+
+String tkSkillCoverageDetails(Map<dynamic, dynamic> item) {
+  final coverage = asMap(item['skillCoverage']);
+  return [
+    if (coverage.isNotEmpty)
+      '${coverage['percent']}% documented skill coverage (${coverage['matched']} of ${coverage['total']} listed skills)',
+    if (asList(item['evidencedSkills']).isNotEmpty)
+      'Documented: ${asList(item['evidencedSkills']).join(', ')}',
+    if (asList(item['skillsToDevelop']).isNotEmpty)
+      'To develop: ${asList(item['skillsToDevelop']).join(', ')}',
+  ].join('\n');
+}

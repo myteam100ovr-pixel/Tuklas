@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Trainer;
 use App\Http\Controllers\Controller;
 use App\Models\TrainingProgram;
 use App\Support\ActivityNotifier;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,9 +13,9 @@ use Illuminate\View\View;
 
 class TrainingProgramController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
-        return view('trainer.programs.index', [
+        $data = [
             'programs' => TrainingProgram::query()
                 ->where('created_by', $request->user()->id)
                 ->latest('updated_at')
@@ -24,7 +25,9 @@ class TrainingProgramController extends Controller
                 ->latest('updated_at')
                 ->get(),
             'trainerQualifications' => $request->user()->trainerQualifications()->orderBy('title')->get(),
-        ]);
+        ];
+
+        return $request->routeIs('mobile.*') ? response()->json($data) : view('trainer.programs.index', $data);
     }
 
     public function create(): View
@@ -32,7 +35,7 @@ class TrainingProgramController extends Controller
         return view('trainer.programs.form', ['program' => new TrainingProgram]);
     }
 
-    public function store(Request $request, ActivityNotifier $activity): RedirectResponse
+    public function store(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $data = $this->validatedData($request);
         $data['created_by'] = $request->user()->id;
@@ -45,6 +48,10 @@ class TrainingProgramController extends Controller
             ? 'Course published in the TESDA catalog.'
             : 'Course saved.';
 
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => $message]);
+        }
+
         return redirect()->route('trainer.programs.index')->with('status', $message);
     }
 
@@ -55,7 +62,7 @@ class TrainingProgramController extends Controller
         return view('trainer.programs.form', ['program' => $program]);
     }
 
-    public function update(Request $request, TrainingProgram $program, ActivityNotifier $activity): RedirectResponse
+    public function update(Request $request, TrainingProgram $program, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $this->authorizeOwner($request, $program);
 
@@ -66,6 +73,10 @@ class TrainingProgramController extends Controller
 
         $program->update($data);
         $activity->record($request->user(), 'updated course '.$program->title.' as '.$program->status.'.');
+
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Course updated.']);
+        }
 
         return redirect()->route('trainer.programs.index')->with('status', 'Course updated.');
     }
