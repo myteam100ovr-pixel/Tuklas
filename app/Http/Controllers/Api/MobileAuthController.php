@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
@@ -124,7 +125,10 @@ class MobileAuthController extends Controller
             ]);
         }
 
-        $user->forceFill(['password' => Hash::make($validated['password'])])->save();
+        $user->forceFill([
+            'password' => Hash::make($validated['password']),
+            'remember_token' => Str::random(60),
+        ])->save();
         $currentToken = $user->currentAccessToken();
         $tokens = $user->tokens();
 
@@ -158,7 +162,6 @@ class MobileAuthController extends Controller
 
         $status = Password::reset($validated, function (User $user, string $password) use ($validated, $resetPassword): void {
             $resetPassword->reset($user, [...$validated, 'password' => $password]);
-            $user->tokens()->delete();
         });
 
         if ($status !== Password::PASSWORD_RESET) {

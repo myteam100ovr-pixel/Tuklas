@@ -72,9 +72,10 @@ class ProfileNameTest extends TestCase
 
     public function test_legacy_full_name_updates_clear_obsolete_name_parts(): void
     {
-        $user = User::factory()->create(['name' => 'Jane Doe', 'first_name' => 'Jane', 'last_name' => 'Doe']);
+        $user = User::factory()->create(['name' => 'Jane Doe', 'first_name' => 'Jane', 'last_name' => 'Doe', 'is_active' => true]);
 
         $this->actingAs($user)->put('/user/profile-information', ['name' => 'Ana Santos', 'email' => $user->email])
+            ->assertRedirect()
             ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'Ana Santos', 'first_name' => null, 'last_name' => null]);

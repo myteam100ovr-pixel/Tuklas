@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum', 'role:super_admin,trainer,youth']);
 
 Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::post('/auth/register', [MobileAuthController::class, 'register'])
@@ -39,15 +39,19 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::middleware(['auth:sanctum', 'role:super_admin,trainer,youth'])->group(function () {
         Route::get('/me', [MobileAuthController::class, 'me'])->name('me');
         Route::put('/account', [MobileAuthController::class, 'updateAccount'])->name('account.update');
-        Route::put('/password', [MobileAuthController::class, 'updatePassword'])->name('password.update');
+        Route::put('/password', [MobileAuthController::class, 'updatePassword'])->middleware('throttle:account-security')->name('password.update');
         Route::get('/security', [MobileAuthController::class, 'security'])->name('security.show');
         Route::post('/security/two-factor', [MobileAuthController::class, 'enableTwoFactor'])
+            ->middleware('throttle:account-security')
             ->name('security.two-factor.enable');
         Route::post('/security/two-factor/confirm', [MobileAuthController::class, 'confirmTwoFactor'])
+            ->middleware('throttle:account-security')
             ->name('security.two-factor.confirm');
         Route::post('/security/two-factor/recovery-codes', [MobileAuthController::class, 'regenerateRecoveryCodes'])
+            ->middleware('throttle:account-security')
             ->name('security.two-factor.recovery-codes');
         Route::delete('/security/two-factor', [MobileAuthController::class, 'disableTwoFactor'])
+            ->middleware('throttle:account-security')
             ->name('security.two-factor.disable');
         Route::delete('/auth/token', [MobileAuthController::class, 'destroyToken'])
             ->name('auth.token.destroy');

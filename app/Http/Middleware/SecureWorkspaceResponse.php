@@ -21,7 +21,7 @@ class SecureWorkspaceResponse
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        if ($request->user()) {
+        if ($request->user() || $request->is('api/*') || $request->routeIs('login', 'register', 'password.*', 'two-factor.*', 'social.*')) {
             $response->headers->set('Cache-Control', 'no-store, private');
         }
 

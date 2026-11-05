@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AccountPasswordResetController extends Controller
@@ -28,8 +29,10 @@ class AccountPasswordResetController extends Controller
         $user = $request->user();
         $user->forceFill([
             'password' => Hash::make($data['password']),
+            'remember_token' => Str::random(60),
             'admin_password_reset_requested_at' => null,
         ])->save();
+        $user->tokens()->delete();
         $activity->record($user, 'completed an administrator-requested password reset.');
 
         if ($request->routeIs('mobile.*')) {

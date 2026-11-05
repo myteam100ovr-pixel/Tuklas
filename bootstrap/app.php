@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureActiveAccount;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\SecureWorkspaceResponse;
 use Illuminate\Foundation\Application;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecureWorkspaceResponse::class);
+        $middleware->appendToGroup('web', EnsureActiveAccount::class);
         $middleware->trustProxies(
             at: '*',
             headers: Request::HEADER_X_FORWARDED_HOST

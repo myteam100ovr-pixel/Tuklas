@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\ActivityNotifier;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
@@ -28,7 +29,10 @@ class ResetUserPassword implements ResetsUserPasswords
 
         $user->forceFill([
             'password' => Hash::make($input['password']),
+            'remember_token' => Str::random(60),
+            'admin_password_reset_requested_at' => null,
         ])->save();
+        $user->tokens()->delete();
 
         app(ActivityNotifier::class)->record($user, 'reset their password.');
     }

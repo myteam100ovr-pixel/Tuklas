@@ -41,6 +41,19 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_url',
     ];
 
+    protected static function booted(): void
+    {
+        static::updated(function (User $user): void {
+            if ($user->wasChanged(['role', 'is_active'])) {
+                $user->tokens()->delete();
+            }
+        });
+
+        static::deleted(function (User $user): void {
+            $user->tokens()->delete();
+        });
+    }
+
     protected function casts(): array
     {
         return [
