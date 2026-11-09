@@ -20,6 +20,7 @@
         <a href="#pathways">Pathways</a>
         <a href="{{ route('scanner.index') }}">Scanner</a>
         <a href="{{ route('tesda.index') }}">TESDA</a>
+        <a href="{{ url('/downloads/tuklas-mobile.apk') }}" download="tuklas-mobile.apk">Download app</a>
         <a href="#faq">FAQ</a>
         <a href="#contact">Contact</a>
         @guest
@@ -83,8 +84,11 @@
                     @else
                         <a class="btn btn-violet" href="{{ route('register') }}">Get started</a>
                         <a class="btn btn-line" href="#pathways">See how it works</a>
-                        <a class="mobile-resource-link" href="{{ route('tesda.index') }}"><span aria-hidden="true">&#8599;</span> TESDA resources</a>
                     @endauth
+                    <a class="btn btn-line" href="{{ url('/downloads/tuklas-mobile.apk') }}" download="tuklas-mobile.apk">Download Android app</a>
+                    @guest
+                        <a class="mobile-resource-link" href="{{ route('tesda.index') }}"><span aria-hidden="true">&#8599;</span> TESDA resources</a>
+                    @endguest
                 </div>
             </div>
         </div>
@@ -447,6 +451,7 @@
             <a href="#pathways">Pathways</a>
             <a href="{{ route('scanner.index') }}">Scanner</a>
             <a href="{{ route('tesda.index') }}">TESDA</a>
+            <a href="{{ url('/downloads/tuklas-mobile.apk') }}" download="tuklas-mobile.apk">Download Android app</a>
             <a href="#how">How it helps</a>
             <a href="#faq">FAQ</a>
         </nav>

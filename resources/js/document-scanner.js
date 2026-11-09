@@ -17,6 +17,7 @@ if (scanner) {
     const geminiReady = scanner.dataset.geminiReady === 'true';
     const profileSyncEnabled = scanner.dataset.profileSync === 'true';
     const maxFileSize = 10 * 1024 * 1024;
+    const maxFiles = 5;
     let selectedFiles = [];
     let isScanning = false;
 
@@ -243,16 +244,8 @@ if (scanner) {
         }
     };
 
-    const setFiles = (files) => {
+    const setFiles = (files, { replace = false } = {}) => {
         const received = Array.from(files);
-
-        if (received.length > 1) {
-            selectedFiles = [];
-            renderSelected();
-            setStatus('Choose one document per scan.', 'error');
-            input.value = '';
-            return;
-        }
 
         const invalid = received.find((file) => {
             const extension = file.name.split('.').pop()?.toLowerCase();
@@ -260,15 +253,22 @@ if (scanner) {
         });
 
         if (invalid) {
-            selectedFiles = [];
-            renderSelected();
             setStatus(`${invalid.name} is too large or uses an unsupported format.`, 'error');
             input.value = '';
             return;
         }
 
-        selectedFiles = received;
+        const combined = replace ? received : [...selectedFiles, ...received];
+        selectedFiles = combined.filter((file, index, files) =>
+            files.findIndex((candidate) => candidate.name === file.name && candidate.size === file.size && candidate.lastModified === file.lastModified) === index,
+        );
+        let exceededLimit = false;
+        if (selectedFiles.length > maxFiles) {
+            selectedFiles = selectedFiles.slice(0, maxFiles);
+            exceededLimit = true;
+        }
         renderSelected();
+        if (exceededLimit) setStatus(`You can scan up to ${maxFiles} files at a time. Extra files were not added.`, 'error');
     };
 
     const uploadFile = (file) => new Promise((resolve) => {
@@ -352,15 +352,19 @@ if (scanner) {
         chooseButton.disabled = true;
         consent.disabled = true;
         progress.hidden = false;
-        const succeeded = await uploadFile(selectedFiles[0]);
-
-        if (succeeded) {
-            setProgress(100, 'Scan complete');
-            setStatus('Document scanned. Review the insights.', 'success');
-        } else {
-            progress.hidden = true;
+        const filesToScan = [...selectedFiles];
+        const failedFiles = [];
+        let completed = 0;
+        for (const file of filesToScan) {
+            setProgress(Math.round((completed / filesToScan.length) * 100), `Scanning ${completed + 1} of ${filesToScan.length}: ${file.name}`, true);
+            const succeeded = await uploadFile(file);
+            if (succeeded) {
+                completed += 1;
+            } else {
+                failedFiles.push(file);
+            }
         }
-        selectedFiles = [];
+        selectedFiles = failedFiles;
         input.value = '';
         renderSelected();
         input.disabled = false;
@@ -369,6 +373,13 @@ if (scanner) {
         consent.disabled = false;
         isScanning = false;
         updateSubmitState();
+        if (failedFiles.length > 0) {
+            progress.hidden = true;
+            setStatus(`${completed} of ${filesToScan.length} files scanned. ${failedFiles.length} failed; keep them selected and try again.`, 'error');
+        } else {
+            setProgress(100, `${completed} ${completed === 1 ? 'document' : 'documents'} scanned`);
+            setStatus(`${completed} ${completed === 1 ? 'document' : 'documents'} scanned. Review your insights.`, 'success');
+        }
     };
 
     const loadHistory = async () => {
@@ -406,7 +417,10 @@ if (scanner) {
     };
 
     chooseButton.addEventListener('click', () => input.click());
-    input.addEventListener('change', () => setFiles(input.files));
+    input.addEventListener('change', () => {
+        setFiles(input.files);
+        input.value = '';
+    });
     consent.addEventListener('change', updateSubmitState);
     submitButton.addEventListener('click', scanDocuments);
 

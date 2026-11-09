@@ -20,7 +20,7 @@ class ScannerView extends StatefulWidget {
 class _ScannerViewState extends State<ScannerView> {
   final TextEditingController _goalController = TextEditingController();
   final ImagePicker _imagePicker = ImagePicker();
-  PlatformFile? _selectedFile;
+  final List<PlatformFile> _selectedFiles = [];
   Map<String, dynamic>? _latestDocument;
   late Future<List<dynamic>> _history;
   bool _consent = false;
@@ -47,7 +47,7 @@ class _ScannerViewState extends State<ScannerView> {
       result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
-        allowMultiple: false,
+        allowMultiple: true,
         withData: true,
       );
     } catch (_) {
@@ -58,23 +58,32 @@ class _ScannerViewState extends State<ScannerView> {
     }
     if (!mounted || result == null || result.files.isEmpty) return;
 
-    final file = result.files.single;
-    if (file.size > 10 * 1024 * 1024) {
-      setState(() {
-        _selectedFile = null;
-        _error = 'Choose a file that is 10 MB or smaller.';
-      });
+    final invalidFiles = result.files
+        .where((file) => file.size > 10 * 1024 * 1024 || file.bytes == null)
+        .toList();
+    if (invalidFiles.isNotEmpty) {
+      final invalid = invalidFiles.first;
+      setState(
+        () => _error = invalid.size > 10 * 1024 * 1024
+            ? '${invalid.name} is over 10 MB.'
+            : '${invalid.name} could not be read. Please choose it again.',
+      );
       return;
     }
-    if (file.bytes == null) {
-      setState(() {
-        _selectedFile = null;
-        _error = 'The selected file could not be read. Please choose it again.';
-      });
-      return;
-    }
-
-    setState(() => _selectedFile = file);
+    setState(() {
+      for (final file in result!.files) {
+        final duplicate = _selectedFiles.any(
+          (selected) =>
+              selected.name == file.name && selected.size == file.size,
+        );
+        if (!duplicate && _selectedFiles.length < 5) {
+          _selectedFiles.add(file);
+        }
+      }
+      _error = _selectedFiles.length >= 5
+          ? 'Up to five files can be scanned at a time.'
+          : null;
+    });
   }
 
   Future<void> _useCapturedPhoto(XFile photo) async {
@@ -92,10 +101,17 @@ class _ScannerViewState extends State<ScannerView> {
       }
 
       setState(() {
-        _selectedFile = PlatformFile(
-          name: 'camera-document-${DateTime.now().millisecondsSinceEpoch}.jpg',
-          size: bytes.length,
-          bytes: bytes,
+        if (_selectedFiles.length >= 5) {
+          _error = 'Up to five files can be scanned at a time.';
+          return;
+        }
+        _selectedFiles.add(
+          PlatformFile(
+            name:
+                'camera-document-${DateTime.now().millisecondsSinceEpoch}.jpg',
+            size: bytes.length,
+            bytes: bytes,
+          ),
         );
         _error = null;
       });
@@ -137,7 +153,9 @@ class _ScannerViewState extends State<ScannerView> {
       final lostData = await _imagePicker.retrieveLostData();
       final files = lostData.files;
       if (files != null && files.isNotEmpty) {
-        await _useCapturedPhoto(files.first);
+        for (final file in files) {
+          await _useCapturedPhoto(file);
+        }
       }
     } catch (_) {
       if (mounted) {
@@ -149,14 +167,14 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   Future<void> _scan() async {
-    final file = _selectedFile;
-    if (file == null) {
+    if (_selectedFiles.isEmpty) {
       setState(() => _error = 'Choose a document first.');
       return;
     }
     if (!_consent) {
       setState(
-        () => _error = 'Please agree before sending the document to Gemini.',
+        () => _error =
+            'Please agree before sending the selected files to Gemini.',
       );
       return;
     }
@@ -166,30 +184,45 @@ class _ScannerViewState extends State<ScannerView> {
       _error = null;
       _latestDocument = null;
     });
-    try {
-      final document = await ApiClient.instance.uploadDocument(
-        bytes: file.bytes!,
-        filename: file.name,
-        goal: _goalController.text,
-      );
-      if (!mounted) return;
-      setState(() {
-        _latestDocument = document;
-        _selectedFile = null;
-        _goalController.clear();
-        _consent = false;
-        _history = ApiClient.instance.documentScans();
-      });
-      widget.onScanComplete();
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _error = error is ApiException ? error.message : 'The scan could not be completed. Check your connection and try again.';
-      });
-      setState(() => _history = ApiClient.instance.documentScans());
-    } finally {
-      if (mounted) setState(() => _scanning = false);
+    var scanned = 0;
+    final failedFiles = <PlatformFile>[];
+    for (final file in List<PlatformFile>.from(_selectedFiles)) {
+      try {
+        final document = await ApiClient.instance.uploadDocument(
+          bytes: file.bytes!,
+          filename: file.name,
+          goal: _goalController.text,
+        );
+        if (!mounted) return;
+        setState(() {
+          _latestDocument = document;
+          _selectedFiles.remove(file);
+        });
+        scanned += 1;
+      } catch (error) {
+        failedFiles.add(file);
+        if (error is ApiException && failedFiles.length == 1) {
+          _error = error.message;
+        }
+      }
     }
+    if (!mounted) return;
+    setState(() {
+      _selectedFiles
+        ..clear()
+        ..addAll(failedFiles);
+      _consent = false;
+      if (failedFiles.isEmpty) {
+        _goalController.clear();
+        _error = '$scanned ${scanned == 1 ? 'document' : 'documents'} scanned.';
+      } else {
+        _error =
+            '$scanned of ${scanned + failedFiles.length} scanned; ${failedFiles.length} failed. Retry the remaining files.';
+      }
+      _history = ApiClient.instance.documentScans();
+    });
+    if (scanned > 0) widget.onScanComplete();
+    if (mounted) setState(() => _scanning = false);
   }
 
   @override
@@ -266,7 +299,7 @@ class _ScannerViewState extends State<ScannerView> {
                         child: OutlinedButton.icon(
                           onPressed: _scanning ? null : _pickDocument,
                           icon: const Icon(Icons.attach_file),
-                          label: const Text('Choose PDF or image'),
+                          label: const Text('Choose multiple files or images'),
                         ),
                       ),
                       if (!kIsWeb &&
@@ -281,37 +314,49 @@ class _ScannerViewState extends State<ScannerView> {
                           ),
                         ),
                       ],
-                      if (_selectedFile != null) ...[
+                      if (_selectedFiles.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        Text(
-                          'Selected: ${_selectedFile!.name}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: tkText(
-                            context,
-                            size: 12.5,
-                            color: colors.ink2,
-                          ),
-                        ),
-                        if (RegExp(
-                          r'\.(jpg|jpeg|png|webp)$',
-                          caseSensitive: false,
-                        ).hasMatch(_selectedFile!.name)) ...[
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.memory(
-                              _selectedFile!.bytes!,
-                              width: double.infinity,
-                              height: 220,
-                              fit: BoxFit.contain,
+                        for (final file in _selectedFiles)
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading:
+                                file.bytes != null &&
+                                    RegExp(
+                                      r'\.(jpg|jpeg|png|webp)$',
+                                      caseSensitive: false,
+                                    ).hasMatch(file.name)
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.memory(
+                                      file.bytes!,
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : const Icon(Icons.picture_as_pdf_outlined),
+                            title: Text(
+                              file.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              '${(file.size / (1024 * 1024)).toStringAsFixed(1)} MB',
+                            ),
+                            trailing: IconButton(
+                              tooltip: 'Remove ${file.name}',
+                              onPressed: _scanning
+                                  ? null
+                                  : () => setState(
+                                      () => _selectedFiles.remove(file),
+                                    ),
+                              icon: const Icon(Icons.close),
                             ),
                           ),
-                        ],
                       ],
                       const SizedBox(height: 6),
                       Text(
-                        'PDF or image · up to 10 MB · one document at a time',
+                        'PDF or image · up to 10 MB each · up to 5 files per scan',
                         style: tkText(context, size: 12, color: colors.muted),
                       ),
                       const SizedBox(height: 12),
@@ -336,7 +381,7 @@ class _ScannerViewState extends State<ScannerView> {
                             : (value) =>
                                   setState(() => _consent = value ?? false),
                         title: Text(
-                          'I agree to send this file to Google Gemini to scan it.',
+                          'I agree to send the selected files to Google Gemini to scan them.',
                           style: tkText(context, size: 13),
                         ),
                         controlAffinity: ListTileControlAffinity.leading,
@@ -364,7 +409,9 @@ class _ScannerViewState extends State<ScannerView> {
                                 )
                               : const Icon(Icons.auto_awesome),
                           label: Text(
-                            _scanning ? 'Scanning document…' : 'Scan document',
+                            _scanning
+                                ? 'Scanning documents…'
+                                : 'Scan ${_selectedFiles.length} document${_selectedFiles.length == 1 ? '' : 's'}',
                           ),
                         ),
                       ),
