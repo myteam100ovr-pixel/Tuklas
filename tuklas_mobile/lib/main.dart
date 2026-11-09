@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'api.dart';
+import 'app_update.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/welcome_screen.dart';
@@ -29,7 +30,7 @@ class TuklasApp extends StatelessWidget {
         theme: tkTheme(Brightness.light),
         darkTheme: tkTheme(Brightness.dark),
         themeMode: themeController.mode,
-        home: const FirstLaunch(child: Gate()),
+        home: const AppUpdateWatcher(child: FirstLaunch(child: Gate())),
       ),
     );
   }
