@@ -181,6 +181,11 @@ class ApiClient {
 
   Future<Map<String, dynamic>> dashboard() => _send('GET', '/dashboard');
 
+  Future<String> legalDocument(String document) async {
+    final result = await _send('GET', '/legal/$document', auth: false);
+    return result['content'] as String? ?? '';
+  }
+
   Future<Map<String, dynamic>> careerChat(
     List<Map<String, String>> messages,
   ) async {

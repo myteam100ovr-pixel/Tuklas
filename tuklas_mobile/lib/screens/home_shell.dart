@@ -10,6 +10,7 @@ import 'scanner_view.dart';
 import 'tesda_view.dart';
 import 'workspace_view.dart';
 import 'chat_view.dart';
+import 'messages_view.dart';
 
 /// Branded header and bottom navigation around the selected app section.
 class HomeShell extends StatefulWidget {
@@ -74,9 +75,11 @@ class _HomeShellState extends State<HomeShell> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => section == 'TuklasBot'
-            ? const ChatView()
-            : WorkspaceView(section: section),
+        builder: (_) => switch (section) {
+          'TuklasBot' => const ChatView(),
+          'Messages' => const MessagesView(),
+          _ => WorkspaceView(section: section),
+        },
       ),
     );
     if (mounted) setState(() => _version++);
@@ -158,6 +161,7 @@ class _HomeShellState extends State<HomeShell> {
                 children: [
                   for (final section in [
                     'TuklasBot',
+                    'Messages',
                     'Notifications',
                     'Training plans',
                     if (ApiClient.instance.user?['role'] == 'youth')

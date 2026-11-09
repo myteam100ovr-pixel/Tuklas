@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MobileCatalogController;
 use App\Http\Controllers\Api\MobileDashboardController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DocumentScanController;
+use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\SkillsAssessmentController;
 use App\Http\Controllers\TesdaCatalogController;
@@ -24,6 +25,13 @@ Route::get('/user', function (Request $request) {
 })->middleware(['auth:sanctum', 'role:super_admin,trainer,youth']);
 
 Route::prefix('mobile')->name('mobile.')->group(function () {
+    Route::get('/legal/{document}', function (string $document) {
+        abort_unless(in_array($document, ['privacy', 'terms'], true), 404);
+        $path = resource_path('markdown/'.($document === 'privacy' ? 'policy.md' : 'terms.md'));
+        abort_unless(is_file($path), 404);
+
+        return response()->json(['title' => $document === 'privacy' ? 'Privacy notice' : 'Terms of use', 'content' => file_get_contents($path)]);
+    })->name('legal.show');
     Route::post('/auth/register', [MobileAuthController::class, 'register'])
         ->middleware('throttle:5,1')->name('auth.register');
     Route::post('/auth/token', [MobileAuthController::class, 'token'])
@@ -57,6 +65,9 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             ->middleware('throttle:6,1')->name('verification.send');
 
         Route::middleware('verified')->group(function () {
+            Route::get('/messages', [DirectMessageController::class, 'mobileIndex'])->name('messages.index');
+            Route::get('/messages/{user}', [DirectMessageController::class, 'mobileIndex'])->name('messages.show');
+            Route::post('/messages/{user}', [DirectMessageController::class, 'mobileStore'])->middleware('throttle:20,1')->name('messages.store');
             Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
             Route::post('/notifications/read-all', [NotificationsController::class, 'readAll'])->name('notifications.read-all');
             Route::post('/notifications/{notification}/read', [NotificationsController::class, 'read'])->name('notifications.read');
