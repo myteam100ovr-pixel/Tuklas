@@ -27,6 +27,15 @@
 .qualification-card-top > span { font-size:.68rem; font-weight:600; color:var(--violet); background:color-mix(in srgb,var(--violet) 8%,var(--surface)); padding:.3rem .5rem; border-radius:.3rem; }
 .qualification-card-top small { font-size:.6rem; color:var(--muted); }
 .qualification-card h3 { font-size:.95rem; font-weight:500; line-height:1.5; letter-spacing:-.02em; overflow-wrap:anywhere; }
+.qualification-location { display:grid; gap:.45rem; min-width:0; font-size:.72rem; line-height:1.45; color:var(--ink-2); }
+.qualification-location > strong { color:var(--muted); font-size:.62rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+.qualification-location ul { display:grid; gap:.55rem; padding:0; list-style:none; }
+.qualification-location li { display:grid; gap:.12rem; min-width:0; padding-left:.6rem; border-left:2px solid color-mix(in srgb,var(--violet) 42%,transparent); overflow-wrap:anywhere; }
+.qualification-location__provider { display:block; margin:0; color:var(--ink); font-size:.76rem; font-weight:700; line-height:1.4; }
+.qualification-location__address { display:block; color:var(--muted); font-size:.68rem; line-height:1.45; }
+.qualification-location__more { color:var(--violet); font-size:.69rem; }
+.qualification-location__more summary { width:fit-content; padding:5px 0; cursor:pointer; font-weight:600; }
+.qualification-location p { margin:0; }
 .qualification-card .qualification-trainers { font-size:.75rem; line-height:1.5; color:var(--ink-2); overflow-wrap:anywhere; }
 .qualification-links { display:flex; flex-wrap:wrap; gap:.7rem 1rem; margin-top:auto; padding-top:.7rem; border-top:1px solid var(--line); font-size:.68rem; }
 .qualification-links a { color:var(--violet); }

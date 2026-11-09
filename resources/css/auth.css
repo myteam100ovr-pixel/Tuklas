@@ -259,3 +259,28 @@ html[data-theme='dark'] .auth-status { color: #a0dfb4; border-color: #31553d; ba
 @media (max-width: 680px) {
     .theme-toggle--guest { top: .75rem; right: .75rem; }
 }
+
+/* Legal links remain inside the scrollable authentication form. */
+.auth-policy-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .25rem .8rem; margin-top: 1rem; padding-top: .75rem; border-top: 1px solid #e8e5ed; font-size: .78rem; line-height: 1.5; color: #777382; }
+.auth-policy-links a { display: inline-flex; align-items: center; min-height: 2.75rem; color: #4510b9; text-decoration: underline; text-underline-offset: .22em; }
+.auth-policy-links a:hover { color: #5b17ff; }
+.auth-policy-links a:focus-visible, .legal-document a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 3px; }
+html[data-theme='dark'] .auth-policy-links { border-color: #3c3c44; color: #aaaab4; }
+html[data-theme='dark'] .auth-policy-links a { color: #c5afff; }
+.legal-document { width: min(100%, 48rem); margin: 2rem auto; padding: clamp(1.25rem, 4vw, 3rem); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 1.25rem; line-height: 1.8; overflow-wrap: anywhere; }
+.legal-document h1 { margin: 1.5rem 0 1rem; font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.15; letter-spacing: -.035em; }
+.legal-document h2 { margin: 2rem 0 .75rem; font-size: 1.2rem; line-height: 1.35; }
+.legal-document p, .legal-document ul { margin: 0 0 1rem; }
+.legal-document ul { padding-left: 1.4rem; list-style: disc; }
+.legal-document li { margin-bottom: .65rem; }
+.legal-document a { color: var(--ink); text-decoration: underline; text-underline-offset: .2em; }
+.legal-document nav { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; font-size: .85rem; }
+
+.auth-page :where(a, button, input):focus-visible { outline: 3px solid var(--auth-purple); outline-offset: 3px; }
+.auth-page .auth-field-help { line-height: 1.65; }
+@media (max-width: 680px) { .auth-page .auth-input { font-size: 16px; } }
+
+html[data-theme='dark'] .auth-page :where(.auth-inline-link, .auth-switch a, .auth-form-kicker) { color: #b9a3ff; }
+html[data-theme='dark'] .auth-page :where(a, button, input):focus-visible { outline-color: #b9a3ff; }
+.auth-page--security .auth-form-wrap > form { display: grid; gap: 1rem; }
+.auth-page--security .auth-form-wrap > form > .mt-4 { margin-top: 0; }

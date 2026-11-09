@@ -32,8 +32,6 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         ->middleware('throttle:5,1')->name('auth.password.email');
     Route::post('/auth/reset-password', [MobileAuthController::class, 'resetPassword'])
         ->middleware('throttle:5,1')->name('auth.password.update');
-    Route::post('/auth/social/exchange', [MobileAuthController::class, 'exchangeSocialTicket'])
-        ->middleware('throttle:10,1')->name('auth.social.exchange');
     Route::get('/tesda', [MobileCatalogController::class, 'index'])->name('tesda.index');
 
     Route::middleware(['auth:sanctum', 'role:super_admin,trainer,youth'])->group(function () {

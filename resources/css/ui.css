@@ -10,6 +10,7 @@
 @import '@fontsource/dm-sans/400.css';
 @import '@fontsource/dm-sans/500.css';
 @import '@fontsource/dm-sans/600.css';
+@import './tesda-directory.css';
 
 :root { --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif; --pad: clamp(1rem, 3.5vw, 3rem); }
 
@@ -323,3 +324,33 @@ textarea.input { resize: vertical; }
     .tesda-section-heading { align-items: start; flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Shared interaction states across account, training, and workspace pages. */
+.tk-body :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid var(--violet);
+    outline-offset: 3px;
+}
+.tk-workspace :where(.btn-primary, .btn-secondary, .btn-outline, .tk-ibtn) {
+    min-height: 44px;
+    border-radius: 12px;
+}
+.tk-workspace .tk-ibtn { min-width: 44px; }
+.tk-body :where(button, input, select, textarea):disabled { cursor: not-allowed; opacity: .6; }
+.tk-workspace :where(input:not([type='checkbox']):not([type='radio']):not([type='file']), select, textarea) {
+    border-color: var(--line);
+    background-color: var(--surface);
+    color: var(--ink);
+    border-radius: 12px;
+}
+.tk-workspace :where(input, textarea)::placeholder { color: var(--muted); }
+.tk-workspace :where(th, td) { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+    .tk-workspace :where(input, select, textarea) { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tk-body *, .tk-body *::before, .tk-body *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

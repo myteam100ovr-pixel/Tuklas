@@ -146,27 +146,12 @@ class ApiClient {
     return user!;
   }
 
-  Future<void> exchangeSocialTicket(String ticket, {String code = ''}) async {
-    final body = await _send(
-      'POST',
-      '/auth/social/exchange',
-      auth: false,
-      body: {
-        'ticket': ticket,
-        'device_name': 'tuklas-mobile',
-        if (code.isNotEmpty)
-          (RegExp(r'^\d{6}$').hasMatch(code) ? 'code' : 'recovery_code'): code,
-      },
-    );
-    await _storage.write(key: _tokenKey, value: body['token'] as String);
-    user = Map<String, dynamic>.from(body['user'] as Map);
-  }
-
   Future<Map<String, dynamic>> register({
     required String name,
     required String email,
     required String password,
     required String passwordConfirmation,
+    required bool acceptedTerms,
   }) => _send(
     'POST',
     '/auth/register',
@@ -176,6 +161,7 @@ class ApiClient {
       'email': email,
       'password': password,
       'password_confirmation': passwordConfirmation,
+      'terms': acceptedTerms,
       'device_name': 'tuklas-mobile',
     },
   );
@@ -213,8 +199,14 @@ class ApiClient {
     };
   }
 
-  Future<Map<String, dynamic>> tesdaCatalog({int page = 1}) =>
-      _send('GET', '/tesda?page=$page', auth: false);
+  Future<Map<String, dynamic>> tesdaCatalog({
+    int page = 1,
+    int registeredPage = 1,
+  }) => _send(
+    'GET',
+    '/tesda?page=$page&registered_page=$registeredPage',
+    auth: false,
+  );
 
   Future<List<dynamic>> documentScans() async {
     final response = await _send('GET', '/document-scans');

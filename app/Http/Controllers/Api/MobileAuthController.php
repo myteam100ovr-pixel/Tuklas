@@ -11,7 +11,6 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -31,7 +30,8 @@ class MobileAuthController extends Controller
 
     public function register(Request $request, CreateNewUser $createUser): JsonResponse
     {
-        $validated = $request->validate([
+        $request->validate([
+            'terms' => ['required', 'accepted'],
             'device_name' => ['required', 'string', 'max:100'],
         ]);
 
@@ -65,31 +65,6 @@ class MobileAuthController extends Controller
 
         abort_unless($user->is_active, 403, 'This account is inactive.');
         $this->verifyTwoFactorIfNeeded($request, $user, $twoFactorProvider);
-
-        return $this->issueToken($user, $validated['device_name']);
-    }
-
-    public function exchangeSocialTicket(Request $request, TwoFactorAuthenticationProvider $twoFactorProvider): JsonResponse
-    {
-        $validated = $request->validate([
-            'ticket' => ['required', 'string', 'max:100'],
-            'device_name' => ['required', 'string', 'max:100'],
-        ]);
-        $ticketKey = 'mobile-social-ticket:'.hash('sha256', $validated['ticket']);
-        $userId = Cache::get($ticketKey);
-
-        if (! is_int($userId)) {
-            throw ValidationException::withMessages(['ticket' => ['This sign-in link is invalid or expired.']]);
-        }
-
-        $user = User::find($userId);
-
-        if (! $user || ! $user->is_active || $user->role->value !== 'youth') {
-            abort(403, 'This account cannot sign in with the mobile app.');
-        }
-
-        $this->verifyTwoFactorIfNeeded($request, $user, $twoFactorProvider);
-        Cache::forget($ticketKey);
 
         return $this->issueToken($user, $validated['device_name']);
     }

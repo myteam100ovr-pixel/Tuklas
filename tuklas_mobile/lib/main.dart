@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'api.dart';
-import 'screens/social_callback_screen.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/welcome_screen.dart';
@@ -31,17 +30,6 @@ class TuklasApp extends StatelessWidget {
         darkTheme: tkTheme(Brightness.dark),
         themeMode: themeController.mode,
         home: const FirstLaunch(child: Gate()),
-        onGenerateRoute: (settings) {
-          final uri = Uri.tryParse(settings.name ?? '');
-          if (uri != null &&
-              (uri.path == '/social' || uri.path == '/auth/social') &&
-              (!uri.hasScheme || uri.scheme == 'tuklas')) {
-            return MaterialPageRoute(
-              builder: (_) => SocialCallbackScreen(uri: uri),
-            );
-          }
-          return null;
-        },
       ),
     );
   }
@@ -183,7 +171,7 @@ class _ServerUnavailable extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Your saved sign-in is still on this device. In VS Code, launch Tuklas Mobile to check the database and reconnect the Android API, then retry. For a phone without USB debugging, use your computer’s LAN IP and start Laravel with --host=0.0.0.0.',
+                    'Your saved sign-in is still on this device. Check your internet connection and try again in a moment.',
                     textAlign: TextAlign.center,
                     style: tkText(
                       context,

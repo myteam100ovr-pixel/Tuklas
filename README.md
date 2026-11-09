@@ -154,12 +154,12 @@ Never commit real secrets. `.env` is local configuration; keep API keys and OAut
 | `TUKLAS_SUPERADMIN_EMAIL`, `TUKLAS_SUPERADMIN_NAME`, `TUKLAS_SUPERADMIN_PASSWORD` | Initial PESO Bugallon admin created by `php artisan migrate --seed` |
 | `GOOGLE_AI_API_KEY` | Enables Gemini resume/certificate scans and career chat; the key stays server-side |
 | `GEMINI_MODEL` | Gemini model name; defaults to the value in `.env.example` |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional Google sign-in credentials |
-| `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET` | Optional Facebook sign-in credentials |
-| `GOOGLE_REDIRECT_URI`, `FACEBOOK_REDIRECT_URI` | OAuth callback addresses; use `{APP_URL}/auth/google/callback` and `{APP_URL}/auth/facebook/callback` |
-| `MAIL_MAILER` | `log` for local development; set to `resend` to deliver mail through Resend |
-| `RESEND_API_KEY` | Resend API key used when `MAIL_MAILER=resend` |
-| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Sender address and display name; Resend requires a verified sender domain |
+| `MAIL_MAILER` | `smtp` to deliver email; use `log` only to inspect messages locally |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SCHEME` | SMTP server settings; the example uses Gmail with TLS on port 587 |
+| `MAIL_TIMEOUT` | SMTP connection timeout in seconds; defaults to 15 |
+| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Sender address and display name for outgoing mail |
+
+For Gmail, enable 2-Step Verification and create an app password. Set `MAIL_USERNAME` to the Gmail address and `MAIL_PASSWORD` to the app password in the untracked `.env` file. Keep `MAIL_FROM_ADDRESS` the same as the authenticated address. Yahoo and other SMTP providers can also receive mail from the app; change `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, username, and password to the provider's SMTP settings. Recipients can use Gmail, Yahoo, or another email service.
 
 ## Daily development
 
@@ -171,25 +171,6 @@ npm run dev
 ```
 
 Use `npm run build` to create production frontend assets. Run `php artisan test` when you want to run the project test suite.
-
-### Enable Resend email delivery
-
-Create a Resend API key with email-sending permission and store it only in the local `.env` file or your deployment's secret manager. Set:
-
-```dotenv
-MAIL_MAILER=resend
-RESEND_API_KEY=re_your_api_key
-MAIL_FROM_ADDRESS=notifications@your-verified-domain.example
-MAIL_FROM_NAME="${APP_NAME}"
-```
-
-Replace the example key and sender address with your own. Verify the sender's domain in Resend before sending. For local testing only, use `MAIL_FROM_ADDRESS=onboarding@resend.dev`; switch to an address on your verified domain before sending to regular recipients. Then refresh Laravel's cached configuration:
-
-```text
-php artisan config:clear
-```
-
-The Resend API-key create, list, update, and delete endpoints manage credentials; they are not needed to send application email. Laravel uses the configured Resend mailer and `RESEND_API_KEY` for delivery. See Resend's [test-email guide](https://resend.com/docs/dashboard/emails/send-test-emails) for test recipient addresses and [domain setup](https://resend.com/docs/add-a-domain) for production sender verification.
 
 ## Set up the Flutter mobile app
 

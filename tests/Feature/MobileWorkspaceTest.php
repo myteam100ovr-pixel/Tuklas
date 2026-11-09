@@ -123,7 +123,7 @@ class MobileWorkspaceTest extends TestCase
         $this->postJson('/api/mobile/auth/register', [
             'first_name' => 'New', 'last_name' => 'Youth', 'date_of_birth' => now()->subYears(20)->toDateString(),
             'contact_number' => '09123456789', 'barangay' => 'Poblacion', 'email' => 'new@example.test',
-            'password' => 'Password123!', 'password_confirmation' => 'Password123!', 'device_name' => 'test',
+            'password' => 'Password123!', 'password_confirmation' => 'Password123!', 'device_name' => 'test', 'terms' => true,
         ])->assertCreated()->assertJsonPath('user.name', 'New Youth');
         $this->assertDatabaseHas('youth_profiles', ['contact_number' => '09123456789', 'barangay' => 'Poblacion']);
         Event::assertDispatched(Registered::class);

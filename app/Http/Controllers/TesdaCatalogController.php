@@ -7,13 +7,14 @@ use App\Models\TrainerQualification;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Services\TesdaQualificationCatalog;
+use App\Services\TesdaRegisteredProgramCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class TesdaCatalogController extends Controller
 {
-    public function index(Request $request, TesdaQualificationCatalog $catalog): View|JsonResponse
+    public function index(Request $request, TesdaQualificationCatalog $catalog, TesdaRegisteredProgramCatalog $registeredCatalog): View|JsonResponse
     {
         $choiceUser = null;
         if ($request->user()?->hasRole(Role::Youth)) {
@@ -46,8 +47,31 @@ class TesdaCatalogController extends Controller
             ? $request->user()->trainerQualifications()->get(['qualification_id', 'title', 'nc_level'])->keyBy('qualification_id')
             : collect();
 
+        $nationalCatalog = $catalog->all();
+        $registeredDirectory = $registeredCatalog->all();
+        $outsideDirectory = $registeredCatalog->outsidePangasinan();
+        $nationalCatalog['qualifications'] = $registeredCatalog->addPangasinanLocations(
+            $nationalCatalog['qualifications'],
+            $registeredDirectory['records'],
+            $outsideDirectory['records'],
+        );
+        $providerGroups = collect($registeredDirectory['records'])
+            ->groupBy(fn (array $record): string => mb_strtolower($record['provider'].'|'.$record['address']))
+            ->map(fn ($records): array => [
+                'provider' => $records->first()['provider'],
+                'address' => $records->first()['address'] ?: 'Not available',
+                'phones' => $records->pluck('phone')->filter()->unique()->values(),
+                'programs' => $records->pluck('program')->filter()->unique()->sort()->values(),
+            ])
+            ->sortBy(fn (array $provider): string => $provider['provider'])
+            ->values();
+
         $data = [
-            'nationalCatalog' => $catalog->all(),
+            'nationalCatalog' => $nationalCatalog,
+            'providerGroups' => $providerGroups,
+            'providerCount' => $providerGroups->count(),
+            'registeredProgramCount' => count($registeredDirectory['records']),
+            'registeredProgramsFetchedAt' => $registeredDirectory['fetched_at'],
             'programCount' => $programs->count(),
             'programGroups' => $programGroups,
             'choiceUser' => $choiceUser,

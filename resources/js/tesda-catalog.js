@@ -23,3 +23,22 @@ document.querySelectorAll('[data-qualification-catalog]').forEach((catalog) => {
     status.addEventListener('change', filter);
     filter();
 });
+
+document.querySelectorAll('[data-provider-directory]').forEach((directory) => {
+    const search = document.querySelector('[data-provider-search]');
+    const cards = [...directory.querySelectorAll('[data-provider-card]')];
+    const count = document.querySelector('[data-provider-count]');
+    const empty = document.querySelector('[data-provider-empty]');
+    const filter = () => {
+        const words = search.value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+        let visible = 0;
+        cards.forEach((card) => {
+            const matches = words.every((word) => card.textContent.toLocaleLowerCase().includes(word));
+            card.hidden = !matches;
+            if (matches) visible++;
+        });
+        count.textContent = `${visible} ${visible === 1 ? 'provider location' : 'provider locations'} found`;
+        empty.hidden = visible > 0;
+    };
+    search.addEventListener('input', filter);
+});

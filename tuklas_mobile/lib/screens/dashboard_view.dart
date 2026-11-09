@@ -670,11 +670,11 @@ class _DashboardViewState extends State<DashboardView> {
     final groups = <(String, String)>[
       ('skills', 'Skills'),
       ('credentials', 'Qualifications and certificates'),
-      ('job_roles', 'Suggested job roles'),
-      ('tesda_training', 'AI TESDA recommendations'),
-      ('job_recommendations', 'PESO job matches'),
-      ('skill_gaps', 'Skills to develop'),
-      ('learning_recommendations', 'Free learning and practice'),
+      ('job_roles', 'Latest scan · Suggested job roles'),
+      ('tesda_training', 'Latest scan · AI TESDA recommendations'),
+      ('job_recommendations', 'Latest scan · PESO job matches'),
+      ('skill_gaps', 'Latest scan · Skills to develop'),
+      ('learning_recommendations', 'Latest scan · Free learning and practice'),
     ];
 
     return TkCard(
@@ -702,6 +702,23 @@ class _DashboardViewState extends State<DashboardView> {
                 ),
               ),
           ],
+          if (asList(insights['scan_recommendations']).isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Separate results from each scan',
+              style: tkText(context, size: 15, weight: 500),
+            ),
+            Text(
+              'New scans add a record; they do not replace earlier scan results.',
+              style: tkText(
+                context,
+                size: 12,
+                color: TkColors.of(context).muted,
+              ),
+            ),
+            for (final scan in asList(insights['scan_recommendations']))
+              _scanInsightsCard(context, asMap(scan)),
+          ],
           const SizedBox(height: 8),
           Text(
             'Suggestions are guidance, not guarantees of jobs, admission, or training slots.',
@@ -712,6 +729,59 @@ class _DashboardViewState extends State<DashboardView> {
               height: 1.4,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _scanInsightsCard(BuildContext context, Map<String, dynamic> scan) {
+    final groups = <(String, String)>[
+      ('skills', 'Skills detected'),
+      ('credentials', 'Credentials detected'),
+      ('career_matches', 'Career matches'),
+      ('tesda_recommendations', 'TESDA recommendations'),
+      ('job_recommendations', 'PESO recommendations'),
+      ('skill_gaps', 'Skills to develop'),
+      ('learning_recommendations', 'Learning recommendations'),
+    ];
+    final colors = TkColors.of(context);
+    final processedAt = DateTime.tryParse('${scan['processed_at'] ?? ''}');
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colors.surface2,
+        border: Border.all(color: colors.line),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${scan['original_name'] ?? 'Scanned document'}',
+            style: tkText(context, size: 13, weight: 500),
+          ),
+          Text(
+            '${scan['document_type'] ?? 'Document'} · ${processedAt == null ? 'Date unavailable' : '${processedAt.toLocal().year}-${processedAt.toLocal().month.toString().padLeft(2, '0')}-${processedAt.toLocal().day.toString().padLeft(2, '0')}'}',
+            style: tkText(context, size: 11, color: colors.muted),
+          ),
+          for (final (key, title) in groups)
+            if (asList(scan[key]).isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 3),
+                child: Text(
+                  title,
+                  style: tkText(context, size: 12, weight: 500),
+                ),
+              ),
+              for (final item in asList(scan[key]))
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
+                  child: _insightItem(context, item),
+                ),
+            ],
         ],
       ),
     );

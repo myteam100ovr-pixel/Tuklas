@@ -1,3 +1,4 @@
+@import './scanner-studio.css';
 @import '@fontsource/syne/700.css';
 @import '@fontsource/schibsted-grotesk/400.css';
 @import '@fontsource/schibsted-grotesk/500.css';
@@ -426,7 +427,8 @@ html[data-theme='dark'] .shadow-lg {
 .profile-insights__group--wide { grid-column: 1 / -1; }
 .profile-insights__group h3 { margin: 0; color: var(--system-muted); font-size: .68rem; font-weight: 500; }
 .profile-insights__group ul { display: flex; flex-wrap: wrap; gap: .35rem; margin: .55rem 0 0; padding: 0; list-style: none; }
-.profile-insights__group li { min-width: 0; padding: .3rem .5rem; border-radius: 99px; color: var(--system-text); background: var(--system-surface); font-size: .64rem; line-height: 1.4; overflow-wrap: anywhere; }
+.profile-insights__group li { min-width: 0; padding: .3rem .5rem; border-radius: .65rem; color: var(--system-text); background: var(--system-surface); font-size: .64rem; line-height: 1.4; overflow-wrap: anywhere; }
+.profile-insights__group--skills > ul > li { border-radius: 99px; }
 .profile-insights__group--tesda ul { display: grid; gap: .55rem; }
 .profile-insights__group--tesda li { padding: .7rem; border: 1px solid var(--system-line); border-radius: .65rem; background: var(--system-surface); line-height: 1.5; }
 .profile-insights__group--tesda > a { display: inline-flex; margin-top: .65rem; color: var(--role-accent); font-size: .68rem; font-weight: 500; text-decoration: none; }

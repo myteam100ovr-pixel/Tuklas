@@ -8,18 +8,19 @@ use App\Models\CareerPath;
 use App\Models\DocumentScan;
 use App\Models\TrainingProgram;
 use App\Models\User;
+use App\Services\DocumentScanHistory;
 use App\Support\ProfileCompletion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MobileDashboardController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, DocumentScanHistory $scanHistory): JsonResponse
     {
         $user = $request->user();
 
         return response()->json(match ($user->role) {
-            Role::Youth => $this->youthDashboard($user),
+            Role::Youth => $this->youthDashboard($user, $scanHistory),
             Role::Trainer => $this->trainerDashboard($user),
             Role::SuperAdmin => $this->adminDashboard(),
         });
@@ -194,7 +195,7 @@ class MobileDashboardController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private function youthDashboard(User $user): array
+    private function youthDashboard(User $user, DocumentScanHistory $scanHistory): array
     {
         $user->loadMissing('youthProfile');
         $completion = ProfileCompletion::for($user);
@@ -223,6 +224,7 @@ class MobileDashboardController extends Controller
                 'job_recommendations' => $latestAnalysis['jobRecommendations'] ?? [],
                 'skill_gaps' => $latestAnalysis['skillGaps'] ?? [],
                 'learning_recommendations' => $latestAnalysis['learningRecommendations'] ?? [],
+                'scan_recommendations' => $scanHistory->recommendationsFor($user),
             ],
             'chart' => [
                 'kind' => 'meters',

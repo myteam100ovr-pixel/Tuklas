@@ -1,15 +1,11 @@
 <x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
-
-        <div class="mb-4 text-sm text-gray-600">
+    <x-auth-shell mode="security" title="Verify your email" description="Check your inbox to finish setting up your account.">
+        <div class="auth-field-help mb-4">
             {{ __('Before continuing, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
         </div>
 
         @if (session('status') == 'verification-link-sent')
-            <div class="mb-4 font-medium text-sm text-green-600">
+            <div class="auth-status">
                 {{ __('A new verification link has been sent to the email address you provided in your profile settings.') }}
             </div>
         @endif
@@ -19,7 +15,7 @@
                 @csrf
 
                 <div>
-                    <x-button type="submit">
+                    <x-button type="submit" class="auth-submit">
                         {{ __('Resend Verification Email') }}
                     </x-button>
                 </div>
@@ -41,5 +37,5 @@
                 </form>
             </div>
         </div>
-    </x-authentication-card>
+    </x-auth-shell>
 </x-guest-layout>

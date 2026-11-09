@@ -1,34 +1,26 @@
 <x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
-
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-        </div>
-
+    <x-auth-shell mode="security" title="Reset your password" description="Enter your email to receive a password reset link.">
         @session('status')
-            <div class="mb-4 font-medium text-sm text-green-600">
+            <div class="auth-status">
                 {{ $value }}
             </div>
         @endsession
 
-        <x-validation-errors class="mb-4" />
+        <x-validation-errors class="auth-errors" />
 
         <form method="POST" action="{{ route('password.email') }}">
             @csrf
 
             <div class="block">
                 <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+                <x-input id="email" class="auth-input block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             </div>
 
             <div class="flex items-center justify-end mt-4">
-                <x-button>
+                <x-button class="auth-submit">
                     {{ __('Email Password Reset Link') }}
                 </x-button>
             </div>
         </form>
-    </x-authentication-card>
+    </x-auth-shell>
 </x-guest-layout>

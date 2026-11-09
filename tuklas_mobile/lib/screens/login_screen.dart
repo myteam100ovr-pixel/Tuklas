@@ -29,6 +29,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   bool _needsCode = false;
   bool _registering = false;
+  bool _acceptedTerms = false;
+  bool _showPassword = false;
   String? _error;
   String? _notice;
 
@@ -47,6 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    if (_loading) return;
+    if (_registering && !_acceptedTerms) {
+      setState(
+        () => _error = 'Please accept the Terms of use and Privacy notice.',
+      );
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -67,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
             'password': _password.text,
             'password_confirmation': _passwordConfirmation.text,
             'device_name': 'tuklas-mobile',
+            'terms': _acceptedTerms,
           },
         );
         if (!mounted) return;
@@ -110,6 +120,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _registering = registering;
       _needsCode = false;
+      _acceptedTerms = false;
+      _code.clear();
+      _password.clear();
+      _passwordConfirmation.clear();
       _error = null;
       _notice = null;
     });
@@ -228,7 +242,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             _label(context, 'Password'),
                             TextField(
                               controller: _password,
-                              obscureText: true,
+                              obscureText: !_showPassword,
+                              enableSuggestions: false,
+                              autocorrect: false,
+                              decoration: InputDecoration(
+                                suffixIcon: IconButton(
+                                  tooltip: _showPassword
+                                      ? 'Hide password'
+                                      : 'Show password',
+                                  onPressed: () => setState(
+                                    () => _showPassword = !_showPassword,
+                                  ),
+                                  icon: Icon(
+                                    _showPassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                  ),
+                                ),
+                              ),
                               autofillHints: const [AutofillHints.password],
                               style: tkText(context, size: 14.5),
                             ),
@@ -251,6 +282,57 @@ class _LoginScreenState extends State<LoginScreen> {
                                 controller: _code,
                                 keyboardType: TextInputType.text,
                                 style: tkText(context, size: 14.5),
+                              ),
+                            ],
+                            if (_registering) ...[
+                              Material(
+                                color: Colors.transparent,
+                                child: CheckboxListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  value: _acceptedTerms,
+                                  onChanged: _loading
+                                      ? null
+                                      : (value) => setState(
+                                          () => _acceptedTerms = value ?? false,
+                                        ),
+                                  title: const Text(
+                                    'I agree to the Terms of use and acknowledge the Privacy notice.',
+                                  ),
+                                ),
+                              ),
+                              Wrap(
+                                children: [
+                                  for (final policy in [
+                                    ('Terms of use', '/terms-of-service'),
+                                    ('Privacy notice', '/privacy-policy'),
+                                  ])
+                                    TextButton(
+                                      onPressed: () async {
+                                        try {
+                                          final opened = await launchUrl(
+                                            Uri.parse(AppConfig.apiBase)
+                                                .resolve(policy.$2),
+                                            mode:
+                                                LaunchMode.externalApplication,
+                                          );
+                                          if (!opened) {
+                                            throw StateError(
+                                              'Could not open page',
+                                            );
+                                          }
+                                        } catch (_) {
+                                          if (mounted) {
+                                            setState(
+                                              () => _error = 'Could not open this page. Please try again.',
+                                            );
+                                          }
+                                        }
+                                      },
+                                      child: Text(policy.$1),
+                                    ),
+                                ],
                               ),
                             ],
                             const SizedBox(height: 20),
@@ -292,43 +374,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             if (!_registering)
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  for (final provider in ['google', 'facebook'])
-                                    OutlinedButton(
-                                      onPressed: _loading
-                                          ? null
-                                          : () async {
-                                              try {
-                                                final uri =
-                                                    Uri.parse(
-                                                      AppConfig.apiBase,
-                                                    ).resolve(
-                                                      '/auth/$provider/redirect?mobile=1',
-                                                    );
-                                                if (!await launchUrl(
-                                                  uri,
-                                                  mode: LaunchMode
-                                                      .externalApplication,
-                                                )) {
-                                                  throw StateError(
-                                                    'Could not open sign-in',
-                                                  );
-                                                }
-                                              } catch (_) {
-                                                if (mounted) {
-                                                  setState(
-                                                    () => _error = 'Could not open sign-in. Please try again.',
-                                                  );
-                                                }
-                                              }
-                                            },
-                                      child: Text(
-                                        'Continue with ${provider == 'google' ? 'Google' : 'Facebook'}',
-                                      ),
-                                    ),
-                                ],
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: Text(
+                                  'Previously used Google or Facebook? Reset your password using the same email.',
+                                  style: tkText(
+                                    context,
+                                    size: 13,
+                                    color: c.muted,
+                                  ),
+                                ),
                               ),
                             if (!_registering)
                               TextButton(

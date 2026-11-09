@@ -74,7 +74,7 @@ class DocumentScanController extends Controller
             $scan = DB::transaction(function () use ($user, $file, $analysis): DocumentScan {
                 if ($user->hasRole(Role::Youth)
                     && in_array($analysis['documentType'] ?? 'other', ['resume', 'certificate'], true)) {
-                    $profile = $user->youthProfile()->firstOrNew();
+                    $profile = $user->youthProfile()->lockForUpdate()->firstOrNew();
                     $profile->skills = $this->mergeProfileValues($profile->skills ?? [], $analysis['skills'] ?? []);
                     $profile->credentials = $this->mergeProfileValues($profile->credentials ?? [], $analysis['credentials'] ?? []);
 

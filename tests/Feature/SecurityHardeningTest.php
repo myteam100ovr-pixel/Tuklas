@@ -14,6 +14,57 @@ class SecurityHardeningTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[TestWith(['/auth/google/redirect'])]
+    #[TestWith(['/auth/google/callback'])]
+    #[TestWith(['/auth/facebook/redirect'])]
+    #[TestWith(['/auth/facebook/callback'])]
+    public function test_social_sign_in_routes_are_unavailable(string $path): void
+    {
+        $this->get($path)->assertNotFound();
+        $this->assertGuest();
+    }
+
+    public function test_mobile_social_exchange_cannot_issue_tokens(): void
+    {
+        $this->postJson('/api/mobile/auth/social/exchange', ['ticket' => 'old-ticket', 'device_name' => 'test'])->assertNotFound();
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    #[TestWith(['/login'])]
+    #[TestWith(['/register'])]
+    public function test_authentication_pages_offer_password_recovery_without_social_links(string $path): void
+    {
+        $this->get($path)->assertOk()
+            ->assertDontSee('/auth/google/redirect')
+            ->assertDontSee('/auth/facebook/redirect')
+            ->assertSee(route('password.request'));
+    }
+
+    #[TestWith(['/login'])]
+    #[TestWith(['/api/mobile/auth/token'])]
+    public function test_login_limits_attempts_even_when_email_addresses_change(string $path): void
+    {
+        for ($attempt = 0; $attempt < 30; $attempt++) {
+            $this->postJson($path, ['email' => 'attempt'.$attempt.'@example.com', 'password' => 'wrong', 'device_name' => 'test'])->assertUnprocessable();
+        }
+
+        $this->postJson($path, ['email' => 'next@example.com', 'password' => 'wrong', 'device_name' => 'test'])->assertTooManyRequests();
+        $this->assertGuest();
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    #[TestWith([null])]
+    #[TestWith([false])]
+    public function test_mobile_registration_requires_explicit_consent(?bool $terms): void
+    {
+        $this->postJson('/api/mobile/auth/register', [
+            'name' => 'New Youth', 'email' => 'consent@example.com',
+            'password' => 'StrongPassword123!', 'password_confirmation' => 'StrongPassword123!',
+            'device_name' => 'test', 'terms' => $terms,
+        ])->assertUnprocessable()->assertJsonValidationErrors('terms');
+        $this->assertDatabaseMissing('users', ['email' => 'consent@example.com']);
+    }
+
     public function test_disabled_user_cannot_sign_in_on_the_web(): void
     {
         $user = User::factory()->create(['is_active' => false]);

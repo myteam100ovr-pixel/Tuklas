@@ -45,13 +45,13 @@ class TkColors {
 
   static const light = TkColors(
     isDark: false,
-    bg: Color(0xFFFFFFFF),
+    bg: Color(0xFFF8F7FC),
     surface: Color(0xFFFFFFFF),
-    surface2: Color(0xFFF6F6F8),
+    surface2: Color(0xFFF5F2FB),
     ink: Color(0xFF0D0D0F),
     ink2: Color(0xFF3A3A44),
-    muted: Color(0xFF7A7A86),
-    line: Color(0xFFE7E7EC),
+    muted: Color(0xFF625D70),
+    line: Color(0xFFE6E1EE),
     good: Color(0xFF12805C),
     goodBg: Color(0xFFDFF5EC),
     warn: Color(0xFF8A5A00),
@@ -63,8 +63,8 @@ class TkColors {
 
   static const dark = TkColors(
     isDark: true,
-    bg: Color(0xFF111114),
-    surface: Color(0xFF15141D),
+    bg: Color(0xFF0C0B12),
+    surface: Color(0xFF17161F),
     surface2: Color(0xFF1D1C28),
     ink: Color(0xFFF4F3FA),
     ink2: Color(0xFFD4D2E2),
@@ -125,8 +125,8 @@ ThemeData tkTheme(Brightness brightness) {
     scaffoldBackgroundColor: c.bg,
     dividerColor: c.line,
     colorScheme: base.copyWith(
-      primary: TkColors.violet,
-      onPrimary: Colors.white,
+      primary: c.isDark ? const Color(0xFFA786FF) : TkColors.violet,
+      onPrimary: c.isDark ? c.bg : Colors.white,
       surface: c.surface,
       onSurface: c.ink,
       error: c.bad,
@@ -138,11 +138,34 @@ ThemeData tkTheme(Brightness brightness) {
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: border(c.line),
       enabledBorder: border(c.line),
-      focusedBorder: border(TkColors.violet, 1.5),
+      focusedBorder: border(c.taskMeta, 2),
       errorBorder: border(c.bad),
       focusedErrorBorder: border(c.bad, 1.5),
       errorStyle: TextStyle(color: c.bad, fontSize: 12.5),
       hintStyle: TextStyle(color: c.muted),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        side: BorderSide(color: c.line),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: c.ink,
+      contentTextStyle: TextStyle(color: c.bg, fontFamily: 'SchibstedGrotesk'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     popupMenuTheme: PopupMenuThemeData(
       color: c.surface,

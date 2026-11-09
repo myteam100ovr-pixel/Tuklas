@@ -11,7 +11,7 @@ class TesdaQualificationCatalog
 {
     public const SOURCE = 'https://www.tesda.gov.ph/Download/Training_Regulations';
 
-    /** @return array{fetched_at: ?string, source: string, pages: int, qualifications: array<int, array<string, string>>} */
+    /** @return array{fetched_at: ?string, source: string, pages: int, qualifications: array<int, array<string, mixed>>} */
     public function all(): array
     {
         $path = is_file(storage_path('app/tesda-qualifications.json'))
@@ -22,7 +22,13 @@ class TesdaQualificationCatalog
             return ['fetched_at' => null, 'source' => self::SOURCE, 'pages' => 0, 'qualifications' => []];
         }
 
-        return json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+        $catalog = json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+        $catalog['qualifications'] = array_map(fn (array $qualification): array => [
+            ...$qualification,
+            'nearby_provider_url' => $this->providerSearchUrl($qualification['title'], ''),
+        ], $catalog['qualifications']);
+
+        return $catalog;
     }
 
     /** @return array<int, array{title: string, nc_level: string, description: string}> */
@@ -37,9 +43,10 @@ class TesdaQualificationCatalog
             ])->values()->all();
     }
 
-    /** @return array{fetched_at: string, source: string, pages: int, qualifications: array<int, array<string, string>>} */
+    /** @return array{fetched_at: string, source: string, pages: int, qualifications: array<int, array<string, mixed>>} */
     public function refresh(): array
     {
+        $existingById = collect($this->all()['qualifications'])->keyBy('id');
         $first = $this->fetchPage(1);
         if (! preg_match('/Page\s+1\s+of\s+(\d+)/i', strip_tags($first), $matches)) {
             throw new RuntimeException('TESDA pagination could not be read. The previous catalog was kept.');
@@ -80,7 +87,9 @@ class TesdaQualificationCatalog
                     'nc_level' => 'NC '.strtoupper($level[1]),
                     'status' => preg_match('/superseded|amended|not for registration|repealed/i', $title) ? 'archived' : 'current',
                     'source_url' => self::SOURCE.'?'.http_build_query(['SearchTitle' => $title]),
-                    'provider_url' => 'https://www.tesda.gov.ph/Tvi/Result?'.http_build_query(['SearchCourse' => preg_replace('/\s*\(Superseded\).*/i', '', $title), 'SearchLoc' => '']),
+                    'provider_url' => $this->providerSearchUrl($title, 'pangasinan'),
+                    'nearby_provider_url' => $this->providerSearchUrl($title, ''),
+                    ...array_intersect_key($existingById->get($id, []), array_flip(['provider_locations', 'provider_locations_scope'])),
                 ];
             }
         }
@@ -102,5 +111,14 @@ class TesdaQualificationCatalog
     {
         return Http::connectTimeout(10)->timeout(30)->retry(2, 500)
             ->get(self::SOURCE, ['page' => $page])->throw()->body();
+    }
+
+    private function providerSearchUrl(string $title, string $location): string
+    {
+        return 'https://www.tesda.gov.ph/Tvi/Result?'.http_build_query([
+            'SearchCourse' => preg_replace('/\s*\(Superseded\).*/i', '', $title),
+            'SearchIns' => '',
+            'SearchLoc' => $location,
+        ]);
     }
 }

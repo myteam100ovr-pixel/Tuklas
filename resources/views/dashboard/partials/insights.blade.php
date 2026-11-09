@@ -1,17 +1,17 @@
             @isset($profileInsights)
                 <section class="card profile-insights" aria-labelledby="profile-insights-title">
                     <div class="profile-insights__heading">
-                        <div><span class="stat-label">From your profile and latest scan</span><h2 id="profile-insights-title">Your career insights</h2></div>
+                        <div><span class="stat-label">Skills build on your profile; each scan keeps its own results</span><h2 id="profile-insights-title">Your career insights</h2></div>
                         <a href="{{ route('scanner.index') }}">Open AI Scanner</a>
                     </div>
                     <div class="profile-insights__groups">
                         @foreach ([
                             'skills' => 'Skills',
                             'credentials' => 'Qualifications and certificates',
-                            'job_roles' => 'Suggested job roles',
-                            'tesda_training' => 'AI TESDA recommendations',
+                            'job_roles' => 'Latest scan · Suggested job roles',
+                            'tesda_training' => 'Latest scan · AI TESDA recommendations',
                         ] as $key => $label)
-                            <section class="profile-insights__group {{ $key === 'tesda_training' ? 'profile-insights__group--tesda' : '' }}">
+                            <section class="profile-insights__group profile-insights__group--{{ $key }} {{ $key === 'tesda_training' ? 'profile-insights__group--tesda' : '' }}">
                                 <h3>{{ $label }}</h3>
                                 @if (count($profileInsights[$key]) > 0)
                                     <ul>
@@ -46,9 +46,50 @@
                             </section>
                         @endforeach
                     </div>
+                    @if (! empty($profileInsights['scan_recommendations']))
+                        <section class="profile-insights__group profile-insights__group--wide profile-insights__scan-history" aria-labelledby="scan-history-title">
+                            <h3 id="scan-history-title">Recommendations from each scan</h3>
+                            <p>Each document keeps its own skills and suggestions. Scanning another document adds a new record without replacing earlier results.</p>
+                            <div class="profile-insights__scan-list">
+                                @foreach ($profileInsights['scan_recommendations'] as $scanInsight)
+                                    <details class="profile-insights__scan">
+                                        <summary><span>{{ $scanInsight['original_name'] }}</span><small>{{ ucfirst($scanInsight['document_type']) }} · {{ $scanInsight['processed_at'] ? \Carbon\Carbon::parse($scanInsight['processed_at'])->timezone('Asia/Manila')->format('M j, Y') : 'Date unavailable' }}</small></summary>
+                                        <div class="profile-insights__scan-content">
+                                            @foreach ([
+                                                'skills' => 'Skills detected',
+                                                'credentials' => 'Credentials detected',
+                                                'career_matches' => 'Career matches',
+                                                'tesda_recommendations' => 'TESDA recommendations',
+                                                'skill_gaps' => 'Skills to develop',
+                                            ] as $key => $label)
+                                                @if (! empty($scanInsight[$key]))
+                                                    <div><h4>{{ $label }}</h4><ul>@foreach ($scanInsight[$key] as $item)<li>{{ $item }}</li>@endforeach</ul></div>
+                                                @endif
+                                            @endforeach
+                                            @foreach (['job_recommendations' => 'PESO career suggestions', 'learning_recommendations' => 'Learning suggestions'] as $key => $label)
+                                                @if (! empty($scanInsight[$key]))
+                                                    <div><h4>{{ $label }}</h4><ul class="profile-insights__scan-cards">
+                                                        @foreach ($scanInsight[$key] as $item)
+                                                            <li><strong>{{ $item['title'] }}</strong>
+                                                                @foreach (['reason', 'evidence', 'learningSite'] as $detail)
+                                                                    @if (is_string($item[$detail] ?? null) && filled($item[$detail]))<p>{{ $detail === 'evidence' ? 'Evidence: ' : '' }}{{ $item[$detail] }}</p>@endif
+                                                                @endforeach
+                                                                @if (is_array($item['evidencedSkills'] ?? null) && $item['evidencedSkills'] !== [])<p>Documented skills: {{ implode(', ', $item['evidencedSkills']) }}</p>@endif
+                                                                @if (is_array($item['skillsToDevelop'] ?? null) && $item['skillsToDevelop'] !== [])<p>Skills to build: {{ implode(', ', $item['skillsToDevelop']) }}</p>@endif
+                                                            </li>
+                                                        @endforeach
+                                                    </ul></div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </details>
+                                @endforeach
+                            </div>
+                        </section>
+                    @endif
                     <div class="profile-insights__next-steps">
                         <section class="profile-insights__group profile-insights__group--wide">
-                            <h3>AI job matches</h3>
+                            <h3>Latest scan · AI job matches</h3>
                             <p>Percentages show documented skills out of the role skills listed by the scanner. They are not hiring probabilities or verified competency ratings.</p>
                             @if (count($profileInsights['job_recommendations']) > 0)
                                 <ul class="profile-insights__resources">
@@ -84,7 +125,7 @@
                                 @if (count($profileInsights['skill_gaps']) > 0)<span class="profile-insights__skill-count">{{ count($profileInsights['skill_gaps']) }} suggested</span>@endif
                             </div>
                             @if (count($profileInsights['skill_gaps']) > 0)
-                                <p>Based on your latest scan. Use these as a guide, then choose what fits your career goal.</p>
+                                <p>Use these as a guide, then choose what fits your career goal. Earlier scan suggestions stay in their own records above.</p>
                                 <ol class="profile-insights__skill-list">
                                     @foreach ($profileInsights['skill_gaps'] as $skillGap)
                                         <li><span class="profile-insights__skill-number">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span><span>{{ $skillGap }}</span></li>
@@ -97,7 +138,7 @@
                         </section>
 
                         <section class="profile-insights__group profile-insights__group--wide" id="learning-resources">
-                            <h3>Free learning and open-source practice</h3>
+                            <h3>Latest scan · Free learning and open-source practice</h3>
                             @if (count($profileInsights['learning_recommendations']) > 0)
                                 <ul class="profile-insights__resources">
                                     @foreach ($profileInsights['learning_recommendations'] as $learningRecommendation)

@@ -52,7 +52,7 @@ class TesdaQualificationCatalogTest extends TestCase
         $this->get(route('tesda.index'))->assertOk()->assertSee('NC IV')->assertSee('Find a qualification');
         $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $this->actingAs($user)->get(route('tesda.index'))->assertOk()->assertSee('class="tk-body tk-workspace"', false)->assertDontSee('class="tk-body tesda-body"', false);
-        $this->get(route('scanner.index'))->assertOk()->assertSee('Discover what comes next');
+        $this->get(route('scanner.index'))->assertOk()->assertSee('Career scan studio');
         $this->get(route('peso.index'))->assertOk()->assertSee('See where your skills could lead');
         $this->get(route('profile.show'))->assertOk()->assertSee('A profile that grows with you');
         Http::assertNothingSent();

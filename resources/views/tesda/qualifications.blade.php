@@ -1,6 +1,6 @@
 <section class="qualification-catalog" id="nc-offerings" data-qualification-catalog aria-labelledby="qualification-title">
     <header class="qualification-heading">
-        <div><p class="tesda-eyebrow">OFFICIAL TRAINING REGULATIONS</p><h2 id="qualification-title">One catalog. More possibilities.</h2></div>
+        <div><p class="tesda-eyebrow">01 / THE QUALIFICATION DIRECTORY</p><h2 id="qualification-title">Find a qualification.</h2></div>
         <a href="{{ $nationalCatalog['source'] }}" target="_blank" rel="noopener noreferrer">View official source ↗</a>
     </header>
     <p class="qualification-intro">Browse national qualifications from NC I to NC IV. These standards describe training and assessment; they do not confirm open enrollment or availability at a particular school.</p>
@@ -40,8 +40,41 @@
             <article class="qualification-card" data-qualification data-title="{{ $qualification['title'] }}" data-level="{{ $qualification['nc_level'] }}" data-status="{{ $qualification['status'] }}">
                 <div class="qualification-card-top"><span>{{ $qualification['nc_level'] }}</span><small>{{ $qualification['status'] === 'current' ? 'National qualification' : 'Archived / superseded' }}</small></div>
                 <h3>{{ $qualification['title'] }}</h3>
+                <div class="qualification-location">
+                    <strong>{{ match ($qualification['provider_locations_scope'] ?? null) {
+                        'nearest_outside_pangasinan' => 'Nearest registered locations outside Pangasinan',
+                        'other_official' => 'Other official TESDA locations',
+                        default => 'Pangasinan provider locations',
+                    } }}</strong>
+                    @if (! empty($qualification['provider_locations']))
+                        <ul>
+                            @foreach (array_slice($qualification['provider_locations'], 0, 3) as $providerLocation)
+                                <li>
+                                    <strong class="qualification-location__provider">{{ $providerLocation['provider'] ?? 'Training provider' }}</strong>
+                                    <small class="qualification-location__address">{{ $providerLocation['address'] ?? 'Not available' }}</small>
+                                </li>
+                            @endforeach
+                        </ul>
+                        @if (count($qualification['provider_locations']) > 3)
+                            <details class="qualification-location__more">
+                                <summary>View {{ count($qualification['provider_locations']) - 3 }} more {{ \Illuminate\Support\Str::plural('location', count($qualification['provider_locations']) - 3) }}</summary>
+                                <ul>
+                                    @foreach (array_slice($qualification['provider_locations'], 3) as $providerLocation)
+                                        <li>
+                                            <strong class="qualification-location__provider">{{ $providerLocation['provider'] ?? 'Training provider' }}</strong>
+                                            <small class="qualification-location__address">{{ $providerLocation['address'] ?? 'Not available' }}</small>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </details>
+                        @endif
+                    @else
+                        <p>Not available</p>
+                        <a href="{{ $qualification['nearby_provider_url'] }}" target="_blank" rel="noopener noreferrer">Search TESDA listings outside Pangasinan ↗</a>
+                    @endif
+                </div>
                 <p class="qualification-trainers">Trainer: {{ ($qualificationTrainers->get($qualification['id']) ?? collect())->pluck('trainer.name')->filter()->unique()->implode(', ') ?: 'None selected yet' }}</p>
-                <div class="qualification-links"><a href="{{ $qualification['source_url'] }}" target="_blank" rel="noopener noreferrer">Training regulations ↗</a>@if ($qualification['status'] === 'current')<a href="{{ $qualification['provider_url'] }}" target="_blank" rel="noopener noreferrer">Find a provider ↗</a>@endif</div>
+                <div class="qualification-links"><a href="{{ $qualification['source_url'] }}" target="_blank" rel="noopener noreferrer">Training regulations ↗</a>@if ($qualification['status'] === 'current')<a href="{{ $qualification['provider_url'] }}" target="_blank" rel="noopener noreferrer">Pangasinan listings ↗</a>@if (in_array(($qualification['provider_locations_scope'] ?? null), ['nearest_outside_pangasinan', 'other_official'], true))<a href="{{ $qualification['nearby_provider_url'] }}" target="_blank" rel="noopener noreferrer">Other locations ↗</a>@endif @endif</div>
                 @if (($choiceUser ?? null) && $qualification['status'] === 'current')
                     <form method="POST" action="{{ route('tesda.choice.store') }}" class="qualification-choice-form">
                         @csrf

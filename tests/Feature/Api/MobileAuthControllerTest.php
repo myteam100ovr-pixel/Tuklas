@@ -23,6 +23,7 @@ class MobileAuthControllerTest extends TestCase
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',
             'device_name' => 'tuklas-mobile',
+            'terms' => true,
         ])
             ->assertCreated()
             ->assertJsonPath('message', 'Account created. Verify your email address before signing in.')
@@ -57,6 +58,7 @@ class MobileAuthControllerTest extends TestCase
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',
             'device_name' => 'tuklas-mobile',
+            'terms' => true,
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('email');
@@ -77,6 +79,7 @@ class MobileAuthControllerTest extends TestCase
             'email' => 'web-youth@example.com',
             'password' => 'StrongPassword123!',
             'device_name' => 'tuklas-mobile',
+            'terms' => true,
         ])
             ->assertOk()
             ->assertJsonPath('user.id', $user->getKey())

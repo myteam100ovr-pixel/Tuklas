@@ -20,8 +20,46 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
+  bool _checkingVerification = false;
+  String? _verificationMessage;
   int _tab = 0;
   int _version = 0; // bumped after a profile save so the dashboard reloads
+
+  Future<void> _checkVerification({bool resend = false}) async {
+    if (_checkingVerification) return;
+    setState(() {
+      _checkingVerification = true;
+      _verificationMessage = null;
+    });
+    try {
+      if (resend) {
+        final result = await ApiClient.instance.workspace(
+          '/email/verification-notification',
+          method: 'POST',
+        );
+        if (mounted) {
+          setState(() => _verificationMessage = result['message'] as String?);
+        }
+      } else {
+        await ApiClient.instance.me();
+        if (mounted) {
+          setState(
+            () => _verificationMessage = 'If you have not verified yet, open the link in your email and check again.',
+          );
+        }
+      }
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _verificationMessage = error.message);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _verificationMessage = 'Could not connect. Please try again.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _checkingVerification = false);
+    }
+  }
 
   Future<void> _logout() async {
     await ApiClient.instance.logout();
@@ -46,6 +84,68 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (ApiClient.instance.user?['email_verified'] == false) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.mark_email_unread_outlined, size: 48),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Verify your email',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Open the verification link in your email to access your workspace.',
+                      textAlign: TextAlign.center,
+                    ),
+                    if (_verificationMessage != null) ...[
+                      const SizedBox(height: 16),
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          _verificationMessage!,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: _checkingVerification
+                          ? null
+                          : () => _checkVerification(),
+                      child: Text(
+                        _checkingVerification
+                            ? 'Please wait…'
+                            : 'I have verified my email',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _checkingVerification
+                          ? null
+                          : () => _checkVerification(resend: true),
+                      child: const Text('Resend verification email'),
+                    ),
+                    TextButton(
+                      onPressed: _checkingVerification ? null : _logout,
+                      child: const Text('Log out'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: Column(

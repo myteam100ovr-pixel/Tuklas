@@ -466,6 +466,8 @@
 
         <div class="foot-col">
             <h3>Contact</h3>
+            <a href="{{ route('policy.show') }}">Privacy notice</a>
+            <a href="{{ route('terms.show') }}">Terms of use</a>
             <span>Questions about Tuklas? Reach out to PESO Bugallon.</span>
         </div>
     </div>

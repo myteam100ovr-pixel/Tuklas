@@ -7,6 +7,7 @@ use App\Models\CareerPath;
 use App\Models\DocumentScan;
 use App\Models\TrainingProgram;
 use App\Models\User;
+use App\Services\DocumentScanHistory;
 use App\Services\TesdaQualificationCatalog;
 use App\Support\ProfileCompletion;
 use Illuminate\Support\Facades\Route;
@@ -155,7 +156,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function youth(): View
+    public function youth(DocumentScanHistory $scanHistory): View
     {
         $user = auth()->user()->load('youthProfile');
         $completion = ProfileCompletion::for($user);
@@ -163,7 +164,8 @@ class DashboardController extends Controller
         $scanned = (clone $scans)->where('status', 'done')->count();
         $skills = count($user->youthProfile?->skills ?? []);
         $recent = (clone $scans)->latest()->take(6)->get();
-        $latestAnalysis = (clone $scans)->where('status', 'done')->latest('processed_at')->first(['result'])?->result ?? [];
+        $latestAnalysis = (clone $scans)->where('status', 'done')->latest('processed_at')->value('result') ?? [];
+        $scanRecommendations = $scanHistory->recommendationsFor($user);
         $careerMatches = collect($latestAnalysis['careerMatches'] ?? $latestAnalysis['job_roles'] ?? [])
             ->map(fn ($match): array => is_array($match)
                 ? ['name' => $match['name'] ?? $match['title'] ?? null, 'skillCoverage' => $match['skillCoverage'] ?? null, 'evidencedSkills' => $match['evidencedSkills'] ?? [], 'skillsToDevelop' => $match['skillsToDevelop'] ?? []]
@@ -220,6 +222,7 @@ class DashboardController extends Controller
                 'job_recommendations' => $jobRecommendations,
                 'skill_gaps' => $skillGaps,
                 'learning_recommendations' => $learningRecommendations,
+                'scan_recommendations' => $scanRecommendations,
             ],
             'chart' => [
                 'kind' => 'meters',

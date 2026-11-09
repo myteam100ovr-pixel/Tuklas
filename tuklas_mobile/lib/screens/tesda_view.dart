@@ -14,6 +14,7 @@ class TesdaView extends StatefulWidget {
 
 class _TesdaViewState extends State<TesdaView> {
   int _page = 1;
+  int _registeredPage = 1;
   late Future<Map<String, dynamic>> _catalog;
 
   @override
@@ -22,10 +23,14 @@ class _TesdaViewState extends State<TesdaView> {
     _catalog = ApiClient.instance.tesdaCatalog();
   }
 
-  void _loadPage(int page) {
+  void _loadPage(int page, {int? registeredPage}) {
     setState(() {
       _page = page;
-      _catalog = ApiClient.instance.tesdaCatalog(page: page);
+      _registeredPage = registeredPage ?? _registeredPage;
+      _catalog = ApiClient.instance.tesdaCatalog(
+        page: page,
+        registeredPage: _registeredPage,
+      );
     });
   }
 
@@ -84,6 +89,16 @@ class _TesdaViewState extends State<TesdaView> {
         final currentPage = (pagination['current_page'] as num?)?.toInt() ?? 1;
         final lastPage = (pagination['last_page'] as num?)?.toInt() ?? 1;
         final total = (pagination['total'] as num?)?.toInt() ?? 0;
+        final registeredPrograms = asList(data['registered_programs']);
+        final registeredPagination = asMap(
+          data['registered_programs_pagination'],
+        );
+        final registeredCurrentPage =
+            (registeredPagination['current_page'] as num?)?.toInt() ?? 1;
+        final registeredLastPage =
+            (registeredPagination['last_page'] as num?)?.toInt() ?? 1;
+        final registeredTotal =
+            (registeredPagination['total'] as num?)?.toInt() ?? 0;
 
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
@@ -144,6 +159,75 @@ class _TesdaViewState extends State<TesdaView> {
                                   ),
                             ],
                           ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TkCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Official registered centers',
+                                  style: tkText(context, size: 17, weight: 500),
+                                ),
+                              ),
+                              TkChip(label: '$registeredTotal programs'),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Provider locations and programs from TESDA’s Pangasinan registry.',
+                            style: tkText(
+                              context,
+                              size: 12.5,
+                              color: colors.muted,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          for (final raw in registeredPrograms)
+                            _registeredProgramCard(context, asMap(raw)),
+                          if (registeredLastPage > 1) ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                OutlinedButton(
+                                  onPressed: registeredCurrentPage > 1
+                                      ? () => _loadPage(
+                                          _page,
+                                          registeredPage:
+                                              registeredCurrentPage - 1,
+                                        )
+                                      : null,
+                                  child: const Text('Previous'),
+                                ),
+                                Text(
+                                  'Page $registeredCurrentPage of $registeredLastPage',
+                                  style: tkText(
+                                    context,
+                                    size: 12.5,
+                                    color: colors.muted,
+                                  ),
+                                ),
+                                OutlinedButton(
+                                  onPressed:
+                                      registeredCurrentPage < registeredLastPage
+                                      ? () => _loadPage(
+                                          _page,
+                                          registeredPage:
+                                              registeredCurrentPage + 1,
+                                        )
+                                      : null,
+                                  child: const Text('Next'),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -328,6 +412,58 @@ class _TesdaViewState extends State<TesdaView> {
                 style: tkText(context, size: 12, color: colors.muted),
               ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _registeredProgramCard(
+    BuildContext context,
+    Map<String, dynamic> program,
+  ) {
+    final colors = TkColors.of(context);
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colors.surface2,
+        border: Border.all(color: colors.line),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${program['program'] ?? 'TESDA registered program'}',
+            style: tkText(context, size: 13.5, weight: 600),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            '${program['provider'] ?? 'Training provider'}',
+            style: tkText(
+              context,
+              size: 12.5,
+              weight: 600,
+              color: TkColors.violet,
+            ),
+          ),
+          Text(
+            '${program['address'] ?? 'Address not available'}',
+            style: tkText(
+              context,
+              size: 11.5,
+              color: colors.muted,
+              height: 1.4,
+            ),
+          ),
+          if (program['phone'] != null &&
+              '${program['phone']}'.trim().isNotEmpty)
+            Text(
+              '${program['phone']}',
+              style: tkText(context, size: 11.5, color: colors.muted),
+            ),
         ],
       ),
     );

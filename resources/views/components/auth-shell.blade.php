@@ -106,20 +106,31 @@
             <div class="auth-form-wrap">
                 <a class="auth-back" href="{{ url('/') }}"><span aria-hidden="true">←</span> Back to Tuklas</a>
                 <div class="auth-heading">
-                    <p class="auth-form-kicker">{{ $mode === 'register' ? 'A GOOD PLACE TO BEGIN' : 'GOOD TO SEE YOU AGAIN' }}</p>
+                    <p class="auth-form-kicker">{{ $mode === 'register' ? 'A GOOD PLACE TO BEGIN' : ($mode === 'security' ? 'YOUR ACCOUNT' : 'GOOD TO SEE YOU AGAIN') }}</p>
                     <h2 id="auth-title">{{ $title }}</h2>
                     <p>{{ $description }}</p>
                 </div>
 
                 {{ $slot }}
 
+                @guest
                 <p class="auth-switch">
-                    @if ($mode === 'register')
+                    @if ($mode === 'security')
+                        <a href="{{ route('login') }}">Back to sign-in</a>
+                    @elseif ($mode === 'register')
                         Already have an account? <a href="{{ route('login') }}">Log in</a>
                     @else
                         New to Tuklas? <a href="{{ route('register') }}">Create an account</a>
                     @endif
                 </p>
+                @endguest
+                @if (in_array($mode, ['login', 'register'], true))
+                    <nav class="auth-policy-links" aria-label="Privacy and terms">
+                        <a href="{{ route('policy.show') }}">Privacy notice</a>
+                        <span aria-hidden="true">·</span>
+                        <a href="{{ route('terms.show') }}">Terms of use</a>
+                    </nav>
+                @endif
             </div>
             <p class="auth-legal">Tuklas offers guidance and information, not guarantees of employment, admission, or training availability.</p>
         </section>

@@ -59,14 +59,20 @@ class FortifyServiceProvider extends ServiceProvider
             $email = $request->input(Fortify::username());
             $throttleKey = Str::transliterate(Str::lower(is_string($email) ? $email : '').'|'.$request->ip());
 
-            return Limit::perMinute(5)->by($throttleKey);
+            return [
+                Limit::perMinute(30)->by('ip:'.$request->ip()),
+                Limit::perMinute(5)->by('account:'.$throttleKey),
+            ];
         });
 
         RateLimiter::for('mobile-login', function (Request $request) {
             $email = $request->input('email');
             $throttleKey = Str::transliterate(Str::lower(is_string($email) ? $email : '').'|'.$request->ip());
 
-            return Limit::perMinute(5)->by($throttleKey);
+            return [
+                Limit::perMinute(30)->by('ip:'.$request->ip()),
+                Limit::perMinute(5)->by('account:'.$throttleKey),
+            ];
         });
 
         RateLimiter::for('two-factor', function (Request $request) {

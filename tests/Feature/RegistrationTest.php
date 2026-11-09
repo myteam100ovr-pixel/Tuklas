@@ -13,6 +13,21 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[TestWith([null])]
+    #[TestWith([false])]
+    public function test_web_registration_requires_explicit_terms_acceptance(?bool $accepted): void
+    {
+        $this->postJson(route('register.store'), [
+            'name' => 'New Youth',
+            'email' => 'terms@example.com',
+            'password' => 'StrongPassword123!',
+            'password_confirmation' => 'StrongPassword123!',
+            'terms' => $accepted,
+        ])->assertUnprocessable()->assertJsonValidationErrors('terms');
+
+        $this->assertDatabaseMissing('users', ['email' => 'terms@example.com']);
+    }
+
     public function test_registration_form_has_separate_name_fields(): void
     {
         $this->get(route('register'))

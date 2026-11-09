@@ -1,0 +1,86 @@
+.tesda-directory { --directory-accent:#5b17ff; width:min(100% - 48px,1280px); }
+.tesda-directory .tesda-intro { position:relative; max-width:none; padding:clamp(28px,5vw,64px); border-radius:24px; background:#221047; color:#fff; overflow:hidden; }
+.tesda-directory .tesda-intro::after { content:''; position:absolute; width:340px; height:340px; right:-160px; top:-160px; border:60px solid #9b75ff33; border-radius:50%; pointer-events:none; }
+.tesda-directory .tesda-intro .tesda-eyebrow { color:#c5adff; font-size:.7rem; letter-spacing:.14em; }
+.tesda-directory .tesda-intro h1 { max-width:800px; font-size:clamp(2.3rem,4.8vw,4.7rem); font-weight:500; line-height:1.08; letter-spacing:-.055em; }
+.tesda-directory .tesda-intro > p:not(.tesda-eyebrow) { color:#d1c7e2; font-size:.95rem; }
+.tesda-directory-actions { display:flex; align-items:center; flex-wrap:wrap; gap:20px; font-size:.85rem; }
+.tesda-directory-actions .btn { background:#d9c9ff; color:#231044; border-radius:12px; min-height:48px; padding:14px 20px; display:inline-flex; align-items:center; gap:24px; }
+.tesda-directory-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:40px; padding-top:24px; border-top:1px solid #ffffff26; }
+.tesda-directory-summary span { display:grid; gap:8px; color:#beb0d3; font-size:.76rem; }
+.tesda-directory-summary strong { color:#fff; font-size:1.2rem; font-weight:500; }
+.tesda-directory-nav { display:flex; flex-wrap:wrap; gap:8px 32px; padding:24px 0; border-bottom:1px solid var(--line); }
+.tesda-directory-nav a { display:flex; align-items:center; gap:10px; min-height:44px; font-size:.85rem; color:var(--ink); }
+.tesda-directory-nav span { color:var(--muted); font-size:.7rem; font-variant-numeric:tabular-nums; }
+.tesda-provider-directory { padding:clamp(20px,3vw,32px); border:1px solid var(--line); border-radius:20px; background:var(--surface); }
+.tesda-provider-directory__link { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:10px 16px; border:1px solid var(--line); border-radius:12px; color:var(--violet); font-size:.82rem; font-weight:600; text-align:center; }
+.tesda-provider-directory__link:hover { border-color:var(--violet); }
+.tesda-provider-tools { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px 20px; max-width:760px; margin:28px 0 20px; }
+.tesda-provider-tools label { grid-column:1 / -1; color:var(--ink); font-size:.82rem; font-weight:600; }
+.tesda-provider-tools input { min-height:48px; width:100%; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); color:var(--ink); font:inherit; }
+.tesda-provider-tools p { color:var(--muted); font-size:.8rem; white-space:nowrap; }
+.tesda-provider-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.tesda-provider-card { min-width:0; padding:20px; border:1px solid var(--line); border-radius:16px; background:var(--surface-2); }
+.tesda-provider-card[hidden] { display:none; }
+.tesda-provider-card header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.tesda-provider-card h3 { margin:0; color:var(--ink); font-size:1rem; line-height:1.45; font-weight:600; }
+.tesda-provider-card header p,.tesda-provider-phone { margin:8px 0 0; color:var(--muted); font-size:.82rem; line-height:1.6; }
+.tesda-provider-card header > span { flex:none; padding:5px 9px; border-radius:999px; background:var(--surface); color:var(--violet); font-size:.7rem; }
+.tesda-provider-card details { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+.tesda-provider-card summary { color:var(--violet); cursor:pointer; font-size:.82rem; font-weight:600; }
+.tesda-provider-card ul { display:grid; gap:7px; margin:12px 0 0; padding-left:20px; color:var(--ink); font-size:.8rem; line-height:1.55; }
+.tesda-provider-source { margin-top:24px; color:var(--muted); font-size:.75rem; }
+.tesda-directory .qualification-catalog { margin:0; padding:40px 0; border:0; border-radius:0; background:transparent; }
+.tesda-directory .qualification-heading h2 { font-size:clamp(1.8rem,3vw,2.6rem); }
+.tesda-directory .qualification-intro { max-width:800px; font-size:.9rem; }
+.tesda-directory .qualification-filters { padding:24px; margin:28px 0 20px; border:1px solid var(--line); border-radius:16px; background:var(--surface); gap:20px; }
+.tesda-directory .qualification-filters label { font-size:.8rem; }
+.tesda-directory .qualification-filters input,.tesda-directory .qualification-filters select { min-height:48px; font-size:1rem; background:var(--surface-2); }
+.tesda-directory .qualification-grid { display:grid; grid-template-columns:1fr; gap:0; border-top:1px solid var(--line); }
+.tesda-directory .qualification-card { display:grid; grid-template-columns:120px minmax(0,1fr) minmax(180px,240px); column-gap:24px; row-gap:12px; padding:28px 20px; border:0; border-bottom:1px solid var(--line); border-radius:0; background:transparent; }
+.tesda-directory .qualification-card:hover { background:var(--surface-2); }
+.tesda-directory .qualification-card[hidden] { display:none; }
+.tesda-directory .qualification-card-top { grid-column:1; grid-row:1 / span 2; flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:10px; }
+.tesda-directory .qualification-card-top > span { padding:8px 12px; font-size:.85rem; border-radius:8px; }
+.tesda-directory .qualification-card-top small { font-size:.72rem; line-height:1.5; }
+.tesda-directory .qualification-card h3 { grid-column:2; font-size:1.05rem; line-height:1.5; font-weight:500; }
+.tesda-directory .qualification-location { grid-column:2; max-width:760px; font-size:.72rem; line-height:1.4; }
+.tesda-directory .qualification-location > strong { font-size:.62rem; }
+.tesda-directory .qualification-location ul { grid-template-columns:1fr; gap:6px; }
+.tesda-directory .qualification-location li { padding:8px 11px; border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; background:var(--surface-2); }
+.tesda-directory .qualification-location__provider { font-size:.76rem; font-weight:700; }
+.tesda-directory .qualification-location__address { margin-top:2px; font-size:.68rem; }
+.tesda-directory .qualification-location__more ul { margin-top:4px; }
+.tesda-directory .qualification-trainers { grid-column:2; grid-row:3; font-size:.8rem; }
+.tesda-directory .qualification-links { grid-column:3; grid-row:1 / span 3; border:0; padding:0; margin:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:4px; font-size:.8rem; }
+.tesda-directory .qualification-links a { display:inline-flex; align-items:center; min-height:36px; }
+.tesda-directory .qualification-choice-form { grid-column:2 / -1; justify-self:start; margin:0; }
+.tesda-directory .qualification-choice-form button { min-height:44px; padding:10px 18px; border-radius:10px; font-size:.8rem; }
+.tesda-directory .qualification-plan { border-left:4px solid var(--violet); padding:20px 24px; border-radius:12px; }
+.tesda-directory .tesda-level-list { gap:24px; }
+.tesda-directory .tesda-level-group { border-radius:16px; background:var(--surface); }
+.tesda-directory .tesda-level-header { padding:20px 24px; background:var(--surface-2); }
+.tesda-directory .tesda-offer { padding:24px; gap:24px; }
+.tesda-directory .tesda-offer h4 { font-size:1rem; }
+.tesda-directory .tesda-offer-main p,.tesda-directory .tesda-offer-meta { font-size:.82rem; line-height:1.65; }
+.tesda-directory .tesda-resource-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.tesda-directory .tesda-resource { padding:28px; border-radius:16px; background:var(--surface); }
+.tesda-directory .tesda-resource h3 { font-size:1.15rem; margin-top:20px; }
+.tesda-directory .tesda-resource p,.tesda-directory .tesda-resource a { font-size:.85rem; line-height:1.7; }
+.tesda-directory .tesda-resource a { min-height:44px; }
+.tesda-directory :where(a,button,input,select):focus-visible { outline:3px solid var(--violet); outline-offset:4px; }
+@media(max-width:760px) {
+    .tesda-directory { width:calc(100% - 32px); }
+    .tesda-directory-summary { grid-template-columns:1fr; gap:18px; }
+    .tesda-directory-summary span { display:flex; align-items:baseline; flex-wrap:wrap; gap:8px 16px; }
+    .tesda-provider-tools { grid-template-columns:1fr; }
+    .tesda-provider-tools label { grid-column:1; }
+    .tesda-provider-tools p { white-space:normal; }
+    .tesda-provider-grid { grid-template-columns:1fr; }
+    .tesda-directory .qualification-filters { grid-template-columns:1fr; padding:20px; }
+    .tesda-directory .qualification-card { grid-template-columns:1fr; padding:24px 12px; }
+    .tesda-directory .qualification-card > * { grid-column:1; grid-row:auto; }
+    .tesda-directory .qualification-card-top { flex-direction:row; align-items:center; }
+    .tesda-directory .qualification-links { flex-direction:row; flex-wrap:wrap; justify-content:flex-start; gap:8px 20px; }
+    .tesda-directory .tesda-resource-grid { grid-template-columns:1fr; }
+}

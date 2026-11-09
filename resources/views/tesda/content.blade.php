@@ -1,12 +1,41 @@
-<div class="tesda-main suite-tesda">
+<div class="tesda-main suite-tesda tesda-directory">
     <section class="tesda-intro" aria-labelledby="tesda-title">
-        <p class="tesda-eyebrow">TESDA · National qualifications</p>
-        <h1 id="tesda-title">Explore training and services.</h1>
+        <p class="tesda-eyebrow">LEARN. QUALIFY. MOVE FORWARD.</p>
+        <h1 id="tesda-title">Build skills.<br>Open new possibilities.</h1>
         <p>Explore the official NC I–IV qualification catalog, find registered providers, and browse locally published training programs.</p>
-        <a class="btn btn-violet" href="#nc-offerings">Browse NC I–IV offerings</a>
+        <div class="tesda-directory-actions"><a class="btn btn-violet" href="#nc-offerings">Find your qualification <span aria-hidden="true">↗</span></a><a href="#local-programs">Explore local training →</a></div>
+        <div class="tesda-directory-summary"><span><strong>NC I–IV</strong>National qualifications</span><span><strong>{{ $programCount }}</strong>Published local programs</span><span><strong>Your next step</strong>One training plan at a time</span></div>
     </section>
 
+    <nav class="tesda-directory-nav" aria-label="Training directory sections"><a href="#nc-offerings"><span>01</span> Qualifications</a><a href="#provider-directory"><span>02</span> Pangasinan providers</a><a href="#local-programs"><span>03</span> Local training</a><a href="#tesda-resources"><span>04</span> Learning resources</a></nav>
     @include('tesda.qualifications')
+
+    <section class="tesda-section tesda-provider-directory" id="provider-directory" aria-labelledby="provider-directory-title">
+        <div class="tesda-section-heading">
+            <div>
+                <p class="tesda-eyebrow">Official TESDA registry · Pangasinan</p>
+                <h2 id="provider-directory-title">Training centers and registered programs</h2>
+            </div>
+            <a class="tesda-provider-directory__link" href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse=&SearchIns=&SearchLoc=pangasinan" target="_blank" rel="noopener noreferrer">Open official TESDA directory ↗</a>
+        </div>
+        <p class="tesda-note">{{ $registeredProgramCount }} program registrations across {{ $providerCount }} provider locations from the official TESDA Pangasinan registry. Listings are not confirmation of open enrollment; check schedules and slots with the provider.</p>
+        <div class="tesda-provider-tools">
+            <label for="tesda-provider-search">Search providers, addresses, or registered programs</label>
+            <input id="tesda-provider-search" type="search" data-provider-search placeholder="Try a town, training center, or qualification" aria-controls="tesda-provider-results">
+            <p data-provider-count role="status">{{ $providerCount }} provider locations</p>
+        </div>
+        <div class="tesda-provider-grid" id="tesda-provider-results" data-provider-directory>
+            @foreach ($providerGroups as $provider)
+                <article class="tesda-provider-card" data-provider-card>
+                    <header><div><h3>{{ $provider['provider'] }}</h3><p>{{ $provider['address'] }}</p></div><span>{{ $provider['programs']->count() }} {{ \Illuminate\Support\Str::plural('program', $provider['programs']->count()) }}</span></header>
+                    @if ($provider['phones']->isNotEmpty())<p class="tesda-provider-phone">{{ $provider['phones']->implode(' · ') }}</p>@endif
+                    <details><summary>View registered programs</summary><ul>@foreach ($provider['programs'] as $program)<li>{{ $program }}</li>@endforeach</ul></details>
+                </article>
+            @endforeach
+        </div>
+        <p class="tesda-note" data-provider-empty hidden>No official registry entries match that search.</p>
+        <p class="tesda-provider-source">Source: <a href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse=&SearchIns=&SearchLoc=pangasinan" target="_blank" rel="noopener noreferrer">TESDA TVI Pangasinan registry</a> · Snapshot fetched {{ $registeredProgramsFetchedAt ? \Carbon\Carbon::parse($registeredProgramsFetchedAt)->timezone('Asia/Manila')->format('M j, Y') : 'date unavailable' }}.</p>
+    </section>
 
     <section class="tesda-section" id="local-programs" aria-labelledby="local-programs-title">
         <div class="tesda-section-heading">
@@ -82,7 +111,7 @@
         @endif
     </section>
 
-    <section class="tesda-section" aria-labelledby="tesda-services-title">
+    <section class="tesda-section" id="tesda-resources" aria-labelledby="tesda-services-title">
         <div class="tesda-section-heading">
             <div>
                 <p class="tesda-eyebrow">Official TESDA resources</p>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\Role;
 use App\Http\Requests\SendCareerChatRequest;
 use App\Models\User;
+use App\Services\DocumentScanHistory;
 use App\Services\GeminiCareerAssistant;
 use App\Support\ActivityNotifier;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +27,7 @@ class CareerChatController
         return response()->json(['messages' => $messages]);
     }
 
-    public function __invoke(SendCareerChatRequest $request, GeminiCareerAssistant $assistant, ActivityNotifier $activity): JsonResponse
+    public function __invoke(SendCareerChatRequest $request, GeminiCareerAssistant $assistant, DocumentScanHistory $scanHistory, ActivityNotifier $activity): JsonResponse
     {
         if (! $assistant->isConfigured()) {
             return response()->json([
@@ -47,7 +48,7 @@ class CareerChatController
                 ->all();
             $result = $assistant->reply(
                 [...$history, $message],
-                $this->latestCareerContext($user),
+                $this->careerContext($user, $scanHistory),
             );
 
             DB::transaction(function () use ($user, $message, $result): void {
@@ -87,43 +88,23 @@ class CareerChatController
         }
     }
 
-    /** @return array<string, array<int, string>> */
-    private function latestCareerContext(?User $user): array
+    /** @return array<string, mixed> */
+    private function careerContext(?User $user, DocumentScanHistory $scanHistory): array
     {
         if (! $user instanceof User || ! $user->hasRole(Role::Youth)) {
             return [];
         }
 
         $preferences = $user->youthProfile?->careerPreferences() ?? [];
-        $analysis = $user->documentScans()
-            ->where('status', 'done')
-            ->latest('processed_at')
-            ->first(['result'])
-            ?->result;
-
-        if (! is_array($analysis) || ! in_array($analysis['documentType'] ?? null, ['resume', 'certificate'], true)) {
-            return $preferences;
-        }
-
-        $cleanStrings = fn (mixed $values): array => collect(is_array($values) ? $values : [])
-            ->filter(fn (mixed $value): bool => is_string($value) && trim($value) !== '')
-            ->map(fn (string $value): string => mb_substr(trim($value), 0, 120))
-            ->take(8)
-            ->values()
-            ->all();
-
-        $careerMatches = collect(is_array($analysis['careerMatches'] ?? null) ? $analysis['careerMatches'] : [])
-            ->map(fn (mixed $match): mixed => is_array($match) ? ($match['name'] ?? null) : $match);
-        $jobRecommendations = collect(is_array($analysis['jobRecommendations'] ?? null) ? $analysis['jobRecommendations'] : [])
-            ->map(fn (mixed $recommendation): mixed => is_array($recommendation) ? ($recommendation['title'] ?? null) : null);
+        $scanResults = collect($scanHistory->recommendationsFor($user, 5))
+            ->map(fn (array $scan): array => collect($scan)->except(['id', 'original_name'])->all())
+            ->values()->all();
 
         return array_filter([
             ...$preferences,
-            'skills_detected' => $cleanStrings($analysis['skillsDetected'] ?? []),
-            'credentials' => $cleanStrings($analysis['credentials'] ?? []),
-            'career_matches' => $cleanStrings($careerMatches->all()),
-            'job_recommendations' => $cleanStrings($jobRecommendations->all()),
-            'skill_gaps' => $cleanStrings($analysis['skillGaps'] ?? []),
-        ], fn (array $values): bool => $values !== []);
+            'user_profile_skills' => $user->youthProfile?->skills ?? [],
+            'user_profile_credentials' => $user->youthProfile?->credentials ?? [],
+            'recent_scan_results' => $scanResults,
+        ], fn (mixed $value): bool => is_array($value) && $value !== []);
     }
 }

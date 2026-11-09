@@ -4,7 +4,6 @@ use App\Http\Controllers\AccountPasswordResetController;
 use App\Http\Controllers\Admin\CareerRecommendationController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\DemoLoginController;
-use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentScanController;
@@ -17,8 +16,12 @@ use App\Http\Controllers\Trainer\TrainerQualificationController;
 use App\Http\Controllers\Trainer\TrainingProgramController;
 use App\Http\Controllers\YouthProfileController;
 use Illuminate\Support\Facades\Route;
+use Laravel\Jetstream\Http\Controllers\Livewire\PrivacyPolicyController;
+use Laravel\Jetstream\Http\Controllers\Livewire\TermsOfServiceController;
 
 Route::view('/', 'welcome')->name('home');
+Route::get('/terms-of-service', [TermsOfServiceController::class, 'show'])->name('terms.show');
+Route::get('/privacy-policy', [PrivacyPolicyController::class, 'show'])->name('policy.show');
 Route::get('/tesda', [TesdaCatalogController::class, 'index'])->name('tesda.index');
 
 Route::middleware('guest')->group(function () {
@@ -26,10 +29,6 @@ Route::middleware('guest')->group(function () {
         ->whereIn('role', ['youth', 'trainer', 'super_admin'])
         ->middleware('throttle:10,1')->name('demo.login');
 
-    Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
-        ->whereIn('provider', ['google', 'facebook'])->name('social.redirect');
-    Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-        ->whereIn('provider', ['google', 'facebook'])->name('social.callback');
 });
 
 Route::middleware([

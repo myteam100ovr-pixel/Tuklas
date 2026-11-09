@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This file is for storing the credentials for third party services such
-    | as Resend, Postmark, AWS, and more. This file provides the de facto
+    | as Postmark, AWS, and more. This file provides the de facto
     | location for this type of information, allowing packages to have
     | a conventional file to locate the various service credentials.
     |
@@ -31,24 +31,11 @@ return [
         ],
     ],
 
-    'resend' => [
-        'key' => env('RESEND_API_KEY'),
-    ],
-
     'google' => [
-        'client_id' => env('VITE_GOOGLE_CLIENT_ID') ?: env('GOOGLE_CLIENT_ID'),
-        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI') ?: env('APP_URL').'/auth/google/callback',
         'gemini_api_key' => env('GOOGLE_AI_API_KEY') ?: env('GEMINI_API_KEY'),
         'gemini_model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
         'gemini_chat_web_search' => (bool) env('GEMINI_CHAT_WEB_SEARCH', true),
         'gemini_chat_url_context' => (bool) env('GEMINI_CHAT_URL_CONTEXT', true),
-    ],
-
-    'facebook' => [
-        'client_id' => env('FACEBOOK_CLIENT_ID'),
-        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'redirect' => env('FACEBOOK_REDIRECT_URI') ?: env('APP_URL').'/auth/facebook/callback',
     ],
 
 ];

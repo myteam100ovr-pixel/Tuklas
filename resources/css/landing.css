@@ -1,6 +1,7 @@
 @import '@fontsource/schibsted-grotesk/400.css';
 @import '@fontsource/schibsted-grotesk/500.css';
 @import './tesda-catalog.css';
+@import './tesda-directory.css';
 
 :root {
     --ink: #0d0d0f;

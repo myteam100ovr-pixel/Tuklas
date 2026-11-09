@@ -1,23 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tuklas_mobile/config.dart';
 import 'package:tuklas_mobile/screens/workspace_form.dart';
-import 'package:tuklas_mobile/screens/social_callback_screen.dart';
+import 'package:tuklas_mobile/screens/login_screen.dart';
 import 'package:tuklas_mobile/ui.dart';
+import 'package:tuklas_mobile/api.dart';
+import 'package:tuklas_mobile/screens/home_shell.dart';
 
 void main() {
-  testWidgets('social sign-in cancellation returns a usable sign-in action', (
+  testWidgets('unverified accounts see verification actions before workspace', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: SocialCallbackScreen(
-          uri: Uri.parse('tuklas://auth/social?error=Sign-in%20cancelled'),
-        ),
-      ),
+    ApiClient.instance.user = {
+      'email_verified': false,
+      'email': 'youth@example.com',
+    };
+    addTearDown(() => ApiClient.instance.user = null);
+    await tester.pumpWidget(const MaterialApp(home: HomeShell()));
+    expect(find.text('Verify your email'), findsOneWidget);
+    expect(find.text('Resend verification email'), findsOneWidget);
+    expect(find.text('I have verified my email'), findsOneWidget);
+    expect(find.text('Log out'), findsOneWidget);
+    expect(find.text('TuklasBot'), findsNothing);
+  });
+
+  testWidgets('registration consent starts unchecked and blocks submission', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+    await tester.tap(find.text('New to Tuklas? Create an account'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+      isFalse,
     );
-    expect(find.text('Sign-in cancelled'), findsOneWidget);
-    expect(find.text('Back to sign-in'), findsOneWidget);
-    expect(find.text('Continue'), findsNothing);
+    await tester.ensureVisible(find.text('Create account'));
+    await tester.tap(find.text('Create account'));
+    await tester.pump();
+    expect(
+      find.text('Please accept the Terms of use and Privacy notice.'),
+      findsOneWidget,
+    );
+  });
+
+  test('mobile API defaults to the Android emulator host', () {
+    expect(AppConfig.apiBase, 'http://10.0.2.2:8000/api/mobile');
+  });
+
+  testWidgets('sign-in offers email and password without social providers', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Password'), findsOneWidget);
+    expect(find.text('Continue with Google'), findsNothing);
+    expect(find.text('Continue with Facebook'), findsNothing);
   });
 
   testWidgets('workspace forms reject empty required values before saving', (
