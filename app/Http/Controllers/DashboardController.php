@@ -80,7 +80,7 @@ class DashboardController extends Controller
                 'items' => [
                     $this->task('Create a TESDA Lingayen trainer account', $trainers.' created', 'Trainers maintain the training catalog.', $trainers > 0),
                     $this->task('Publish TESDA Lingayen programs', $published.' published', 'Only programs in the system can be recommended.', $published > 0),
-                    $this->task('Publish career paths', $careers.' published', 'Recommendations draw on these.', $careers > 0),
+                    $this->task('Publish career paths', $careers.' published', 'Published paths are available for members to explore.', $careers > 0, route('admin.careers.index')),
                     $this->task('Youth sign-ups', $youthTotal.' accounts', 'Share the site with Bugallon youth.', $youthTotal > 0),
                 ],
             ],
@@ -262,7 +262,7 @@ class DashboardController extends Controller
             'actions' => $this->actions([
                 ['Edit profile', 'profile.show', 'user'],
                 ['Scanner', 'scanner.index', 'scan'],
-                ['Careers', 'peso.index', 'briefcase'],
+                ['Careers', 'careers.index', 'briefcase'],
                 ['Trainings', 'tesda.index', 'cap'],
             ]),
         ]);

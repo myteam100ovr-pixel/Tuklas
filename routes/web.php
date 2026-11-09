@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\AccountPasswordResetController;
+use App\Http\Controllers\Admin\CareerPathController;
 use App\Http\Controllers\Admin\CareerRecommendationController;
+use App\Http\Controllers\Admin\TrainingCatalogController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\DemoLoginController;
 use App\Http\Controllers\CareerChatController;
+use App\Http\Controllers\CareerPathCatalogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
@@ -42,6 +45,7 @@ Route::middleware([
         ->name('dashboard');
 
     Route::view('/scanner', 'scanner.index')->name('scanner.index');
+    Route::get('/careers', CareerPathCatalogController::class)->name('careers.index');
     Route::view('/tuklasbot', 'chat.index')->name('tuklasbot.index');
     Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
     Route::post('/career-chat', CareerChatController::class)
@@ -73,6 +77,8 @@ Route::middleware([
         Route::post('/users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('throttle:5,1')->name('users.reset-password');
         Route::post('/users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
         Route::get('/job-matches', fn () => redirect()->route('peso.index'))->name('recommendations.index');
+        Route::resource('careers', CareerPathController::class)->except(['show', 'destroy']);
+        Route::resource('trainings', TrainingCatalogController::class)->except(['show', 'destroy']);
     });
 
     Route::middleware('role:trainer')->prefix('trainer')->name('trainer.')->group(function () {
