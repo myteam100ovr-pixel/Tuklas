@@ -6,13 +6,16 @@ Tuklas is a youth career guidance and skills development web app for Pangasinan,
 
 | Available | Planned or in progress |
 |---|---|
-| Landing page with light and dark themes | Skills assessment |
+| Landing page with light and dark themes | |
 | Registration, login, password reset, email verification, and two-factor authentication | Expanded career and training management screens |
 | Role-based dashboards for PESO Bugallon, TESDA trainers, and youth | More career and training recommendations |
-| Google and Facebook sign-in (requires provider credentials) | Flutter mobile app |
+| Google and Facebook sign-in (requires provider credentials) | |
 | Profile editing and youth guardian details for ages 15 to 17 | |
+| Skills assessment and direct messages between active, verified members | |
 | Resume and certificate scanner with Gemini analysis (requires an API key) | |
 | Gemini career chat (requires an API key) | |
+| Flutter app for Android and iOS using the shared Laravel API | |
+| Privacy notice and terms pages, with readable web sign-up dialogs | |
 | TESDA page with local published programs and links to TESDA's live directory | |
 
 ## Requirements
@@ -154,12 +157,12 @@ Never commit real secrets. `.env` is local configuration; keep API keys and OAut
 | `TUKLAS_SUPERADMIN_EMAIL`, `TUKLAS_SUPERADMIN_NAME`, `TUKLAS_SUPERADMIN_PASSWORD` | Initial PESO Bugallon admin created by `php artisan migrate --seed` |
 | `GOOGLE_AI_API_KEY` | Enables Gemini resume/certificate scans and career chat; the key stays server-side |
 | `GEMINI_MODEL` | Gemini model name; defaults to the value in `.env.example` |
-| `MAIL_MAILER` | `smtp` to deliver email; use `log` only to inspect messages locally |
+| `MAIL_MAILER` | `phpmailer` for PHPMailer SMTP delivery, `smtp` for Laravel's SMTP transport, or `log` to inspect messages locally |
 | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SCHEME` | SMTP server settings; the example uses Gmail with TLS on port 587 |
 | `MAIL_TIMEOUT` | SMTP connection timeout in seconds; defaults to 15 |
 | `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Sender address and display name for outgoing mail |
 
-For Gmail, enable 2-Step Verification and create an app password. Set `MAIL_USERNAME` to the Gmail address and `MAIL_PASSWORD` to the app password in the untracked `.env` file. Keep `MAIL_FROM_ADDRESS` the same as the authenticated address. Yahoo and other SMTP providers can also receive mail from the app; change `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, username, and password to the provider's SMTP settings. Recipients can use Gmail, Yahoo, or another email service.
+The example `.env` selects PHPMailer and Gmail SMTP on port 587 with TLS. For Gmail, enable 2-Step Verification and create an app password. Set `MAIL_USERNAME` to the Gmail address and `MAIL_PASSWORD` to the app password in the untracked `.env` file. Keep `MAIL_FROM_ADDRESS` the same as the authenticated address. Yahoo and other SMTP providers can also receive mail; change `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, username, and password to the provider's SMTP settings. Recipients can use any email service. Never commit SMTP credentials. To use Laravel's built-in SMTP transport, set `MAIL_MAILER=smtp`.
 
 ## Daily development
 
@@ -194,7 +197,7 @@ flutter devices
 flutter run
 ```
 
-The Laravel backend must also be running with its database initialized. The app's default API address is `http://10.0.2.2:8000/api/mobile`, which reaches the host computer from an Android emulator. For an iOS simulator, pass its API address when launching:
+The Laravel backend must also be running with its database initialized and migrations applied. The app's default API address is `http://10.0.2.2:8000/api/mobile`, which reaches the host computer from an Android emulator. For an iOS simulator, pass its API address when launching:
 
 ```text
 flutter run --dart-define=API_BASE=http://127.0.0.1:8000/api/mobile
@@ -210,7 +213,28 @@ php artisan serve --host=0.0.0.0
 flutter run --dart-define=API_BASE=http://192.168.1.20:8000/api/mobile
 ```
 
-Replace `192.168.1.20` with the computer's actual LAN IP and allow the server through the computer's firewall if prompted. `API_BASE` can also be set to another reachable API URL without editing the app source. Run `flutter analyze` and `flutter test` from `tuklas_mobile` to check the app.
+Replace `192.168.1.20` with the computer's actual LAN IP and allow the server through the computer's firewall if prompted. `API_BASE` can also be set to another reachable API URL without editing the app source.
+
+### Build an APK for Amazon
+
+Build from `tuklas_mobile/` and use the deployed server's HTTPS API URL. Do not use HTTP for an app that sends passwords or bearer tokens.
+
+```text
+flutter build apk --release --dart-define=API_BASE=https://YOUR_DOMAIN/api/mobile
+```
+
+The APK is written to `build/app/outputs/flutter-apk/app-release.apk`. Replace `YOUR_DOMAIN` with the HTTPS host configured for Laravel. If using an IP address, verify that its HTTPS certificate validates for that IP. The Android release currently uses the Gradle debug signing key; configure a private release key before distributing through an app store.
+
+Before using messaging in the APK, deploy the matching Laravel commit and apply migrations on the server:
+
+```bash
+cd /var/www/tuklas
+git pull origin main
+php artisan migrate --force
+php artisan optimize:clear
+```
+
+The app includes registration and verification, role workspaces, account security, notifications, direct messages, career chat, scan history, PESO recommendations, and TESDA training plans. Direct messages require the `direct_messages` migration and mobile messaging API.
 
 ## Troubleshooting
 
@@ -224,7 +248,7 @@ Replace `192.168.1.20` with the computer's actual LAN IP and allow the server th
 | `View [partials.tech-logos] not found` or a generated logo partial is missing | Run `node scripts/make-tech-logos.mjs`. |
 | `SQLSTATE ... Access denied` | Check the MySQL username, password, database name, and that the server is running. |
 | `419 Page Expired` | Run `php artisan optimize:clear`, then reload. |
-| Email does not arrive in development | With `MAIL_MAILER=log`, inspect `storage/logs/laravel.log`. |
+| Email does not arrive in development | With `MAIL_MAILER=log`, inspect `storage/logs/laravel.log`. With SMTP, check the provider host, port, TLS mode, sender address, username, and app password. |
 | Google or Facebook sign-in fails | Check the OAuth client credentials and callback URL against the provider console and `APP_URL`. |
 | Uploaded profile photo is missing | Run `php artisan storage:link`. |
 
@@ -232,13 +256,13 @@ Replace `192.168.1.20` with the computer's actual LAN IP and allow the server th
 
 ```text
 app/Enums/Role.php
-app/Http/Controllers/                 Dashboards, scanner, profile, TESDA, and chat
+app/Http/Controllers/                 Dashboards, scanner, profile, TESDA, messaging, and chat
 app/Http/Middleware/EnsureRole.php
 app/Models/                           Users, scans, training programs, career paths
 app/Services/                         Gemini document scanner and career assistant
 app/Support/ProfileCompletion.php
 app/View/Composers/NavComposer.php
-database/migrations/                  Authentication, youth profiles, scans, catalogs
+database/migrations/                  Authentication, youth profiles, scans, catalogs, messages
 database/seeders/DatabaseSeeder.php
 resources/views/                      Blade pages, layouts, dashboard, scanner, TESDA
 resources/css/                        Landing, theme, and signed-in UI styles
