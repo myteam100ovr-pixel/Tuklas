@@ -144,7 +144,12 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 72, 16, 32),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  MediaQuery.sizeOf(context).height < 700 ? 24 : 48,
+                  16,
+                  32,
+                ),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 432),
                   child: Column(
@@ -161,7 +166,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 22),
                       TkCard(
-                        padding: const EdgeInsets.all(26),
+                        padding: EdgeInsets.all(
+                          MediaQuery.sizeOf(context).width < 380 ? 18 : 26,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

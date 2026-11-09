@@ -22,6 +22,10 @@
         <a href="{{ route('tesda.index') }}">TESDA</a>
         <a href="#faq">FAQ</a>
         <a href="#contact">Contact</a>
+        @guest
+            <a class="mobile-nav-link" href="{{ route('login') }}">Log in</a>
+            <a class="mobile-nav-link" href="{{ route('register') }}">Create an account</a>
+        @endguest
     </nav>
 
     <div class="hdr-actions">

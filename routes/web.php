@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\DemoLoginController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\SkillsAssessmentController;
@@ -52,6 +53,9 @@ Route::middleware([
     Route::get('/tesda/choices', [TesdaChoiceController::class, 'index'])->name('tesda.choices.index');
     Route::post('/tesda/choice', [TesdaChoiceController::class, 'store'])->name('tesda.choice.store');
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
+    Route::get('/messages', [DirectMessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{user}', [DirectMessageController::class, 'index'])->name('messages.show');
+    Route::post('/messages/{user}', [DirectMessageController::class, 'store'])->middleware('throttle:20,1')->name('messages.store');
     Route::post('/notifications/read-all', [NotificationsController::class, 'readAll'])->name('notifications.read-all');
     Route::post('/notifications/{notification}/read', [NotificationsController::class, 'read'])->name('notifications.read');
     Route::get('/account/password-reset', [AccountPasswordResetController::class, 'edit'])->name('account.password-reset.edit');

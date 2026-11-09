@@ -15,6 +15,7 @@ class NavComposer
             ['PESO', 'peso.index', 'i-briefcase'],
             ['AI Scanner', 'scanner.index', 'i-scan'],
             ['TuklasBot', 'tuklasbot.index', 'i-chat'],
+            ['Messages', 'messages.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
         ],
         'trainer' => [
@@ -23,6 +24,7 @@ class NavComposer
             ['PESO', 'peso.index', 'i-briefcase'],
             ['AI Scanner', 'scanner.index', 'i-scan'],
             ['TuklasBot', 'tuklasbot.index', 'i-chat'],
+            ['Messages', 'messages.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
         ],
         'youth' => [
@@ -30,6 +32,7 @@ class NavComposer
             ['PESO', 'peso.index', 'i-briefcase'],
             ['AI Scanner', 'scanner.index', 'i-scan'],
             ['TuklasBot', 'tuklasbot.index', 'i-chat'],
+            ['Messages', 'messages.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
         ],
     ];

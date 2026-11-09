@@ -53,7 +53,7 @@
 
             <div class="auth-terms">
                 <x-checkbox name="terms" id="terms" value="1" required />
-                <label for="terms">I agree to the <a href="{{ route('terms.show') }}">Terms of use</a> and acknowledge the <a href="{{ route('policy.show') }}">Privacy notice</a>.</label>
+                <label for="terms">I agree to the <a href="{{ route('terms.show') }}" data-legal-open="terms">Terms of use</a> and acknowledge the <a href="{{ route('policy.show') }}" data-legal-open="privacy">Privacy notice</a>.</label>
             </div>
 
             <button class="auth-submit" type="submit">{{ __('Create account') }} <span aria-hidden="true">→</span></button>

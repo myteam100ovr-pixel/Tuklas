@@ -47,6 +47,7 @@ html.lenis, html.lenis body { height: auto; }
 .pill { display: flex; padding: .3rem; border-radius: .9rem; background: rgb(244 244 246 / .92); backdrop-filter: blur(8px); transition: background .3s; }
 .pill a { padding: .55rem 1.1rem; border-radius: .65rem; font-size: .8125rem; transition: background .2s; }
 .pill a:hover { background: rgb(0 0 0 / .05); }
+.pill .mobile-nav-link { display: none; }
 .hdr-actions { display: flex; justify-content: flex-end; align-items: center; gap: 1.5rem; font-size: .8125rem; }
 .login { transition: color .3s; }
 .hdr .btn-black { transition: background .3s, color .3s; }
@@ -282,6 +283,7 @@ html:not(.js) .a > p { padding-bottom: 1.15rem; }
     .burger i { display: block; height: 1.5px; background: var(--ink); }
     .pill { display: none; position: absolute; top: calc(100% - .2rem); left: var(--pad); right: var(--pad); flex-direction: column; background: #fff; box-shadow: 0 14px 34px rgb(0 0 0 / .14); }
     .hdr.open .pill { display: flex; }
+    .pill .mobile-nav-link { display: block; border-top: 1px solid var(--line); font-weight: 600; }
     .login { display: none; }
     .cols { grid-template-columns: 1fr; }
     .c-a, .c-b, .c-c { margin-top: 0; }
@@ -294,6 +296,14 @@ html:not(.js) .a > p { padding-bottom: 1.15rem; }
     .numwrap { min-width: 0; }
     .num { font-size: clamp(3.6rem, 19vw, 7rem); }
     .tag { left: .2rem; }
+}
+
+@media (max-width: 540px) {
+    .hdr { gap: .5rem; }
+    .hdr-actions { gap: .5rem; }
+    .hdr-actions .btn { padding: .55rem .7rem; font-size: .75rem; }
+    .pill { max-height: calc(100svh - 6rem); overflow-y: auto; padding: .5rem; border: 1px solid var(--line); border-radius: 1rem; }
+    .pill a { min-height: 2.75rem; display: flex; align-items: center; padding: .7rem 1rem; }
 }
 
 /* Non-pinned layout: phones, and anyone who prefers reduced motion */

@@ -86,6 +86,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CareerChatMessage::class);
     }
 
+    public function sentDirectMessages(): HasMany
+    {
+        return $this->hasMany(DirectMessage::class, 'sender_id');
+    }
+
+    public function receivedDirectMessages(): HasMany
+    {
+        return $this->hasMany(DirectMessage::class, 'recipient_id');
+    }
+
     public function tesdaChoice(): HasOne
     {
         return $this->hasOne(TesdaChoice::class);

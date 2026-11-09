@@ -44,6 +44,7 @@
                                             <form method="POST" action="{{ route('admin.users.restore', $user->id) }}">@csrf<button type="submit">Restore</button></form>
                                         @else
                                             <a href="{{ route('admin.users.edit', $user) }}">Edit</a>
+                                            @if ($user->is_active && $user->hasVerifiedEmail() && $user->id !== auth()->id())<a href="{{ route('messages.show', $user) }}">Message</a>@endif
                                             <form method="POST" action="{{ route('admin.users.reset-password', $user) }}">@csrf<button type="submit">Reset password</button></form>
                                             @if ($user->id !== auth()->id())
                                                 <details><summary>Delete</summary><form method="POST" action="{{ route('admin.users.destroy', $user) }}">@csrf @method('DELETE')<p>Delete {{ $user->name }}? You can restore this account later.</p><button type="submit">Confirm delete</button></form></details>

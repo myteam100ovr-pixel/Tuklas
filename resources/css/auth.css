@@ -284,3 +284,75 @@ html[data-theme='dark'] .auth-page :where(.auth-inline-link, .auth-switch a, .au
 html[data-theme='dark'] .auth-page :where(a, button, input):focus-visible { outline-color: #b9a3ff; }
 .auth-page--security .auth-form-wrap > form { display: grid; gap: 1rem; }
 .auth-page--security .auth-form-wrap > form > .mt-4 { margin-top: 0; }
+
+.auth-legal-dialog { width: min(48rem, calc(100% - 2rem)); max-height: min(85svh, 54rem); margin: auto; padding: 0; border: 1px solid #e7e1ef; border-radius: 1rem; color: #302b38; background: #fff; box-shadow: 0 24px 80px rgb(25 13 52 / .25); }
+.auth-legal-dialog::backdrop { background: rgb(23 13 47 / .7); }
+.auth-legal-dialog-header, .auth-legal-dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.75rem; background: #fff; }
+.auth-legal-dialog-header { border-bottom: 1px solid #eee9f4; }
+.auth-legal-dialog-header h2 { margin: .25rem 0 0; color: #17131f; font-size: 1.45rem; line-height: 1.2; }
+.auth-legal-dialog-kicker { color: #5b17ff; font-size: .68rem; font-weight: 700; letter-spacing: .12em; }
+.auth-legal-dialog-close { width: 2.5rem; height: 2.5rem; flex: none; border: 0; border-radius: .6rem; color: #544b60; background: #f3eff9; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+.auth-legal-dialog-content.legal-document { width: 100%; max-height: calc(min(85svh, 54rem) - 10rem); overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 1.25rem 1.75rem 2rem; border: 0; border-radius: 0; box-shadow: none; color: #403949; background: #fff; font-size: .94rem; line-height: 1.75; }
+.auth-legal-dialog-content h1 { margin-top: .25rem; }
+.auth-legal-dialog-footer { border-top: 1px solid #eee9f4; }
+.auth-legal-dialog-footer a { color: #4510b9; font-size: .85rem; text-decoration: underline; }
+.auth-legal-dialog-footer button { min-height: 2.5rem; padding: .5rem 1rem; border: 0; border-radius: .6rem; color: #fff; background: #5b17ff; font: inherit; font-size: .85rem; cursor: pointer; }
+.auth-legal-dialog :focus-visible { outline: 3px solid #5b17ff; outline-offset: 3px; }
+html[data-theme='dark'] .auth-legal-dialog, html[data-theme='dark'] .auth-legal-dialog-header, html[data-theme='dark'] .auth-legal-dialog-footer, html[data-theme='dark'] .auth-legal-dialog-content.legal-document { color: #eeeaf4; border-color: #40384a; background: #1c1922; }
+html[data-theme='dark'] .auth-legal-dialog-header h2 { color: #fff; }
+html[data-theme='dark'] .auth-legal-dialog-close { color: #eeeaf4; background: #35303d; }
+html[data-theme='dark'] .auth-legal-dialog-footer a { color: #c5afff; }
+@media (max-width: 600px) { .auth-legal-dialog { width: calc(100% - 1rem); max-height: 94svh; } .auth-legal-dialog-header, .auth-legal-dialog-footer { padding: 1rem; } .auth-legal-dialog-content.legal-document { max-height: calc(94svh - 9rem); padding: 1rem; font-size: .875rem; } }
+
+/* Let the login form grow with validation messages and demo accounts. */
+.tk-body:has(.auth-page--login) { height: auto; min-height: 100svh; overflow: auto; }
+.tk-guest-main:has(.auth-page--login) { height: auto; }
+.auth-page--login .auth-layout { height: auto; min-height: 100svh; overflow: visible; align-items: start; }
+.auth-page--login .auth-story { position: sticky; top: 0; height: 100svh; }
+.auth-page--login .auth-form-panel { min-height: 100svh; overflow: visible; justify-content: flex-start; gap: 2rem; padding: 3.5rem clamp(1.5rem, 5vw, 5rem) 1.75rem; }
+.auth-page--login .auth-form-wrap { flex: 0 0 auto; width: min(100%, 27rem); margin-block: auto; }
+.auth-page--login .auth-back { margin-bottom: 2rem; }
+.auth-page--login .auth-heading { margin-bottom: 1.75rem; }
+.auth-page--login .auth-heading h2 { font-weight: 600; letter-spacing: -.045em; line-height: 1.15; }
+.auth-page--login .auth-label { font-size: .875rem; font-weight: 600; }
+.auth-page--login .auth-input { min-height: 3.25rem; font-size: 1rem !important; }
+.auth-page--login .auth-input::placeholder { color: #827b8d; }
+.auth-page--login .auth-inline-link { font-size: .8125rem; }
+.auth-page--login .auth-remember { min-height: 1.5rem; color: #696574; font-size: .8125rem; }
+.auth-page--login .auth-submit { min-height: 3.25rem; font-size: .9375rem; font-weight: 600; }
+.auth-page--login .auth-form-wrap > .auth-field-help { margin-top: 1.5rem; padding: 1rem; border: 1px solid #ece7f5; border-radius: .75rem; color: #696574; background: #faf8fe; font-size: .8125rem; }
+.auth-page--login .auth-switch { margin-top: 1.5rem; font-size: .875rem; line-height: 1.7; }
+.auth-page--login .auth-legal { position: static; flex: 0 0 auto; max-width: 27rem; margin: 0; color: #777382; font-size: .6875rem; line-height: 1.65; }
+.auth-page--login .auth-feature-dots button { position: relative; }
+.auth-page--login .auth-feature-dots button::before { position: absolute; inset: -.75rem -.25rem; content: ''; }
+
+html[data-theme='dark'] .auth-page--login .auth-form-wrap > .auth-field-help { color: #b9b4c5; border-color: #3c354a; background: #231e2e; }
+html[data-theme='dark'] .auth-page--login .auth-remember,
+html[data-theme='dark'] .auth-page--login .auth-legal { color: #aaaab4; }
+html[data-theme='dark'] .auth-page--login .auth-input::placeholder { color: #a09aa9; }
+
+@media (max-height: 900px) and (min-width: 681px) {
+    .auth-page--login .auth-form-panel { justify-content: flex-start; gap: 1rem; padding-block: 1.5rem; }
+    .auth-page--login .auth-form-wrap { margin-block: 0; }
+    .auth-page--login .auth-back { margin-bottom: 1rem; }
+    .auth-page--login .auth-heading { margin-bottom: 1rem; }
+    .auth-page--login .auth-legal { margin: 0 auto; }
+}
+
+@media (max-width: 680px) {
+    .auth-page--login .auth-story { position: relative; height: auto; padding: 1.25rem 1.5rem; }
+    .auth-page--login .auth-story-copy,
+    .auth-page--login .auth-feature-controls { display: none; }
+    .auth-page--login .auth-form-panel { flex: 1 0 auto; min-height: auto; gap: 2rem; padding: 1.75rem 1.5rem 1.5rem; }
+    .auth-page--login .auth-form-wrap { margin-block: 0; }
+    .auth-page--login .auth-back { margin-bottom: 1.5rem; }
+    .auth-page--login .auth-heading h2 { font-size: 2rem; }
+    .auth-page--login .auth-form { gap: 1.125rem; }
+    .auth-page--login .auth-label-row { flex-wrap: wrap; gap: .4rem .75rem; }
+    .auth-page--login .auth-legal { align-self: center; }
+}
+
+@media (max-width: 360px) {
+    .auth-page--login .auth-story { padding-inline: 1rem; }
+    .auth-page--login .auth-form-panel { padding-inline: 1rem; }
+}

@@ -126,13 +126,31 @@
                 @endguest
                 @if (in_array($mode, ['login', 'register'], true))
                     <nav class="auth-policy-links" aria-label="Privacy and terms">
-                        <a href="{{ route('policy.show') }}">Privacy notice</a>
+                        <a href="{{ route('policy.show') }}" data-legal-open="privacy">Privacy notice</a>
                         <span aria-hidden="true">·</span>
-                        <a href="{{ route('terms.show') }}">Terms of use</a>
+                        <a href="{{ route('terms.show') }}" data-legal-open="terms">Terms of use</a>
                     </nav>
                 @endif
             </div>
             <p class="auth-legal">Tuklas offers guidance and information, not guarantees of employment, admission, or training availability.</p>
         </section>
     </main>
+    @if (in_array($mode, ['login', 'register'], true))
+        <dialog class="auth-legal-dialog" id="auth-privacy-dialog" aria-labelledby="auth-privacy-title">
+            <div class="auth-legal-dialog-header">
+                <div><span class="auth-legal-dialog-kicker">TUKLAS · YOUR DATA</span><h2 id="auth-privacy-title">Privacy notice</h2></div>
+                <button type="button" class="auth-legal-dialog-close" data-legal-close aria-label="Close privacy notice">&times;</button>
+            </div>
+            <div class="auth-legal-dialog-content legal-document">{!! Illuminate\Support\Str::markdown(file_get_contents(resource_path('markdown/policy.md'))) !!}</div>
+            <div class="auth-legal-dialog-footer"><a href="{{ route('policy.show') }}" target="_blank" rel="noopener">Open full page</a><button type="button" data-legal-close>Done reading</button></div>
+        </dialog>
+        <dialog class="auth-legal-dialog" id="auth-terms-dialog" aria-labelledby="auth-terms-title">
+            <div class="auth-legal-dialog-header">
+                <div><span class="auth-legal-dialog-kicker">TUKLAS · USING THE SERVICE</span><h2 id="auth-terms-title">Terms of use</h2></div>
+                <button type="button" class="auth-legal-dialog-close" data-legal-close aria-label="Close terms of use">&times;</button>
+            </div>
+            <div class="auth-legal-dialog-content legal-document">{!! Illuminate\Support\Str::markdown(file_get_contents(resource_path('markdown/terms.md'))) !!}</div>
+            <div class="auth-legal-dialog-footer"><a href="{{ route('terms.show') }}" target="_blank" rel="noopener">Open full page</a><button type="button" data-legal-close>Done reading</button></div>
+        </dialog>
+    @endif
 </div>

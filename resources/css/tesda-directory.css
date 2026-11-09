@@ -78,9 +78,13 @@
     .tesda-provider-tools p { white-space:normal; }
     .tesda-provider-grid { grid-template-columns:1fr; }
     .tesda-directory .qualification-filters { grid-template-columns:1fr; padding:20px; }
-    .tesda-directory .qualification-card { grid-template-columns:1fr; padding:24px 12px; }
+    .tesda-directory .qualification-card { grid-template-columns:minmax(0,1fr); padding:24px 12px; }
     .tesda-directory .qualification-card > * { grid-column:1; grid-row:auto; }
+    .tesda-directory .qualification-card h3 { grid-column:1; }
     .tesda-directory .qualification-card-top { flex-direction:row; align-items:center; }
+    .tesda-directory .qualification-location,
+    .tesda-directory .qualification-location ul,
+    .tesda-directory .qualification-location li { width:100%; max-width:none; min-width:0; }
     .tesda-directory .qualification-links { flex-direction:row; flex-wrap:wrap; justify-content:flex-start; gap:8px 20px; }
     .tesda-directory .tesda-resource-grid { grid-template-columns:1fr; }
 }

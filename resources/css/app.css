@@ -531,3 +531,31 @@ html[data-theme='dark'] .career-chat__input { border-color: var(--system-line); 
 @media (prefers-reduced-motion: reduce) {
     .document-scanner__progress.is-scanning .document-scanner__progress-track span { animation: none; width: 100%; }
 }
+
+html[data-theme='dark'] .messages-page :is(aside, section) {
+    color: #f4f1fa;
+    background: #1c1a24;
+    border-color: #464052;
+}
+
+html[data-theme='dark'] .messages-page :is(aside a, section header, section form) {
+    color: #f4f1fa;
+    border-color: #464052;
+}
+
+html[data-theme='dark'] .messages-page aside a:hover,
+html[data-theme='dark'] .messages-page aside a[href][class*='border-violet-500'] {
+    background: #302545;
+    border-color: #a785ff;
+}
+
+html[data-theme='dark'] .messages-page :is(input, textarea) {
+    color: #f4f1fa;
+    background: #282531;
+    border-color: #595267;
+}
+
+html[data-theme='dark'] .messages-page :is(input, textarea)::placeholder { color: #b2aabc; }
+html[data-theme='dark'] .messages-page :is(button[type='submit']) { color: #fff; background: #7137e8; }
+html[data-theme='dark'] .messages-page :is(button[type='submit']):hover { background: #8754f3; }
+html[data-theme='dark'] .messages-page :is(.text-slate-500, .text-slate-400) { color: #bcb5c9; }

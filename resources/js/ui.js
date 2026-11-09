@@ -2,6 +2,7 @@ import './theme.js';
 import './tesda-catalog.js';
 import './career-chat.js';
 import './auth-carousel.js';
+import './auth-legal-dialog.js';
 
 document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-menu-btn]');
