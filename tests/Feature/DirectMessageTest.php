@@ -52,4 +52,40 @@ class DirectMessageTest extends TestCase
         $this->actingAs($sender)->post(route('messages.store', $recipient), ['body' => str_repeat('x', 2001)])->assertSessionHasErrors('body');
         $this->assertDatabaseCount('direct_messages', 0);
     }
+
+    public function test_web_and_mobile_receive_new_messages_from_the_same_conversation(): void
+    {
+        $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true, 'email_verified_at' => now()]);
+        $other = User::factory()->create(['role' => Role::Trainer, 'is_active' => true, 'email_verified_at' => now()]);
+
+        $first = $this->actingAs($youth)->postJson(route('messages.store', $admin), ['body' => 'From website'])
+            ->assertCreated()->json('message.id');
+        $this->actingAs($admin)->getJson('/api/mobile/messages/'.$youth->id.'?after=0')
+            ->assertOk()->assertJsonCount(1, 'messages')
+            ->assertJsonPath('messages.0.id', $first)
+            ->assertJsonPath('messages.0.body', 'From website');
+
+        $second = $this->actingAs($admin)->postJson('/api/mobile/messages/'.$youth->id, ['body' => 'From mobile'])
+            ->assertCreated()->json('message.id');
+        $this->actingAs($youth)->getJson(route('messages.updates', $admin).'?after='.$first)
+            ->assertOk()->assertJsonCount(1, 'messages')
+            ->assertJsonPath('messages.0.id', $second)
+            ->assertJsonPath('messages.0.body', 'From mobile');
+        $this->actingAs($other)->getJson(route('messages.updates', $admin).'?after=0')
+            ->assertOk()->assertJsonCount(0, 'messages');
+    }
+
+    public function test_message_updates_reject_invalid_cursors_and_inactive_people(): void
+    {
+        $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true, 'email_verified_at' => now()]);
+
+        $this->actingAs($youth)->getJson(route('messages.updates', $admin).'?after=-1')
+            ->assertUnprocessable()->assertJsonValidationErrors('after');
+        $this->getJson('/api/mobile/messages/'.$admin->id.'?after=abc')
+            ->assertUnprocessable()->assertJsonValidationErrors('after');
+        $admin->forceFill(['is_active' => false])->save();
+        $this->getJson(route('messages.updates', $admin))->assertNotFound();
+    }
 }

@@ -54,6 +54,7 @@ Route::middleware([
     Route::post('/tesda/choice', [TesdaChoiceController::class, 'store'])->name('tesda.choice.store');
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
     Route::get('/messages', [DirectMessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{user}/updates', [DirectMessageController::class, 'mobileIndex'])->name('messages.updates');
     Route::get('/messages/{user}', [DirectMessageController::class, 'index'])->name('messages.show');
     Route::post('/messages/{user}', [DirectMessageController::class, 'store'])->middleware('throttle:20,1')->name('messages.store');
     Route::post('/notifications/read-all', [NotificationsController::class, 'readAll'])->name('notifications.read-all');

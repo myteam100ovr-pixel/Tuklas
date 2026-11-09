@@ -60,7 +60,7 @@ if (chat) {
             });
             if (!response.ok) throw new Error('Could not load your saved chat.');
             const payload = await response.json();
-            if (Array.isArray(payload.messages) && payload.messages.length > 0) {
+            if (!isSending && Array.isArray(payload.messages) && payload.messages.length > 0) {
                 transcript.replaceChildren();
                 payload.messages.forEach((item) => appendMessage(item.role, item.text, item.sources));
             }
@@ -93,9 +93,10 @@ if (chat) {
         const pendingMessage = appendMessage('user', message);
         input.value = '';
         isSending = true;
-        input.disabled = true;
         sendButton.disabled = true;
-        status.textContent = 'Thinking...';
+        const thinkingMessage = appendMessage('model', 'Thinking…');
+        thinkingMessage.classList.add('is-thinking');
+        status.textContent = 'TuklasBot is working on your reply…';
         delete status.dataset.kind;
 
         try {
@@ -117,15 +118,16 @@ if (chat) {
             }
 
             appendMessage('model', payload.reply, payload.sources);
+            thinkingMessage.remove();
             status.textContent = '';
         } catch (error) {
+            thinkingMessage.remove();
             pendingMessage.remove();
-            input.value = message;
+            if (!input.value.trim()) input.value = message;
             status.textContent = error.message;
             status.dataset.kind = 'error';
         } finally {
             isSending = false;
-            input.disabled = false;
             sendButton.disabled = !geminiReady;
             input.focus();
         }

@@ -1,5 +1,7 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
@@ -17,6 +19,7 @@ class ScannerView extends StatefulWidget {
 
 class _ScannerViewState extends State<ScannerView> {
   final TextEditingController _goalController = TextEditingController();
+  final ImagePicker _imagePicker = ImagePicker();
   PlatformFile? _selectedFile;
   Map<String, dynamic>? _latestDocument;
   late Future<List<dynamic>> _history;
@@ -28,6 +31,7 @@ class _ScannerViewState extends State<ScannerView> {
   void initState() {
     super.initState();
     _history = ApiClient.instance.documentScans();
+    _recoverCameraCapture();
   }
 
   @override
@@ -71,6 +75,77 @@ class _ScannerViewState extends State<ScannerView> {
     }
 
     setState(() => _selectedFile = file);
+  }
+
+  Future<void> _useCapturedPhoto(XFile photo) async {
+    try {
+      final bytes = await photo.readAsBytes();
+      if (!mounted) {
+        return;
+      }
+      if (bytes.length > 10 * 1024 * 1024) {
+        setState(
+          () => _error =
+              'The photo is over 10 MB. Try again with better lighting.',
+        );
+        return;
+      }
+
+      setState(() {
+        _selectedFile = PlatformFile(
+          name: 'camera-document-${DateTime.now().millisecondsSinceEpoch}.jpg',
+          size: bytes.length,
+          bytes: bytes,
+        );
+        _error = null;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error =
+              'The captured photo could not be read. Please try again.',
+        );
+      }
+    }
+  }
+
+  Future<void> _takeDocumentPhoto() async {
+    setState(() => _error = null);
+    try {
+      final photo = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
+        imageQuality: 88,
+        maxWidth: 3000,
+        maxHeight: 4000,
+      );
+      if (photo != null) {
+        await _useCapturedPhoto(photo);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Could not open the camera. Please try again.');
+      }
+    }
+  }
+
+  Future<void> _recoverCameraCapture() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+    try {
+      final lostData = await _imagePicker.retrieveLostData();
+      final files = lostData.files;
+      if (files != null && files.isNotEmpty) {
+        await _useCapturedPhoto(files.first);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error = 'A previous camera photo could not be restored. Please take it again.',
+        );
+      }
+    }
   }
 
   Future<void> _scan() async {
@@ -186,17 +261,54 @@ class _ScannerViewState extends State<ScannerView> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: _scanning ? null : _pickDocument,
-                        icon: const Icon(Icons.attach_file),
-                        label: Text(
-                          _selectedFile == null
-                              ? 'Choose a document'
-                              : _selectedFile!.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _scanning ? null : _pickDocument,
+                          icon: const Icon(Icons.attach_file),
+                          label: const Text('Choose PDF or image'),
                         ),
                       ),
+                      if (!kIsWeb &&
+                          defaultTargetPlatform == TargetPlatform.android) ...[
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _scanning ? null : _takeDocumentPhoto,
+                            icon: const Icon(Icons.camera_alt_outlined),
+                            label: const Text('Take document photo'),
+                          ),
+                        ),
+                      ],
+                      if (_selectedFile != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Selected: ${_selectedFile!.name}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: tkText(
+                            context,
+                            size: 12.5,
+                            color: colors.ink2,
+                          ),
+                        ),
+                        if (RegExp(
+                          r'\.(jpg|jpeg|png|webp)$',
+                          caseSensitive: false,
+                        ).hasMatch(_selectedFile!.name)) ...[
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.memory(
+                              _selectedFile!.bytes!,
+                              width: double.infinity,
+                              height: 220,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
+                      ],
                       const SizedBox(height: 6),
                       Text(
                         'PDF or image · up to 10 MB · one document at a time',

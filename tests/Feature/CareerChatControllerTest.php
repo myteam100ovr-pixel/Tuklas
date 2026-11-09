@@ -27,7 +27,7 @@ class CareerChatControllerTest extends TestCase
         if ($recovers) {
             $sequence->push(['candidates' => [['content' => ['parts' => [['text' => 'Hello!']]]]]]);
         } else {
-            $sequence->pushStatus(503)->pushStatus(503);
+            $sequence->pushStatus(503);
         }
         Http::fake(['generativelanguage.googleapis.com/*' => $sequence]);
         $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
@@ -42,7 +42,26 @@ class CareerChatControllerTest extends TestCase
             $response->assertStatus(503)->assertJsonPath('provider_status', 503)
                 ->assertJsonPath('message', 'Gemini is temporarily busy. Please try again shortly.');
         }
-        Http::assertSentCount($recovers ? 2 : 3);
+        Http::assertSentCount(2);
+    }
+
+    public function test_routine_chat_uses_a_direct_reply_without_web_tools(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        config()->set('services.google.gemini_chat_web_search', true);
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => 'Start with one small project.']]]]],
+        ])]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'What skills should I learn for a career in AI?']],
+        ])->assertOk()->assertJsonPath('reply', 'Start with one small project.');
+
+        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'answer the latest question first')
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Never claim a job is open unless live search verifies it'));
     }
 
     public function test_ai_skill_and_tesda_questions_use_search_and_offer_a_grounded_plan(): void
@@ -148,7 +167,7 @@ class CareerChatControllerTest extends TestCase
     public function test_public_github_links_use_url_context_without_search(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
-        config()->set('services.google.gemini_chat_web_search', false);
+        config()->set('services.google.gemini_chat_web_search', true);
         config()->set('services.google.gemini_chat_url_context', true);
         Http::preventStrayRequests();
         Http::fake([

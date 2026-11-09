@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\DirectMessage;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 
 class DirectMessageController extends Controller
 {
@@ -18,11 +18,15 @@ class DirectMessageController extends Controller
 
         if ($user !== null) {
             abort_unless($user->id !== $currentUser->id && $user->is_active && $user->hasVerifiedEmail(), 404);
+            $after = $request->validate(['after' => ['sometimes', 'integer', 'min:0']])['after'] ?? null;
             DirectMessage::query()->where('sender_id', $user->id)->where('recipient_id', $currentUser->id)->whereNull('read_at')->update(['read_at' => now()]);
-            $messages = DirectMessage::query()
-                ->where(fn ($query) => $query->where('sender_id', $currentUser->id)->where('recipient_id', $user->id))
-                ->orWhere(fn ($query) => $query->where('sender_id', $user->id)->where('recipient_id', $currentUser->id))
-                ->latest('id')->limit(100)->get()->reverse()->values()
+            $conversation = DirectMessage::query()
+                ->where(fn ($query) => $query
+                    ->where(fn ($direction) => $direction->where('sender_id', $currentUser->id)->where('recipient_id', $user->id))
+                    ->orWhere(fn ($direction) => $direction->where('sender_id', $user->id)->where('recipient_id', $currentUser->id)));
+            $messages = ($after === null
+                ? $conversation->latest('id')->limit(100)->get()->reverse()->values()
+                : $conversation->where('id', '>', $after)->oldest('id')->limit(100)->get())
                 ->map(fn (DirectMessage $message): array => ['id' => $message->id, 'sender_id' => $message->sender_id, 'body' => $message->body, 'created_at' => $message->created_at->toIso8601String()]);
 
             return response()->json(['person' => ['id' => $user->id, 'name' => $user->name, 'role' => $user->role->label()], 'messages' => $messages]);
@@ -87,13 +91,13 @@ class DirectMessageController extends Controller
         return view('messages.index', compact('people', 'messages', 'user', 'search'));
     }
 
-    public function store(Request $request, User $user): RedirectResponse
+    public function store(Request $request, User $user): RedirectResponse|JsonResponse
     {
         $sender = $request->user();
         abort_unless($user->id !== $sender->id && $user->is_active && $user->hasVerifiedEmail(), 404);
 
         $validated = $request->validate(['body' => ['required', 'string', 'max:2000']]);
-        $sender->sentDirectMessages()->create([
+        $message = $sender->sentDirectMessages()->create([
             'recipient_id' => $user->id,
             'body' => trim($validated['body']),
         ]);
@@ -104,6 +108,10 @@ class DirectMessageController extends Controller
             $sender->role->value,
             route('messages.show', $sender),
         ));
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => ['id' => $message->id, 'sender_id' => $message->sender_id, 'body' => $message->body, 'created_at' => $message->created_at->toIso8601String()]], 201);
+        }
 
         return redirect()->route('messages.show', $user);
     }

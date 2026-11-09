@@ -26,6 +26,7 @@ class CareerChatCard extends StatefulWidget {
 
 class CareerChatCardState extends State<CareerChatCard> {
   final _messageController = TextEditingController();
+  final _chatScrollController = ScrollController();
   final _messages = <Map<String, dynamic>>[];
   bool _sending = false;
   bool _loading = true;
@@ -45,6 +46,7 @@ class CareerChatCardState extends State<CareerChatCard> {
         _messages.addAll(asList(data['messages']).map((m) => asMap(m)));
         _error = null;
       });
+      _scrollToLatest();
     } catch (e) {
       if (mounted) {
         setState(
@@ -61,7 +63,20 @@ class CareerChatCardState extends State<CareerChatCard> {
   @override
   void dispose() {
     _messageController.dispose();
+    _chatScrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToLatest() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _chatScrollController.hasClients) {
+        _chatScrollController.animateTo(
+          _chatScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<void> _send([String? prompt]) async {
@@ -89,6 +104,7 @@ class CareerChatCardState extends State<CareerChatCard> {
       _sending = true;
       _error = null;
     });
+    _scrollToLatest();
 
     try {
       final response = await ApiClient.instance.careerChat(requestMessages);
@@ -109,10 +125,13 @@ class CareerChatCardState extends State<CareerChatCard> {
           _messages.removeRange(0, _messages.length - 20);
         }
       });
+      _scrollToLatest();
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _messageController.text = text;
+        if (_messageController.text.trim().isEmpty) {
+          _messageController.text = text;
+        }
         _messages.removeLast();
         _error = error is ApiException ? error.message : 'Could not reach the career assistant. Check your connection and try again.';
       });
@@ -213,20 +232,26 @@ class CareerChatCardState extends State<CareerChatCard> {
           ),
           const SizedBox(height: 12),
           if (_loading) const LinearProgressIndicator(),
-          if (_error != null)
+          if (_error != null && _messages.isEmpty)
             TextButton(
               onPressed: _loadHistory,
               child: const Text('Reload conversation'),
             ),
           if (_messages.isNotEmpty)
             Container(
-              constraints: const BoxConstraints(maxHeight: 260),
+              constraints: BoxConstraints(
+                maxHeight: (MediaQuery.sizeOf(context).height * .48).clamp(
+                  260.0,
+                  540.0,
+                ),
+              ),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: colors.surface2,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: ListView(
+                controller: _chatScrollController,
                 shrinkWrap: true,
                 children: [
                   for (final message in _messages)
@@ -235,7 +260,10 @@ class CareerChatCardState extends State<CareerChatCard> {
                           ? Alignment.centerRight
                           : Alignment.centerLeft,
                       child: Container(
-                        constraints: const BoxConstraints(maxWidth: 280),
+                        constraints: BoxConstraints(
+                          maxWidth: (MediaQuery.sizeOf(context).width * .72)
+                              .clamp(200.0, 480.0),
+                        ),
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -310,7 +338,7 @@ class CareerChatCardState extends State<CareerChatCard> {
                   maxLength: 2000,
                   maxLines: 2,
                   minLines: 1,
-                  enabled: !_sending && !_loading,
+                  enabled: !_loading,
                   decoration: const InputDecoration(
                     hintText: 'Ask something...',
                     counterText: '',
