@@ -24,6 +24,7 @@ use Laravel\Jetstream\Http\Controllers\Livewire\PrivacyPolicyController;
 use Laravel\Jetstream\Http\Controllers\Livewire\TermsOfServiceController;
 
 Route::view('/', 'welcome')->name('home');
+Route::view('/app', 'mobile-app')->name('app.download');
 Route::get('/terms-of-service', [TermsOfServiceController::class, 'show'])->name('terms.show');
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'show'])->name('policy.show');
 Route::get('/tesda', [TesdaCatalogController::class, 'index'])->name('tesda.index');

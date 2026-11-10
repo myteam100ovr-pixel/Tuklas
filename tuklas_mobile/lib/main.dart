@@ -103,7 +103,7 @@ class _GateState extends State<Gate> {
     } on ApiException catch (error) {
       return error.statusCode == 401
           ? _StartupStatus.signedOut
-          : _StartupStatus.unavailable;
+          : _StartupStatus.serverResponded;
     } on SocketException {
       return _StartupStatus.unavailable;
     } on TimeoutException {
@@ -125,18 +125,32 @@ class _GateState extends State<Gate> {
     return switch (_status) {
       _StartupStatus.checking => const _StartupSplash(),
       _StartupStatus.unavailable => _ServerUnavailable(onRetry: _retry),
+      _StartupStatus.serverResponded => _ServerUnavailable(
+        onRetry: _retry,
+        serverResponded: true,
+      ),
       _StartupStatus.signedIn => const HomeShell(),
       _StartupStatus.signedOut => const LoginScreen(),
     };
   }
 }
 
-enum _StartupStatus { checking, signedIn, signedOut, unavailable }
+enum _StartupStatus {
+  checking,
+  signedIn,
+  signedOut,
+  unavailable,
+  serverResponded,
+}
 
 class _ServerUnavailable extends StatelessWidget {
-  const _ServerUnavailable({required this.onRetry});
+  const _ServerUnavailable({
+    required this.onRetry,
+    this.serverResponded = false,
+  });
 
   final VoidCallback onRetry;
+  final bool serverResponded;
 
   @override
   Widget build(BuildContext context) {
@@ -166,13 +180,17 @@ class _ServerUnavailable extends StatelessWidget {
                   Icon(Icons.cloud_off_outlined, size: 36, color: colors.muted),
                   const SizedBox(height: 14),
                   Text(
-                    'Can’t reach the Tuklas server',
+                    serverResponded
+                        ? 'Tuklas is online, but sign-in could not be checked'
+                        : 'Can’t reach the Tuklas server',
                     textAlign: TextAlign.center,
                     style: tkText(context, size: 18, weight: 500),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Your saved sign-in is still on this device. Check your internet connection and try again in a moment.',
+                    serverResponded
+                        ? 'Your internet connection is working. The server returned an error while checking your saved sign-in. Please retry in a moment.'
+                        : 'Your saved sign-in is still on this device. Check your internet connection and try again in a moment.',
                     textAlign: TextAlign.center,
                     style: tkText(
                       context,
