@@ -8,8 +8,8 @@ Tuklas is a youth career guidance and skills development web app for Pangasinan,
 |---|---|
 | Landing page with light and dark themes | |
 | Registration, login, password reset, email verification, and two-factor authentication | Expanded career and training management screens |
-| Role-based dashboards for PESO Bugallon, TESDA trainers, and youth | More career and training recommendations |
-| Google and Facebook sign-in (requires provider credentials) | |
+| Role-based dashboards for PESO, TESDA, training center representatives, trainers, and youth | Automated job-to-qualification matching |
+| Direct email/password sign-in and account security | |
 | Profile editing and youth guardian details for ages 15 to 17 | |
 | Skills assessment and direct messages between active, verified members | |
 | Resume and certificate scanner with Gemini analysis (requires an API key) | |
@@ -17,6 +17,61 @@ Tuklas is a youth career guidance and skills development web app for Pangasinan,
 | Flutter app for Android and iOS using the shared Laravel API | |
 | Privacy notice and terms pages, with readable web sign-up dialogs | |
 | TESDA page with local published programs and links to TESDA's live directory | |
+| PESO employer and job management, with recommendations sent to selected career seekers | Automated qualification scoring for job matches |
+| TESDA training centers, scholarship notices, course sessions and capacity | |
+| Center scoped trainer assignments, trainee applications, and assessment records | |
+
+## Roles and user flows
+
+Tuklas uses role based access. Users sign in through the same web or mobile account; the server applies the permissions for the account's role.
+
+### PESO super administrator
+
+1. Open **People** to create and manage accounts. Assign TESDA administrators and training center representatives to their roles and centers.
+2. Open **Employers** to add employers and verify their information.
+3. Open **Jobs** to publish or close openings, then recommend a published job to an active career seeker by email. Career seekers see PESO recommendations in the job list.
+4. Use the overview and activity pages to monitor accounts and platform activity.
+
+### TESDA training administrator
+
+1. Open **Centers** to maintain PTC and PSAT institutions.
+2. Open **Programs** to maintain training course details and decide when a program is published.
+3. Open **Trainers** to assign trainers to published programs at their center.
+4. Publish scholarship information, create training sessions, review trainee applications, and record assessments.
+
+### Training center representative
+
+1. The account must be assigned to a training center by an administrator.
+2. Open **Programs** to maintain that center's course information. TESDA controls publishing.
+3. Open **Trainers** to assign trainers to programs belonging to the assigned center.
+4. Open **Sessions** to set dates, capacity, and availability. Review applications and manage assessment schedules and results for that center's trainees.
+
+### Trainer
+
+Trainers can manage their permitted program information and teaching assignments. Training center representatives or TESDA administrators manage center staff assignments. Trainer accounts should be associated with a center to be assignable to that center's programs.
+
+### Career seeker (youth)
+
+1. Register, verify the email address, and complete the profile with education, skills, interests, and credentials.
+2. Use **Skills assessment**, the resume and certificate scanner, and career chat to support career exploration.
+3. Browse published jobs, scholarships, training centers, and future training sessions. Apply for an open session with available capacity.
+4. Track applications and assessment records, and message active members or administrators.
+
+Job recommendations are currently selected by PESO staff. Tuklas does not yet calculate or rank job matches automatically from profile qualifications.
+
+## Where the features live
+
+| Feature | Web entry point | Laravel implementation | Flutter implementation |
+|---|---|---|---|
+| Roles and account management | People / account forms | `app/Enums/Role.php`, `app/Http/Controllers/Admin/UserController.php`, `routes/web.php` | `tuklas_mobile/lib/screens/workspace_view.dart` |
+| Employers and job opportunities | Employers, Jobs | `app/Http/Controllers/EmployerController.php`, `app/Http/Controllers/JobOpportunityController.php`, `resources/views/operations/` | `tuklas_mobile/lib/screens/operations_view.dart` |
+| Training centers and scholarships | Centers, Scholarships | `app/Http/Controllers/TrainingCenterController.php`, `app/Http/Controllers/ScholarshipController.php` | `tuklas_mobile/lib/screens/operations_view.dart` |
+| Programs and trainer assignments | Programs, Trainers | `app/Http/Controllers/Trainer/TrainingProgramController.php`, `app/Http/Controllers/Trainer/CenterTrainerController.php` | `tuklas_mobile/lib/screens/workspace_view.dart`, `tuklas_mobile/lib/screens/operations_view.dart` |
+| Sessions and applications | Sessions, Applications | `app/Http/Controllers/TrainingSessionController.php`, `app/Http/Controllers/Trainer/TrainingApplicationController.php` | `tuklas_mobile/lib/screens/operations_view.dart` |
+| Assessments | Assessments | `app/Http/Controllers/AssessmentRecordController.php` | `tuklas_mobile/lib/screens/operations_view.dart` |
+| Database structure | — | `database/migrations/` | Data is served by the Laravel mobile API |
+
+The same Laravel domain controllers serve browser routes in `routes/web.php` and authenticated mobile API routes in `routes/api.php`. The database migrations create the new employer, job, scholarship, center, session, assessment, and recommendation records. The mobile application calls those API routes; it does not keep a separate copy of this data.
 
 ## Requirements
 
