@@ -66,11 +66,6 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function socialAccounts(): HasMany
-    {
-        return $this->hasMany(SocialAccount::class);
-    }
-
     public function youthProfile(): HasOne
     {
         return $this->hasOne(YouthProfile::class);

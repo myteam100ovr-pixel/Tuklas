@@ -10,7 +10,6 @@
         "laravel/framework": "^13.17",
         "laravel/jetstream": "^5.5",
         "laravel/sanctum": "^4.0",
-        "laravel/socialite": "^5.31",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^3.6.4",
         "phpmailer/phpmailer": "^7.2"

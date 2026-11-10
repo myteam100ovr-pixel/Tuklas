@@ -2,21 +2,16 @@
 
 namespace App\Providers;
 
-use App\View\Composers\NavComposer;
 use App\Mail\PhpMailerTransport;
+use App\View\Composers\NavComposer;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void
-    {
-        //
-    }
-
     public function boot(): void
     {
         Mail::extend('phpmailer', function (array $config): PhpMailerTransport {
