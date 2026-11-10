@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>{{ config('app.name', 'Tuklas') }} | AI-powered career path and skills development for youth in Pangasinan</title>
     <meta name="description" content="AI-powered career path and skills development for youth in Pangasinan. Piloting in Bugallon with TESDA Lingayen trainings, powered by Google Gemini AI.">
+    <meta name="theme-color" content="#5b17ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Tuklas">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <script>document.documentElement.classList.add('js')</script>
     @include('partials.theme-boot')
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])

@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Get Tuklas on your phone</title>
     <meta name="description" content="Open Tuklas on Android or iPhone from one simple link.">
+    <meta name="theme-color" content="#5b17ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Tuklas">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     @include('partials.theme-boot')
     @vite(['resources/css/landing.css'])
 </head>
@@ -32,14 +38,15 @@
 
             <section class="app-download-card">
                 <span class="app-download-platform">IPHONE &amp; IPAD</span>
-                <h2>Open Tuklas on iOS</h2>
-                <p>The native iPhone app is not published on the App Store yet. Use Tuklas in Safari and add it to your Home Screen:</p>
+                <h2>Install Tuklas on iPhone</h2>
+                <p>Open Tuklas in Safari, tap <strong>Share</strong>, then choose <strong>Add to Home Screen</strong>. It gets a Tuklas icon and opens in its own app-style window.</p>
                 <ol class="app-download-steps">
-                    <li>Open Tuklas in Safari.</li>
-                    <li>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</li>
-                    <li>Tap <strong>Add</strong> to save the Tuklas shortcut.</li>
+                    <li>Tap <strong>Open Tuklas for iPhone</strong> below in Safari.</li>
+                    <li>In Safari, tap the Share button and select <strong>Add to Home Screen</strong>.</li>
+                    <li>Tap <strong>Add</strong>. Launch Tuklas from the new Home Screen icon.</li>
                 </ol>
                 <a class="btn btn-line" href="{{ route('home') }}">Open Tuklas for iPhone</a>
+                <p class="app-download-note">This installs the mobile web app. A native iPhone App Store version is not available yet.</p>
             </section>
         </div>
 
