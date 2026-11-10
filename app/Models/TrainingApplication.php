@@ -12,7 +12,12 @@ class TrainingApplication extends Model
     /** @use HasFactory<TrainingApplicationFactory> */
     use HasFactory;
 
-    protected $fillable = ['training_program_id', 'user_id', 'status'];
+    protected $fillable = ['training_program_id', 'training_session_id', 'user_id', 'status'];
+
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(TrainingSession::class, 'training_session_id');
+    }
 
     public function program(): BelongsTo
     {

@@ -95,7 +95,14 @@ class DashboardController extends Controller
 
     public function trainer(): View
     {
-        $mine = TrainingProgram::where('created_by', auth()->id());
+        $user = auth()->user();
+        $mine = TrainingProgram::query();
+        if ($user->hasRole(Role::CenterRepresentative)) {
+            abort_unless($user->training_center_id, 403);
+            $mine->where('training_center_id', $user->training_center_id);
+        } elseif (! $user->hasRole(Role::TesdaAdmin)) {
+            $mine->where('created_by', $user->id);
+        }
         $total = (clone $mine)->count();
         $published = (clone $mine)->where('status', 'published')->count();
         $draft = (clone $mine)->where('status', 'draft')->count();
@@ -108,7 +115,7 @@ class DashboardController extends Controller
         $pct = fn (int $n) => $total > 0 ? (int) round($n / $total * 100) : 0;
 
         return view('dashboard.show', [
-            'title' => 'TESDA Lingayen overview',
+            'title' => $user->hasRole(Role::CenterRepresentative) ? 'Training center overview' : 'TESDA training overview',
             'nationalCatalog' => $this->catalog->all(),
             'stats' => [
                 $this->stat('My programs', $total, null, 'neutral', 'All statuses'),

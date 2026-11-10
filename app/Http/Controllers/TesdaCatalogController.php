@@ -19,7 +19,7 @@ class TesdaCatalogController extends Controller
         $choiceUser = null;
         if ($request->user()?->hasRole(Role::Youth)) {
             $choiceUser = $request->user();
-        } elseif ($request->user()?->hasRole(Role::Trainer, Role::SuperAdmin) && $request->filled('for_user')) {
+        } elseif ($request->user()?->hasRole(Role::Trainer, Role::TesdaAdmin, Role::SuperAdmin) && $request->filled('for_user')) {
             $choiceUser = User::query()
                 ->whereKey($request->integer('for_user'))
                 ->where('role', Role::Youth->value)

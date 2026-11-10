@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\Role;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -99,6 +101,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function trainingApplications(): HasMany
     {
         return $this->hasMany(TrainingApplication::class);
+    }
+
+    public function trainingCenter(): BelongsTo
+    {
+        return $this->belongsTo(TrainingCenter::class);
+    }
+
+    public function recommendedJobs(): BelongsToMany
+    {
+        return $this->belongsToMany(JobOpportunity::class, 'job_recommendations')->withTimestamps();
     }
 
     public function teachingAssignments(): HasMany

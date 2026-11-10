@@ -12,6 +12,11 @@
                 <input name="title" type="text" maxlength="255" required value="{{ old('title', $program->title) }}" placeholder="e.g. Cookery NC II">
                 @error('title')<small>{{ $message }}</small>@enderror
             </label>
+            @if (auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin))
+                <label>Training center
+                    <select name="training_center_id"><option value="">Unassigned</option>@foreach ($centers as $center)<option value="{{ $center->id }}" @selected((string) old('training_center_id', $program->training_center_id) === (string) $center->id)>{{ $center->name }}</option>@endforeach</select>
+                </label>
+            @endif
             <div class="trainer-courses__form-row">
                 <label>NC level
                     <select name="nc_level">
@@ -45,7 +50,7 @@
             </label>
             <label>Visibility
                 <select name="status" required>
-                    @foreach (['draft' => 'Draft · only you can see it', 'published' => 'Published · shown in TESDA catalog', 'archived' => 'Archived · hidden from catalog'] as $value => $label)
+                    @foreach (auth()->user()->hasRole(\App\Enums\Role::CenterRepresentative) ? [($program->status ?: 'draft') => ucfirst($program->status ?: 'draft').' · TESDA manages publication'] : ['draft' => 'Draft · only you can see it', 'published' => 'Published · shown in TESDA catalog', 'archived' => 'Archived · hidden from catalog'] as $value => $label)
                         <option value="{{ $value }}" @selected(old('status', $program->status ?: 'draft') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>

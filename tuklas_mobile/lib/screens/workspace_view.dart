@@ -430,13 +430,37 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   ];
   List<Widget> _programs() {
     final pagination = asMap(_data!['programs']);
+    final centers = asList(_data!['centers']);
+    List<WorkspaceField> fieldsFor(String status) => [
+      ..._programFields.where((field) => field.name != 'status'),
+      if (_role != 'center_representative')
+        _programFields.last
+      else
+        WorkspaceField(
+          'status',
+          'Publication status (TESDA controlled)',
+          required: true,
+          options: [status],
+        ),
+      if (_role == 'tesda_admin')
+        WorkspaceField(
+          'training_center_id',
+          'Training center',
+          options: ['', ...centers.map((center) => '${asMap(center)['id']}')],
+          optionLabels: {
+            '': 'No center',
+            for (final center in centers)
+              '${asMap(center)['id']}': '${asMap(center)['name']}',
+          },
+        ),
+    ];
     return [
       _button(
         'Add a program',
         () => _form(
           'Add program',
           '/trainer/programs',
-          _programFields,
+          fieldsFor('draft'),
           initial: {'status': 'draft'},
         ),
       ),
@@ -448,7 +472,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
             () => _form(
               'Edit program',
               '/trainer/programs/${raw['id']}',
-              _programFields,
+              fieldsFor('${raw['status']}'),
               method: 'PUT',
               initial: asMap(raw),
             ),
@@ -482,13 +506,15 @@ class _WorkspaceViewState extends State<WorkspaceView> {
 
   Future<void> _editUser(Map<String, dynamic>? user) async {
     try {
+      final response = user == null
+          ? await ApiClient.instance.workspace('/training-centers')
+          : await ApiClient.instance.workspace('/admin/users/${user['id']}');
       final details = user == null
           ? <String, dynamic>{'role': 'youth', 'is_active': true}
-          : asMap(
-              (await ApiClient.instance.workspace(
-                '/admin/users/${user['id']}',
-              ))['account'],
-            );
+          : asMap(response['account']);
+      final centers = asList(asMap(response['centers'])['data']).isNotEmpty
+          ? asList(asMap(response['centers'])['data'])
+          : asList(response['centers']);
       final profile = asMap(details['youth_profile']);
       if (!mounted) return;
       await _form(
@@ -502,7 +528,23 @@ class _WorkspaceViewState extends State<WorkspaceView> {
             'role',
             'Role',
             required: true,
-            options: ['youth', 'trainer', 'super_admin'],
+            options: [
+              'youth',
+              'trainer',
+              'tesda_admin',
+              'center_representative',
+              'super_admin',
+            ],
+          ),
+          WorkspaceField(
+            'training_center_id',
+            'Training center (required for representative)',
+            options: ['', ...centers.map((center) => '${asMap(center)['id']}')],
+            optionLabels: {
+              '': 'No center',
+              for (final center in centers)
+                '${asMap(center)['id']}': '${asMap(center)['name']}',
+            },
           ),
           const WorkspaceField(
             'is_active',

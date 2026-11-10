@@ -16,7 +16,7 @@ class TrainingProgram extends Model
 
     protected $fillable = [
         'title', 'nc_level', 'description', 'duration_hours', 'requirements',
-        'schedule_note', 'status', 'source_reference', 'last_verified_at', 'created_by',
+        'schedule_note', 'status', 'source_reference', 'last_verified_at', 'created_by', 'training_center_id',
     ];
 
     protected function casts(): array
@@ -34,6 +34,11 @@ class TrainingProgram extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function center(): BelongsTo
+    {
+        return $this->belongsTo(TrainingCenter::class, 'training_center_id');
+    }
+
     public function applications(): HasMany
     {
         return $this->hasMany(TrainingApplication::class);
@@ -42,5 +47,10 @@ class TrainingProgram extends Model
     public function teachingAssignments(): HasMany
     {
         return $this->hasMany(TrainingAssignment::class);
+    }
+
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(TrainingSession::class);
     }
 }

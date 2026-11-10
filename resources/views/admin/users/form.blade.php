@@ -13,6 +13,7 @@
             <label>Email<input name="email" type="email" required maxlength="255" value="{{ old('email', $account->email) }}">@error('email')<small>{{ $message }}</small>@enderror</label>
             <div class="trainer-courses__form-row">
                 <label>Role<select name="role" required>@foreach (\App\Enums\Role::cases() as $role)<option value="{{ $role->value }}" @selected(old('role', $account->role?->value ?? 'youth') === $role->value)>{{ $role->label() }}</option>@endforeach</select>@error('role')<small>{{ $message }}</small>@enderror</label>
+                <label>Training center (required for representatives)<select name="training_center_id"><option value="">None</option>@foreach ($centers as $center)<option value="{{ $center->id }}" @selected((string) old('training_center_id', $account->training_center_id) === (string) $center->id)>{{ $center->name }} ({{ $center->type }})</option>@endforeach</select>@error('training_center_id')<small>{{ $message }}</small>@enderror</label>
                 <label>Account status<select name="is_active"><option value="1" @selected(old('is_active', $account->exists ? (int) $account->is_active : 1) == 1)>Active</option><option value="0" @selected(old('is_active', $account->exists ? (int) $account->is_active : 1) == 0)>Inactive</option></select>@error('is_active')<small>{{ $message }}</small>@enderror</label>
             </div>
             <fieldset class="users-form__fieldset"><legend>Youth details, when applicable</legend>

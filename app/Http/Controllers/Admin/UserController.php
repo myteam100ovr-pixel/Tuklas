@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Models\TrainingCenter;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
 use App\Support\ActivityNotifier;
@@ -34,7 +35,7 @@ class UserController extends Controller
 
     public function create(): View
     {
-        return view('admin.users.form', ['account' => new User]);
+        return view('admin.users.form', ['account' => new User, 'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get()]);
     }
 
     public function store(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
@@ -50,6 +51,7 @@ class UserController extends Controller
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'role' => $data['role'],
+                'training_center_id' => in_array($data['role'], [Role::Trainer->value, Role::CenterRepresentative->value], true) ? ($data['training_center_id'] ?? null) : null,
                 'is_active' => $data['is_active'],
                 'email_verified_at' => now(),
                 'date_of_birth' => $data['role'] === Role::Youth->value ? ($data['date_of_birth'] ?? null) : null,
@@ -77,7 +79,7 @@ class UserController extends Controller
 
     public function edit(Request $request, User $user): View|JsonResponse
     {
-        $data = ['account' => $user->loadMissing('youthProfile')];
+        $data = ['account' => $user->loadMissing('youthProfile'), 'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get()];
 
         return $request->routeIs('mobile.*') ? response()->json($data) : view('admin.users.form', $data);
     }
@@ -98,6 +100,7 @@ class UserController extends Controller
                 'last_name' => trim($data['last_name']),
                 'email' => $data['email'],
                 'role' => $data['role'],
+                'training_center_id' => in_array($data['role'], [Role::Trainer->value, Role::CenterRepresentative->value], true) ? ($data['training_center_id'] ?? null) : null,
                 'is_active' => $data['is_active'],
                 'date_of_birth' => $data['role'] === Role::Youth->value ? ($data['date_of_birth'] ?? null) : null,
                 'email_verified_at' => $emailChanged ? now() : $user->email_verified_at,
@@ -181,6 +184,7 @@ class UserController extends Controller
             'last_name' => ['required', 'string', 'max:127'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($account?->id)],
             'role' => ['required', Rule::enum(Role::class)],
+            'training_center_id' => ['nullable', 'required_if:role,center_representative', Rule::exists('training_centers', 'id')->where('is_active', true)],
             'is_active' => ['required', 'boolean'],
             'password' => $account ? ['prohibited'] : ['required', 'string', 'min:8', 'confirmed'],
             'date_of_birth' => ['nullable', 'date'],

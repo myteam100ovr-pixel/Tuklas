@@ -11,6 +11,7 @@ import 'tesda_view.dart';
 import 'workspace_view.dart';
 import 'chat_view.dart';
 import 'messages_view.dart';
+import 'operations_view.dart';
 
 /// Branded header and bottom navigation around the selected app section.
 class HomeShell extends StatefulWidget {
@@ -78,6 +79,14 @@ class _HomeShellState extends State<HomeShell> {
         builder: (_) => switch (section) {
           'TuklasBot' => const ChatView(),
           'Messages' => const MessagesView(),
+          'Employers' ||
+          'Jobs' ||
+          'Scholarships' ||
+          'Centers' ||
+          'Trainers' ||
+          'Sessions' ||
+          'Applications' ||
+          'Assessments' => OperationsView(section: section),
           _ => WorkspaceView(section: section),
         },
       ),
@@ -166,10 +175,30 @@ class _HomeShellState extends State<HomeShell> {
                     'Training plans',
                     if (ApiClient.instance.user?['role'] == 'youth')
                       'Skills assessment',
-                    if (ApiClient.instance.user?['role'] == 'trainer')
+                    if ([
+                      'trainer',
+                      'tesda_admin',
+                      'center_representative',
+                    ].contains(ApiClient.instance.user?['role']))
                       'My programs',
                     if (ApiClient.instance.user?['role'] == 'super_admin')
                       'Users',
+                    if (ApiClient.instance.user?['role'] == 'super_admin')
+                      'Employers',
+                    'Jobs',
+                    'Scholarships',
+                    'Centers',
+                    if ([
+                      'super_admin',
+                      'tesda_admin',
+                      'center_representative',
+                    ].contains(ApiClient.instance.user?['role']))
+                      'Trainers',
+                    'Sessions',
+                    if (ApiClient.instance.user?['role'] != 'trainer') ...[
+                      'Applications',
+                      'Assessments',
+                    ],
                     'Account & security',
                   ])
                     Padding(

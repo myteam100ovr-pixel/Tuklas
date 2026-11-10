@@ -5,19 +5,27 @@ use App\Http\Controllers\Admin\CareerPathController;
 use App\Http\Controllers\Admin\CareerRecommendationController;
 use App\Http\Controllers\Admin\TrainingCatalogController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AssessmentRecordController;
 use App\Http\Controllers\Auth\DemoLoginController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\CareerPathCatalogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
+use App\Http\Controllers\EmployerController;
+use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\SkillsAssessmentController;
 use App\Http\Controllers\TesdaCatalogController;
 use App\Http\Controllers\TesdaChoiceController;
+use App\Http\Controllers\Trainer\CenterTrainerController;
 use App\Http\Controllers\Trainer\TeachingAssignmentController;
 use App\Http\Controllers\Trainer\TrainerQualificationController;
+use App\Http\Controllers\Trainer\TrainingApplicationController;
 use App\Http\Controllers\Trainer\TrainingProgramController;
+use App\Http\Controllers\TrainingCenterController;
+use App\Http\Controllers\TrainingSessionController;
 use App\Http\Controllers\YouthProfileController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\Livewire\PrivacyPolicyController;
@@ -40,7 +48,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    'role:super_admin,trainer,youth',
+    'role:super_admin,trainer,tesda_admin,center_representative,youth',
 ])->group(function () {
     Route::get('/dashboard', fn () => redirect()->route(auth()->user()->role->homeRoute()))
         ->name('dashboard');
@@ -55,6 +63,17 @@ Route::middleware([
     Route::post('/document-scans', [DocumentScanController::class, 'store'])
         ->middleware('throttle:5,1')->name('document-scans.store');
     Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
+    Route::get('/opportunities', [JobOpportunityController::class, 'index'])->name('opportunities.index');
+    Route::get('/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
+    Route::get('/training-centers', [TrainingCenterController::class, 'index'])->name('centers.index');
+    Route::get('/training-sessions', [TrainingSessionController::class, 'index'])->name('sessions.index');
+    Route::get('/training-applications', [TrainingApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/assessment-records', [AssessmentRecordController::class, 'index'])->name('assessments.index');
+    Route::middleware('role:super_admin,tesda_admin,center_representative')->group(function () {
+        Route::get('/center-trainers', [CenterTrainerController::class, 'index'])->name('center-trainers.index');
+        Route::post('/center-trainers', [CenterTrainerController::class, 'store'])->name('center-trainers.store');
+        Route::delete('/center-trainers/{assignment}', [CenterTrainerController::class, 'destroy'])->name('center-trainers.destroy');
+    });
     Route::get('/tesda/choices', [TesdaChoiceController::class, 'index'])->name('tesda.choices.index');
     Route::post('/tesda/choice', [TesdaChoiceController::class, 'store'])->name('tesda.choice.store');
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
@@ -68,6 +87,12 @@ Route::middleware([
     Route::put('/account/password-reset', [AccountPasswordResetController::class, 'update'])->name('account.password-reset.update');
 
     Route::middleware('role:super_admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::post('/employers', [EmployerController::class, 'store'])->name('employers.store');
+        Route::put('/employers/{employer}', [EmployerController::class, 'update'])->name('employers.update');
+        Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
+        Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
+        Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
+        Route::get('/employers', [EmployerController::class, 'index'])->name('employers.index');
         Route::get('/', [DashboardController::class, 'admin'])->name('dashboard');
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
@@ -82,13 +107,31 @@ Route::middleware([
         Route::resource('trainings', TrainingCatalogController::class)->except(['show', 'destroy']);
     });
 
-    Route::middleware('role:trainer')->prefix('trainer')->name('trainer.')->group(function () {
+    Route::middleware('role:super_admin,tesda_admin')->group(function () {
+        Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
+        Route::put('/scholarships/{scholarship}', [ScholarshipController::class, 'update'])->name('scholarships.update');
+        Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
+        Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
+    });
+    Route::middleware('role:super_admin,tesda_admin,center_representative')->group(function () {
+        Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');
+        Route::put('/training-sessions/{session}', [TrainingSessionController::class, 'update'])->name('sessions.update');
+        Route::put('/training-applications/{application}', [TrainingApplicationController::class, 'update'])->name('applications.update');
+        Route::post('/assessment-records', [AssessmentRecordController::class, 'store'])->name('assessments.store');
+        Route::put('/assessment-records/{assessment}', [AssessmentRecordController::class, 'update'])->name('assessments.update');
+    });
+    Route::middleware('role:youth')->group(function () {
+        Route::post('/training-sessions/{session}/apply', [TrainingApplicationController::class, 'store'])->name('applications.store');
+        Route::delete('/training-applications/{application}', [TrainingApplicationController::class, 'destroy'])->name('applications.destroy');
+    });
+
+    Route::middleware('role:trainer,tesda_admin,center_representative')->prefix('trainer')->name('trainer.')->group(function () {
         Route::get('/', [DashboardController::class, 'trainer'])->name('dashboard');
         Route::resource('programs', TrainingProgramController::class)->except(['show', 'destroy']);
-        Route::post('/teaching/{program}', [TeachingAssignmentController::class, 'store'])->name('teaching.store');
-        Route::delete('/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->name('teaching.destroy');
-        Route::post('/qualifications', [TrainerQualificationController::class, 'store'])->name('qualifications.store');
-        Route::delete('/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->name('qualifications.destroy');
+        Route::post('/teaching/{program}', [TeachingAssignmentController::class, 'store'])->middleware('role:trainer')->name('teaching.store');
+        Route::delete('/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->middleware('role:trainer')->name('teaching.destroy');
+        Route::post('/qualifications', [TrainerQualificationController::class, 'store'])->middleware('role:trainer')->name('qualifications.store');
+        Route::delete('/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->middleware('role:trainer')->name('qualifications.destroy');
     });
 
     Route::middleware('role:youth')->prefix('youth')->name('youth.')->group(function () {

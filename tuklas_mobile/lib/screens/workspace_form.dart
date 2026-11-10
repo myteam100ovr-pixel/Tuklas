@@ -7,12 +7,14 @@ class WorkspaceField {
     this.name,
     this.label, {
     this.options,
+    this.optionLabels = const {},
     this.secret = false,
     this.multiline = false,
     this.required = false,
   });
   final String name, label;
   final List<String>? options;
+  final Map<String, String> optionLabels;
   final bool secret, multiline, required;
 }
 
@@ -62,7 +64,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
       final data = <String, dynamic>{};
       for (final f in widget.fields) {
         final value = _inputs[f.name]!.text;
-        data[f.name] = f.name == 'is_active'
+        data[f.name] = f.name == 'is_active' || f.name == 'is_verified'
             ? value == 'true'
             : value.isEmpty && !f.required
             ? null
@@ -124,7 +126,10 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                       ),
                       items: [
                         for (final o in f.options!)
-                          DropdownMenuItem(value: o, child: Text(o)),
+                          DropdownMenuItem(
+                            value: o,
+                            child: Text(f.optionLabels[o] ?? o),
+                          ),
                       ],
                       onChanged: _saving
                           ? null

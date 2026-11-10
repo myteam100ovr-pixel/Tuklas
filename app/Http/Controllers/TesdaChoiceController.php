@@ -16,7 +16,7 @@ class TesdaChoiceController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
-        abort_unless($request->user()->hasRole(Role::Trainer, Role::SuperAdmin), 403);
+        abort_unless($request->user()->hasRole(Role::Trainer, Role::TesdaAdmin, Role::SuperAdmin), 403);
 
         $data = [
             'youthUsers' => User::query()
@@ -39,7 +39,7 @@ class TesdaChoiceController extends Controller
 
         $actor = $request->user();
         if (isset($validated['user_id'])) {
-            abort_unless($actor->hasRole(Role::Trainer, Role::SuperAdmin), 403);
+            abort_unless($actor->hasRole(Role::Trainer, Role::TesdaAdmin, Role::SuperAdmin), 403);
             $target = User::query()
                 ->whereKey($validated['user_id'])
                 ->where('role', Role::Youth->value)

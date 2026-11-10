@@ -21,7 +21,7 @@ class MobileDashboardController extends Controller
 
         return response()->json(match ($user->role) {
             Role::Youth => $this->youthDashboard($user, $scanHistory),
-            Role::Trainer => $this->trainerDashboard($user),
+            Role::Trainer, Role::TesdaAdmin, Role::CenterRepresentative => $this->trainerDashboard($user),
             Role::SuperAdmin => $this->adminDashboard(),
         });
     }
@@ -119,7 +119,13 @@ class MobileDashboardController extends Controller
     /** @return array<string, mixed> */
     private function trainerDashboard(User $user): array
     {
-        $programs = TrainingProgram::query()->where('created_by', $user->id);
+        $programs = TrainingProgram::query();
+        if ($user->hasRole(Role::CenterRepresentative)) {
+            abort_unless($user->training_center_id, 403);
+            $programs->where('training_center_id', $user->training_center_id);
+        } elseif (! $user->hasRole(Role::TesdaAdmin)) {
+            $programs->where('created_by', $user->id);
+        }
         $total = (clone $programs)->count();
         $published = (clone $programs)->where('status', 'published')->count();
         $drafts = (clone $programs)->where('status', 'draft')->count();
@@ -132,8 +138,8 @@ class MobileDashboardController extends Controller
         $recent = (clone $programs)->latest('updated_at')->limit(6)->get();
 
         return [
-            'role' => Role::Trainer->value,
-            'title' => 'TESDA Lingayen overview',
+            'role' => $user->role->value,
+            'title' => $user->hasRole(Role::CenterRepresentative) ? 'Training center overview' : 'TESDA training overview',
             'stats' => [
                 $this->stat('My programs', $total, null, 'neutral', 'All statuses'),
                 $this->stat('Published', $published, null, 'neutral', 'Visible to youth'),
