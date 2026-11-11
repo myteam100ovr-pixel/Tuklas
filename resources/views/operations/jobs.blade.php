@@ -6,12 +6,13 @@
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
         @if ($canManage)
             <a href="{{ route('admin.employers.index') }}">Manage employers</a>
-            <section class="operations-card"><h2>Add opening</h2><form method="POST" action="{{ route('admin.opportunities.store') }}">@csrf
-                <label>Verified employer <select name="employer_id" required>@foreach ($employers as $employer)<option value="{{ $employer->id }}">{{ $employer->name }}</option>@endforeach</select></label>
-                <label>Title <input name="title" required></label><label>Location <input name="location"></label>
-                <label>Description <textarea name="description" required></textarea></label><label>Requirements <textarea name="requirements"></textarea></label>
-                <label>Application URL <input name="application_url" type="url"></label><label>Closing date <input name="closes_at" type="date"></label>
-                <label>Status <select name="status"><option value="draft">Draft</option><option value="published">Publish</option><option value="closed">Closed</option></select></label>
+            @php($creatingJob = old('_operation') === 'create-job')
+            <section class="operations-card"><h2>Add opening</h2><form method="POST" action="{{ route('admin.opportunities.store') }}">@csrf<input type="hidden" name="_operation" value="create-job">
+                <label>Verified employer <select name="employer_id" required>@foreach ($employers as $employer)<option value="{{ $employer->id }}" @selected($creatingJob && (string) old('employer_id') === (string) $employer->id)>{{ $employer->name }}</option>@endforeach</select></label>
+                <label>Title <input name="title" required value="{{ $creatingJob ? old('title') : '' }}"></label><label>Location <input name="location" value="{{ $creatingJob ? old('location') : '' }}"></label>
+                <label>Description <textarea name="description" required>{{ $creatingJob ? old('description') : '' }}</textarea></label><label>Requirements <textarea name="requirements">{{ $creatingJob ? old('requirements') : '' }}</textarea></label>
+                <label>Application URL <input name="application_url" type="url" value="{{ $creatingJob ? old('application_url') : '' }}"></label><label>Closing date <input name="closes_at" type="date" value="{{ $creatingJob ? old('closes_at') : '' }}"></label>
+                <label>Status <select name="status"><option value="draft" @selected(! $creatingJob || old('status') === 'draft')>Draft</option><option value="published" @selected($creatingJob && old('status') === 'published')>Publish</option><option value="closed" @selected($creatingJob && old('status') === 'closed')>Closed</option></select></label>
                 <button class="trainer-courses__primary" type="submit">Save opening</button>
             </form></section>
         @endif

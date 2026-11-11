@@ -110,6 +110,25 @@ class OperationsWorkflowTest extends TestCase
             ->assertJsonCount(1, 'sessions.data')->assertJsonPath('sessions.data.0.id', $session->id);
     }
 
+    public function test_scholarship_form_keeps_entered_values_after_validation_fails(): void
+    {
+        $admin = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
+        $this->actingAs($admin);
+
+        $this->from('/scholarships')->post('/scholarships', [
+            '_operation' => 'create-scholarship',
+            'title' => 'Local training grant',
+            'provider' => 'Pangasinan Skills Office',
+            'description' => '',
+            'status' => 'published',
+        ])->assertRedirect('/scholarships')->assertSessionHasErrors(['description']);
+
+        $this->get('/scholarships')->assertOk()
+            ->assertSee('value="Local training grant"', false)
+            ->assertSee('value="Pangasinan Skills Office"', false)
+            ->assertSee('value="published" selected', false);
+    }
+
     public function test_representative_can_assign_only_trainers_and_programs_at_their_center(): void
     {
         $center = TrainingCenter::factory()->create();

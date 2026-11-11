@@ -24,6 +24,27 @@ void main() {
     expect(find.text('TuklasBot'), findsNothing);
   });
 
+  testWidgets('switching tabs highlights the destination immediately', (
+    tester,
+  ) async {
+    ApiClient.instance.user = {
+      'email_verified': true,
+      'name': 'Test User',
+      'role': 'youth',
+    };
+    addTearDown(() => ApiClient.instance.user = null);
+    await tester.pumpWidget(const MaterialApp(home: HomeShell()));
+
+    await tester.tap(find.byTooltip('TESDA'));
+    await tester.pump();
+
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      3,
+    );
+    expect(find.text('Opening TESDA…'), findsOneWidget);
+  });
+
   testWidgets('registration consent starts unchecked and blocks submission', (
     tester,
   ) async {

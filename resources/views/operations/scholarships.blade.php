@@ -5,19 +5,20 @@
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
         @if ($canManage)
+            @php($creatingScholarship = old('_operation') === 'create-scholarship')
             <section class="operations-editor" aria-labelledby="add-scholarship-heading">
                 <div class="operations-editor__intro">
                     <h2 id="add-scholarship-heading">Add scholarship</h2>
                     <p>Share verified funding opportunities with career seekers.</p>
                 </div>
-                <form class="operations-editor__form" method="POST" action="{{ route('scholarships.store') }}">@csrf
-                    <label>Title <input name="title" required></label>
-                    <label>Provider <input name="provider" required></label>
-                    <label class="operations-editor__wide">Description <textarea name="description" required></textarea></label>
-                    <label class="operations-editor__wide">Eligibility <textarea name="eligibility"></textarea></label>
-                    <label>Application URL <input name="application_url" type="url"></label>
-                    <label>Deadline <input name="deadline" type="date"></label>
-                    <label>Status <select name="status"><option value="draft">Draft</option><option value="published">Publish as verified</option><option value="closed">Closed</option></select></label>
+                <form class="operations-editor__form" method="POST" action="{{ route('scholarships.store') }}">@csrf<input type="hidden" name="_operation" value="create-scholarship">
+                    <label>Title <input name="title" required value="{{ $creatingScholarship ? old('title') : '' }}"></label>
+                    <label>Provider <input name="provider" required value="{{ $creatingScholarship ? old('provider') : '' }}"></label>
+                    <label class="operations-editor__wide">Description <textarea name="description" required>{{ $creatingScholarship ? old('description') : '' }}</textarea></label>
+                    <label class="operations-editor__wide">Eligibility <textarea name="eligibility">{{ $creatingScholarship ? old('eligibility') : '' }}</textarea></label>
+                    <label>Application URL <input name="application_url" type="url" value="{{ $creatingScholarship ? old('application_url') : '' }}"></label>
+                    <label>Deadline <input name="deadline" type="date" value="{{ $creatingScholarship ? old('deadline') : '' }}"></label>
+                    <label>Status <select name="status"><option value="draft" @selected(! $creatingScholarship || old('status') === 'draft')>Draft</option><option value="published" @selected($creatingScholarship && old('status') === 'published')>Publish as verified</option><option value="closed" @selected($creatingScholarship && old('status') === 'closed')>Closed</option></select></label>
                     <div class="operations-editor__actions"><button class="trainer-courses__primary" type="submit">Save scholarship</button></div>
                 </form>
             </section>

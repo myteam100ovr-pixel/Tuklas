@@ -14,6 +14,7 @@
 </head>
 <body class="tk-body tk-workspace">
     @include('partials.sprite')
+    <div class="sr-only" id="tk-navigation-status" role="status" aria-live="polite" hidden></div>
 
     <a class="tk-skip" href="#main-content">Skip to content</a>
     <aside class="tk-sidebar">

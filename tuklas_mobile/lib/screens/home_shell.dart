@@ -79,7 +79,6 @@ class _HomeShellState extends State<HomeShell> {
     setState(() => _switching = true);
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return;
-    setState(() => _switching = false);
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -98,18 +97,23 @@ class _HomeShellState extends State<HomeShell> {
         },
       ),
     );
-    if (mounted) setState(() => _version++);
+    if (mounted) {
+      setState(() {
+        _switching = false;
+        _version++;
+      });
+    }
   }
 
   Future<void> _selectTab(int index) async {
     if (_switching || index == _tab) return;
-    setState(() => _switching = true);
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted) return;
     setState(() {
       _tab = index;
-      _switching = false;
+      _switching = true;
     });
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    setState(() => _switching = false);
   }
 
   @override
@@ -248,7 +252,9 @@ class _HomeShellState extends State<HomeShell> {
                           else
                             const Icon(Icons.hourglass_empty_outlined),
                           const SizedBox(height: 12),
-                          const Text('Opening…'),
+                          Text(
+                            'Opening ${const ['Overview', 'PESO', 'Scanner', 'TESDA', 'Profile'][_tab]}…',
+                          ),
                         ],
                       ),
                     )

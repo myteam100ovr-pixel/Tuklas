@@ -6,14 +6,27 @@ import './auth-legal-dialog.js';
 
 const showNavigationLoading = (message) => {
     document.body.dataset.navigationLoading = message;
+    const status = document.getElementById('tk-navigation-status');
+    if (status) {
+        status.textContent = message;
+        status.hidden = false;
+    }
+    document.querySelector('main')?.setAttribute('aria-busy', 'true');
 };
-window.addEventListener('pageshow', () => { delete document.body.dataset.navigationLoading; });
+window.addEventListener('pageshow', () => {
+    delete document.body.dataset.navigationLoading;
+    const status = document.getElementById('tk-navigation-status');
+    if (status) status.hidden = true;
+    document.querySelector('main')?.removeAttribute('aria-busy');
+});
 document.addEventListener('click', (event) => {
-    const link = event.target.closest('.tk-tabs a');
-    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.href === location.href) return;
+    const link = event.target.closest('a[href]');
+    if (!link || !document.body.classList.contains('tk-workspace') || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+    const destination = new URL(link.href, location.href);
+    if (!['http:', 'https:'].includes(destination.protocol) || destination.origin !== location.origin || destination.href === location.href || (destination.pathname === location.pathname && destination.search === location.search)) return;
     event.preventDefault();
     showNavigationLoading('Opening page…');
-    requestAnimationFrame(() => requestAnimationFrame(() => { location.href = link.href; }));
+    requestAnimationFrame(() => requestAnimationFrame(() => { location.href = destination.href; }));
 });
 document.addEventListener('submit', (event) => {
     if (!event.target.matches('.auth-demo-card') || event.defaultPrevented) return;
