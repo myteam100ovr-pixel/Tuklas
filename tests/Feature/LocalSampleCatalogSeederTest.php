@@ -11,6 +11,7 @@ use App\Models\TrainingProgram;
 use App\Models\User;
 use Database\Seeders\LocalSampleCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use RuntimeException;
 use Tests\TestCase;
 
 class LocalSampleCatalogSeederTest extends TestCase
@@ -21,8 +22,8 @@ class LocalSampleCatalogSeederTest extends TestCase
     {
         User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
 
-        $this->seed(LocalSampleCatalogSeeder::class);
-        $this->seed(LocalSampleCatalogSeeder::class);
+        (new LocalSampleCatalogSeeder)->run();
+        (new LocalSampleCatalogSeeder)->run();
 
         $this->assertSame(2, TrainingCenter::query()->where('name', 'like', '[SAMPLE]%')->count());
         $this->assertSame(50, TrainingProgram::query()->where('title', 'like', '[SAMPLE]%')->count());
@@ -33,7 +34,7 @@ class LocalSampleCatalogSeederTest extends TestCase
         $this->assertDatabaseHas('training_programs', [
             'title' => '[SAMPLE] Qualification 01',
             'status' => 'published',
-            'source_reference' => 'SAMPLE DATA — generated locally for testing; not a real qualification or provider.',
+            'source_reference' => 'SAMPLE DATA — fictional record generated for testing; not a real qualification or provider.',
         ]);
 
         $this->assertDatabaseHas('job_opportunities', [
@@ -62,5 +63,35 @@ class LocalSampleCatalogSeederTest extends TestCase
         $this->actingAs($youth)->get(route('tesda.index'))
             ->assertOk()
             ->assertSee('[SAMPLE] Qualification 01');
+
+        $tesdaAdmin = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
+
+        $this->actingAs($tesdaAdmin)->get(route('tesda.index'))
+            ->assertOk()
+            ->assertSee('[SAMPLE] Qualification 01');
+    }
+
+    public function test_production_sample_seeding_requires_the_explicit_configuration_flag(): void
+    {
+        $this->app->detectEnvironment(fn (): string => 'production');
+        config(['tuklas.sample_catalog.allow_in_production' => false]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Enable TUKLAS_ALLOW_SAMPLE_CATALOG_IN_PRODUCTION');
+
+        (new LocalSampleCatalogSeeder)->run();
+    }
+
+    public function test_production_sample_seeding_runs_after_the_explicit_configuration_flag_is_enabled(): void
+    {
+        User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $this->app->detectEnvironment(fn (): string => 'production');
+        config(['tuklas.sample_catalog.allow_in_production' => true]);
+
+        (new LocalSampleCatalogSeeder)->run();
+
+        $this->assertSame(50, TrainingProgram::query()->where('title', 'like', '[SAMPLE]%')->count());
+        $this->assertSame(50, JobOpportunity::query()->where('title', 'like', '[SAMPLE]%')->count());
+        $this->assertSame(50, Scholarship::query()->where('title', 'like', '[SAMPLE]%')->count());
     }
 }

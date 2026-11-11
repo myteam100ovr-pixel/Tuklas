@@ -16,8 +16,12 @@ class LocalSampleCatalogSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment('local', 'testing')) {
-            throw new RuntimeException('Sample catalog data can only be loaded in local or testing environments.');
+        $isLocalOrTesting = app()->environment('local', 'testing');
+        $productionSamplesAreEnabled = app()->environment('production')
+            && config('tuklas.sample_catalog.allow_in_production');
+
+        if (! $isLocalOrTesting && ! $productionSamplesAreEnabled) {
+            throw new RuntimeException('Enable TUKLAS_ALLOW_SAMPLE_CATALOG_IN_PRODUCTION to load sample catalog data in production.');
         }
 
         $adminId = User::query()
@@ -60,7 +64,7 @@ class LocalSampleCatalogSeeder extends Seeder
                     'duration_days' => $durations[($number - 1) % count($durations)],
                     'requirements' => 'Sample data only: test the requirements field with this fictional entry.',
                     'schedule_note' => 'Sample schedule only. No real training dates, available places, or provider offering are represented.',
-                    'source_reference' => 'SAMPLE DATA — generated locally for testing; not a real qualification or provider.',
+                    'source_reference' => 'SAMPLE DATA — fictional record generated for testing; not a real qualification or provider.',
                     'status' => 'published',
                     'last_verified_at' => null,
                 ],
@@ -121,6 +125,6 @@ class LocalSampleCatalogSeeder extends Seeder
             );
         }
 
-        $this->command?->info('Loaded 50 fictional sample records for each catalog in the local database. These records are labeled [SAMPLE] and are not real listings.');
+        $this->command?->warn('Loaded 50 fictional records per catalog. Published sample records are visible across roles and are not real listings.');
     }
 }
