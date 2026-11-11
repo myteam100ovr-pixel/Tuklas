@@ -351,6 +351,8 @@ php artisan db:seed --class=AdminAccountSeeder --force
 
 For local role testing, set `TUKLAS_DEMO_PASSWORD` and run `php artisan db:seed --class=DemoAccountsSeeder`. This creates Career Seeker, Trainer, and Admin demo logins; it is intentionally blocked in production.
 
+For a presentation on the public site, create the Career Seeker, Admin, and TESDA demo accounts explicitly in production. Set `TUKLAS_DEMO_CAREER_SEEKER_PASSWORD` (or `TUKLAS_DEMO_PASSWORD`), `TUKLAS_DEMO_ADMIN_PASSWORD`, and `TUKLAS_DEMO_TESDA_PASSWORD`; optionally set each role's email variable to change its default. Then run `php artisan optimize:clear` and `php artisan db:seed --class=PresentationAccountsSeeder --force`. These accounts use the corresponding roles and are separate from the real Admin account. The seeder refuses to overwrite a real or deleted user that already owns one of the configured emails. Keep demo Admin and TESDA passwords private because those roles can change production data.
+
 For the fictional records used to test catalog and training workflows, run the separate seeder:
 
 ```powershell

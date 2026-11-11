@@ -47,7 +47,10 @@
         <div class="tk-context"><span>Workspace</span><span aria-hidden="true">/</span><strong>{{ $navCurrentLabel ?? 'Workspace' }}</strong></div>
 
         <div class="tk-right">
-            @unless ($isAdminWorkspace)<span class="tk-account-name">{{ $navUser['name'] }}</span>@endunless
+            <div class="tk-account-identity">
+                <span class="tk-account-name">{{ $navUser['name'] }}</span>
+                <span class="tk-account-role">{{ $navUser['role'] }}</span>
+            </div>
             <a class="tk-ibtn tk-notification-link" href="{{ route('notifications.index') }}" aria-label="Notifications{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.' unread)' : '' }}" title="Notifications">
                 <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>
                 @if ($unreadNotificationCount)<span class="tk-notification-count">{{ $unreadNotificationCount }}</span>@endif
@@ -63,8 +66,8 @@
                     <div class="tk-pop" data-menu-pop hidden>
                         <div class="tk-pop-who">
                             <b>{{ $navUser['name'] }}</b>
-                            <span>{{ $navUser['email'] }}</span>
                             <em class="chip">{{ $navUser['role'] }}</em>
+                            <span>{{ $navUser['email'] }}</span>
                         </div>
                         <a class="tk-pop-item" href="{{ route('profile.show') }}"><svg class="ic"><use href="#i-pencil"/></svg>Profile</a>
                         <form method="POST" action="{{ route('logout') }}">
@@ -82,8 +85,8 @@
                     <div class="tk-pop" data-menu-pop hidden>
                         <div class="tk-pop-who">
                             <b>{{ $navUser['name'] }}</b>
-                            <span>{{ $navUser['email'] }}</span>
                             <em class="chip">{{ $navUser['role'] }}</em>
+                            <span>{{ $navUser['email'] }}</span>
                         </div>
                         <a class="tk-pop-item" href="{{ route('profile.show') }}"><svg class="ic"><use href="#i-pencil"/></svg>Edit profile</a>
                         <form method="POST" action="{{ route('logout') }}">

@@ -17,6 +17,7 @@ class RoleNavigationTest extends TestCase
     {
         return [
             'PESO administrator' => [Role::Admin, 'admin.dashboard', true],
+            'TESDA administrator' => [Role::TesdaAdmin, 'trainer.dashboard', false],
             'trainer' => [Role::Trainer, 'trainer.dashboard', false],
             'youth' => [Role::Youth, 'youth.dashboard', false],
         ];
@@ -37,7 +38,11 @@ class RoleNavigationTest extends TestCase
         $response = $this->actingAs($user)
             ->get(route($dashboardRoute))
             ->assertOk()
-            ->assertSee('tk-tabs--workspace');
+            ->assertSee('tk-tabs--workspace')
+            ->assertSee('tk-account-identity', false)
+            ->assertSee('tk-account-role', false)
+            ->assertSee($user->name)
+            ->assertSee($user->role->label());
 
         if ($role === Role::Admin) {
             $response->assertSee('Jobs')->assertSee('Document Scanner')->assertSee('Ask TuklasBot');

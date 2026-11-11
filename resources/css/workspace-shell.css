@@ -60,7 +60,9 @@ html:not([data-theme="dark"]) body.tk-workspace {
 .tk-workspace .tk-head { display:flex; justify-content:space-between; min-height:78px; padding:16px var(--pad); background:var(--surface); border-bottom:1px solid var(--line); backdrop-filter:none; }
 .tk-context { display:flex; align-items:center; gap:12px; font-size:.76rem; color:var(--muted); }
 .tk-context strong { color:var(--ink); font-weight:500; }
-.tk-account-name { font-size:.75rem; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:10px; }
+.tk-account-identity { display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:2px; min-width:0; max-width:180px; margin-right:10px; }
+.tk-account-name { max-width:180px; overflow:hidden; color:var(--ink); font-size:.75rem; text-overflow:ellipsis; white-space:nowrap; }
+.tk-account-role { max-width:180px; overflow:hidden; color:var(--muted); font-size:.64rem; text-overflow:ellipsis; white-space:nowrap; }
 .tk-workspace .tk-ibtn,.tk-workspace .tk-avatar { width:34px; height:34px; border-radius:9px; }
 .tk-workspace .tk-avatar { background:var(--surface-2); color:var(--violet); border:1px solid var(--line); }
 .tk-workspace .tk-main { width:100%; max-width:none; margin:0; padding:30px var(--pad) 40px; }
@@ -188,7 +190,7 @@ html:not([data-theme="dark"]) body.tk-workspace {
 @media (max-width:1100px) {
     body.tk-workspace { padding-left:200px; }
     .tk-workspace .tk-sidebar { width:200px; padding-inline:12px; }
-    .tk-account-name { display:none; }
+    .tk-account-identity { display:none; }
 }
 @media (max-width:760px) {
     body.tk-workspace { padding-left:0; }
