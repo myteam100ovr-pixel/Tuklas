@@ -30,6 +30,7 @@ Future<void> main() async {
   }
   runApp(const TuklasApp());
   unawaited(themeController.load());
+  unawaited(motionController.load());
 }
 
 class TuklasApp extends StatelessWidget {
@@ -38,13 +39,27 @@ class TuklasApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: themeController,
+      listenable: Listenable.merge([themeController, motionController]),
       builder: (context, _) => MaterialApp(
         title: 'Tuklas',
         debugShowCheckedModeBanner: false,
-        theme: tkTheme(Brightness.light),
-        darkTheme: tkTheme(Brightness.dark),
+        theme: tkTheme(
+          Brightness.light,
+          reduceMotion: motionController.enabled,
+        ),
+        darkTheme: tkTheme(
+          Brightness.dark,
+          reduceMotion: motionController.enabled,
+        ),
         themeMode: themeController.mode,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            disableAnimations:
+                motionController.enabled ||
+                MediaQuery.of(context).disableAnimations,
+          ),
+          child: child ?? const SizedBox.shrink(),
+        ),
         home: const AppUpdateWatcher(child: FirstLaunch(child: Gate())),
       ),
     );

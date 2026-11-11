@@ -531,6 +531,12 @@ html[data-theme='dark'] .career-chat__input { border-color: var(--system-line); 
 @media (prefers-reduced-motion: reduce) {
     .document-scanner__progress.is-scanning .document-scanner__progress-track span { animation: none; width: 100%; }
 }
+html[data-reduce-motion='true'] *,html[data-reduce-motion='true'] *::before,html[data-reduce-motion='true'] *::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
+.motion-setting { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem; border:1px solid var(--line); border-radius:.8rem; background:var(--surface); }
+.motion-setting strong { color:var(--ink); }
+.motion-setting p { margin:.3rem 0 0; color:var(--muted); font-size:.85rem; }
+.motion-setting label { display:flex; align-items:center; gap:.5rem; white-space:nowrap; color:var(--ink); font-size:.85rem; }
+@media(max-width:600px) { .motion-setting { align-items:flex-start; flex-direction:column; } }
 
 html[data-theme='dark'] .messages-page :is(aside, section) {
     color: #f4f1fa;

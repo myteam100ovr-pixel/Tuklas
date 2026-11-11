@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api.dart';
+import '../theme.dart';
 import '../ui.dart';
 import 'dashboard_view.dart';
 import 'login_screen.dart';
@@ -25,6 +26,7 @@ class _HomeShellState extends State<HomeShell> {
   bool _checkingVerification = false;
   String? _verificationMessage;
   int _tab = 0;
+  bool _switching = false;
   int _version = 0; // bumped after a profile save so the dashboard reloads
 
   Future<void> _checkVerification({bool resend = false}) async {
@@ -73,6 +75,11 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   Future<void> _openWorkspace(String section) async {
+    if (_switching) return;
+    setState(() => _switching = true);
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    setState(() => _switching = false);
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -92,6 +99,17 @@ class _HomeShellState extends State<HomeShell> {
       ),
     );
     if (mounted) setState(() => _version++);
+  }
+
+  Future<void> _selectTab(int index) async {
+    if (_switching || index == _tab) return;
+    setState(() => _switching = true);
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    setState(() {
+      _tab = index;
+      _switching = false;
+    });
   }
 
   @override
@@ -220,34 +238,48 @@ class _HomeShellState extends State<HomeShell> {
               ),
             ),
             Expanded(
-              child: switch (_tab) {
-                1 => const PesoView(),
-                2 => ScannerView(
-                  key: ValueKey('scanner-$_version'),
-                  onScanComplete: () => setState(() => _version++),
-                ),
-                3 => const TesdaView(),
-                4 => ProfileView(
-                  onSaved: () => setState(() => _version++),
-                  onLogout: _logout,
-                ),
-                _ => DashboardView(
-                  key: ValueKey(_version),
-                  onEditProfile: () => setState(() => _tab = 4),
-                  onOpenPeso: () => setState(() => _tab = 1),
-                  onOpenScanner: () => setState(() => _tab = 2),
-                  onOpenTesda: () => setState(() => _tab = 3),
-                  onLogout: _logout,
-                  onOpenWorkspace: _openWorkspace,
-                ),
-              },
+              child: _switching
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (!motionController.enabled)
+                            const CircularProgressIndicator()
+                          else
+                            const Icon(Icons.hourglass_empty_outlined),
+                          const SizedBox(height: 12),
+                          const Text('Opening…'),
+                        ],
+                      ),
+                    )
+                  : switch (_tab) {
+                      1 => const PesoView(),
+                      2 => ScannerView(
+                        key: ValueKey('scanner-$_version'),
+                        onScanComplete: () => setState(() => _version++),
+                      ),
+                      3 => const TesdaView(),
+                      4 => ProfileView(
+                        onSaved: () => setState(() => _version++),
+                        onLogout: _logout,
+                      ),
+                      _ => DashboardView(
+                        key: ValueKey(_version),
+                        onEditProfile: () => _selectTab(4),
+                        onOpenPeso: () => _selectTab(1),
+                        onOpenScanner: () => _selectTab(2),
+                        onOpenTesda: () => _selectTab(3),
+                        onLogout: _logout,
+                        onOpenWorkspace: _openWorkspace,
+                      ),
+                    },
             ),
           ],
         ),
       ),
       bottomNavigationBar: TkBottomNavigation(
         selectedIndex: _tab,
-        onDestinationSelected: (index) => setState(() => _tab = index),
+        onDestinationSelected: _selectTab,
       ),
     );
   }

@@ -105,7 +105,7 @@ TextStyle tkText(
   );
 }
 
-ThemeData tkTheme(Brightness brightness) {
+ThemeData tkTheme(Brightness brightness, {bool reduceMotion = false}) {
   final c = brightness == Brightness.dark ? TkColors.dark : TkColors.light;
   final base = ColorScheme.fromSeed(
     seedColor: TkColors.violet,
@@ -119,6 +119,14 @@ ThemeData tkTheme(Brightness brightness) {
       );
 
   return ThemeData(
+    pageTransitionsTheme: reduceMotion
+        ? const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: NoMotionPageTransitionsBuilder(),
+              TargetPlatform.iOS: NoMotionPageTransitionsBuilder(),
+            },
+          )
+        : null,
     useMaterial3: true,
     brightness: brightness,
     fontFamily: 'SchibstedGrotesk',
@@ -214,3 +222,48 @@ class ThemeController extends ChangeNotifier {
 }
 
 final themeController = ThemeController();
+
+class NoMotionPageTransitionsBuilder extends PageTransitionsBuilder {
+  const NoMotionPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => child;
+}
+
+class MotionController extends ChangeNotifier {
+  static const _key = 'tuklas-reduce-motion';
+  bool enabled = false;
+
+  Future<void> load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      enabled = prefs.getBool(_key) ?? false;
+      notifyListeners();
+    } on PlatformException {
+      // Continue with normal transitions if device preferences are unavailable.
+    } on MissingPluginException {
+      // Continue with normal transitions if device preferences are unavailable.
+    }
+  }
+
+  Future<void> setEnabled(bool value) async {
+    enabled = value;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_key, value);
+    } on PlatformException {
+      // Keep the current session preference when storage is unavailable.
+    } on MissingPluginException {
+      // Keep the current session preference when storage is unavailable.
+    }
+  }
+}
+
+final motionController = MotionController();

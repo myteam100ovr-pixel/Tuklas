@@ -311,7 +311,9 @@ class TkBottomNavigation extends StatelessWidget {
               labelTextStyle: const WidgetStatePropertyAll(
                 TextStyle(fontSize: 0, height: 0),
               ),
-              animationDuration: const Duration(milliseconds: 180),
+              animationDuration: motionController.enabled
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
               elevation: 0,
               height: 64,
               destinations: [

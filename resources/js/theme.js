@@ -19,3 +19,13 @@ document.addEventListener('click', (e) => {
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     if (!stored()) apply(e.matches ? 'dark' : 'light', false);
 });
+
+document.addEventListener('change', (event) => {
+    if (!event.target.matches('[data-reduce-motion-toggle]')) return;
+    const enabled = event.target.checked;
+    root.dataset.reduceMotion = String(enabled);
+    try { localStorage.setItem('tuklas-reduce-motion', String(enabled)); } catch { /* storage unavailable */ }
+});
+document.querySelectorAll('[data-reduce-motion-toggle]').forEach((toggle) => {
+    toggle.checked = root.dataset.reduceMotion === 'true';
+});

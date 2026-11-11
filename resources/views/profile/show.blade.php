@@ -58,6 +58,7 @@
                         <span class="profile-section-number" aria-hidden="true">⌘</span>
                         <div><h2 id="security-heading">Account & security</h2><p>Manage your password, sign-in protection, and active sessions.</p></div>
                     </div>
+                    <div class="motion-setting"><div><strong>Reduce motion</strong><p>Turn off animations and transitions for a smoother experience on budget devices.</p></div><label><input type="checkbox" data-reduce-motion-toggle aria-label="Reduce motion"> Reduce motion</label></div>
                     @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::updatePasswords()))
                         @livewire('profile.update-password-form')
                     @endif

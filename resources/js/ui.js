@@ -4,6 +4,25 @@ import './career-chat.js';
 import './auth-carousel.js';
 import './auth-legal-dialog.js';
 
+const showNavigationLoading = (message) => {
+    document.body.dataset.navigationLoading = message;
+};
+window.addEventListener('pageshow', () => { delete document.body.dataset.navigationLoading; });
+document.addEventListener('click', (event) => {
+    const link = event.target.closest('.tk-tabs a');
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.href === location.href) return;
+    event.preventDefault();
+    showNavigationLoading('Opening page…');
+    requestAnimationFrame(() => requestAnimationFrame(() => { location.href = link.href; }));
+});
+document.addEventListener('submit', (event) => {
+    if (!event.target.matches('.auth-demo-card') || event.defaultPrevented) return;
+    event.preventDefault();
+    showNavigationLoading('Opening demo account…');
+    const form = event.target;
+    requestAnimationFrame(() => requestAnimationFrame(() => form.submit()));
+});
+
 document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-menu-btn]');
     document.querySelectorAll('[data-menu]').forEach((menu) => {
