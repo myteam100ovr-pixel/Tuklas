@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
 import 'config.dart';
@@ -279,6 +280,44 @@ class ApiClient {
     final response = await http.Response.fromStream(streamedResponse);
     final body = await _decode(response);
     return Map<String, dynamic>.from(body['document'] as Map);
+  }
+
+  Future<Map<String, dynamic>> submitScholarshipApplication({
+    required int scholarshipId,
+    required String message,
+    required List<PlatformFile> documents,
+  }) async {
+    final bearer = await token;
+    if (bearer == null) throw ApiException('Please sign in.');
+
+    final request =
+        http.MultipartRequest(
+            'POST',
+            Uri.parse(
+              '${AppConfig.apiBase}/scholarships/$scholarshipId/applications',
+            ),
+          )
+          ..headers.addAll({
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $bearer',
+          })
+          ..fields['application_message'] = message;
+    for (final document in documents) {
+      final bytes = document.bytes;
+      if (bytes == null) {
+        throw ApiException('Could not read ${document.name}. Choose it again.');
+      }
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'documents[]',
+          bytes,
+          filename: document.name,
+        ),
+      );
+    }
+
+    final response = await request.send().timeout(const Duration(seconds: 60));
+    return _decode(await http.Response.fromStream(response));
   }
 
   Future<Map<String, dynamic>> profile() async {

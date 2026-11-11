@@ -4,6 +4,47 @@
         @include('operations.search', ['placeholder' => 'Search scholarships or providers', 'count' => $scholarships->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
+        @php($myScholarshipIds = $myApplications->pluck('scholarship_id')->all())
+        @if (auth()->user()->hasRole(\App\Enums\Role::Youth))
+            <section class="operations-card" aria-labelledby="my-scholarship-applications">
+                <h2 id="my-scholarship-applications">My scholarship applications</h2>
+                @forelse ($myApplications as $application)
+                    <article class="operations-card">
+                        <h3>{{ $application->scholarship->title }} <span class="operations-status">{{ ucfirst($application->status) }}</span> @if ($application->scholarship->is_demo)<small class="operations-status">Simulated demo data</small>@endif</h3>
+                        <p>{{ $application->scholarship->provider }}</p>
+                        <p>{{ $application->application_message }}</p>
+                        @if ($application->review_notes)<p><strong>Review update:</strong> {{ $application->review_notes }}</p>@endif
+                        @foreach ($application->documents ?? [] as $index => $document)
+                            <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}">{{ $document['name'] }}</a>
+                        @endforeach
+                    </article>
+                @empty
+                    <p class="operations-empty">You have not applied to a scholarship yet. Review the requirements below and submit your documents when ready.</p>
+                @endforelse
+            </section>
+        @endif
+        @if ($canManage)
+            <section class="operations-card" aria-labelledby="received-scholarship-applications">
+                <h2 id="received-scholarship-applications">Applications received</h2>
+                @forelse ($applications as $application)
+                    <article class="operations-card">
+                        <h3>{{ $application->scholarship->title }} <span class="operations-status">{{ ucfirst($application->status) }}</span></h3>
+                        <p>{{ $application->user->name }} · {{ $application->user->email }}</p>
+                        <p>{{ $application->application_message }}</p>
+                        @foreach ($application->documents ?? [] as $index => $document)
+                            <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}">{{ $document['name'] }}</a>
+                        @endforeach
+                        <form method="POST" action="{{ route('scholarship-applications.update', $application) }}">@csrf @method('PUT')
+                            <label>Status <select name="status">@foreach (['reviewing', 'approved', 'rejected'] as $status)<option value="{{ $status }}" @selected($application->status === $status)>{{ ucfirst($status) }}</option>@endforeach</select></label>
+                            <label>Review notes <textarea name="review_notes">{{ $application->review_notes }}</textarea></label>
+                            <button type="submit">Save review</button>
+                        </form>
+                    </article>
+                @empty
+                    <p class="operations-empty">No scholarship applications have been submitted yet.</p>
+                @endforelse
+            </section>
+        @endif
         @if ($canManage)
             @php($creatingScholarship = old('_operation') === 'create-scholarship')
             <section class="operations-editor" aria-labelledby="add-scholarship-heading">
@@ -34,6 +75,16 @@
                 <p><strong>Assessment:</strong> {{ $scholarship->assessment_type ?: 'Not specified by provider' }}@if ($scholarship->assessment_details) — {{ $scholarship->assessment_details }}@endif</p>
                 @if ($scholarship->source_url)<p><a href="{{ $scholarship->source_url }}" target="_blank" rel="noopener noreferrer">Check provider source ↗</a></p>@endif
                 @if ($scholarship->deadline)<p>Deadline {{ $scholarship->deadline->format('M j, Y') }}</p>@endif
+                @if (auth()->user()->hasRole(\App\Enums\Role::Youth) && ! in_array($scholarship->id, $myScholarshipIds, true))
+                    <details><summary>Apply in Tuklas</summary>
+                        <p>Write a short application message and attach up to five required documents. Only you and authorized PESO/TESDA staff can access uploaded files.</p>
+                        <form method="POST" enctype="multipart/form-data" action="{{ route('scholarship-applications.store', $scholarship) }}">@csrf
+                            <label>Application message <textarea name="application_message" minlength="20" maxlength="3000" required>{{ old('application_message') }}</textarea></label>
+                            <label>Supporting documents <input type="file" name="documents[]" accept=".pdf,.jpg,.jpeg,.png" multiple required><span>At least one document. PDF, JPG, or PNG; up to 10 MB per file and five files.</span></label>
+                            <button type="submit">Submit scholarship application</button>
+                        </form>
+                    </details>
+                @endif
                 @if ($scholarship->application_url)<a href="{{ $scholarship->application_url }}" target="_blank" rel="noopener noreferrer">Apply ↗</a>@endif
                 @if ($canManage)<details><summary>Edit</summary><form method="POST" action="{{ route('scholarships.update', $scholarship) }}">@csrf @method('PUT')
                     <label>Title <input name="title" required value="{{ $scholarship->title }}"></label><label>Provider <input name="provider" required value="{{ $scholarship->provider }}"></label>

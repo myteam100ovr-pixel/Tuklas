@@ -1,6 +1,6 @@
 # Tuklas Privacy Notice
 
-Updated 5 November 2026 · Applies to youth, trainers, administrators, and visitors using the Tuklas website and mobile API.
+Updated 11 November 2026 · Applies to youth, trainers, administrators, and visitors using the Tuklas website and mobile API.
 
 **Project notice — operator details and retention schedule pending.** Tuklas is operated by the Tour de Force project team, Universidad de Dagupan. The team must publish its legal operator name, public privacy contact, and approved retention schedule before collecting real users' data in production. This notice describes the current implementation; it is not a certification of legal compliance.
 
@@ -10,12 +10,13 @@ Updated 5 November 2026 · Applies to youth, trainers, administrators, and visit
 - **Youth profiles:** barangay, contact number, education, employment status, livelihood interests, skills, credentials, interests, and assessment preferences support career and training guidance. Profile completion for ages 15–17 requests guardian name, relationship, and contact number. Tell your guardian before providing their details. Recording these fields does not verify guardian consent.
 - **Trainer records:** qualifications, teaching assignments, and authored training program information support training management. Published catalog entries can show trainer names.
 - **Documents and AI:** uploaded resumes or certificates, filenames, file type and size, analysis results, detected skills, credentials, recommendations, and processing dates support scanning. Skills and credentials from a scan may be added to your youth profile.
+- **Scholarship applications:** your application message, scholarship selection, uploaded supporting documents, submission status, and staff review notes support scholarship processing. Documents are stored privately and accessible to you and authorized PESO/TESDA staff; they are not sent to the AI scanner.
 - **Chat:** submitted messages, AI replies, source links, and timestamps are saved to your account. Recent messages and selected career context are used to continue conversations.
 - **Activity and security:** notifications record actions such as registration, profile updates, scans, chat use, and account administration. Session storage can include IP address, browser information, and activity times. Mobile token records include device names and expiry/use times. Two-factor setup and recovery information are stored when enabled. Technical errors may be recorded in server logs.
 
 ## Who can see information
 
-Youth can access their own workspace information. Trainers and administrators can view active youth accounts and training selections through the training-choice workflow. Administrators can manage user accounts and youth profile details, view youth scan recommendations through PESO, and receive named activity notices from all roles. Chat-history endpoints are scoped to the signed-in account; activity notices disclose that chat was used, not the conversation text. Authorized server/database operators may access stored records for administration and support.
+Youth can access their own workspace information and scholarship applications. Authorized PESO/TESDA staff can review submitted scholarship messages and documents. Trainers and administrators can view active youth accounts and training selections through the training-choice workflow. Administrators can manage user accounts and youth profile details, view youth scan recommendations through PESO, and receive named activity notices from all roles. Chat-history endpoints are scoped to the signed-in account; activity notices disclose that chat was used, not the conversation text. Authorized server/database operators may access stored records for administration and support.
 
 Staff must use access only for assigned Tuklas duties, keep records confidential, and avoid copying or sharing personal information through unrelated channels. Role restrictions do not make stored data anonymous.
 

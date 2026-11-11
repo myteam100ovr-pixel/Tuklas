@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
@@ -338,6 +339,120 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  bool _hasScholarshipApplication(int scholarshipId) => _list('myApplications')
+      .any(
+        (application) =>
+            (application['scholarship'] as Map?)?['id'] == scholarshipId,
+      );
+
+  Future<void> _applyForScholarship(Map<String, dynamic> scholarship) async {
+    final messageController = TextEditingController();
+    var documents = <PlatformFile>[];
+    final submission = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: const Text('Apply for scholarship'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${scholarship['title']} · ${scholarship['provider']}'),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: messageController,
+                  minLines: 3,
+                  maxLines: 6,
+                  maxLength: 3000,
+                  onChanged: (_) => setDialogState(() {}),
+                  decoration: const InputDecoration(
+                    labelText: 'Why are you applying?',
+                    helperText: 'Write at least 20 characters.',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final selected = await FilePicker.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+                      allowMultiple: true,
+                      withData: true,
+                    );
+                    if (selected == null || !dialogContext.mounted) return;
+                    if (selected.files.length > 5) {
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        const SnackBar(
+                          content: Text('Choose up to five documents.'),
+                        ),
+                      );
+                      return;
+                    }
+                    setDialogState(() => documents = selected.files);
+                  },
+                  icon: const Icon(Icons.attach_file),
+                  label: const Text('Attach requirements'),
+                ),
+                for (final document in documents)
+                  Text(
+                    '${document.name} · ${(document.size / 1024).ceil()} KB',
+                  ),
+                const Text(
+                  'Attach at least one PDF, JPG, or PNG. Up to 10 MB per file.',
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed:
+                  messageController.text.trim().length < 20 || documents.isEmpty
+                  ? null
+                  : () {
+                      Navigator.pop(dialogContext, {
+                        'message': messageController.text.trim(),
+                        'documents': documents,
+                      });
+                    },
+              child: const Text('Submit application'),
+            ),
+          ],
+        ),
+      ),
+    );
+    messageController.dispose();
+    if (submission == null) return;
+
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ApiClient.instance.submitScholarshipApplication(
+        scholarshipId: scholarship['id'] as int,
+        message: submission['message'] as String,
+        documents: submission['documents'] as List<PlatformFile>,
+      );
+      await _load();
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () => _error = error is ApiException
+              ? error.message
+              : 'Could not submit the application. Please try again.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   String _title(Map<String, dynamic> item) => switch (widget.section) {
     'Applications' =>
       '${(item['program'] as Map?)?['title'] ?? 'Training application'}',
@@ -394,6 +509,88 @@ class _OperationsViewState extends State<OperationsView> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
+            if (widget.section == 'Scholarships' && _role == 'youth') ...[
+              Text(
+                'My applications',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              if (_list('myApplications').isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text('You have not applied to a scholarship yet.'),
+                ),
+              for (final application in _list('myApplications'))
+                Card(
+                  child: ListTile(
+                    title: Text(
+                      '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'}',
+                    ),
+                    subtitle: Text(
+                      '${application['status']}\n${application['review_notes'] ?? application['application_message'] ?? ''}',
+                    ),
+                    isThreeLine: true,
+                  ),
+                ),
+            ],
+            if (widget.section == 'Scholarships' && _canManage) ...[
+              Text(
+                'Applications received',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              if (_list('applications').isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'No scholarship applications have been submitted yet.',
+                  ),
+                ),
+              for (final application in _list('applications'))
+                Card(
+                  child: ListTile(
+                    title: Text(
+                      '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'}',
+                    ),
+                    subtitle: Text(
+                      '${(application['user'] as Map?)?['name'] ?? 'Applicant'} · ${application['status']}\n${application['application_message'] ?? ''}',
+                    ),
+                    isThreeLine: true,
+                    trailing: IconButton(
+                      tooltip: 'Review application',
+                      onPressed: _busy
+                          ? null
+                          : () async {
+                              final saved = await openWorkspaceForm(
+                                context,
+                                title: 'Review scholarship application',
+                                path:
+                                    '/scholarship-applications/${application['id']}',
+                                method: 'PUT',
+                                fields: const [
+                                  WorkspaceField(
+                                    'status',
+                                    'Decision',
+                                    options: [
+                                      'reviewing',
+                                      'approved',
+                                      'rejected',
+                                    ],
+                                    required: true,
+                                  ),
+                                  WorkspaceField(
+                                    'review_notes',
+                                    'Notes for applicant',
+                                    multiline: true,
+                                  ),
+                                ],
+                                initial: application,
+                              );
+                              if (saved != null) _load();
+                            },
+                      icon: const Icon(Icons.rate_review_outlined),
+                    ),
+                  ),
+                ),
+            ],
             if (widget.section == 'Jobs')
               Align(
                 alignment: Alignment.centerLeft,
@@ -557,6 +754,17 @@ class _OperationsViewState extends State<OperationsView> {
                                   '/training-sessions/${item['id']}/apply',
                                 ),
                           child: const Text('Request a place'),
+                        ),
+                      if (widget.section == 'Scholarships' &&
+                          _role == 'youth' &&
+                          item['id'] is int &&
+                          !_hasScholarshipApplication(item['id'] as int))
+                        TextButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _applyForScholarship(item),
+                          icon: const Icon(Icons.upload_file_outlined),
+                          label: const Text('Apply and send documents'),
                         ),
                       if (widget.section == 'Applications' &&
                           _role == 'youth' &&

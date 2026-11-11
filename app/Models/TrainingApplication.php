@@ -12,7 +12,12 @@ class TrainingApplication extends Model
     /** @use HasFactory<TrainingApplicationFactory> */
     use HasFactory;
 
-    protected $fillable = ['training_program_id', 'training_session_id', 'user_id', 'status'];
+    protected $fillable = ['training_program_id', 'training_session_id', 'user_id', 'status', 'is_demo'];
+
+    protected function casts(): array
+    {
+        return ['is_demo' => 'boolean'];
+    }
 
     public function session(): BelongsTo
     {

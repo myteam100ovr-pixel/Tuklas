@@ -13,11 +13,11 @@ class TrainingSession extends Model
     /** @use HasFactory<TrainingSessionFactory> */
     use HasFactory;
 
-    protected $fillable = ['training_program_id', 'training_center_id', 'starts_at', 'ends_at', 'capacity', 'status', 'created_by'];
+    protected $fillable = ['training_program_id', 'training_center_id', 'starts_at', 'ends_at', 'capacity', 'status', 'created_by', 'is_demo'];
 
     protected function casts(): array
     {
-        return ['starts_at' => 'datetime', 'ends_at' => 'datetime', 'capacity' => 'integer'];
+        return ['starts_at' => 'datetime', 'ends_at' => 'datetime', 'capacity' => 'integer', 'is_demo' => 'boolean'];
     }
 
     public function program(): BelongsTo

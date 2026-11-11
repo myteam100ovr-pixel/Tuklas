@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Models\AssessmentRecord;
 use App\Models\JobOpportunity;
 use App\Models\Scholarship;
+use App\Models\TrainingApplication;
 use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
+use App\Models\TrainingSession;
 use App\Models\User;
 use Database\Seeders\FictionalDemoCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,6 +34,9 @@ class FictionalDemoCatalogSeederTest extends TestCase
         $this->assertSame(50, JobOpportunity::query()->where('is_demo', true)->where('employer_verified', false)->count());
         $this->assertSame(50, Scholarship::query()->where('is_demo', true)->count());
         $this->assertSame(5, TrainingCenter::query()->where('is_demo', true)->count());
+        $this->assertSame(10, TrainingSession::query()->where('is_demo', true)->count());
+        $this->assertSame(5, TrainingApplication::query()->where('is_demo', true)->count());
+        $this->assertSame(3, AssessmentRecord::query()->where('is_demo', true)->count());
     }
 
     public function test_career_seekers_see_simulated_records_labeled_on_web_and_mobile(): void
@@ -57,10 +63,27 @@ class FictionalDemoCatalogSeederTest extends TestCase
         $this->getJson('/api/mobile/opportunities')->assertOk()
             ->assertJsonFragment(['is_demo' => true]);
         $this->getJson('/api/mobile/scholarships')->assertOk()
-            ->assertJsonFragment(['is_demo' => true]);
+            ->assertJsonFragment(['is_demo' => true])
+            ->assertJsonStructure(['myApplications', 'applications']);
         $this->getJson('/api/mobile/training-centers')->assertOk()
             ->assertJsonFragment(['is_demo' => true]);
         $this->getJson('/api/mobile/tesda')->assertOk()
             ->assertJsonFragment(['is_demo' => true]);
+    }
+
+    public function test_staff_can_review_simulated_training_dates_requests_and_results(): void
+    {
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $this->seed(FictionalDemoCatalogSeeder::class);
+
+        $this->actingAs($admin)->get(route('sessions.index'))
+            ->assertSee('Simulated demo data')
+            ->assertSee('Bookkeeping NC III');
+        $this->get(route('applications.index'))
+            ->assertSee('Maria Teresa Dela Cruz')
+            ->assertSee('Simulated demo data');
+        $this->get(route('assessments.index'))
+            ->assertSee('Angela Mae Ramos')
+            ->assertSee('Simulated demo data');
     }
 }

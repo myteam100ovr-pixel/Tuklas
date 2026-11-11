@@ -12,6 +12,7 @@ use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
 use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\ScholarshipApplicationController;
 use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\SkillsAssessmentController;
 use App\Http\Controllers\TesdaCatalogController;
@@ -74,6 +75,8 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         Route::middleware('verified')->group(function () {
             Route::get('/opportunities', [JobOpportunityController::class, 'index'])->name('opportunities.index');
             Route::get('/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
+            Route::get('/scholarship-applications/{application}/documents/{document}', [ScholarshipApplicationController::class, 'download'])
+                ->whereNumber('document')->name('scholarship-applications.documents');
             Route::get('/training-centers', [TrainingCenterController::class, 'index'])->name('centers.index');
             Route::get('/training-sessions', [TrainingSessionController::class, 'index'])->name('sessions.index');
             Route::get('/training-applications', [TrainingApplicationController::class, 'index'])->name('applications.index');
@@ -91,6 +94,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::middleware('role:super_admin,tesda_admin')->group(function () {
                 Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
                 Route::put('/scholarships/{scholarship}', [ScholarshipController::class, 'update'])->name('scholarships.update');
+                Route::put('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'update'])->name('scholarship-applications.update');
                 Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
                 Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
             });
@@ -102,6 +106,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::put('/assessment-records/{assessment}', [AssessmentRecordController::class, 'update'])->name('assessments.update');
             });
             Route::middleware('role:youth')->group(function () {
+                Route::post('/scholarships/{scholarship}/applications', [ScholarshipApplicationController::class, 'store'])->middleware('throttle:10,1')->name('scholarship-applications.store');
                 Route::post('/training-sessions/{session}/apply', [TrainingApplicationController::class, 'store'])->name('applications.store');
                 Route::delete('/training-applications/{application}', [TrainingApplicationController::class, 'destroy'])->name('applications.destroy');
             });

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\Role;
 use App\Models\Scholarship;
+use App\Models\ScholarshipApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -19,8 +21,22 @@ class ScholarshipController extends Controller
         $scholarships = Scholarship::query()->when(! $canManage, fn ($query) => $query->published())
             ->when($search !== '', fn ($query) => $query->where(fn ($items) => $items->where('title', 'like', '%'.$search.'%')->orWhere('provider', 'like', '%'.$search.'%')))
             ->latest()->paginate(20)->withQueryString();
+        $myApplications = $request->user()->hasRole(Role::Youth)
+            ? ScholarshipApplication::query()->with('scholarship:id,title,provider,is_demo')->where('user_id', $request->user()->id)->latest()->get()
+            : collect();
+        $applications = $canManage
+            ? ScholarshipApplication::query()->with(['scholarship:id,title,provider,is_demo', 'user:id,name,email'])->latest()->limit(100)->get()
+            : collect();
 
-        return $request->routeIs('mobile.*') ? response()->json(compact('scholarships', 'canManage')) : view('operations.scholarships', compact('scholarships', 'canManage'));
+        if ($request->routeIs('mobile.*')) {
+            $routeName = 'mobile.scholarship-applications.documents';
+            $myApplications = $this->mobileApplications($myApplications, $routeName);
+            $applications = $this->mobileApplications($applications, $routeName);
+
+            return response()->json(compact('scholarships', 'canManage', 'myApplications', 'applications'));
+        }
+
+        return view('operations.scholarships', compact('scholarships', 'canManage', 'myApplications', 'applications'));
     }
 
     public function store(Request $request): RedirectResponse|JsonResponse
@@ -60,5 +76,22 @@ class ScholarshipController extends Controller
             'deadline' => ['nullable', 'date'],
             'status' => ['required', Rule::in(['draft', 'published', 'closed'])],
         ]);
+    }
+
+    private function mobileApplications(Collection $applications, string $routeName): array
+    {
+        return $applications->map(fn (ScholarshipApplication $application): array => [
+            'id' => $application->id,
+            'status' => $application->status,
+            'application_message' => $application->application_message,
+            'review_notes' => $application->review_notes,
+            'reviewed_at' => $application->reviewed_at?->toISOString(),
+            'scholarship' => $application->scholarship,
+            'user' => $application->relationLoaded('user') ? $application->user : null,
+            'documents' => collect($application->documents ?? [])->values()->map(fn (array $file, int $index): array => [
+                'name' => $file['name'],
+                'download_url' => route($routeName, [$application->id, $index]),
+            ])->all(),
+        ])->all();
     }
 }

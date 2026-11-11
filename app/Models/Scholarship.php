@@ -6,6 +6,7 @@ use Database\Factories\ScholarshipFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Scholarship extends Model
 {
@@ -22,5 +23,10 @@ class Scholarship extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published')->whereNotNull('verified_at')->where(fn (Builder $query): Builder => $query->whereNull('deadline')->orWhereDate('deadline', '>=', today()));
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(ScholarshipApplication::class);
     }
 }

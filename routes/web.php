@@ -14,6 +14,7 @@ use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
 use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\ScholarshipApplicationController;
 use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\SkillsAssessmentController;
 use App\Http\Controllers\TesdaCatalogController;
@@ -75,6 +76,8 @@ Route::middleware([
     Route::get('/admin/programs', fn (Request $request): RedirectResponse => redirect()->route('scholarships.index', $request->query()));
     Route::get('/admin/inbox', fn (Request $request): RedirectResponse => redirect()->route('messages.index', $request->query()));
     Route::get('/admin/programs/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
+    Route::get('/scholarship-applications/{application}/documents/{document}', [ScholarshipApplicationController::class, 'download'])
+        ->whereNumber('document')->name('scholarship-applications.documents');
     Route::get('/scholarships', fn (Request $request): RedirectResponse => redirect()->route('scholarships.index', $request->query()));
     Route::get('/admin/training/centers', [TrainingCenterController::class, 'index'])->name('centers.index');
     Route::get('/training-centers', fn (Request $request): RedirectResponse => redirect()->route('centers.index', $request->query()));
@@ -131,6 +134,7 @@ Route::middleware([
     Route::middleware('role:super_admin,tesda_admin')->group(function () {
         Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
         Route::put('/scholarships/{scholarship}', [ScholarshipController::class, 'update'])->name('scholarships.update');
+        Route::put('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'update'])->name('scholarship-applications.update');
         Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
         Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
     });
@@ -142,6 +146,7 @@ Route::middleware([
         Route::put('/assessment-records/{assessment}', [AssessmentRecordController::class, 'update'])->name('assessments.update');
     });
     Route::middleware('role:youth')->group(function () {
+        Route::post('/scholarships/{scholarship}/applications', [ScholarshipApplicationController::class, 'store'])->middleware('throttle:10,1')->name('scholarship-applications.store');
         Route::post('/training-sessions/{session}/apply', [TrainingApplicationController::class, 'store'])->name('applications.store');
         Route::delete('/training-applications/{application}', [TrainingApplicationController::class, 'destroy'])->name('applications.destroy');
     });

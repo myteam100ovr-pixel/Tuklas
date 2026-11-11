@@ -3,13 +3,18 @@
 namespace Database\Seeders;
 
 use App\Enums\Role;
+use App\Models\AssessmentRecord;
 use App\Models\Employer;
 use App\Models\JobOpportunity;
 use App\Models\Scholarship;
+use App\Models\TrainingApplication;
 use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
+use App\Models\TrainingSession;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class FictionalDemoCatalogSeeder extends Seeder
@@ -166,6 +171,88 @@ class FictionalDemoCatalogSeeder extends Seeder
             }
         }
 
-        $this->command?->info('Seeded 50 fictional training listings, 50 fictional job listings, and 50 fictional scholarship scenarios. Each record is visibly marked as simulated demo data; no user activity was fabricated.');
+        $this->seedTrainingActivity($adminId);
+
+        $this->command?->info('Seeded 50 fictional training listings, 50 fictional job listings, 50 fictional scholarship scenarios, 10 fictional training dates, 5 fictional training requests, and 3 fictional assessment records. Activity rows are visibly marked as simulated demo data.');
+    }
+
+    private function seedTrainingActivity(int $adminId): void
+    {
+        $demoApplicants = [
+            ['name' => 'Maria Teresa Dela Cruz', 'email' => 'maria.delacruz@demo.tuklas.test'],
+            ['name' => 'Daniel Santos', 'email' => 'daniel.santos@demo.tuklas.test'],
+            ['name' => 'Angela Mae Ramos', 'email' => 'angela.ramos@demo.tuklas.test'],
+            ['name' => 'Rafael Mendoza', 'email' => 'rafael.mendoza@demo.tuklas.test'],
+            ['name' => 'Lourdes Castillo', 'email' => 'lourdes.castillo@demo.tuklas.test'],
+        ];
+        $applications = [];
+        $sessionIndex = 0;
+
+        foreach (TrainingCenter::query()->where('is_demo', true)->orderBy('id')->get() as $center) {
+            $programs = TrainingProgram::query()->where('training_center_id', $center->id)->where('is_demo', true)->orderBy('id')->limit(2)->get();
+            foreach ($programs as $program) {
+                $startsAt = today()->addDays($sessionIndex + 2)->setTime(9, 0, 0);
+                $session = TrainingSession::query()->firstOrNew([
+                    'training_program_id' => $program->id,
+                    'starts_at' => $startsAt,
+                ]);
+                $session->fill([
+                    'training_center_id' => $center->id,
+                    'ends_at' => $startsAt->copy()->addHours(6),
+                    'capacity' => 20,
+                    'status' => 'open',
+                    'created_by' => $adminId,
+                    'is_demo' => true,
+                ])->save();
+
+                if (isset($demoApplicants[$sessionIndex])) {
+                    $applicantData = $demoApplicants[$sessionIndex];
+                    $applicant = User::query()->firstOrCreate(
+                        ['email' => $applicantData['email']],
+                        [
+                            'name' => $applicantData['name'],
+                            'password' => Hash::make(Str::random(40)),
+                            'email_verified_at' => now(),
+                            'role' => Role::Youth,
+                            'is_active' => true,
+                        ],
+                    );
+                    $status = match ($sessionIndex) {
+                        0, 2, 4 => 'accepted',
+                        1 => 'pending',
+                        default => 'declined',
+                    };
+                    $application = TrainingApplication::query()->firstOrNew([
+                        'training_program_id' => $program->id,
+                        'user_id' => $applicant->id,
+                    ]);
+                    $application->fill([
+                        'training_session_id' => $session->id,
+                        'status' => $status,
+                        'is_demo' => true,
+                    ])->save();
+                    $applications[$sessionIndex] = $application;
+                }
+
+                $sessionIndex++;
+            }
+        }
+
+        foreach ([0 => ['completed', 'passed'], 2 => ['completed', 'failed'], 4 => ['scheduled', 'pending']] as $applicantIndex => [$status, $result]) {
+            $application = $applications[$applicantIndex] ?? null;
+            if (! $application) {
+                continue;
+            }
+
+            $assessment = AssessmentRecord::query()->firstOrNew(['training_application_id' => $application->id]);
+            $assessment->fill([
+                'scheduled_at' => $application->session->starts_at->copy()->addDays(10),
+                'status' => $status,
+                'result' => $result,
+                'notes' => 'SIMULATED DEMO RECORD — '.$result.' result for workflow testing only; this is not an official TESDA assessment result.',
+                'recorded_by' => $adminId,
+                'is_demo' => true,
+            ])->save();
+        }
     }
 }

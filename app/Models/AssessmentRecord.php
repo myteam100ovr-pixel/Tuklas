@@ -12,11 +12,11 @@ class AssessmentRecord extends Model
     /** @use HasFactory<AssessmentRecordFactory> */
     use HasFactory;
 
-    protected $fillable = ['training_application_id', 'scheduled_at', 'status', 'result', 'notes', 'recorded_by'];
+    protected $fillable = ['training_application_id', 'scheduled_at', 'status', 'result', 'notes', 'recorded_by', 'is_demo'];
 
     protected function casts(): array
     {
-        return ['scheduled_at' => 'datetime'];
+        return ['scheduled_at' => 'datetime', 'is_demo' => 'boolean'];
     }
 
     public function application(): BelongsTo
