@@ -20,7 +20,7 @@ class NavComposer
             ['Training dates', 'sessions.index', 'i-cap'],
             ['Training requests', 'applications.index', 'i-list'],
             ['Assessment results', 'assessments.index', 'i-list'],
-            ['PESO', 'peso.index', 'i-briefcase'],
+            ['PESO AI', 'peso.index', 'i-briefcase'],
             ['Document Scanner', 'scanner.index', 'i-scan'],
             ['TuklasBot', 'tuklasbot.index', 'i-chat'],
             ['Messages', 'messages.index', 'i-chat'],
@@ -31,8 +31,6 @@ class NavComposer
             ['Teaching', 'trainer.programs.index', 'i-cap'],
             ['Sessions', 'sessions.index', 'i-cap'],
             ['Scholarships', 'scholarships.index', 'i-cap'],
-            ['PESO', 'peso.index', 'i-briefcase'],
-            ['Document Scanner', 'scanner.index', 'i-scan'],
             ['TuklasBot', 'tuklasbot.index', 'i-chat'],
             ['Messages', 'messages.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
@@ -60,13 +58,13 @@ class NavComposer
         ],
         'youth' => [
             ['Overview', 'youth.dashboard', 'i-list'],
-            ['PESO', 'peso.index', 'i-briefcase'],
+            ['PESO AI', 'peso.index', 'i-briefcase'],
+            ['Document Scanner', 'scanner.index', 'i-scan'],
             ['Find jobs', 'opportunities.index', 'i-briefcase'],
             ['Scholarships', 'scholarships.index', 'i-cap'],
             ['Training dates', 'sessions.index', 'i-cap'],
             ['My requests', 'applications.index', 'i-list'],
             ['My results', 'assessments.index', 'i-list'],
-            ['Document Scanner', 'scanner.index', 'i-scan'],
             ['TuklasBot', 'tuklasbot.index', 'i-chat'],
             ['Messages', 'messages.index', 'i-chat'],
             ['TESDA', 'tesda.index', 'i-cap'],
@@ -89,6 +87,7 @@ class NavComposer
 
                 return [
                     'label' => $tab[0],
+                    'group' => $this->groupFor($tab[1]),
                     'href' => route($tab[1]),
                     'icon' => $tab[2],
                     'active' => request()->routeIs($pattern),
@@ -111,5 +110,17 @@ class NavComposer
                 'role' => $user->role->label(),
             ],
         ]);
+    }
+
+    private function groupFor(string $route): string
+    {
+        return match (true) {
+            str_contains($route, 'dashboard') => 'Home',
+            str_contains($route, 'users') || str_contains($route, 'employers') => 'People',
+            str_contains($route, 'opportunities') || str_contains($route, 'careers') || str_contains($route, 'peso') => 'Work and careers',
+            str_contains($route, 'messages') || str_contains($route, 'notifications') || str_contains($route, 'tuklasbot') => 'Communication',
+            str_contains($route, 'profile') => 'Account',
+            default => 'Training',
+        };
     }
 }

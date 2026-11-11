@@ -283,6 +283,10 @@ class TkBottomNavigation extends StatelessWidget {
     final c = TkColors.of(context);
     final user = ApiClient.instance.user ?? <String, dynamic>{};
     final name = '${user['name'] ?? ''}';
+    final role = '${user['role'] ?? ''}';
+    final careerTools = role == 'youth' || role == 'super_admin';
+    final secondaryLabel = role == 'trainer' ? 'Teaching' : 'Training';
+    final tertiaryLabel = role == 'trainer' ? 'Messages' : 'Sessions';
 
     return SafeArea(
       top: false,
@@ -306,10 +310,10 @@ class TkBottomNavigation extends StatelessWidget {
               onDestinationSelected: onDestinationSelected,
               backgroundColor: c.surface,
               indicatorColor: TkColors.violet,
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
               labelPadding: EdgeInsets.zero,
               labelTextStyle: const WidgetStatePropertyAll(
-                TextStyle(fontSize: 0, height: 0),
+                TextStyle(fontSize: 10),
               ),
               animationDuration: motionController.enabled
                   ? Duration.zero
@@ -320,32 +324,44 @@ class TkBottomNavigation extends StatelessWidget {
                 NavigationDestination(
                   icon: const Icon(Icons.dashboard_outlined),
                   selectedIcon: const Icon(Icons.dashboard),
-                  label: '',
+                  label: 'Home',
                   tooltip: 'Overview',
                 ),
-                const NavigationDestination(
-                  icon: Icon(Icons.work_outline),
-                  selectedIcon: Icon(Icons.work),
-                  label: '',
-                  tooltip: 'PESO',
+                NavigationDestination(
+                  icon: const Icon(Icons.work_outline),
+                  selectedIcon: const Icon(Icons.work),
+                  label: careerTools ? 'PESO AI' : secondaryLabel,
+                  tooltip: careerTools ? 'PESO AI' : secondaryLabel,
                 ),
-                const NavigationDestination(
-                  icon: Icon(Icons.document_scanner_outlined),
-                  selectedIcon: Icon(Icons.document_scanner),
-                  label: '',
-                  tooltip: 'Scanner',
+                NavigationDestination(
+                  icon: Icon(
+                    careerTools
+                        ? Icons.document_scanner_outlined
+                        : Icons.calendar_month_outlined,
+                  ),
+                  selectedIcon: Icon(
+                    careerTools ? Icons.document_scanner : Icons.calendar_month,
+                  ),
+                  label: careerTools ? 'Scanner' : tertiaryLabel,
+                  tooltip: careerTools ? 'Scanner' : tertiaryLabel,
                 ),
-                const NavigationDestination(
-                  icon: Icon(Icons.school_outlined),
-                  selectedIcon: Icon(Icons.school),
-                  label: '',
-                  tooltip: 'TESDA',
+                NavigationDestination(
+                  icon: Icon(
+                    careerTools ? Icons.school_outlined : Icons.forum_outlined,
+                  ),
+                  selectedIcon: Icon(careerTools ? Icons.school : Icons.forum),
+                  label: careerTools
+                      ? 'TESDA'
+                      : (role == 'trainer' ? 'TESDA' : 'Messages'),
+                  tooltip: careerTools
+                      ? 'TESDA'
+                      : (role == 'trainer' ? 'TESDA' : 'Messages'),
                 ),
                 NavigationDestination(
                   key: const ValueKey('profile-destination'),
                   icon: TkAvatar(initials: tkInitials(name), size: 34),
                   selectedIcon: TkAvatar(initials: tkInitials(name), size: 34),
-                  label: '',
+                  label: 'Profile',
                   tooltip: 'Profile',
                 ),
               ],

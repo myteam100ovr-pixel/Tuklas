@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="trainer-courses suite-page operations-page">
         <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Verified employer openings published by PESO." />
+        <aside class="suite-note"><strong>Want more current openings?</strong> Search the official DOLE PhilJobNet vacancy portal. Tuklas listings below are posted by verified employers and may be fewer than 50.<br><a href="https://philjobnet.gov.ph/job-vacancies/" target="_blank" rel="noopener noreferrer">Browse live PhilJobNet vacancies ↗</a></aside>
         @include('operations.search', ['placeholder' => 'Search jobs or employers', 'count' => $jobs->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif

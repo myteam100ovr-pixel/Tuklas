@@ -22,7 +22,9 @@
         <p class="tk-nav-caption">WORKSPACE</p>
 
         <nav class="tk-tabs tk-tabs--workspace" aria-label="Primary">
+            @php($previousNavGroup = null)
             @foreach ($navTabs as $tab)
+                @if ($previousNavGroup !== $tab['group'])<p class="tk-nav-caption">{{ $tab['group'] }}</p>@php($previousNavGroup = $tab['group'])@endif
                 <a href="{{ $tab['href'] }}" class="tk-tab {{ $tab['active'] ? 'is-active' : '' }}" @if ($tab['active']) aria-current="page" @endif>
                     <svg class="ic tk-tab__icon" aria-hidden="true"><use href="#{{ $tab['icon'] }}"/></svg>
                     <span>{{ $tab['label'] }}</span>

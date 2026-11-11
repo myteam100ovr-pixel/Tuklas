@@ -136,14 +136,15 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::get('/assessment', [SkillsAssessmentController::class, 'index'])->middleware('role:youth')->name('assessment.index');
             Route::post('/assessment', [SkillsAssessmentController::class, 'store'])->middleware('role:youth')->name('assessment.store');
             Route::get('/dashboard', [MobileDashboardController::class, 'index'])->name('dashboard');
-            Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
             Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
             Route::post('/career-chat', CareerChatController::class)
                 ->middleware('throttle:10,1')->name('career-chat.store');
-            Route::get('/document-scans', [DocumentScanController::class, 'index'])
-                ->name('document-scans.index');
-            Route::post('/document-scans', [DocumentScanController::class, 'store'])
-                ->middleware('throttle:5,1')->name('document-scans.store');
+            Route::middleware('role:super_admin,youth')->group(function () {
+                Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
+                Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
+                Route::post('/document-scans', [DocumentScanController::class, 'store'])
+                    ->middleware('throttle:5,1')->name('document-scans.store');
+            });
         });
 
         Route::middleware(['verified', 'role:youth'])->group(function () {

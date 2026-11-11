@@ -12,7 +12,7 @@ class Scholarship extends Model
     /** @use HasFactory<ScholarshipFactory> */
     use HasFactory;
 
-    protected $fillable = ['title', 'provider', 'description', 'eligibility', 'application_url', 'deadline', 'status', 'verified_at', 'published_by'];
+    protected $fillable = ['title', 'provider', 'description', 'eligibility', 'requirements', 'assessment_type', 'assessment_details', 'source_url', 'application_url', 'deadline', 'status', 'verified_at', 'published_by'];
 
     protected function casts(): array
     {

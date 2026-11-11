@@ -18,6 +18,7 @@ class CareerRecommendationController extends Controller
     {
         $user = $request->user();
         abort_unless($user instanceof User, 403);
+        abort_unless($user->hasRole(Role::SuperAdmin, Role::Youth), 403);
 
         $isPESOAdmin = $user->hasRole(Role::SuperAdmin);
         $hasRecommendations = fn (Builder|HasMany $query): Builder|HasMany => $query

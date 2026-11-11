@@ -53,16 +53,18 @@ Route::middleware([
     Route::get('/dashboard', fn () => redirect()->route(auth()->user()->role->homeRoute()))
         ->name('dashboard');
 
-    Route::view('/scanner', 'scanner.index')->name('scanner.index');
+    Route::middleware('role:super_admin,youth')->group(function () {
+        Route::view('/scanner', 'scanner.index')->name('scanner.index');
+        Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
+        Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
+        Route::post('/document-scans', [DocumentScanController::class, 'store'])
+            ->middleware('throttle:5,1')->name('document-scans.store');
+    });
     Route::get('/careers', CareerPathCatalogController::class)->name('careers.index');
     Route::view('/tuklasbot', 'chat.index')->name('tuklasbot.index');
     Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
     Route::post('/career-chat', CareerChatController::class)
         ->middleware('throttle:10,1')->name('career-chat.store');
-    Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
-    Route::post('/document-scans', [DocumentScanController::class, 'store'])
-        ->middleware('throttle:5,1')->name('document-scans.store');
-    Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
     Route::get('/opportunities', [JobOpportunityController::class, 'index'])->name('opportunities.index');
     Route::get('/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
     Route::get('/training-centers', [TrainingCenterController::class, 'index'])->name('centers.index');

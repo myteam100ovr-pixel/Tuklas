@@ -29,6 +29,68 @@ class _HomeShellState extends State<HomeShell> {
   bool _switching = false;
   int _version = 0; // bumped after a profile save so the dashboard reloads
 
+  bool get _careerTools =>
+      ['youth', 'super_admin'].contains(ApiClient.instance.user?['role']);
+
+  Widget _selectedView() {
+    final role = '${ApiClient.instance.user?['role']}';
+    if (_tab == 4) {
+      return ProfileView(
+        onSaved: () => setState(() => _version++),
+        onLogout: _logout,
+      );
+    }
+    if (_careerTools) {
+      return switch (_tab) {
+        1 => const PesoView(),
+        2 => ScannerView(
+          key: ValueKey('scanner-$_version'),
+          onScanComplete: () => setState(() => _version++),
+        ),
+        3 => const TesdaView(),
+        _ => DashboardView(
+          key: ValueKey(_version),
+          onEditProfile: () => _selectTab(4),
+          onOpenPeso: () => _selectTab(1),
+          onOpenScanner: () => _selectTab(2),
+          onOpenTesda: () => _selectTab(3),
+          onLogout: _logout,
+          onOpenWorkspace: _openWorkspace,
+        ),
+      };
+    }
+    if (role == 'trainer') {
+      return switch (_tab) {
+        1 => const WorkspaceView(section: 'My programs'),
+        2 => const MessagesView(),
+        3 => const TesdaView(),
+        _ => DashboardView(
+          key: ValueKey(_version),
+          onEditProfile: () => _selectTab(4),
+          onOpenPeso: () => _selectTab(1),
+          onOpenScanner: () => _openWorkspace('My programs'),
+          onOpenTesda: () => _selectTab(3),
+          onLogout: _logout,
+          onOpenWorkspace: _openWorkspace,
+        ),
+      };
+    }
+    return switch (_tab) {
+      1 => const WorkspaceView(section: 'My programs'),
+      2 => const OperationsView(section: 'Sessions'),
+      3 => const MessagesView(),
+      _ => DashboardView(
+        key: ValueKey(_version),
+        onEditProfile: () => _selectTab(4),
+        onOpenPeso: () => _openWorkspace('My programs'),
+        onOpenScanner: () => _openWorkspace('Sessions'),
+        onOpenTesda: () => _openWorkspace('Messages'),
+        onLogout: _logout,
+        onOpenWorkspace: _openWorkspace,
+      ),
+    };
+  }
+
   Future<void> _checkVerification({bool resend = false}) async {
     if (_checkingVerification) return;
     setState(() {
@@ -253,32 +315,12 @@ class _HomeShellState extends State<HomeShell> {
                             const Icon(Icons.hourglass_empty_outlined),
                           const SizedBox(height: 12),
                           Text(
-                            'Opening ${const ['Overview', 'PESO', 'Scanner', 'TESDA', 'Profile'][_tab]}…',
+                            'Opening ${const ['Overview', 'PESO AI or training', 'Scanner or sessions', 'TESDA or messages', 'Profile'][_tab]}…',
                           ),
                         ],
                       ),
                     )
-                  : switch (_tab) {
-                      1 => const PesoView(),
-                      2 => ScannerView(
-                        key: ValueKey('scanner-$_version'),
-                        onScanComplete: () => setState(() => _version++),
-                      ),
-                      3 => const TesdaView(),
-                      4 => ProfileView(
-                        onSaved: () => setState(() => _version++),
-                        onLogout: _logout,
-                      ),
-                      _ => DashboardView(
-                        key: ValueKey(_version),
-                        onEditProfile: () => _selectTab(4),
-                        onOpenPeso: () => _selectTab(1),
-                        onOpenScanner: () => _selectTab(2),
-                        onOpenTesda: () => _selectTab(3),
-                        onLogout: _logout,
-                        onOpenWorkspace: _openWorkspace,
-                      ),
-                    },
+                  : _selectedView(),
             ),
           ],
         ),

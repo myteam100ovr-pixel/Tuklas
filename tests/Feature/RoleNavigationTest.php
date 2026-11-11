@@ -23,7 +23,7 @@ class RoleNavigationTest extends TestCase
     }
 
     #[DataProvider('workspaceRoles')]
-    public function test_each_role_has_peso_and_document_scanner_navigation(
+    public function test_only_career_seekers_and_peso_admins_have_scanner_navigation(
         Role $role,
         string $dashboardRoute,
         bool $isPESOAdmin
@@ -37,11 +37,13 @@ class RoleNavigationTest extends TestCase
         $response = $this->actingAs($user)
             ->get(route($dashboardRoute))
             ->assertOk()
-            ->assertSee('PESO')
-            ->assertSee('Document Scanner')
-            ->assertSee('tk-tabs--workspace')
-            ->assertSee('href="'.route('peso.index').'"', false)
-            ->assertSee('href="'.route('scanner.index').'"', false);
+            ->assertSee('tk-tabs--workspace');
+
+        if ($role === Role::SuperAdmin || $role === Role::Youth) {
+            $response->assertSee('PESO AI')->assertSee('Document Scanner');
+        } else {
+            $response->assertDontSee('PESO AI')->assertDontSee('Document Scanner');
+        }
 
         if ($isPESOAdmin) {
             $response->assertSee('Manage users');

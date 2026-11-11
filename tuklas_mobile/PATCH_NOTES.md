@@ -1,5 +1,10 @@
 What’s new
 
+- Find grouped role navigation, clearly labeled mobile tabs, and an easier next-step workflow.
+- Career Seekers and PESO admins can use PESO AI and document scanning; training staff see their role-specific tools.
+- Scholarship listings show eligibility, application requirements, provider assessments, and verified source links.
+- Browse live DOLE PhilJobNet vacancies from job listings.
+- Training catalog data refreshed from official TESDA directories.
 - Follow role-specific next steps from the dashboard on both web and mobile.
 - Use the updated Career Seeker, TESDA, and document scanner labels throughout the app.
 - Navigation responds immediately when changing sections in the mobile app.

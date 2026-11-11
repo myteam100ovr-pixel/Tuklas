@@ -62,8 +62,7 @@ class _OperationsViewState extends State<OperationsView> {
   String get _helpText => switch (widget.section) {
     'Employers' => 'Add and verify an employer before posting its jobs.',
     'Jobs' => 'Browse openings. PESO staff can post a job and recommend it to a career seeker.',
-    'Scholarships' =>
-      'Find support for training. Staff can publish verified opportunities.',
+    'Scholarships' => 'Find support for training. Check the provider source, eligibility, required documents, assessment, and deadline before applying.',
     'Centers' => 'See the training centers that provide Tuklas programs.',
     'Trainers' => 'Assign a trainer to a published program at the same center.',
     'Sessions' => 'See upcoming training dates and available places. Open a session to request a place.',
@@ -201,6 +200,33 @@ class _OperationsViewState extends State<OperationsView> {
         required: true,
       ),
       WorkspaceField('eligibility', 'Eligibility', multiline: true),
+      WorkspaceField(
+        'requirements',
+        'Application requirements',
+        multiline: true,
+      ),
+      WorkspaceField(
+        'assessment_type',
+        'Assessment type',
+        options: [
+          '',
+          'None',
+          'Exam',
+          'Interview',
+          'Skills assessment',
+          'Other',
+        ],
+        optionLabels: {'': 'Not specified by provider'},
+      ),
+      WorkspaceField(
+        'assessment_details',
+        'Assessment instructions',
+        multiline: true,
+      ),
+      WorkspaceField(
+        'source_url',
+        'Official information source (required to publish)',
+      ),
       WorkspaceField('application_url', 'Application URL'),
       WorkspaceField('deadline', 'Deadline (YYYY-MM-DD)'),
       WorkspaceField(
@@ -331,7 +357,8 @@ class _OperationsViewState extends State<OperationsView> {
   String _details(Map<String, dynamic> item) => switch (widget.section) {
     'Jobs' =>
       '${(item['employer'] as Map?)?['name'] ?? ''} · ${item['location'] ?? ''}\n${item['description'] ?? ''}',
-    'Scholarships' => '${item['provider'] ?? ''}\n${item['description'] ?? ''}',
+    'Scholarships' =>
+      '${item['provider'] ?? ''}\n${item['description'] ?? ''}\nWho can apply: ${item['eligibility'] ?? 'Not specified by provider'}\nRequirements: ${item['requirements'] ?? 'Not specified by provider'}\nAssessment: ${item['assessment_type'] ?? 'Not specified by provider'}\n${item['assessment_details'] ?? ''}\nSource: ${item['source_url'] ?? 'Not specified by provider'}',
     'Centers' => '${item['type'] ?? ''} · ${item['address'] ?? ''}',
     'Sessions' =>
       '${(item['center'] as Map?)?['name'] ?? ''} · ${item['starts_at'] ?? ''}\n${item['accepted_count'] ?? 0} of ${item['capacity'] ?? 0} places accepted',
@@ -367,6 +394,18 @@ class _OperationsViewState extends State<OperationsView> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
+            if (widget.section == 'Jobs')
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => launchUrl(
+                    Uri.parse('https://philjobnet.gov.ph/job-vacancies/'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  icon: const Icon(Icons.open_in_new),
+                  label: const Text('Browse live DOLE PhilJobNet vacancies'),
+                ),
+              ),
             if (_searchable)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
