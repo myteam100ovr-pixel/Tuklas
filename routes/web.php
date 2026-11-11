@@ -12,7 +12,6 @@ use App\Http\Controllers\CareerPathCatalogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
-use App\Http\Controllers\EmployerController;
 use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ScholarshipController;
@@ -27,6 +26,8 @@ use App\Http\Controllers\Trainer\TrainingProgramController;
 use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\TrainingSessionController;
 use App\Http\Controllers\YouthProfileController;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\Livewire\PrivacyPolicyController;
 use Laravel\Jetstream\Http\Controllers\Livewire\TermsOfServiceController;
@@ -35,7 +36,8 @@ Route::view('/', 'welcome')->name('home');
 Route::view('/app', 'mobile-app')->name('app.download');
 Route::get('/terms-of-service', [TermsOfServiceController::class, 'show'])->name('terms.show');
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'show'])->name('policy.show');
-Route::get('/tesda', [TesdaCatalogController::class, 'index'])->name('tesda.index');
+Route::get('/admin/programs/tesda', [TesdaCatalogController::class, 'index'])->name('tesda.index');
+Route::get('/tesda', fn (Request $request): RedirectResponse => redirect()->route('tesda.index', $request->query()));
 
 Route::middleware('guest')->group(function () {
     Route::post('/demo-login/{role}', DemoLoginController::class)
@@ -55,7 +57,8 @@ Route::middleware([
 
     Route::middleware('role:super_admin,youth')->group(function () {
         Route::view('/scanner', 'scanner.index')->name('scanner.index');
-        Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
+        Route::get('/admin/jobs/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
+        Route::get('/peso', fn (Request $request): RedirectResponse => redirect()->route('peso.index', $request->query()));
         Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
         Route::post('/document-scans', [DocumentScanController::class, 'store'])
             ->middleware('throttle:5,1')->name('document-scans.store');
@@ -65,23 +68,38 @@ Route::middleware([
     Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
     Route::post('/career-chat', CareerChatController::class)
         ->middleware('throttle:10,1')->name('career-chat.store');
-    Route::get('/opportunities', [JobOpportunityController::class, 'index'])->name('opportunities.index');
-    Route::get('/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
-    Route::get('/training-centers', [TrainingCenterController::class, 'index'])->name('centers.index');
-    Route::get('/training-sessions', [TrainingSessionController::class, 'index'])->name('sessions.index');
-    Route::get('/training-applications', [TrainingApplicationController::class, 'index'])->name('applications.index');
-    Route::get('/assessment-records', [AssessmentRecordController::class, 'index'])->name('assessments.index');
+    Route::get('/admin/jobs', fn (Request $request): RedirectResponse => redirect()->route('opportunities.index', $request->query()));
+    Route::get('/admin/jobs/openings', [JobOpportunityController::class, 'index'])->name('opportunities.index');
+    Route::get('/opportunities', fn (Request $request): RedirectResponse => redirect()->route('opportunities.index', $request->query()));
+    Route::get('/admin/training', fn (Request $request): RedirectResponse => redirect()->route('centers.index', $request->query()));
+    Route::get('/admin/programs', fn (Request $request): RedirectResponse => redirect()->route('scholarships.index', $request->query()));
+    Route::get('/admin/inbox', fn (Request $request): RedirectResponse => redirect()->route('messages.index', $request->query()));
+    Route::get('/admin/programs/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
+    Route::get('/scholarships', fn (Request $request): RedirectResponse => redirect()->route('scholarships.index', $request->query()));
+    Route::get('/admin/training/centers', [TrainingCenterController::class, 'index'])->name('centers.index');
+    Route::get('/training-centers', fn (Request $request): RedirectResponse => redirect()->route('centers.index', $request->query()));
+    Route::get('/admin/training/dates', [TrainingSessionController::class, 'index'])->name('sessions.index');
+    Route::get('/training-sessions', fn (Request $request): RedirectResponse => redirect()->route('sessions.index', $request->query()));
+    Route::get('/admin/training/requests', [TrainingApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/training-applications', fn (Request $request): RedirectResponse => redirect()->route('applications.index', $request->query()));
+    Route::get('/admin/training/results', [AssessmentRecordController::class, 'index'])->name('assessments.index');
+    Route::get('/assessment-records', fn (Request $request): RedirectResponse => redirect()->route('assessments.index', $request->query()));
     Route::middleware('role:super_admin,tesda_admin,center_representative')->group(function () {
-        Route::get('/center-trainers', [CenterTrainerController::class, 'index'])->name('center-trainers.index');
+        Route::get('/admin/training/trainers', [CenterTrainerController::class, 'index'])->name('center-trainers.index');
+        Route::get('/center-trainers', fn (Request $request): RedirectResponse => redirect()->route('center-trainers.index', $request->query()));
         Route::post('/center-trainers', [CenterTrainerController::class, 'store'])->name('center-trainers.store');
         Route::delete('/center-trainers/{assignment}', [CenterTrainerController::class, 'destroy'])->name('center-trainers.destroy');
     });
     Route::get('/tesda/choices', [TesdaChoiceController::class, 'index'])->name('tesda.choices.index');
     Route::post('/tesda/choice', [TesdaChoiceController::class, 'store'])->name('tesda.choice.store');
-    Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
-    Route::get('/messages', [DirectMessageController::class, 'index'])->name('messages.index');
-    Route::get('/messages/{user}/updates', [DirectMessageController::class, 'mobileIndex'])->name('messages.updates');
-    Route::get('/messages/{user}', [DirectMessageController::class, 'index'])->name('messages.show');
+    Route::get('/admin/inbox/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications', fn (Request $request): RedirectResponse => redirect()->route('notifications.index', $request->query()));
+    Route::get('/admin/inbox/messages', [DirectMessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages', fn (Request $request): RedirectResponse => redirect()->route('messages.index', $request->query()));
+    Route::get('/admin/inbox/messages/{user}/updates', [DirectMessageController::class, 'mobileIndex'])->name('messages.updates');
+    Route::get('/admin/inbox/messages/{user}', [DirectMessageController::class, 'index'])->name('messages.show');
+    Route::get('/messages/{user}/updates', fn (Request $request, string $user): RedirectResponse => redirect()->route('messages.updates', array_merge(['user' => $user], $request->query())));
+    Route::get('/messages/{user}', fn (Request $request, string $user): RedirectResponse => redirect()->route('messages.show', array_merge(['user' => $user], $request->query())));
     Route::post('/messages/{user}', [DirectMessageController::class, 'store'])->middleware('throttle:20,1')->name('messages.store');
     Route::post('/notifications/read-all', [NotificationsController::class, 'readAll'])->name('notifications.read-all');
     Route::post('/notifications/{notification}/read', [NotificationsController::class, 'read'])->name('notifications.read');
@@ -89,12 +107,10 @@ Route::middleware([
     Route::put('/account/password-reset', [AccountPasswordResetController::class, 'update'])->name('account.password-reset.update');
 
     Route::middleware('role:super_admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::post('/employers', [EmployerController::class, 'store'])->name('employers.store');
-        Route::put('/employers/{employer}', [EmployerController::class, 'update'])->name('employers.update');
+        Route::get('/employers', fn (Request $request): RedirectResponse => redirect()->route('admin.users.index', $request->query()));
         Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
         Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
         Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
-        Route::get('/employers', [EmployerController::class, 'index'])->name('employers.index');
         Route::get('/', [DashboardController::class, 'admin'])->name('dashboard');
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
@@ -106,6 +122,9 @@ Route::middleware([
         Route::post('/users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
         Route::get('/job-matches', fn () => redirect()->route('peso.index'))->name('recommendations.index');
         Route::resource('careers', CareerPathController::class)->except(['show', 'destroy']);
+    });
+
+    Route::middleware('role:super_admin,tesda_admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('trainings', TrainingCatalogController::class)->except(['show', 'destroy']);
     });
 

@@ -28,4 +28,9 @@ class TrainingCenter extends Model
     {
         return $this->hasMany(TrainingSession::class);
     }
+
+    public function programs(): HasMany
+    {
+        return $this->hasMany(TrainingProgram::class);
+    }
 }

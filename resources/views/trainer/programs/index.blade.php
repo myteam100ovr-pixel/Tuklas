@@ -28,7 +28,7 @@
                     <div>
                         <span class="trainer-courses__status">{{ ucfirst($program->status) }}</span>
                         <h3>{{ $program->title }}</h3>
-                        <p>{{ $program->nc_level ?: 'NC level not set' }} · Updated {{ $program->updated_at->format('M j, Y') }}</p>
+                        <p>{{ $program->nc_level ?: 'NC level not set' }} · {{ $program->center?->name ?? 'No center assigned' }} · {{ $program->duration_days ? $program->duration_days.' training days' : 'Duration not specified' }} · Updated {{ $program->updated_at->format('M j, Y') }}</p>
                     </div>
                     <a href="{{ route('trainer.programs.edit', $program) }}">Edit course <span aria-hidden="true">↗</span></a>
                 </article>

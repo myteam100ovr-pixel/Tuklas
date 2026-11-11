@@ -24,7 +24,20 @@
                     <input name="duration_hours" type="number" min="1" max="65535" value="{{ old('duration_hours', $program->duration_hours) }}">
                     @error('duration_hours')<small>{{ $message }}</small>@enderror
                 </label>
+                <label>Training days
+                    <input name="duration_days" type="number" min="1" max="65535" value="{{ old('duration_days', $program->duration_days) }}">
+                    @error('duration_days')<small>{{ $message }}</small>@enderror
+                </label>
             </div>
+            <label>Training center
+                <select name="training_center_id">
+                    <option value="">No center assigned</option>
+                    @foreach ($centers as $center)
+                        <option value="{{ $center->id }}" @selected((string) old('training_center_id', $program->training_center_id) === (string) $center->id)>{{ $center->name }}</option>
+                    @endforeach
+                </select>
+                @error('training_center_id')<small>{{ $message }}</small>@enderror
+            </label>
             <label>Description
                 <textarea name="description" rows="4" maxlength="3000">{{ old('description', $program->description) }}</textarea>
                 @error('description')<small>{{ $message }}</small>@enderror

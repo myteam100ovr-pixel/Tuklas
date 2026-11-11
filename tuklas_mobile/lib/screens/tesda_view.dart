@@ -353,7 +353,13 @@ class _TesdaViewState extends State<TesdaView> {
 
   Widget _programCard(BuildContext context, Map<String, dynamic> program) {
     final colors = TkColors.of(context);
-    final duration = program['duration_hours'];
+    final durationDays = program['duration_days'];
+    final durationHours = program['duration_hours'];
+    final duration = durationDays != null
+        ? '$durationDays training days'
+        : durationHours != null
+        ? '$durationHours training hours'
+        : null;
     final verified = program['last_verified_at'];
 
     return Container(
@@ -392,6 +398,13 @@ class _TesdaViewState extends State<TesdaView> {
             '${program['title'] ?? ''}',
             style: tkText(context, size: 15, weight: 500),
           ),
+          if (program['training_center'] != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              '${program['training_center']}',
+              style: tkText(context, size: 12, color: colors.muted),
+            ),
+          ],
           if (program['description'] != null) ...[
             const SizedBox(height: 6),
             Text(
@@ -403,7 +416,7 @@ class _TesdaViewState extends State<TesdaView> {
             const SizedBox(height: 8),
             if (duration != null)
               Text(
-                '$duration training hours',
+                duration,
                 style: tkText(context, size: 12, color: colors.muted),
               ),
             if (program['schedule_note'] != null)

@@ -29,9 +29,9 @@ class TesdaCatalogController extends Controller
         $choiceUser?->load('tesdaChoice.selector');
 
         $programs = TrainingProgram::published()
-            ->with('teachingAssignments.trainer:id,name')
+            ->with(['teachingAssignments.trainer:id,name', 'center:id,name'])
             ->orderBy('title')
-            ->get(['id', 'title', 'nc_level', 'description', 'duration_hours', 'schedule_note', 'last_verified_at']);
+            ->get(['id', 'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'training_center_id', 'schedule_note', 'last_verified_at']);
         $levelOrder = ['NC I' => 0, 'NC II' => 1, 'NC III' => 2, 'NC IV' => 3, 'Other / Not specified' => 4];
         $programGroups = $programs
             ->groupBy(fn (TrainingProgram $program): string => filled($program->nc_level) ? trim($program->nc_level) : 'Other / Not specified')

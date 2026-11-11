@@ -27,23 +27,28 @@ class DatabaseSeeder extends Seeder
             ])->save();
 
             $this->command->info('Configured super admin account is present and enabled.');
+        } else {
+            if (blank($cfg['password'])) {
+                throw new RuntimeException('Set TUKLAS_SUPERADMIN_PASSWORD to create the configured super admin account.');
+            }
 
-            return;
+            User::forceCreate([
+                'name' => $cfg['name'],
+                'email' => $cfg['email'],
+                'password' => $cfg['password'],
+                'role' => Role::SuperAdmin->value,
+                'email_verified_at' => now(),
+                'is_active' => true,
+            ]);
+
+            $this->command->info('Configured super admin account was created.');
         }
 
-        if (blank($cfg['password'])) {
-            throw new RuntimeException('Set TUKLAS_SUPERADMIN_PASSWORD to create the configured super admin account.');
-        }
-
-        User::forceCreate([
-            'name' => $cfg['name'],
-            'email' => $cfg['email'],
-            'password' => $cfg['password'],
-            'role' => Role::SuperAdmin->value,
-            'email_verified_at' => now(),
-            'is_active' => true,
+        $this->call([
+            TesdaRegisteredTrainingProgramSeeder::class,
+            PangasinanTrainingCenterSeeder::class,
+            PhilJobNetPangasinanSeeder::class,
+            TesdaScholarshipInfoSeeder::class,
         ]);
-
-        $this->command->info('Configured super admin account was created.');
     }
 }

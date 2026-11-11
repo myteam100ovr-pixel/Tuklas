@@ -41,8 +41,11 @@ html:not([data-theme="dark"]) body.tk-workspace {
 .tk-brand-symbol { display:grid; place-items:center; width:34px; height:36px; border-radius:10px 10px 10px 2px; background:var(--violet); color:var(--surface); font-size:1.5rem; }
 .tk-brand-dot { color:var(--violet); margin-left:-8px; }
 .tk-nav-caption { font-size:.63rem; letter-spacing:.16em; color:var(--muted); padding:45px 14px 15px; }
+.tk-sidebar--admin > .tk-nav-caption { margin:0; padding:28px 14px 10px; }
 .tk-workspace .tk-tabs--workspace { display:flex; flex-direction:column; order:0; gap:6px; background:none; border:0; padding:0; border-radius:0; overflow:visible; width:100%; }
 .tk-workspace .tk-tabs--workspace .tk-tab { flex:none; justify-content:flex-start; min-height:46px; padding:10px 13px; border-radius:8px; gap:12px; font-size:.82rem; }
+.tk-sidebar--admin .tk-tabs--workspace { gap:2px; margin-bottom:0; }
+.tk-sidebar--admin .tk-tabs--workspace .tk-tab { min-height:40px; padding-block:8px; }
 .tk-workspace .tk-tab__icon { padding:0; background:none; border-radius:0; width:19px; height:19px; color:inherit; }
 .tk-workspace .tk-tab.is-active { color:var(--violet); background:var(--surface-2); box-shadow:inset 3px 0 var(--violet); font-weight:500; }
 .tk-workspace .tk-tab.is-active .tk-tab__icon { background:none; color:inherit; }
@@ -61,6 +64,13 @@ html:not([data-theme="dark"]) body.tk-workspace {
 .tk-workspace .tk-ibtn,.tk-workspace .tk-avatar { width:34px; height:34px; border-radius:9px; }
 .tk-workspace .tk-avatar { background:var(--surface-2); color:var(--violet); border:1px solid var(--line); }
 .tk-workspace .tk-main { width:100%; max-width:none; margin:0; padding:30px var(--pad) 40px; }
+.tk-admin-page-tabs { display:flex; min-width:0; gap:.8rem; margin:0 0 16px; padding:0 2px; overflow-x:auto; border-bottom:1px solid var(--line); scrollbar-width:thin; }
+.tk-admin-page-tab { display:inline-flex; min-height:42px; flex:0 0 auto; align-items:center; padding:0 .18rem; border-bottom:2px solid transparent; color:var(--ink-2); font-size:.8rem; white-space:nowrap; transition:border-color .18s,color .18s; }
+.tk-admin-page-tab:hover,.tk-admin-page-tab:focus-visible { color:var(--violet); }
+.tk-admin-page-tab.is-active { border-bottom-color:var(--violet); color:var(--violet); font-weight:600; }
+.tk-admin-chat-button { position:fixed; right:clamp(1rem,2.2vw,2rem); bottom:max(1rem,env(safe-area-inset-bottom)); z-index:60; display:flex; min-height:46px; align-items:center; justify-content:center; gap:9px; padding:0 17px; border:1px solid color-mix(in srgb,var(--violet) 65%,transparent); border-radius:999px; color:#fff; background:#5b17ff; box-shadow:0 8px 24px rgb(42 20 90 / .24); font-size:.78rem; font-weight:600; transition:transform .18s,box-shadow .18s; }
+.tk-admin-chat-button:hover,.tk-admin-chat-button:focus-visible { color:#fff; transform:translateY(-2px); box-shadow:0 12px 28px rgb(42 20 90 / .3); }
+.tk-admin-chat-button .ic { width:17px; height:17px; }
 .tk-skip { position:fixed; top:-80px; left:16px; padding:12px 20px; z-index:100; background:var(--surface); color:var(--ink); border:2px solid var(--violet); border-radius:8px; }
 .tk-skip:focus { top:12px; }
 .tk-workspace .btn-primary { background:#5b17ff; color:#fff; }
@@ -194,6 +204,9 @@ html:not([data-theme="dark"]) body.tk-workspace {
     .tk-context { font-size:.7rem; gap:8px; }
     .tk-workspace .tk-right { gap:6px; }
     .tk-workspace .tk-pop { position:absolute; left:auto; right:0; top:calc(100% + 10px); width:min(17rem,calc(100vw - 36px)); }
+    .tk-admin-page-tabs { gap:.75rem; margin-bottom:16px; }
+    .tk-admin-page-tab { min-height:40px; font-size:.76rem; }
+    .tk-admin-chat-button { right:1rem; bottom:max(1rem,env(safe-area-inset-bottom)); min-height:42px; padding-inline:14px; }
 }
 
 .tuklasbot-page { width:100%; max-width:none; margin:0; }

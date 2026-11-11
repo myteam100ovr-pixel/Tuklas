@@ -170,7 +170,7 @@ class MobileDashboardController extends Controller
                 'rows' => $recent->map(fn (TrainingProgram $program): array => [
                     [
                         't' => $program->title,
-                        's' => $program->duration_hours ? $program->duration_hours.' hours' : null,
+                        's' => $program->duration_days ? $program->duration_days.' training days' : ($program->duration_hours ? $program->duration_hours.' hours' : null),
                         'avatar' => $this->initials($program->title),
                     ],
                     ['t' => $program->nc_level ?: 'Not set'],

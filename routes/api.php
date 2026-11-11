@@ -10,7 +10,6 @@ use App\Http\Controllers\AssessmentRecordController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
-use App\Http\Controllers\EmployerController;
 use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ScholarshipController;
@@ -85,9 +84,6 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::delete('/center-trainers/{assignment}', [CenterTrainerController::class, 'destroy'])->name('center-trainers.destroy');
             });
             Route::middleware('role:super_admin')->group(function () {
-                Route::get('/employers', [EmployerController::class, 'index'])->name('employers.index');
-                Route::post('/employers', [EmployerController::class, 'store'])->name('employers.store');
-                Route::put('/employers/{employer}', [EmployerController::class, 'update'])->name('employers.update');
                 Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
                 Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
                 Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');

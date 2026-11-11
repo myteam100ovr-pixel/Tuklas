@@ -47,6 +47,12 @@
         </div>
         <p class="tesda-note">This list includes programs published in Tuklas by authorized local staff. Training dates, slots, requirements, and scholarship availability can change; confirm them with TESDA or the provider before applying.</p>
         @auth
+            @if (auth()->user()->hasRole(\App\Enums\Role::SuperAdmin, \App\Enums\Role::TesdaAdmin))
+                <aside class="tesda-note" aria-label="Training catalog review process">
+                    <strong>For TESDA staff:</strong> Review source-listed programs, confirm requirements and schedules with the provider, then publish verified details.
+                    <a class="tesda-manage-link" href="{{ route('admin.trainings.index') }}">Review training program drafts ↗</a>
+                </aside>
+            @endif
             @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
                 <a class="tesda-manage-link" href="{{ route('trainer.programs.index') }}">My teaching courses ↗</a>
             @endif
@@ -80,7 +86,8 @@
                                         @endif
                                     </div>
                                     <div class="tesda-offer-meta">
-                                        <span>{{ $program->duration_hours ? $program->duration_hours.' training hours' : 'Training hours not yet announced' }}</span>
+                                        <span>{{ $program->duration_days ? $program->duration_days.' training days' : ($program->duration_hours ? $program->duration_hours.' training hours' : 'Training duration not yet announced') }}</span>
+                                        @if ($program->center)<span>Center: {{ $program->center->name }}</span>@endif
                                         <span>{{ $program->schedule_note ?: 'Schedule not yet announced' }}</span>
                                         <span>Trainer: {{ $program->teachingAssignments->pluck('trainer.name')->filter()->unique()->implode(', ') ?: 'Not yet assigned' }}</span>
                                         @if ($program->last_verified_at)<small>Checked {{ $program->last_verified_at->format('M Y') }}</small>@endif

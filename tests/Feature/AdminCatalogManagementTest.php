@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Models\CareerPath;
+use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -55,24 +56,51 @@ class AdminCatalogManagementTest extends TestCase
     {
         $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
         $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $center = TrainingCenter::factory()->create();
         $this->actingAs($admin)->post(route('admin.trainings.store'), [
-            'title' => 'Community baking', 'nc_level' => 'NC II', 'status' => 'draft',
+            'title' => 'Community baking', 'nc_level' => 'NC II', 'duration_days' => 40,
+            'training_center_id' => $center->id, 'status' => 'draft',
         ])->assertRedirect(route('admin.trainings.index'));
         $adminProgram = TrainingProgram::query()->where('title', 'Community baking')->sole();
         $this->assertSame($admin->id, $adminProgram->created_by);
         $this->assertSame('draft', $adminProgram->status);
+        $this->assertSame(40, $adminProgram->duration_days);
+        $this->assertSame($center->id, $adminProgram->training_center_id);
 
-        $program = TrainingProgram::factory()->create(['title' => 'Local cookery', 'created_by' => $trainer->id, 'status' => 'draft']);
+        $program = TrainingProgram::factory()->create([
+            'title' => 'Local cookery', 'created_by' => $trainer->id, 'status' => 'draft',
+            'training_center_id' => $center->id, 'duration_days' => 32,
+        ]);
 
         $this->actingAs($admin)->get(route('admin.trainings.index'))->assertOk()->assertSee('Local cookery')->assertSee($trainer->name);
         $this->put(route('admin.trainings.update', $program), [
             'title' => 'Local cookery', 'nc_level' => 'NC II', 'status' => 'published',
+            'duration_days' => 32, 'training_center_id' => $center->id,
         ])->assertRedirect(route('admin.trainings.index'));
         $this->assertSame($trainer->id, $program->fresh()->created_by);
         $this->assertNotNull($program->fresh()->last_verified_at);
-        $this->get(route('tesda.index'))->assertSee('Local cookery');
+        $this->get(route('tesda.index'))->assertSee('Local cookery')->assertSee('32 training days')->assertSee($center->name);
 
         $this->actingAs($trainer)->get(route('trainer.programs.edit', $program))->assertOk();
+    }
+
+    public function test_tesda_admin_can_review_and_publish_training_programs(): void
+    {
+        $tesdaAdmin = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
+        $program = TrainingProgram::factory()->create(['status' => 'draft']);
+
+        $this->actingAs($tesdaAdmin)->get(route('admin.trainings.index'))->assertOk()
+            ->assertSee('Confirm requirements and schedules with the provider before publishing')
+            ->assertSee($program->title);
+        $this->get(route('tesda.index'))->assertSee('Review training program drafts');
+
+        $this->put(route('admin.trainings.update', $program), [
+            'title' => $program->title,
+            'status' => 'published',
+        ])->assertRedirect(route('admin.trainings.index'));
+
+        $this->assertSame('published', $program->fresh()->status);
+        $this->assertNotNull($program->fresh()->last_verified_at);
     }
 
     public function test_non_admins_cannot_manage_catalogs_and_invalid_data_is_rejected(): void

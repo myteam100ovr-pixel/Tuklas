@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Support\ActivityNotifier;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ class TrainingCatalogController extends Controller
 
         return view('admin.trainings.index', [
             'programs' => TrainingProgram::query()
-                ->with('creator:id,name')
+                ->with(['creator:id,name', 'center:id,name'])
                 ->when($status, fn ($query) => $query->where('status', $status))
                 ->orderBy('title')
                 ->paginate(12)
@@ -30,7 +31,10 @@ class TrainingCatalogController extends Controller
 
     public function create(): View
     {
-        return view('admin.trainings.form', ['program' => new TrainingProgram]);
+        return view('admin.trainings.form', [
+            'program' => new TrainingProgram,
+            'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     public function store(Request $request, ActivityNotifier $activity): RedirectResponse
@@ -46,7 +50,10 @@ class TrainingCatalogController extends Controller
 
     public function edit(TrainingProgram $training): View
     {
-        return view('admin.trainings.form', ['program' => $training]);
+        return view('admin.trainings.form', [
+            'program' => $training,
+            'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     public function update(Request $request, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse
@@ -69,6 +76,8 @@ class TrainingCatalogController extends Controller
             'nc_level' => ['nullable', Rule::in(['NC I', 'NC II', 'NC III', 'NC IV'])],
             'description' => ['nullable', 'string', 'max:3000'],
             'duration_hours' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'duration_days' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'training_center_id' => ['nullable', Rule::exists('training_centers', 'id')],
             'requirements' => ['nullable', 'string', 'max:3000'],
             'schedule_note' => ['nullable', 'string', 'max:1000'],
             'source_reference' => ['nullable', 'string', 'max:255'],

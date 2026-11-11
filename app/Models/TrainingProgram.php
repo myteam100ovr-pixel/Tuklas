@@ -15,7 +15,7 @@ class TrainingProgram extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'nc_level', 'description', 'duration_hours', 'requirements',
+        'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'requirements',
         'schedule_note', 'status', 'source_reference', 'last_verified_at', 'created_by', 'training_center_id',
     ];
 

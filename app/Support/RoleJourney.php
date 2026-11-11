@@ -5,7 +5,6 @@ namespace App\Support;
 use App\Enums\Role;
 use App\Models\AssessmentRecord;
 use App\Models\CareerPath;
-use App\Models\Employer;
 use App\Models\JobOpportunity;
 use App\Models\Scholarship;
 use App\Models\TrainingApplication;
@@ -71,8 +70,7 @@ class RoleJourney
     {
         return [
             $this->step('staff', 'Set up staff accounts', 'Create TESDA, trainer, and center representative accounts.', User::query()->whereIn('role', [Role::TesdaAdmin->value, Role::Trainer->value, Role::CenterRepresentative->value])->exists(), 'admin.users.index', 'Users'),
-            $this->step('employers', 'Manage employers', 'Add employers before listing their jobs.', Employer::query()->exists(), 'admin.employers.index', 'Employers'),
-            $this->step('jobs', 'Publish job openings', 'Add current openings from verified employers.', JobOpportunity::query()->where('status', 'published')->exists(), 'opportunities.index', 'Jobs'),
+            $this->step('jobs', 'Publish verified job openings', 'Enter the employer and opening details, then verify the listing before publishing.', JobOpportunity::query()->where('status', 'published')->exists(), 'opportunities.index', 'Jobs'),
             $this->step('recommend', 'Recommend jobs to Career Seekers', 'Send a suitable published opening to an active account.', JobOpportunity::query()->whereHas('recommendedUsers')->exists(), 'opportunities.index', 'Jobs', 'ongoing'),
             $this->step('training', 'Oversee training activity', 'Review requests, sessions, scholarships, and assessment records.', TrainingProgram::query()->exists(), 'sessions.index', 'Sessions', 'ongoing'),
             $this->step('careers', 'Publish career paths', 'Maintain career information available to members.', CareerPath::published()->exists(), 'admin.careers.index', 'Careers'),

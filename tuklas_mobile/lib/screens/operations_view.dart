@@ -26,7 +26,6 @@ class _OperationsViewState extends State<OperationsView> {
 
   String get _role => '${ApiClient.instance.user?['role']}';
   String get _path => switch (widget.section) {
-    'Employers' => '/employers',
     'Jobs' => '/opportunities',
     'Scholarships' => '/scholarships',
     'Centers' => '/training-centers',
@@ -36,7 +35,6 @@ class _OperationsViewState extends State<OperationsView> {
     _ => '/assessment-records',
   };
   String get _key => switch (widget.section) {
-    'Employers' => 'employers',
     'Jobs' => 'jobs',
     'Scholarships' => 'scholarships',
     'Centers' => 'centers',
@@ -46,7 +44,7 @@ class _OperationsViewState extends State<OperationsView> {
     _ => 'records',
   };
   bool get _canManage => switch (widget.section) {
-    'Employers' || 'Jobs' => _role == 'super_admin',
+    'Jobs' => _role == 'super_admin',
     'Scholarships' ||
     'Centers' => _role == 'super_admin' || _role == 'tesda_admin',
     'Sessions' || 'Assessments' =>
@@ -60,8 +58,7 @@ class _OperationsViewState extends State<OperationsView> {
     _ => false,
   };
   String get _helpText => switch (widget.section) {
-    'Employers' => 'Add and verify an employer before posting its jobs.',
-    'Jobs' => 'Browse openings. PESO staff can post a job and recommend it to a career seeker.',
+    'Jobs' => 'Browse openings. PESO staff enter the employer and listing together, verify current details, then publish and recommend the opening.',
     'Scholarships' => 'Find support for training. Check the provider source, eligibility, required documents, assessment, and deadline before applying.',
     'Centers' => 'See the training centers that provide Tuklas programs.',
     'Trainers' => 'Assign a trainer to a published program at the same center.',
@@ -157,21 +154,19 @@ class _OperationsViewState extends State<OperationsView> {
   }
 
   List<WorkspaceField> _fields() => switch (widget.section) {
-    'Employers' => const [
-      WorkspaceField('name', 'Employer name', required: true),
-      WorkspaceField('location', 'Location'),
-      WorkspaceField('contact_email', 'Contact email'),
-      WorkspaceField('website', 'Website URL'),
-      WorkspaceField(
-        'is_verified',
-        'Verified',
+    'Jobs' => [
+      const WorkspaceField(
+        'employer_name',
+        'Employer or organization',
+        required: true,
+      ),
+      const WorkspaceField(
+        'employer_verified',
+        'I checked that the employer and opening are current',
         options: ['true', 'false'],
         optionLabels: {'true': 'Yes', 'false': 'No'},
         required: true,
       ),
-    ],
-    'Jobs' => [
-      _choice('employer_id', 'Verified employer', 'employers', 'name'),
       const WorkspaceField('title', 'Job title', required: true),
       const WorkspaceField('location', 'Location'),
       const WorkspaceField(
@@ -356,7 +351,7 @@ class _OperationsViewState extends State<OperationsView> {
 
   String _details(Map<String, dynamic> item) => switch (widget.section) {
     'Jobs' =>
-      '${(item['employer'] as Map?)?['name'] ?? ''} · ${item['location'] ?? ''}\n${item['description'] ?? ''}',
+      '${item['employer_name'] ?? (item['employer'] as Map?)?['name'] ?? ''} · ${item['location'] ?? ''}\n${item['description'] ?? ''}',
     'Scholarships' =>
       '${item['provider'] ?? ''}\n${item['description'] ?? ''}\nWho can apply: ${item['eligibility'] ?? 'Not specified by provider'}\nRequirements: ${item['requirements'] ?? 'Not specified by provider'}\nAssessment: ${item['assessment_type'] ?? 'Not specified by provider'}\n${item['assessment_details'] ?? ''}\nSource: ${item['source_url'] ?? 'Not specified by provider'}',
     'Centers' => '${item['type'] ?? ''} · ${item['address'] ?? ''}',
@@ -369,6 +364,11 @@ class _OperationsViewState extends State<OperationsView> {
       '${((item['application'] as Map?)?['user'] as Map?)?['name'] ?? ''} · ${item['status'] ?? ''} · ${item['result'] ?? 'Pending'}',
     _ => '${item['location'] ?? item['contact_email'] ?? ''}',
   };
+
+  String _programSummary(Map<String, dynamic> program) {
+    final duration = program['duration_days'];
+    return '${program['title'] ?? 'Program'} · ${duration == null ? 'Duration not specified' : '$duration training days'}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -486,6 +486,23 @@ class _OperationsViewState extends State<OperationsView> {
                       ),
                       const SizedBox(height: 8),
                       Text(_details(item)),
+                      if (widget.section == 'Centers' &&
+                          item['programs'] is List) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          'Program offerings (${(item['programs'] as List).length})',
+                        ),
+                        for (final rawProgram
+                            in (item['programs'] as List).whereType<Map>())
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Text(
+                              _programSummary(
+                                Map<String, dynamic>.from(rawProgram),
+                              ),
+                            ),
+                          ),
+                      ],
                       if ((widget.section == 'Jobs' ||
                               widget.section == 'Scholarships') &&
                           item['application_url'] is String &&

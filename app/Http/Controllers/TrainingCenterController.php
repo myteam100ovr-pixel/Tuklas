@@ -14,12 +14,18 @@ class TrainingCenterController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
-        $canManage = $request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin);
+        $user = $request->user();
+        $canManage = $user->hasRole(Role::SuperAdmin, Role::TesdaAdmin);
+        $canSeeDrafts = $canManage || $user->hasRole(Role::CenterRepresentative);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $centers = TrainingCenter::query()
+            ->with(['programs' => fn ($programs) => $programs
+                ->when(! $canSeeDrafts, fn ($query) => $query->published())
+                ->select(['id', 'training_center_id', 'title', 'nc_level', 'duration_days', 'status'])
+                ->orderBy('title')])
             ->when($search !== '', fn ($query) => $query->where(fn ($centers) => $centers->where('name', 'like', '%'.$search.'%')->orWhere('address', 'like', '%'.$search.'%')))
             ->when(! $canManage, fn ($query) => $query->where('is_active', true))
-            ->when($request->user()->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereKey($request->user()->training_center_id))
+            ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereKey($user->training_center_id))
             ->orderBy('name')->paginate(20)->withQueryString();
 
         return $request->routeIs('mobile.*') ? response()->json(['centers' => $centers, 'can_manage' => $canManage]) : view('operations.centers', compact('centers', 'canManage'));

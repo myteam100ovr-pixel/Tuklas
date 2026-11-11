@@ -144,7 +144,7 @@ class DashboardController extends Controller
                 'columns' => ['Program', 'NC level', 'Updated', 'Status'],
                 'empty' => 'No programs yet. Programs you add will be listed here.',
                 'rows' => $recent->map(fn (TrainingProgram $p) => [
-                    ['t' => $p->title, 's' => $p->duration_hours ? $p->duration_hours.' hours' : null, 'avatar' => $this->initials($p->title)],
+                    ['t' => $p->title, 's' => $p->duration_days ? $p->duration_days.' training days' : ($p->duration_hours ? $p->duration_hours.' hours' : null), 'avatar' => $this->initials($p->title)],
                     ['t' => $p->nc_level ?: 'Not set'],
                     ['t' => $p->updated_at->format('M j, Y')],
                     ['chip' => ucfirst($p->status), 'tone' => $p->status === 'published' ? 'good' : ($p->status === 'draft' ? 'warn' : 'neutral')],

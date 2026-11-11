@@ -13,6 +13,7 @@ class MobileCatalogController extends Controller
     public function index(Request $request, TesdaRegisteredProgramCatalog $registeredCatalog): JsonResponse
     {
         $programs = TrainingProgram::published()
+            ->with('center:id,name')
             ->orderBy('title')
             ->paginate(12);
 
@@ -28,6 +29,8 @@ class MobileCatalogController extends Controller
                 'nc_level' => $program->nc_level,
                 'description' => $program->description,
                 'duration_hours' => $program->duration_hours,
+                'duration_days' => $program->duration_days,
+                'training_center' => $program->center?->name,
                 'requirements' => $program->requirements,
                 'schedule_note' => $program->schedule_note,
                 'last_verified_at' => $program->last_verified_at?->toDateString(),

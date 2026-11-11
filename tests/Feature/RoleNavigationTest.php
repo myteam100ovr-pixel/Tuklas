@@ -39,17 +39,89 @@ class RoleNavigationTest extends TestCase
             ->assertOk()
             ->assertSee('tk-tabs--workspace');
 
-        if ($role === Role::SuperAdmin || $role === Role::Youth) {
-            $response->assertSee('PESO AI')->assertSee('Document Scanner');
+        if ($role === Role::SuperAdmin) {
+            $response->assertSee('Jobs')->assertSee('Document Scanner')->assertSee('Ask TuklasBot');
+        } elseif ($role === Role::Youth) {
+            $response->assertSee('<span>Work</span>', false);
+            $this->actingAs($user)
+                ->get(route('scanner.index'))
+                ->assertOk()
+                ->assertSee('PESO AI')
+                ->assertSee('Document Scanner');
         } else {
             $response->assertDontSee('PESO AI')->assertDontSee('Document Scanner');
         }
 
         if ($isPESOAdmin) {
-            $response->assertSee('Manage users');
+            $response->assertSee('Users')->assertDontSee('<span>Manage users</span>', false);
         } else {
             $response->assertDontSee('Manage users');
         }
+    }
+
+    public function test_trainer_menu_groups_teaching_and_catalog_links_once_and_shows_floating_chat(): void
+    {
+        $trainer = User::factory()->create([
+            'role' => Role::Trainer,
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($trainer)->get(route('trainer.programs.index'))->assertOk();
+        $navigation = $this->workspaceNavigation($response->getContent());
+        $pageTabs = $this->workspacePageTabs($response->getContent());
+
+        foreach (['Overview', 'Training', 'Communication', 'Account'] as $label) {
+            $this->assertStringContainsString('<span>'.$label.'</span>', $navigation, $label.' sidebar item');
+        }
+        foreach (['My courses', 'Sessions', 'Course catalog', 'Scholarships'] as $label) {
+            $this->assertStringContainsString('>'.$label.'</a>', $pageTabs, $label.' training tab');
+        }
+        $this->assertStringContainsString('href="'.route('trainer.programs.index').'"', $pageTabs);
+        $this->assertStringContainsString('href="'.route('tesda.index').'"', $pageTabs);
+        $this->assertStringNotContainsString('<span>TuklasBot</span>', $navigation);
+        $response->assertSee('Ask TuklasBot')->assertSee('href="'.route('tuklasbot.index').'"', false);
+
+        $this->assertSame(1, substr_count($navigation, '<span>Training</span>'), 'Training sidebar item count');
+    }
+
+    public function test_career_seeker_menu_groups_all_existing_links_once_and_shows_floating_chat(): void
+    {
+        $youth = User::factory()->create([
+            'role' => Role::Youth,
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($youth)->get(route('tesda.index'))->assertOk();
+        $navigation = $this->workspaceNavigation($response->getContent());
+        $pageTabs = $this->workspacePageTabs($response->getContent());
+
+        foreach (['Overview', 'Training', 'Work', 'Communication', 'Account'] as $label) {
+            $this->assertStringContainsString('<span>'.$label.'</span>', $navigation, $label.' sidebar item');
+        }
+        foreach (['Courses', 'Scholarships', 'Training dates', 'My requests', 'My results'] as $label) {
+            $this->assertStringContainsString('>'.$label.'</a>', $pageTabs, $label.' training tab');
+        }
+        $this->assertStringContainsString('href="'.route('tesda.index').'"', $pageTabs);
+        $this->assertStringNotContainsString('<span>TuklasBot</span>', $navigation);
+        $response->assertSee('Ask TuklasBot')->assertSee('href="'.route('tuklasbot.index').'"', false);
+
+        $this->assertSame(1, substr_count($navigation, '<span>Training</span>'), 'Training sidebar item count');
+    }
+
+    private function workspaceNavigation(string $html): string
+    {
+        preg_match('/<nav class="tk-tabs tk-tabs--workspace".*?<\/nav>/s', $html, $matches);
+
+        return $matches[0] ?? '';
+    }
+
+    private function workspacePageTabs(string $html): string
+    {
+        preg_match('/<nav class="tk-admin-page-tabs".*?<\/nav>/s', $html, $matches);
+
+        return $matches[0] ?? '';
     }
 
     public function test_youth_dashboard_shows_a_job_role_from_their_latest_scan(): void

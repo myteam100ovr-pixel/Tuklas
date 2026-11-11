@@ -418,6 +418,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     ),
     WorkspaceField('description', 'Description', multiline: true),
     WorkspaceField('duration_hours', 'Duration in hours'),
+    WorkspaceField('duration_days', 'Duration in days'),
     WorkspaceField('requirements', 'Requirements', multiline: true),
     WorkspaceField('schedule_note', 'Schedule'),
     WorkspaceField('source_reference', 'Source reference'),
@@ -466,18 +467,23 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       ),
       if (asList(pagination['data']).isEmpty) const Text('No programs yet.'),
       for (final raw in asList(pagination['data']))
-        _card('${raw['title']}', [
-          _button(
-            'Edit program',
-            () => _form(
+        _card(
+          '${raw['title']}',
+          [
+            _button(
               'Edit program',
-              '/trainer/programs/${raw['id']}',
-              fieldsFor('${raw['status']}'),
-              method: 'PUT',
-              initial: asMap(raw),
+              () => _form(
+                'Edit program',
+                '/trainer/programs/${raw['id']}',
+                fieldsFor('${raw['status']}'),
+                method: 'PUT',
+                initial: asMap(raw),
+              ),
             ),
-          ),
-        ], subtitle: '${raw['status']} • ${raw['nc_level'] ?? 'No NC level'}'),
+          ],
+          subtitle:
+              '${raw['status']} • ${raw['nc_level'] ?? 'No NC level'} • ${raw['duration_days'] == null ? 'Duration not specified' : '${raw['duration_days']} training days'} • ${(raw['center'] as Map?)?['name'] ?? 'No center assigned'}',
+        ),
       _pages(pagination),
       for (final raw in asList(_data!['teachingAssignments']))
         _card('${raw['program']?['title'] ?? 'Course'}', [

@@ -115,18 +115,54 @@ class OperationsWorkflowTest extends TestCase
         $admin = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $this->actingAs($admin);
 
-        $this->from('/scholarships')->post('/scholarships', [
+        $this->from(route('scholarships.index'))->post(route('scholarships.store'), [
             '_operation' => 'create-scholarship',
             'title' => 'Local training grant',
             'provider' => 'Pangasinan Skills Office',
             'description' => '',
             'status' => 'published',
-        ])->assertRedirect('/scholarships')->assertSessionHasErrors(['description']);
+        ])->assertRedirect(route('scholarships.index'))->assertSessionHasErrors(['description']);
 
-        $this->get('/scholarships')->assertOk()
+        $this->get(route('scholarships.index'))->assertOk()
             ->assertSee('value="Local training grant"', false)
             ->assertSee('value="Pangasinan Skills Office"', false)
             ->assertSee('value="published" selected', false);
+    }
+
+    public function test_peso_can_publish_a_verified_job_with_the_employer_entered_on_the_opening(): void
+    {
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+
+        $response = $this->actingAs($admin)->post('/admin/opportunities', [
+            'employer_name' => 'Northstar Works',
+            'employer_verified' => '1',
+            'title' => 'Electrical Technician',
+            'location' => 'Bugallon, Pangasinan',
+            'description' => 'Maintain electrical systems.',
+            'status' => 'published',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('job_opportunities', [
+            'employer_name' => 'Northstar Works',
+            'employer_verified' => true,
+            'title' => 'Electrical Technician',
+            'posted_by' => $admin->id,
+        ]);
+    }
+
+    public function test_peso_cannot_publish_a_job_without_confirming_employer_details(): void
+    {
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+
+        $this->actingAs($admin)->from('/opportunities')->post('/admin/opportunities', [
+            'employer_name' => 'Northstar Works',
+            'title' => 'Electrical Technician',
+            'description' => 'Maintain electrical systems.',
+            'status' => 'published',
+        ])->assertRedirect('/opportunities')->assertSessionHasErrors('employer_verified');
+
+        $this->assertDatabaseMissing('job_opportunities', ['title' => 'Electrical Technician']);
     }
 
     public function test_representative_can_assign_only_trainers_and_programs_at_their_center(): void

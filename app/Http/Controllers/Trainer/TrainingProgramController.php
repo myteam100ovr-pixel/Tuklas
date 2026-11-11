@@ -27,6 +27,7 @@ class TrainingProgramController extends Controller
         }
         $data = [
             'programs' => $programs
+                ->with('center:id,name')
                 ->latest('updated_at')
                 ->paginate(12),
             'teachingAssignments' => $request->user()->teachingAssignments()
@@ -116,6 +117,7 @@ class TrainingProgramController extends Controller
             'nc_level' => ['nullable', Rule::in(['NC I', 'NC II', 'NC III', 'NC IV'])],
             'description' => ['nullable', 'string', 'max:3000'],
             'duration_hours' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'duration_days' => ['nullable', 'integer', 'min:1', 'max:65535'],
             'requirements' => ['nullable', 'string', 'max:3000'],
             'schedule_note' => ['nullable', 'string', 'max:1000'],
             'source_reference' => ['nullable', 'string', 'max:255'],

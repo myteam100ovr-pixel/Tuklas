@@ -31,6 +31,10 @@
                     <input name="duration_hours" type="number" min="1" max="65535" value="{{ old('duration_hours', $program->duration_hours) }}">
                     @error('duration_hours')<small>{{ $message }}</small>@enderror
                 </label>
+                <label>Training days
+                    <input name="duration_days" type="number" min="1" max="65535" value="{{ old('duration_days', $program->duration_days) }}">
+                    @error('duration_days')<small>{{ $message }}</small>@enderror
+                </label>
             </div>
             <label>Description
                 <textarea name="description" rows="4" maxlength="3000">{{ old('description', $program->description) }}</textarea>

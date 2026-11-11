@@ -17,14 +17,14 @@
     <div class="sr-only" id="tk-navigation-status" role="status" aria-live="polite" hidden></div>
 
     <a class="tk-skip" href="#main-content">Skip to content</a>
-    <aside class="tk-sidebar">
+    <aside class="tk-sidebar {{ $isGroupedWorkspace ? 'tk-sidebar--admin' : '' }}">
         <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home"><span class="tk-brand-symbol" aria-hidden="true">t</span>tuklas<span class="tk-brand-dot">.</span></a>
         <p class="tk-nav-caption">WORKSPACE</p>
 
         <nav class="tk-tabs tk-tabs--workspace" aria-label="Primary">
             @php($previousNavGroup = null)
             @foreach ($navTabs as $tab)
-                @if ($previousNavGroup !== $tab['group'])<p class="tk-nav-caption">{{ $tab['group'] }}</p>@php($previousNavGroup = $tab['group'])@endif
+                @if (!$isGroupedWorkspace && $previousNavGroup !== $tab['group'])<p class="tk-nav-caption">{{ $tab['group'] }}</p>@php($previousNavGroup = $tab['group'])@endif
                 <a href="{{ $tab['href'] }}" class="tk-tab {{ $tab['active'] ? 'is-active' : '' }}" @if ($tab['active']) aria-current="page" @endif>
                     <svg class="ic tk-tab__icon" aria-hidden="true"><use href="#{{ $tab['icon'] }}"/></svg>
                     <span>{{ $tab['label'] }}</span>
@@ -38,14 +38,16 @@
             <p>Discover training for your next opportunity.</p>
             <a href="{{ route('tesda.index') }}">Explore TESDA <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="tk-sidebar-role"><span class="tk-status-dot" aria-hidden="true"></span>{{ $navUser['role'] }}</div>
+        @unless ($isGroupedWorkspace)
+            <div class="tk-sidebar-role"><span class="tk-status-dot" aria-hidden="true"></span>{{ $navUser['role'] }}</div>
+        @endunless
     </aside>
 
     <header class="tk-head">
-        <div class="tk-context"><span>Workspace</span><span aria-hidden="true">/</span><strong>@foreach ($navTabs as $tab)@if ($tab['active']){{ $tab['label'] }}@endif @endforeach</strong></div>
+        <div class="tk-context"><span>Workspace</span><span aria-hidden="true">/</span><strong>{{ $navCurrentLabel ?? 'Workspace' }}</strong></div>
 
         <div class="tk-right">
-            <span class="tk-account-name">{{ $navUser['name'] }}</span>
+            @unless ($isSuperAdminWorkspace)<span class="tk-account-name">{{ $navUser['name'] }}</span>@endunless
             <a class="tk-ibtn tk-notification-link" href="{{ route('notifications.index') }}" aria-label="Notifications{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.' unread)' : '' }}" title="Notifications">
                 <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>
                 @if ($unreadNotificationCount)<span class="tk-notification-count">{{ $unreadNotificationCount }}</span>@endif
@@ -53,29 +55,63 @@
             <button type="button" class="tk-ibtn" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
                 <svg class="ic ic-sun"><use href="#i-sun"/></svg><svg class="ic ic-moon"><use href="#i-moon"/></svg>
             </button>
-            <a class="tk-ibtn" href="{{ route('profile.show') }}" aria-label="Edit profile" title="Edit profile"><svg class="ic"><use href="#i-pencil"/></svg></a>
-
-            <div class="tk-menu" data-menu>
-                <button type="button" class="tk-avatar" data-menu-btn aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
-                    @if ($navUser['photo'])<img src="{{ $navUser['photo'] }}" alt="">@else<span>{{ $navUser['initials'] }}</span>@endif
-                </button>
-                <div class="tk-pop" data-menu-pop hidden>
-                    <div class="tk-pop-who">
-                        <b>{{ $navUser['name'] }}</b>
-                        <span>{{ $navUser['email'] }}</span>
-                        <em class="chip">{{ $navUser['role'] }}</em>
+            @if ($isSuperAdminWorkspace)
+                <div class="tk-menu" data-menu>
+                    <button type="button" class="tk-avatar" data-menu-btn aria-haspopup="true" aria-expanded="false" aria-label="Account menu for {{ $navUser['name'] }}">
+                        @if ($navUser['photo'])<img src="{{ $navUser['photo'] }}" alt="">@else<span>{{ $navUser['initials'] }}</span>@endif
+                    </button>
+                    <div class="tk-pop" data-menu-pop hidden>
+                        <div class="tk-pop-who">
+                            <b>{{ $navUser['name'] }}</b>
+                            <span>{{ $navUser['email'] }}</span>
+                            <em class="chip">{{ $navUser['role'] }}</em>
+                        </div>
+                        <a class="tk-pop-item" href="{{ route('profile.show') }}"><svg class="ic"><use href="#i-pencil"/></svg>Profile</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="tk-pop-item" type="submit"><svg class="ic"><use href="#i-logout"/></svg>Logout</button>
+                        </form>
                     </div>
-                    <a class="tk-pop-item" href="{{ route('profile.show') }}"><svg class="ic"><use href="#i-pencil"/></svg>Edit profile</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="tk-pop-item" type="submit"><svg class="ic"><use href="#i-logout"/></svg>Log out</button>
-                    </form>
                 </div>
-            </div>
+            @else
+                <a class="tk-ibtn" href="{{ route('profile.show') }}" aria-label="Edit profile" title="Edit profile"><svg class="ic"><use href="#i-pencil"/></svg></a>
+                <div class="tk-menu" data-menu>
+                    <button type="button" class="tk-avatar" data-menu-btn aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+                        @if ($navUser['photo'])<img src="{{ $navUser['photo'] }}" alt="">@else<span>{{ $navUser['initials'] }}</span>@endif
+                    </button>
+                    <div class="tk-pop" data-menu-pop hidden>
+                        <div class="tk-pop-who">
+                            <b>{{ $navUser['name'] }}</b>
+                            <span>{{ $navUser['email'] }}</span>
+                            <em class="chip">{{ $navUser['role'] }}</em>
+                        </div>
+                        <a class="tk-pop-item" href="{{ route('profile.show') }}"><svg class="ic"><use href="#i-pencil"/></svg>Edit profile</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="tk-pop-item" type="submit"><svg class="ic"><use href="#i-logout"/></svg>Log out</button>
+                        </form>
+                    </div>
+                </div>
+            @endif
         </div>
     </header>
 
-    <main class="tk-main" id="main-content" tabindex="-1">{{ $slot }}</main>
+    <main class="tk-main" id="main-content" tabindex="-1">
+        @if ($isGroupedWorkspace && $adminPageTabs)
+            <nav class="tk-admin-page-tabs" aria-label="{{ $navCurrentLabel }} pages">
+                @foreach ($adminPageTabs as $tab)
+                    <a class="tk-admin-page-tab {{ $tab['active'] ? 'is-active' : '' }}" href="{{ $tab['href'] }}" @if ($tab['active']) aria-current="page" @endif>{{ $tab['label'] }}</a>
+                @endforeach
+            </nav>
+        @endif
+        {{ $slot }}
+    </main>
+
+    @if ($isSuperAdminWorkspace || $showFloatingChatButton)
+        <a class="tk-admin-chat-button" href="{{ route('tuklasbot.index') }}" aria-label="Open TuklasBot chat">
+            <svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Ask TuklasBot</span>
+        </a>
+    @endif
 
     @stack('modals')
     @livewireScripts

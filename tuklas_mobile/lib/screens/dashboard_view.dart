@@ -898,9 +898,6 @@ class _DashboardViewState extends State<DashboardView> {
                         'Scholarships',
                       ),
                       'Users' => () => widget.onOpenWorkspace?.call('Users'),
-                      'Employers' => () => widget.onOpenWorkspace?.call(
-                        'Employers',
-                      ),
                       'Jobs' => () => widget.onOpenWorkspace?.call('Jobs'),
                       'Careers' => () => widget.onOpenWorkspace?.call(
                         'Careers',

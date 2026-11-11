@@ -147,7 +147,6 @@ class _HomeShellState extends State<HomeShell> {
         builder: (_) => switch (section) {
           'TuklasBot' => const ChatView(),
           'Messages' => const MessagesView(),
-          'Employers' ||
           'Jobs' ||
           'Scholarships' ||
           'Centers' ||
@@ -280,7 +279,6 @@ class _HomeShellState extends State<HomeShell> {
                         if (ApiClient.instance.user?['role'] == 'super_admin')
                           'Users',
                         if (ApiClient.instance.user?['role'] == 'super_admin')
-                          'Employers',
                         'Scholarships',
                         'Centers',
                         if ([

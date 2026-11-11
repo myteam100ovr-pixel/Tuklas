@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="trainer-courses suite-page">
-        <x-workspace-heading eyebrow="PESO · TRAINING" title="Training catalog" description="Review all local programs, including trainer drafts and published offerings." />
+        <x-workspace-heading eyebrow="{{ auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin) ? 'TESDA · TRAINING' : 'PESO · TRAINING' }}" title="Training catalog" description="Review registered provider entries. Confirm requirements and schedules with the provider before publishing; published programs appear in the public TESDA catalog." />
         @if (session('status'))<p class="trainer-courses__feedback" role="status">{{ session('status') }}</p>@endif
         <div class="trainer-courses__toolbar">
             <div class="flex flex-wrap gap-3 text-sm">
@@ -18,7 +18,12 @@
                     <div>
                         <span class="trainer-courses__status">{{ ucfirst($program->status) }}</span>
                         <h3>{{ $program->title }}</h3>
-                        <p>{{ $program->nc_level ?: 'NC level not specified' }} · Managed by {{ $program->creator?->name ?? 'Unassigned' }} · Updated {{ $program->updated_at->format('M j, Y') }}</p>
+                        <p>{{ $program->nc_level ?: 'NC level not specified' }} · {{ $program->center?->name ?? 'No center assigned' }} · {{ $program->duration_days ? $program->duration_days.' training days' : 'Duration not specified' }} · Managed by {{ $program->creator?->name ?? 'Unassigned' }} · Updated {{ $program->updated_at->format('M j, Y') }}</p>
+                        @if ($program->source_reference === 'https://www.tesda.gov.ph/Tvi/Result')
+                            <a href="{{ $program->source_reference }}" target="_blank" rel="noopener noreferrer">Source: TESDA registered provider directory ↗</a>
+                        @elseif ($program->source_reference)
+                            <p>Source: {{ $program->source_reference }}</p>
+                        @endif
                     </div>
                     <a href="{{ route('admin.trainings.edit', $program) }}">Edit program <span aria-hidden="true">↗</span></a>
                 </article>
