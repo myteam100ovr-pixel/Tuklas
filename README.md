@@ -1,335 +1,486 @@
 # Tuklas
 
-Tuklas is a youth career guidance and skills development web app for Pangasinan, piloting in the Municipality of Bugallon with TESDA Lingayen trainings.
+Tuklas is a career-guidance and technical-vocational training platform for Pangasinan, piloting in Bugallon. It provides a Laravel web application and Flutter mobile app backed by the same Laravel API and database.
 
-## Project status
+## What the system does
 
-| Available | Planned or in progress |
-|---|---|
-| Landing page with light and dark themes | |
-| Registration, login, password reset, email verification, and two-factor authentication | Expanded career and training management screens |
-| Role-based dashboards for PESO, TESDA, training center representatives, trainers, and youth | Automated job-to-qualification matching |
-| Direct email/password sign-in and account security | |
-| Profile editing and youth guardian details for ages 15 to 17 | |
-| Skills assessment and direct messages between active, verified members | |
-| Resume and certificate scanner with Gemini analysis (requires an API key) | |
-| Gemini career chat (requires an API key) | |
-| Flutter app for Android and iOS using the shared Laravel API | |
-| Privacy notice and terms pages, with readable web sign-up dialogs | |
-| TESDA page with local published programs and links to TESDA's live directory | |
-| PESO employer and job management, with recommendations sent to selected career seekers | Automated qualification scoring for job matches |
-| TESDA training centers, scholarship notices, course sessions and capacity | |
-| Center scoped trainer assignments, trainee applications, and assessment records | |
+- Career seekers create a profile, complete a skills assessment, explore jobs, TESDA qualifications, training dates, and scholarships, and track training and scholarship applications.
+- PESO administrators manage accounts and job opportunities, send job recommendations, publish scholarships, and monitor platform activity.
+- TESDA administrators manage qualifications, training programs, participating centers, and scholarship information.
+- Training-center representatives manage their assigned center's schedules, applications, trainers, and assessment records within their permissions.
+- Trainers maintain their qualifications and assigned teaching list, and view relevant training activity.
+- Members can message one another. TuklasBot offers AI career guidance; the document scanner can read a resume or certificate with the user's consent.
+- Flutter clients use the same Laravel APIs and server-side records as the website. They do not have a separate system database. Production uses MySQL; local development can use MySQL or SQLite.
 
-## Roles and user flows
+AI output is guidance, not a guarantee of employment, admission, funding, or a training place. PESO job recommendations are selected by authorized staff; the system does not claim automatic qualification scoring.
 
-Tuklas uses role based access. Users sign in through the same web or mobile account; the server applies the permissions for the account's role.
+## Roles and the normal user flow
 
 ### PESO super administrator
 
-1. Open **People** to create and manage accounts. Assign TESDA administrators and training center representatives to their roles and centers.
-2. Open **Employers** to add employers and verify their information.
-3. Open **Jobs** to publish or close openings, then recommend a published job to an active career seeker by email. Career seekers see PESO recommendations in the job list.
-4. Use the overview and activity pages to monitor accounts and platform activity.
+1. Sign in and use the overview to review platform activity.
+2. Manage career-seeker and authorized staff accounts, including role and center assignments.
+3. Create, update, publish, or close job opportunities and recommend a published opening to an active career seeker.
+4. Publish verified scholarship information and review scholarship applications.
+5. Monitor training activity, messages, and user progress.
+
+Employer information is stored with job opportunities. There is no separate Employers destination in the PESO navigation.
 
 ### TESDA training administrator
 
-1. Open **Centers** to maintain PTC and PSAT institutions.
-2. Open **Programs** to maintain training course details and decide when a program is published.
-3. Open **Trainers** to assign trainers to published programs at their center.
-4. Publish scholarship information, create training sessions, review trainee applications, and record assessments.
+1. Maintain participating centers and training programs.
+2. Publish accurate program details and qualification requirements.
+3. Assign trainers and maintain training information.
+4. Manage scholarships and review training activity according to permissions.
 
-### Training center representative
+### Training-center representative
 
-1. The account must be assigned to a training center by an administrator.
-2. Open **Programs** to maintain that center's course information. TESDA controls publishing.
-3. Open **Trainers** to assign trainers to programs belonging to the assigned center.
-4. Open **Sessions** to set dates, capacity, and availability. Review applications and manage assessment schedules and results for that center's trainees.
+1. An administrator assigns the account to one training center.
+2. Manage that center's schedules and available places.
+3. Review training requests and keep trainer assignments current.
+4. Record authorized assessment schedules and results. Center scoping limits the account to its assigned center.
 
 ### Trainer
 
-Trainers can manage their permitted program information and teaching assignments. Training center representatives or TESDA administrators manage center staff assignments. Trainer accounts should be associated with a center to be assignable to that center's programs.
+1. Maintain trainer qualifications and review assigned courses.
+2. View relevant sessions and communicate with Tuklas members.
+3. TESDA administrators or center representatives handle center and schedule administration.
 
-### Career Seeker
+### Career seeker
 
-1. Register, verify your email address, and complete your profile with education, skills, interests, and credentials.
-2. Record your skills and interests, then optionally scan a resume or certificate for suggestions.
-3. Review career suggestions and explore current TESDA qualifications, jobs, scholarships, centers, and open training dates.
-4. Save a training goal, request a place in an open session, then track the request and assessment records.
+1. Register, verify the email address, and complete the profile.
+2. Record skills and interests, then optionally complete the skills assessment.
+3. Browse career guidance, jobs, training qualifications, centers, open dates, and scholarships.
+4. Review scholarship requirements and assessment information; submit an application and requested documents when ready.
+5. Request a place in an open training session and track the request and assessment record.
+6. Message administrators, trainers, or other active Tuklas members.
 
-Job recommendations are selected by PESO (the local employment office) staff. Tuklas does not automatically rank jobs from profile qualifications.
+### Request and review flow
 
-## Where the features live
+```mermaid
+flowchart LR
+    SEEKER[Career seeker] -->|Browse and apply| CATALOG[Jobs, training, scholarships]
+    CATALOG -->|Training request| CENTER[Training center or TESDA staff]
+    CENTER -->|Accept or decline| REQUEST[Training application]
+    REQUEST -->|Accepted trainee| ASSESS[Assessment schedule and result]
+    CATALOG -->|Scholarship application with documents| STAFF[PESO or TESDA reviewer]
+    STAFF -->|Review status and notes| SCHOLARSHIP[Scholarship application]
+    PESO[PESO staff] -->|Recommend opening| SEEKER
+    SEEKER <-->|Direct messages| MEMBERS[Tuklas members and administrators]
+```
 
-| Feature | Web entry point | Laravel implementation | Flutter implementation |
-|---|---|---|---|
-| Roles and account management | People / account forms | `app/Enums/Role.php`, `app/Http/Controllers/Admin/UserController.php`, `routes/web.php` | `tuklas_mobile/lib/screens/workspace_view.dart` |
-| Employers and job opportunities | Employers, Jobs | `app/Http/Controllers/EmployerController.php`, `app/Http/Controllers/JobOpportunityController.php`, `resources/views/operations/` | `tuklas_mobile/lib/screens/operations_view.dart` |
-| Training centers and scholarships | Centers, Scholarships | `app/Http/Controllers/TrainingCenterController.php`, `app/Http/Controllers/ScholarshipController.php` | `tuklas_mobile/lib/screens/operations_view.dart` |
-| Programs and trainer assignments | Programs, Trainers | `app/Http/Controllers/Trainer/TrainingProgramController.php`, `app/Http/Controllers/Trainer/CenterTrainerController.php` | `tuklas_mobile/lib/screens/workspace_view.dart`, `tuklas_mobile/lib/screens/operations_view.dart` |
-| Sessions and applications | Sessions, Applications | `app/Http/Controllers/TrainingSessionController.php`, `app/Http/Controllers/Trainer/TrainingApplicationController.php` | `tuklas_mobile/lib/screens/operations_view.dart` |
-| Assessments | Assessments | `app/Http/Controllers/AssessmentRecordController.php` | `tuklas_mobile/lib/screens/operations_view.dart` |
-| Database structure | — | `database/migrations/` | Data is served by the Laravel mobile API |
+## Application architecture
 
-The same Laravel domain controllers serve browser routes in `routes/web.php` and authenticated mobile API routes in `routes/api.php`. The database migrations create the new employer, job, scholarship, center, session, assessment, and recommendation records. The mobile application calls those API routes; it does not keep a separate copy of this data.
+```mermaid
+flowchart TD
+    WEB[Web browser] --> LARAVEL[Laravel web application]
+    FLUTTER[Flutter Android or iOS app] --> API[Authenticated Laravel mobile API]
+    API --> LARAVEL
+    LARAVEL --> AUTH[Authentication, account status, and role permissions]
+    AUTH --> ROLES{Role-specific workspace}
+
+    ROLES --> PESO[PESO: accounts, jobs, recommendations, scholarships, monitoring]
+    ROLES --> TESDA[TESDA: programs, centers, training information]
+    ROLES --> CENTER[Center representative: center-scoped schedules and records]
+    ROLES --> TRAINER[Trainer: qualifications and assigned teaching]
+    ROLES --> YOUTH[Career seeker: profile, assessment, applications, jobs, training]
+
+    PESO --> DB[(MySQL or SQLite via Laravel migrations)]
+    TESDA --> DB
+    CENTER --> DB
+    TRAINER --> DB
+    YOUTH --> DB
+
+    YOUTH -->|Consent + document| SCANNER[Document scanner]
+    SCANNER --> GEMINI[Gemini API]
+    GEMINI --> SCANNER
+    YOUTH --> BOT[TuklasBot career chat]
+    BOT --> GEMINI
+    LARAVEL --> MAIL[Configured email transport]
+```
+
+`routes/web.php` serves browser pages. `routes/api.php` serves mobile JSON endpoints. Controllers and models hold the shared application behavior; authorization and role middleware restrict what each account can see and change.
+
+## Database schema
+
+Laravel migrations in `database/migrations/` are the source of truth for database structure. `php artisan migrate` creates the schema for MySQL or SQLite. The diagram shows the primary application tables and foreign-key relationships; Laravel also creates infrastructure tables for sessions, cache, queues, tokens, password resets, and migration tracking.
+
+```mermaid
+erDiagram
+    USERS {
+        bigint id PK
+        string name
+        string email UK
+        string role
+        boolean is_active
+        bigint training_center_id FK
+    }
+    YOUTH_PROFILES {
+        bigint id PK
+        bigint user_id FK, UK
+        string barangay
+        json interests
+        json skills
+        json credentials
+    }
+    CAREER_PATHS {
+        bigint id PK
+        string title
+        text description
+        string status
+    }
+    TRAINING_CENTERS {
+        bigint id PK
+        string name
+        string type
+        string address
+        boolean is_active
+    }
+    TRAINING_PROGRAMS {
+        bigint id PK
+        bigint training_center_id FK
+        bigint created_by FK
+        string title
+        string nc_level
+        string status
+        text requirements
+    }
+    TRAINING_SESSIONS {
+        bigint id PK
+        bigint training_program_id FK
+        bigint training_center_id FK
+        bigint created_by FK
+        datetime starts_at
+        datetime ends_at
+        unsigned_smallint capacity
+        string status
+    }
+    TRAINING_APPLICATIONS {
+        bigint id PK
+        bigint training_program_id FK
+        bigint training_session_id FK
+        bigint user_id FK
+        string status
+    }
+    ASSESSMENT_RECORDS {
+        bigint id PK
+        bigint training_application_id FK
+        bigint recorded_by FK
+        datetime scheduled_at
+        string status
+        string result
+    }
+    TRAINING_ASSIGNMENTS {
+        bigint id PK
+        bigint training_program_id FK
+        bigint user_id FK
+    }
+    TRAINER_QUALIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        string qualification_id
+        string title
+        string nc_level
+    }
+    EMPLOYERS {
+        bigint id PK
+        string name
+        string location
+        boolean is_verified
+    }
+    JOB_OPPORTUNITIES {
+        bigint id PK
+        bigint employer_id FK
+        bigint posted_by FK
+        string title
+        string location
+        string status
+    }
+    JOB_RECOMMENDATIONS {
+        bigint id PK
+        bigint job_opportunity_id FK
+        bigint user_id FK
+        bigint recommended_by FK
+    }
+    SCHOLARSHIPS {
+        bigint id PK
+        bigint published_by FK
+        string title
+        string provider
+        text requirements
+        text assessment_details
+        string status
+    }
+    SCHOLARSHIP_APPLICATIONS {
+        bigint id PK
+        bigint scholarship_id FK
+        bigint user_id FK
+        bigint reviewed_by FK
+        json documents
+        string status
+    }
+    DOCUMENT_SCANS {
+        bigint id PK
+        bigint user_id FK
+        string original_name
+        string status
+        json result
+    }
+    CAREER_CHAT_MESSAGES {
+        bigint id PK
+        bigint user_id FK
+        string role
+        text text
+        json sources
+    }
+    DIRECT_MESSAGES {
+        bigint id PK
+        bigint sender_id FK
+        bigint recipient_id FK
+        text body
+        datetime read_at
+    }
+    TESDA_CHOICES {
+        bigint id PK
+        bigint user_id FK, UK
+        bigint selected_by FK
+        string qualification_id
+        string qualification_title
+    }
+    USERS ||--o| YOUTH_PROFILES : has
+    USERS ||--o{ TRAINING_APPLICATIONS : submits
+    USERS ||--o{ SCHOLARSHIP_APPLICATIONS : submits
+    USERS ||--o{ DOCUMENT_SCANS : uploads
+    USERS ||--o{ CAREER_CHAT_MESSAGES : chats
+    USERS ||--o{ DIRECT_MESSAGES : sends_or_receives
+    USERS ||--o{ JOB_RECOMMENDATIONS : receives
+    USERS ||--o{ TRAINING_ASSIGNMENTS : teaches
+    USERS ||--o{ TRAINER_QUALIFICATIONS : holds
+    USERS ||--o| TESDA_CHOICES : selects
+    TRAINING_CENTERS ||--o{ TRAINING_PROGRAMS : offers
+    TRAINING_CENTERS ||--o{ TRAINING_SESSIONS : hosts
+    TRAINING_PROGRAMS ||--o{ TRAINING_SESSIONS : schedules
+    TRAINING_PROGRAMS ||--o{ TRAINING_APPLICATIONS : receives
+    TRAINING_SESSIONS ||--o{ TRAINING_APPLICATIONS : requested_for
+    TRAINING_APPLICATIONS ||--o{ ASSESSMENT_RECORDS : has
+    TRAINING_PROGRAMS ||--o{ TRAINING_ASSIGNMENTS : assigned_to
+    EMPLOYERS ||--o{ JOB_OPPORTUNITIES : posts
+    JOB_OPPORTUNITIES ||--o{ JOB_RECOMMENDATIONS : recommended_as
+    SCHOLARSHIPS ||--o{ SCHOLARSHIP_APPLICATIONS : receives
+```
+
+Other migrations create `password_reset_tokens`, `sessions`, `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs`, `personal_access_tokens`, `passkeys`, `social_accounts`, and polymorphic `notifications`. Catalog and training activity records include `is_demo` flags where applicable.
+
+## Where the main features live
+
+| Feature | Main implementation |
+|---|---|
+| Role definitions and dashboard routing | `app/Enums/Role.php`, `app/Http/Controllers/DashboardController.php`, `app/View/Composers/NavComposer.php` |
+| Browser routes and mobile API routes | `routes/web.php`, `routes/api.php` |
+| Account management | `app/Http/Controllers/Admin/UserController.php`, Laravel Fortify actions in `app/Actions/Fortify/` |
+| Career-seeker profile and skills assessment | `app/Http/Controllers/YouthProfileController.php`, `app/Http/Controllers/SkillsAssessmentController.php`, `app/Models/YouthProfile.php` |
+| TESDA catalog and training programs | `app/Http/Controllers/TesdaCatalogController.php`, `app/Http/Controllers/Trainer/TrainingProgramController.php`, `app/Models/TrainingProgram.php` |
+| Training centers, dates, requests, and results | `app/Http/Controllers/TrainingCenterController.php`, `app/Http/Controllers/TrainingSessionController.php`, `app/Http/Controllers/Trainer/TrainingApplicationController.php`, `app/Http/Controllers/AssessmentRecordController.php` |
+| Jobs and PESO recommendations | `app/Http/Controllers/JobOpportunityController.php`, `app/Http/Controllers/Admin/CareerRecommendationController.php` |
+| Scholarships and applications | `app/Http/Controllers/ScholarshipController.php`, `app/Http/Controllers/ScholarshipApplicationController.php` |
+| Document scanner and AI career chat | `app/Http/Controllers/DocumentScanController.php`, `app/Services/GeminiDocumentScanner.php`, `app/Http/Controllers/CareerChatController.php`, `app/Services/GeminiCareerAssistant.php` |
+| Direct messages and notifications | `app/Http/Controllers/DirectMessageController.php`, `app/Http/Controllers/NotificationsController.php` |
+| Flutter app | `tuklas_mobile/lib/`, with shared network code in `tuklas_mobile/lib/api.dart` |
+| Database schema | `database/migrations/` |
+| Seeders | `database/seeders/` |
 
 ## Requirements
 
-- PHP **8.5.12 or newer**, with `ctype`, `curl`, `dom`, `fileinfo`, `filter`, `hash`, `mbstring`, `openssl`, `pcre`, `pdo`, `session`, `tokenizer`, and `xml`. The default SQLite database also needs `pdo_sqlite`. For MySQL, enable `pdo_mysql` instead.
-- Composer 2
-- Node.js **20.19+ or 22.12+** and npm (use an active Node.js LTS release)
+- PHP 8.5.12 or newer and Composer 2
+- PHP extensions: `ctype`, `curl`, `dom`, `fileinfo`, `filter`, `hash`, `mbstring`, `openssl`, `pcre`, `pdo`, `session`, `tokenizer`, and `xml`; plus `pdo_mysql` for MySQL or `pdo_sqlite` for SQLite
+- Node.js 20.19+ or 22.12+ and npm
 - Git
+- Flutter and Android Studio for Android development; macOS and Xcode are required to build iOS
 
-This project requires PHP 8.5.12 or newer within PHP 8.x. Vite 8, used by this project, requires Node.js 20.19+ or 22.12+. For updated installation instructions, see the official [Laravel installation guide](https://laravel.com/docs/13.x/installation), [Node.js downloads](https://nodejs.org/en/download/), and [Composer downloads](https://getcomposer.org/download/).
+## Local setup on Windows with MySQL
 
-## Install tools by operating system
+Open PowerShell in the repository directory. Start MySQL in XAMPP, Laragon, or your local MySQL service. The example below assumes XAMPP's MySQL executable is at `C:\xampp\mysql\bin`.
 
-### Windows
-
-Use PowerShell, Windows Terminal, Git Bash, or WSL. Install PHP 8.5.12+, Composer 2, Node.js LTS, and Git. Laravel Herd or Laragon can provide a local PHP environment; verify the PHP version and extensions from the same terminal you will use for the project. The [PHP for Windows downloads](https://windows.php.net/download/), [Composer Windows installer](https://getcomposer.org/Composer-Setup.exe), and [Node.js downloads](https://nodejs.org/en/download/) are also available.
-
-If you use WSL, install the tools inside your Linux distribution and follow the Linux commands below. Keeping the project in the Linux home directory (rather than under `/mnt/c`) can improve file-watching performance.
-
-### macOS
-
-Install [Homebrew](https://brew.sh/), then install PHP, Composer, Node.js, and Git:
-
-```bash
-brew install php composer node git
-```
-
-SQLite is the default database and needs no separate server. To use MySQL instead, install and start it with `brew install mysql` and `brew services start mysql`.
-
-### Linux (Ubuntu or Debian)
-
-Install Git, PHP 8.5.12+ and its SQLite extensions, plus the common Laravel PHP extensions:
-
-```bash
-sudo apt update
-sudo apt install -y git curl unzip sqlite3 composer \
-  php-cli php-sqlite3 php-curl php-mbstring php-xml php-zip php-bcmath php-intl
-```
-
-Check that `php -v` reports PHP 8.5.12 or newer and that `composer --version` reports Composer 2. Install Node.js LTS from [nodejs.org](https://nodejs.org/en/download/) or a maintained Node version manager if your distribution's package is too old for Vite 8. If your distribution does not provide PHP 8.5.12+, use the [official Laravel installation instructions](https://laravel.com/docs/13.x/installation) for a current PHP setup.
-
-For Fedora, Arch, and other distributions, install the equivalent PHP extensions, SQLite PDO driver, Composer 2, Git, and supported Node.js LTS using that distribution's package manager.
-
-### Check the tools
-
-Open a new terminal after installing them, then run:
-
-```text
-php -v
-php -m
-composer --version
-node -v
-npm -v
-git --version
-```
-
-## Get the project running
-
-Run these commands from a terminal. Replace `<repository-url>` with the Git URL for this project.
-
-```text
-git clone <repository-url> tuklas
-cd tuklas
-composer install
-npm ci
-```
-
-Copy `.env.example` to `.env`:
-
-**Windows PowerShell**
+Create a database and a local app user (replace the sample password before running):
 
 ```powershell
-Copy-Item .env.example .env
-New-Item -ItemType File -Path database\database.sqlite -Force
+& "C:\xampp\mysql\bin\mysql.exe" -u root -p -e "CREATE DATABASE IF NOT EXISTS tuklas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER IF NOT EXISTS 'tuklas_local'@'127.0.0.1' IDENTIFIED BY 'replace-with-a-local-password'; GRANT ALL PRIVILEGES ON tuklas.* TO 'tuklas_local'@'127.0.0.1'; FLUSH PRIVILEGES;"
 ```
 
-**macOS and Linux**
+If XAMPP's `root` account has no password, remove `-p` from the command. Copy `.env.example` only if `.env` does not already exist, then set the local database and admin values:
 
-```bash
-cp .env.example .env
-touch database/database.sqlite
+```powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
-
-The template uses SQLite by default. In `.env`, set `APP_NAME=Tuklas` and `APP_URL=http://127.0.0.1:8000`, then configure the initial super admin. These three values are read by the database seeder:
 
 ```dotenv
-TUKLAS_SUPERADMIN_EMAIL=admin@example.com
-TUKLAS_SUPERADMIN_NAME="PESO Bugallon"
-TUKLAS_SUPERADMIN_PASSWORD="use-a-long-unique-password"
-```
-
-Generate the app key, create the database tables and initial admin, create the public storage link, generate the technology-logo partials, and build frontend assets:
-
-```text
-php artisan key:generate
-php artisan migrate --seed
-php artisan storage:link
-node scripts/make-tech-logos.mjs
-npm run build
-```
-
-Start the Laravel server:
-
-```text
-php artisan serve
-```
-
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and sign in with the super admin email and password from `.env`. Youth can register through the site. Trainer accounts are created by a super admin.
-
-### Optional: use MySQL or MariaDB
-
-Install and start MySQL 8+ or MariaDB 10.6+, create a database, then change `.env` to use it. Example database creation command (works in PowerShell, macOS Terminal, and Linux shells when the MySQL client is installed):
-
-```text
-mysql -u root -p -e "CREATE DATABASE tuklas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-```
-
-Set these values in `.env`, and make sure the PHP CLI has `pdo_mysql` enabled:
-
-```dotenv
+APP_NAME=Tuklas
+APP_URL=http://127.0.0.1:8000
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=tuklas
-DB_USERNAME=root
-DB_PASSWORD=your-local-database-password
+DB_USERNAME=tuklas_local
+DB_PASSWORD=replace-with-a-local-password
+TUKLAS_SUPERADMIN_EMAIL=admin@tuklas.test
+TUKLAS_SUPERADMIN_NAME="PESO Bugallon"
+TUKLAS_SUPERADMIN_PASSWORD="replace-with-a-strong-local-password"
 ```
 
-Then run `php artisan migrate --seed`.
+Install dependencies, generate the app key, migrate the schema, and create the configured super admin:
 
-## Environment variables
-
-Never commit real secrets. `.env` is local configuration; keep API keys and OAuth secrets on the server.
-
-| Variable | Purpose |
-|---|---|
-| `APP_URL` | Local site URL; use `http://127.0.0.1:8000` for the commands above |
-| `DB_CONNECTION` and `DB_*` | SQLite by default; use the MySQL values above if choosing MySQL |
-| `TUKLAS_SUPERADMIN_EMAIL`, `TUKLAS_SUPERADMIN_NAME`, `TUKLAS_SUPERADMIN_PASSWORD` | Initial PESO Bugallon admin created by `php artisan migrate --seed` |
-| `GOOGLE_AI_API_KEY` | Enables Gemini resume/certificate scans and career chat; the key stays server-side |
-| `GEMINI_MODEL` | Gemini model name; defaults to the value in `.env.example` |
-| `MAIL_MAILER` | `phpmailer` for PHPMailer SMTP delivery, `smtp` for Laravel's SMTP transport, or `log` to inspect messages locally |
-| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SCHEME` | SMTP server settings; the example uses Gmail with TLS on port 587 |
-| `MAIL_TIMEOUT` | SMTP connection timeout in seconds; defaults to 15 |
-| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Sender address and display name for outgoing mail |
-
-The example `.env` selects PHPMailer and Gmail SMTP on port 587 with TLS. For Gmail, enable 2-Step Verification and create an app password. Set `MAIL_USERNAME` to the Gmail address and `MAIL_PASSWORD` to the app password in the untracked `.env` file. Keep `MAIL_FROM_ADDRESS` the same as the authenticated address. Yahoo and other SMTP providers can also receive mail; change `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, username, and password to the provider's SMTP settings. Recipients can use any email service. Never commit SMTP credentials. To use Laravel's built-in SMTP transport, set `MAIL_MAILER=smtp`.
-
-## Daily development
-
-Run the Laravel server and Vite development server in two terminals:
-
-```text
-php artisan serve
-npm run dev
+```powershell
+composer install
+npm ci
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+npm run build
 ```
 
-Use `npm run build` to create production frontend assets. Run `php artisan test` when you want to run the project test suite.
+For the fictional records used to test catalog and training workflows, run the separate seeder:
 
-## Set up the Flutter mobile app
-
-The mobile app is in `tuklas_mobile/`. Install the Flutter SDK separately from this repository; use the official [Flutter installation guide](https://docs.flutter.dev/install) and choose the instructions for your operating system. Extract the stable SDK to a writable location, add its `bin` directory to your `PATH`, and open a new terminal. The Dart SDK bundled with Flutter must satisfy the constraint in `tuklas_mobile/pubspec.yaml` (Dart 3.13.4 or newer in the 3.x series).
-
-For Android development, install [Android Studio](https://developer.android.com/studio), including the Android SDK, command-line tools, and an emulator. Accept the Android SDK licenses and check the setup:
-
-```text
-flutter doctor --android-licenses
-flutter doctor -v
+```powershell
+php artisan db:seed --class=FictionalDemoCatalogSeeder
 ```
 
-For iOS development, use macOS with [Xcode](https://developer.apple.com/xcode/) installed and configured. Flutter's [Android setup guide](https://docs.flutter.dev/platform-integration/android/setup) and [iOS setup guide](https://docs.flutter.dev/platform-integration/ios/setup) list the platform-specific requirements.
+It creates 50 fictional training programs, job listings, scholarship scenarios, training dates, training requests, and assessment records across 5 fictional centers. These are test records, not real openings or official outcomes; their descriptions disclose that they are fictional. Do not seed them into a public production database unless you intend to show demo records there.
 
-From the repository root, fetch the app dependencies and launch it on a running emulator or connected device:
+Start the local site:
 
-```text
-cd tuklas_mobile
+```powershell
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Visit [http://127.0.0.1:8000](http://127.0.0.1:8000). The initial PESO administrator signs in with the email and password set in `.env`.
+
+### MySQL inspection commands
+
+```powershell
+& "C:\xampp\mysql\bin\mysql.exe" -u root -p -D tuklas -e "SHOW TABLES;"
+& "C:\xampp\mysql\bin\mysql.exe" -u root -p -D tuklas -e "SHOW CREATE TABLE training_programs;"
+php artisan migrate:status
+```
+
+To create a no-data schema dump from the local database:
+
+```powershell
+& "C:\xampp\mysql\bin\mysqldump.exe" -u root -p --no-data --result-file=database-schema.sql tuklas
+```
+
+## Other local databases
+
+SQLite is the default in `.env.example`. To use it, create the file before running migrations:
+
+```powershell
+New-Item -ItemType File -Path database\database.sqlite -Force
+```
+
+Set `DB_CONNECTION=sqlite` in `.env`. For macOS/Linux, follow the same Composer and Artisan steps, use `cp .env.example .env`, and create the SQLite file with `touch database/database.sqlite` if using SQLite. For MySQL, create the database and set the `DB_*` values as above.
+
+## Flutter development
+
+Install the Flutter SDK separately and check Android/iOS prerequisites with `flutter doctor`. From the repository root:
+
+```powershell
+Set-Location tuklas_mobile
 flutter pub get
 flutter devices
 flutter run
 ```
 
-The Laravel backend must also be running with its database initialized and migrations applied. The app's default API address is `http://10.0.2.2:8000/api/mobile`, which reaches the host computer from an Android emulator. For an iOS simulator, pass its API address when launching:
+The Laravel server and database must be running. The app's debug default targets the Android emulator at `http://10.0.2.2:8000/api/mobile`. For an iOS simulator:
 
-```text
+```powershell
 flutter run --dart-define=API_BASE=http://127.0.0.1:8000/api/mobile
 ```
 
-For a physical phone, connect the phone and computer to the same network, start Laravel so it accepts LAN connections, and substitute the computer's LAN IP:
+For a physical phone, run Laravel on the local network and substitute the computer's LAN IP:
 
-```text
-# In the Laravel project root, in a separate terminal:
+```powershell
+# In the repository root
 php artisan serve --host=0.0.0.0
 
-# In tuklas_mobile:
+# In tuklas_mobile, use your computer's LAN address
 flutter run --dart-define=API_BASE=http://192.168.1.20:8000/api/mobile
 ```
 
-Replace `192.168.1.20` with the computer's actual LAN IP and allow the server through the computer's firewall if prompted. `API_BASE` can also be set to another reachable API URL without editing the app source.
+The phone and computer must be on a reachable network, and the computer firewall must allow the Laravel port. Use HTTPS for release builds.
 
-### Build an APK for Amazon
+## Mobile releases
 
-Build from `tuklas_mobile/` and use the deployed server's HTTPS API URL. Do not use HTTP for an app that sends passwords or bearer tokens.
+- Android APK releases are built and published by `.github/workflows/mobile-release.yml` after a push that changes `tuklas_mobile/` or that workflow, or by manually starting the workflow in GitHub Actions. It needs the Android signing and EC2 deployment secrets plus the `PUBLIC_APP_URL` repository variable. The workflow checks that the HTTPS API responds with a valid certificate before building and publishing the APK and update manifest under `public/app-updates/`.
+- The website's mobile download page is served at `/app`; its Android download information comes from the published update manifest.
+- iOS builds use `.github/workflows/ios-release.yml` and must be started manually. Signed TestFlight/App Store distribution needs Apple signing credentials and App Store Connect configuration. An IPA build alone does not publish the app to the App Store.
+- The app's installed-version update prompt can download the published Android APK. iOS app updates must go through Apple's distribution process.
 
-```text
-flutter build apk --release --dart-define=API_BASE=https://YOUR_DOMAIN/api/mobile
+## Email and AI configuration
+
+Configure secrets only in the untracked local `.env` or the deployment environment. Never commit credentials.
+
+| Variable | Purpose |
+|---|---|
+| `GOOGLE_AI_API_KEY` | Enables Gemini document scans and career chat; the key stays on the Laravel server. |
+| `GEMINI_MODEL` | Selects the configured Gemini model. |
+| `MAIL_MAILER` | `phpmailer` for the PHPMailer SMTP transport, `smtp` for Laravel SMTP, or `log` for local inspection. |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SCHEME` | SMTP connection settings. |
+| `MAIL_TIMEOUT` | SMTP connection timeout in seconds. |
+| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Sender address and display name. |
+
+For local email troubleshooting, `MAIL_MAILER=log` writes messages to `storage/logs/laravel.log`. Do not put AI-provider or SMTP credentials in the Flutter app.
+
+## Daily development and verification
+
+Run Laravel and Vite in separate terminals:
+
+```powershell
+php artisan serve
+npm run dev
 ```
 
-The APK is written to `build/app/outputs/flutter-apk/app-release.apk`. Replace `YOUR_DOMAIN` with the HTTPS host configured for Laravel. If using an IP address, verify that its HTTPS certificate validates for that IP. The Android release currently uses the Gradle debug signing key; configure a private release key before distributing through an app store.
-
-Before using messaging in the APK, deploy the matching Laravel commit and apply migrations on the server:
-
-```bash
-cd /var/www/tuklas
-git pull origin main
-php artisan migrate --force
-php artisan optimize:clear
-```
-
-The app includes registration and verification, role workspaces, account security, notifications, direct messages, career chat, scan history, PESO recommendations, and TESDA training plans. Direct messages require the `direct_messages` migration and mobile messaging API.
+Build production assets with `npm run build`. Run the Laravel suite with `php artisan test`. From `tuklas_mobile/`, run `flutter analyze` and `flutter test`.
 
 ## Troubleshooting
 
-| Problem | Fix |
+| Problem | Check |
 |---|---|
-| Composer reports a missing PHP extension | Enable the required extension for the PHP CLI, then check `php -m` and run `composer check-platform-reqs`. Windows PHP tools can use a different `php.ini`; check `php --ini`. |
-| `could not find driver` with SQLite | Enable `pdo_sqlite` in the PHP CLI and create `database/database.sqlite` as shown above. |
-| `could not find driver` with MySQL | Enable `pdo_mysql` in the PHP CLI, then run `php artisan config:clear`. |
-| `Vite manifest not found` or CSS/JS does not load | Run `npm ci` and `npm run build`, or leave `npm run dev` running in a second terminal. |
-| The `npm` command fails but Node works | After dependencies are installed, run `node ./node_modules/vite/bin/vite.js build` in PowerShell, macOS, or Linux. |
-| `View [partials.tech-logos] not found` or a generated logo partial is missing | Run `node scripts/make-tech-logos.mjs`. |
-| `SQLSTATE ... Access denied` | Check the MySQL username, password, database name, and that the server is running. |
-| `419 Page Expired` | Run `php artisan optimize:clear`, then reload. |
-| Email does not arrive in development | With `MAIL_MAILER=log`, inspect `storage/logs/laravel.log`. With SMTP, check the provider host, port, TLS mode, sender address, username, and app password. |
-| Google or Facebook sign-in fails | Check the OAuth client credentials and callback URL against the provider console and `APP_URL`. |
-| Uploaded profile photo is missing | Run `php artisan storage:link`. |
+| `could not find driver` with MySQL | Enable `pdo_mysql` in the PHP CLI used by Artisan, then check `php --ini` and `php -m`. |
+| MySQL `Access denied` | Check that MySQL is running and `.env` has the matching database, username, host, and password. Then run `php artisan config:clear`. |
+| `Table doesn't exist` | Run `php artisan migrate --seed` against the intended local database. |
+| `Vite manifest not found` or styles are missing | Run `npm ci` and `npm run build`, or keep `npm run dev` running. |
+| `419 Page Expired` | Run `php artisan optimize:clear` and reload. |
+| Email does not arrive | Check the configured mailer, SMTP host/port/TLS, sender, username, and app password; use `MAIL_MAILER=log` to inspect local messages. |
+| Scanner or career chat reports AI unavailable | Confirm `GOOGLE_AI_API_KEY` is configured on Laravel and inspect `storage/logs/laravel.log`. |
+| Flutter app cannot connect | Confirm the API URL is reachable from that device. Android emulator uses `10.0.2.2`; a physical phone needs a reachable LAN or HTTPS server URL. |
+| `View [partials.tech-logos] not found` | Run `node scripts/make-tech-logos.mjs`. |
+| Uploaded profile photos are missing | Run `php artisan storage:link`. |
 
 ## Project structure
 
 ```text
-app/Enums/Role.php
-app/Http/Controllers/                 Dashboards, scanner, profile, TESDA, messaging, and chat
-app/Http/Middleware/EnsureRole.php
-app/Models/                           Users, scans, training programs, career paths
-app/Services/                         Gemini document scanner and career assistant
-app/Support/ProfileCompletion.php
-app/View/Composers/NavComposer.php
-database/migrations/                  Authentication, youth profiles, scans, catalogs, messages
-database/seeders/DatabaseSeeder.php
-resources/views/                      Blade pages, layouts, dashboard, scanner, TESDA
-resources/css/                        Landing, theme, and signed-in UI styles
-resources/js/                          Landing, theme, dashboard, scanner, and chat scripts
-scripts/make-tech-logos.mjs            Generates the technology logo and function-chip partials
+app/Enums/Role.php                    Role definitions and dashboard destinations
+app/Http/Controllers/                 Web and API request handlers
+app/Http/Middleware/EnsureRole.php    Role access control
+app/Models/                           Eloquent models and relationships
+app/Services/                         Gemini scanner and career assistant
+app/Support/                          Shared profile and workflow helpers
+app/View/Composers/NavComposer.php    Role-specific navigation
+database/migrations/                  Versioned database schema
+database/seeders/                     Admin, source catalog, and demo seeders
+resources/views/                      Laravel Blade pages and shared layouts
+resources/css/                        Website styles and themes
+resources/js/                          Website interaction scripts
+routes/web.php                        Browser routes
+routes/api.php                        Mobile API routes
+tuklas_mobile/lib/                    Flutter mobile application
+.github/workflows/                    Android and iOS release automation
 ```
 
-## Notes
+## Data and privacy notes
 
-- Career and document-scan AI output is guidance, not a guarantee of jobs, admission, or training slots.
-- The local Tuklas training catalog contains programs published by authorized staff. For broader Pangasinan listings, the TESDA page links to TESDA's registered-provider directory.
-- The setup guide covers Windows, macOS, and Linux. The current project checkout has been run in its available development environment; the other operating systems have not been independently tested here.
-- Before real users register, have the privacy notice reviewed under the Data Privacy Act.
+- Fictional seeded listings and activity records are for workflow testing; they are not real job openings, training slots, scholarship awards, or official assessment outcomes.
+- Users' profile and application records are scoped by role and ownership. Administrative views do not grant career seekers access to other users' messages, scans, requests, or results.
+- AI career and document analysis is advisory. Users must consent before sending a document to the scanner.
+- Review the privacy notice and terms before inviting public users. Have the privacy notice reviewed for applicable data-protection obligations.
 
 Capstone project of Tour de Force, Universidad de Dagupan.
