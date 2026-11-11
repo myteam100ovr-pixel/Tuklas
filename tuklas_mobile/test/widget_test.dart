@@ -73,7 +73,7 @@ void main() {
         MaterialApp(home: Gate(checkSignedIn: () => startupCheck.future)),
       );
 
-      await tester.pump(const Duration(seconds: 16));
+      await tester.pump(const Duration(seconds: 36));
       await tester.pumpAndSettle();
 
       expect(find.text('Can’t reach the Tuklas server'), findsOneWidget);
@@ -97,10 +97,35 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(seconds: 16));
+    await tester.pump(const Duration(seconds: 36));
 
     expect(find.text('Can’t reach the Tuklas server'), findsOneWidget);
     await tester.tap(find.text('Retry connection'));
+    await tester.pump();
+
+    expect(checks, 2);
+    expect(find.byType(NavigationBar), findsOneWidget);
+  });
+
+  testWidgets('startup reconnects automatically after a temporary failure', (
+    WidgetTester tester,
+  ) async {
+    final firstCheck = Completer<bool>();
+    var checks = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Gate(
+          checkSignedIn: () {
+            checks++;
+            return checks == 1 ? firstCheck.future : Future.value(true);
+          },
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(seconds: 36));
+    expect(find.text('Can’t reach the Tuklas server'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 12));
     await tester.pump();
 
     expect(checks, 2);

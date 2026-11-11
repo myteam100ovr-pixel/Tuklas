@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -101,25 +103,41 @@ class ApiClient {
     final encoded = body == null ? null : jsonEncode(body);
 
     late final http.Response response;
-    switch (method) {
-      case 'GET':
-        response = await http
-            .get(uri, headers: headers)
-            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
-      case 'POST':
-        response = await http
-            .post(uri, headers: headers, body: encoded)
-            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
-      case 'PUT':
-        response = await http
-            .put(uri, headers: headers, body: encoded)
-            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
-      case 'DELETE':
-        response = await http
-            .delete(uri, headers: headers)
-            .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
-      default:
-        throw ArgumentError('Unsupported method $method');
+    try {
+      switch (method) {
+        case 'GET':
+          response = await http
+              .get(uri, headers: headers)
+              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+        case 'POST':
+          response = await http
+              .post(uri, headers: headers, body: encoded)
+              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+        case 'PUT':
+          response = await http
+              .put(uri, headers: headers, body: encoded)
+              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+        case 'DELETE':
+          response = await http
+              .delete(uri, headers: headers)
+              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+        default:
+          throw ArgumentError('Unsupported method $method');
+      }
+    } on TimeoutException {
+      throw ApiException('Tuklas took too long to respond. Please retry.');
+    } on HandshakeException {
+      throw ApiException(
+        'The secure connection to Tuklas failed. Check your phone’s date and time, then retry.',
+      );
+    } on SocketException {
+      throw ApiException(
+        'Could not reach Tuklas. Please check your connection and retry.',
+      );
+    } on http.ClientException {
+      throw ApiException(
+        'Could not connect to Tuklas. Please retry in a moment.',
+      );
     }
     return _decode(response);
   }

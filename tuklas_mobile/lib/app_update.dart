@@ -47,7 +47,9 @@ class AppUpdate {
       versionCode: versionCode,
       versionName: versionName,
       apkUrl: apkUrl,
-      patchNotes: value['patch_notes'] is String ? value['patch_notes'] as String : '',
+      patchNotes: value['patch_notes'] is String
+          ? value['patch_notes'] as String
+          : '',
     );
   }
 }
@@ -107,28 +109,42 @@ class _AppUpdateWatcherState extends State<AppUpdateWatcher>
         return;
       }
       final update = AppUpdate.fromJson(jsonDecode(response.body), manifestUrl);
-      if (update == null ||
-          !mounted) {
+      if (update == null || !mounted) {
         return;
       }
       final preferences = await SharedPreferences.getInstance();
-      final notesShownFor = preferences.getInt('patch_notes_shown_version') ?? 0;
+      final notesShownFor =
+          preferences.getInt('patch_notes_shown_version') ?? 0;
       if (update.versionCode == installedVersion &&
-          update.versionCode > notesShownFor && update.patchNotes.trim().isNotEmpty) {
-        await preferences.setInt('patch_notes_shown_version', update.versionCode);
+          update.versionCode > notesShownFor &&
+          update.patchNotes.trim().isNotEmpty) {
+        await preferences.setInt(
+          'patch_notes_shown_version',
+          update.versionCode,
+        );
         if (!mounted) return;
         await showDialog<void>(
           context: context,
           builder: (dialogContext) => AlertDialog(
             title: Text('What’s new in ${update.versionName}'),
             content: SingleChildScrollView(child: Text(update.patchNotes)),
-            actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Done'))],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Done'),
+              ),
+            ],
           ),
         );
         return;
       }
       if (update.versionCode <= installedVersion ||
-          update.versionCode == _lastOfferedVersion) return;
+          update.versionCode == _lastOfferedVersion) {
+        return;
+      }
+      if (!mounted) {
+        return;
+      }
       _lastOfferedVersion = update.versionCode;
       await showDialog<void>(
         context: context,

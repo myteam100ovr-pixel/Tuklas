@@ -77,20 +77,39 @@ class Gate extends StatefulWidget {
   State<Gate> createState() => _GateState();
 }
 
-class _GateState extends State<Gate> {
+class _GateState extends State<Gate> with WidgetsBindingObserver {
   _StartupStatus _status = _StartupStatus.checking;
+  Timer? _retryTimer;
+  bool _checking = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     unawaited(_checkSession());
+  }
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        (_status == _StartupStatus.unavailable ||
+            _status == _StartupStatus.serverResponded)) {
+      unawaited(_checkSession());
+    }
   }
 
   Future<_StartupStatus> _resolveSignedIn() async {
     final signedInCheck = widget.checkSignedIn;
     final result = signedInCheck == null
         ? await _check().timeout(
-            const Duration(seconds: 15),
+            const Duration(seconds: 35),
             onTimeout: () => _StartupStatus.unavailable,
           )
         : await signedInCheck()
@@ -100,17 +119,27 @@ class _GateState extends State<Gate> {
                     : _StartupStatus.signedOut,
               )
               .timeout(
-                const Duration(seconds: 15),
+                const Duration(seconds: 35),
                 onTimeout: () => _StartupStatus.unavailable,
               );
     return result;
   }
 
   Future<void> _checkSession() async {
+    if (_checking) return;
+    _checking = true;
+    _retryTimer?.cancel();
     try {
       final status = await _resolveSignedIn();
       if (mounted) {
         setState(() => _status = status);
+        if (status == _StartupStatus.unavailable ||
+            status == _StartupStatus.serverResponded) {
+          _retryTimer = Timer(
+            const Duration(seconds: 12),
+            () => unawaited(_checkSession()),
+          );
+        }
       }
     } catch (error, stackTrace) {
       FlutterError.reportError(
@@ -118,7 +147,13 @@ class _GateState extends State<Gate> {
       );
       if (mounted) {
         setState(() => _status = _StartupStatus.unavailable);
+        _retryTimer = Timer(
+          const Duration(seconds: 12),
+          () => unawaited(_checkSession()),
+        );
       }
+    } finally {
+      _checking = false;
     }
   }
 
@@ -133,6 +168,8 @@ class _GateState extends State<Gate> {
     } on ApiException catch (error) {
       return error.statusCode == 401
           ? _StartupStatus.signedOut
+          : error.statusCode == null
+          ? _StartupStatus.unavailable
           : _StartupStatus.serverResponded;
     } on SocketException {
       return _StartupStatus.unavailable;
@@ -140,10 +177,13 @@ class _GateState extends State<Gate> {
       return _StartupStatus.unavailable;
     } on http.ClientException {
       return _StartupStatus.unavailable;
+    } on HandshakeException {
+      return _StartupStatus.unavailable;
     }
   }
 
   void _retry() {
+    if (_checking) return;
     setState(() {
       _status = _StartupStatus.checking;
     });
@@ -220,7 +260,7 @@ class _ServerUnavailable extends StatelessWidget {
                   Text(
                     serverResponded
                         ? 'Your internet connection is working. The server returned an error while checking your saved sign-in. Please retry in a moment.'
-                        : 'Your saved sign-in is still on this device. Check your internet connection and try again in a moment.',
+                        : 'Your saved sign-in is still on this device. Tuklas could not connect to its server. It will retry automatically; you can also retry now.',
                     textAlign: TextAlign.center,
                     style: tkText(
                       context,
