@@ -102,22 +102,23 @@ class PangasinanTrainingCenterSeeder extends Seeder
                     ? 'Training days, calendar dates, and available places were not specified in the provided schedule.'
                     : 'The provided schedule lists '.$durationDays.' training days; calendar dates and available places were not specified.';
 
-                $program = TrainingProgram::query()->firstOrCreate(
-                    [
-                        'training_center_id' => $center->id,
-                        'title' => $title,
-                        'source_reference' => $source,
-                    ],
-                    [
+                $program = TrainingProgram::query()->firstOrNew([
+                    'training_center_id' => $center->id,
+                    'title' => $title,
+                    'source_reference' => $source,
+                ]);
+
+                if (! $program->exists || $program->status === 'draft') {
+                    $program->fill([
                         'nc_level' => $ncLevel,
                         'duration_days' => $durationDays,
-                        'description' => 'Listed by '.$center->name.'. Confirm current program details directly with the institution.',
+                        'description' => $center->name.' lists '.$title.' in the training schedule supplied to Tuklas. The schedule identifies the qualification and duration but does not confirm a current intake.',
                         'requirements' => 'Not specified in the provided schedule.',
-                        'schedule_note' => $durationNote.' Enrollment availability must be confirmed with the provider.',
-                        'status' => 'draft',
+                        'schedule_note' => $durationNote.' Contact the institution to confirm enrollment availability, dates, and open places.',
+                        'status' => 'published',
                         'last_verified_at' => null,
-                    ],
-                );
+                    ])->save();
+                }
 
                 if ($program->wasRecentlyCreated) {
                     $createdPrograms++;
@@ -125,6 +126,6 @@ class PangasinanTrainingCenterSeeder extends Seeder
             }
         }
 
-        $this->command?->info('Loaded the two Pangasinan training centers; '.$createdPrograms.' new source-noted course offerings were added as drafts.');
+        $this->command?->info('Loaded the two Pangasinan training centers; '.$createdPrograms.' source-noted course offerings are available for browsing. Dates and open slots remain unconfirmed.');
     }
 }

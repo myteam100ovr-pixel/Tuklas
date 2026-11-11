@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="trainer-courses suite-page operations-page">
-        <x-workspace-heading eyebrow="TRAINING · SUPPORT" title="Scholarships" description="Verified support opportunities for training and assessment." />
+        <x-workspace-heading eyebrow="TRAINING · SUPPORT" title="Scholarships" description="Source-checked program information and locally confirmed openings for training and assessment." />
         @include('operations.search', ['placeholder' => 'Search scholarships or providers', 'count' => $scholarships->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif

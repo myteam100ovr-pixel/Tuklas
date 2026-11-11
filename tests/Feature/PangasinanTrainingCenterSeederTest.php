@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Models\TrainingCenter;
-use App\Models\TrainingProgram;
 use App\Models\User;
 use Database\Seeders\PangasinanTrainingCenterSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,7 +26,7 @@ class PangasinanTrainingCenterSeederTest extends TestCase
         $this->assertSame('075-542-4989', $provincialCenter->contact_phone);
         $organicAgriculture = $provincialCenter->programs()->where('title', 'Organic Agriculture Production NC II')->sole();
         $this->assertSame(29, $organicAgriculture->duration_days);
-        $this->assertSame('draft', $organicAgriculture->status);
+        $this->assertSame('published', $organicAgriculture->status);
         $this->assertSame('Not specified in the provided schedule.', $organicAgriculture->requirements);
 
         $psat = TrainingCenter::query()->where('type', 'PSAT')->sole();
@@ -57,25 +56,20 @@ class PangasinanTrainingCenterSeederTest extends TestCase
         ]);
     }
 
-    public function test_unpublished_center_offerings_stay_hidden_from_career_seekers_until_published(): void
+    public function test_source_listed_center_offerings_are_visible_to_career_seekers_without_claiming_open_enrollment(): void
     {
         $this->seed(PangasinanTrainingCenterSeeder::class);
-        $program = TrainingProgram::query()->where('title', 'Organic Agriculture Production NC II')->firstOrFail();
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
 
         $this->actingAs($youth)->get(route('centers.index'))
-            ->assertDontSee('Organic Agriculture Production NC II');
-
-        $program->update(['status' => 'published']);
-
-        $this->get(route('centers.index'))
             ->assertSee('Organic Agriculture Production NC II')
             ->assertSee('29 training days');
 
-        $this->getJson('/api/mobile/tesda')->assertOk()->assertJsonFragment([
-            'title' => 'Organic Agriculture Production NC II',
-            'duration_days' => 29,
-            'training_center' => 'PROVINCIAL TRAINING CENTER - PANGASINAN (PUBLIC SCHOOL)',
-        ]);
+        $this->get(route('tesda.index'))
+            ->assertSee('Organic Agriculture Production NC II')
+            ->assertSee('does not confirm a current intake');
+
+        $this->getJson('/api/mobile/tesda')->assertOk()
+            ->assertJsonPath('pagination.total', 44);
     }
 }

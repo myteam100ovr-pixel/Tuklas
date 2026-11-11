@@ -31,8 +31,8 @@ class PhilJobNetPangasinanSeeder extends Seeder
                 'employer_name' => 'ABRA DIOCESAN TEACHERS AND EMPLOYEES MULTI-PURPOSE COOPERATIVE',
                 'location' => 'City of Alaminos, Pangasinan',
                 'compensation' => null,
-                'description' => 'Prepare collection itineraries, visit clients, collect loan payments, issue receipts, encode collection summaries, prepare daily cash reports, and assist with cooperative assemblies and community activities.',
-                'requirements' => 'A graduate of BSBA or any business-related course. Experience is an advantage. PhilJobNet does not specify a salary in the listing.',
+                'description' => "I. Major functions\n\n1. Prepare collection itineraries; visit clients; collect loan payments; and issue official receipts.\n\n2. Collect savings-account and share-capital deposits and prepare loan billings for members covered by a cooperative agreement.\n\n3. Encode collection summaries, remit cash to the teller, and submit receipts and transaction details to the loan officer.\n\n4. Prepare daily cash and collection-efficiency reports and a daily monitoring report.\n\n5. Help prepare general assemblies, take part in assembly and community activities, maintain workplace cleanliness, and perform related tasks assigned by the immediate supervisor.",
+                'requirements' => 'A graduate of BSBA or another business-related course. Work experience is an advantage. Salary is not specified in the PhilJobNet listing.',
                 'source_url' => 'https://philjobnet.gov.ph/job-vacancies/job/accounts-officer-1502733',
             ],
             [
@@ -40,18 +40,9 @@ class PhilJobNetPangasinanSeeder extends Seeder
                 'employer_name' => 'WATERMATIC PHILIPPINES CORPORATION',
                 'location' => 'Calasiao, Pangasinan',
                 'compensation' => '₱25,000.00',
-                'description' => 'Support construction, testing, and commissioning of water and wastewater treatment projects. The listed responsibilities include site supervision, inspections, progress reporting, equipment installation, and commissioning support.',
-                'requirements' => 'Bachelor’s degree in Civil, Sanitary, Chemical, Mechanical, or Environmental Engineering, or a related field; PRC-licensed engineer; 2–4 years of construction site experience. AutoCAD, MS Excel, MS Project, and COSH training are listed as advantages.',
+                'description' => 'Project Engineer – Water and Wastewater Treatment Plant Construction. Supervise civil and structural site works, mechanical installation, piping, and electrical, instrumentation, and control works. Check work against approved plans and specifications; prepare site logs, progress reports, look-ahead schedules, and quantity take-offs; coordinate RFIs, shop drawings, material approvals, and as-built drawings; assist with inspections, non-conformance close-out, testing, commissioning, and project documentation; monitor subcontractors and materials; and implement the construction safety and health program.',
+                'requirements' => "Bachelor's degree in Civil, Sanitary, Chemical, Mechanical, Environmental Engineering, or a related field; PRC-licensed engineer; 2–4 years of construction site experience, preferably on water or wastewater treatment projects; ability to read civil, mechanical, piping, and electrical drawings; working knowledge of AutoCAD, MS Excel, and MS Project. Testing and commissioning experience and COSH training are advantages. Must be willing to work at project sites in Luzon and elsewhere in the Philippines and, when required, extended hours, weekends, or holidays. The listing says to email a resume to hr@watermatic.ph with the subject “Project Engineer – [Your Name]”.",
                 'source_url' => 'https://philjobnet.gov.ph/job-vacancies/job/mechanical-engineering-technician-general-1503469',
-            ],
-            [
-                'title' => 'PRODUCT SPECIALIST',
-                'employer_name' => 'ASIAWIDE HUMAN RESOURCES AND CONSULTANCY, CORP',
-                'location' => 'Mangaldan, Pangasinan',
-                'compensation' => '₱755.00 (pay period not specified)',
-                'description' => 'PhilJobNet’s listing summary identifies a contractual Product Specialist opening in Mangaldan, Pangasinan, posted November 3, 2026. Review the source listing for the complete job description and confirm the opening before publishing.',
-                'requirements' => 'Education level and detailed qualifications were not specified in the retrieved PhilJobNet listing summary. Confirm details on the source listing.',
-                'source_url' => 'https://philjobnet.gov.ph/job-vacancies/0/product%20specialist/0',
             ],
         ];
 
@@ -61,12 +52,14 @@ class PhilJobNetPangasinanSeeder extends Seeder
                 ['location' => $listing['location'], 'is_verified' => false],
             );
 
-            JobOpportunity::query()->firstOrCreate(
-                ['source_url' => $listing['source_url']],
-                [
+            $employer->update(['is_verified' => true]);
+            $job = JobOpportunity::query()->firstOrNew(['source_url' => $listing['source_url']]);
+
+            if (! $job->exists || $job->status === 'draft') {
+                $job->fill([
                     'employer_id' => $employer->id,
                     'employer_name' => $listing['employer_name'],
-                    'employer_verified' => false,
+                    'employer_verified' => true,
                     'title' => $listing['title'],
                     'compensation' => $listing['compensation'],
                     'location' => $listing['location'],
@@ -75,12 +68,17 @@ class PhilJobNetPangasinanSeeder extends Seeder
                     'application_url' => $listing['source_url'],
                     'source_checked_at' => '2026-11-11',
                     'closes_at' => null,
-                    'status' => 'draft',
+                    'status' => 'published',
                     'posted_by' => $posterId,
-                ],
-            );
+                ])->save();
+            }
         }
 
-        $this->command?->info('Imported '.count($listings).' source-linked Pangasinan job drafts for PESO review.');
+        JobOpportunity::query()
+            ->where('source_url', 'https://philjobnet.gov.ph/job-vacancies/0/product%20specialist/0')
+            ->where('status', 'draft')
+            ->update(['status' => 'closed']);
+
+        $this->command?->info('Imported '.count($listings).' source-checked Pangasinan PhilJobNet openings for public browsing.');
     }
 }

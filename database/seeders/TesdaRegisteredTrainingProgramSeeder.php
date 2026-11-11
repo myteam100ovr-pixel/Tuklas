@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\TrainingProgram;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -33,6 +34,7 @@ class TesdaRegisteredTrainingProgramSeeder extends Seeder
         }
 
         $created = 0;
+        $checkedAt = Carbon::parse($snapshot['fetched_at'])->toDateString();
 
         foreach ($programsByTitle as $record) {
             $title = trim($record['program']);
@@ -43,22 +45,23 @@ class TesdaRegisteredTrainingProgramSeeder extends Seeder
                 filled($record['trainer'] ?? null) ? 'Directory-listed trainer(s): '.$record['trainer'] : null,
             ])->filter()->implode("\n");
 
-            $program = TrainingProgram::query()->firstOrCreate(
-                ['title' => $title, 'source_reference' => $source],
-                [
+            $program = TrainingProgram::query()->firstOrNew(['title' => $title, 'source_reference' => $source]);
+
+            if (! $program->exists || $program->status === 'draft') {
+                $program->fill([
                     'description' => $listedDetails,
                     'requirements' => 'Not specified by provider.',
-                    'schedule_note' => 'Current schedule and available slots are not specified in the TESDA directory. Contact the provider to confirm.',
-                    'status' => 'draft',
-                    'last_verified_at' => null,
-                ],
-            );
+                    'schedule_note' => 'This qualification and registered provider are listed in the official TESDA Pangasinan directory. The directory does not confirm current schedules or available slots; contact the provider to confirm.',
+                    'status' => 'published',
+                    'last_verified_at' => $checkedAt,
+                ])->save();
+            }
 
             if ($program->wasRecentlyCreated) {
                 $created++;
             }
         }
 
-        $this->command?->info("Imported {$created} new source-linked TESDA directory drafts; existing records were left unchanged.");
+        $this->command?->info("Imported {$created} new source-linked TESDA directory qualifications for public browsing; schedules and slots are not implied.");
     }
 }
