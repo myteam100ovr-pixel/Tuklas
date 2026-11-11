@@ -47,6 +47,7 @@ jobs:
             test -n "$value" || { echo 'Missing mobile release configuration'; exit 1; }
           done
           [[ "$PUBLIC_APP_URL" == https://* ]] || { echo 'PUBLIC_APP_URL must use HTTPS'; exit 1; }
+          curl --fail --silent --show-error --max-time 15 "${PUBLIC_APP_URL%/}/api/mobile/tesda" >/dev/null || { echo 'PUBLIC_APP_URL must reach Tuklas over HTTPS with a valid certificate'; exit 1; }
           echo "BUILD_NUMBER=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
           echo "VERSION_NAME=1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
       - name: Prepare signing and SSH
@@ -77,7 +78,8 @@ jobs:
           flutter pub get
           flutter analyze
           flutter test
-          flutter build apk --release --build-name "$VERSION_NAME" --build-number "$BUILD_NUMBER" --dart-define="API_BASE=$PUBLIC_APP_URL/api/mobile"
+          api_base="${PUBLIC_APP_URL%/}/api/mobile"
+          flutter build apk --release --build-name "$VERSION_NAME" --build-number "$BUILD_NUMBER" --dart-define="API_BASE=$api_base"
       - uses: actions/upload-artifact@v4
         with:
           name: tuklas-mobile-${{ env.BUILD_NUMBER }}

@@ -43,6 +43,7 @@ jobs:
             test -n "$value" || { echo 'Missing iOS release configuration in GitHub Actions secrets or variables'; exit 1; }
           done
           [[ "$PUBLIC_APP_URL" == https://* ]] || { echo 'PUBLIC_APP_URL must use HTTPS'; exit 1; }
+          curl --fail --silent --show-error --max-time 15 "${PUBLIC_APP_URL%/}/api/mobile/tesda" >/dev/null || { echo 'PUBLIC_APP_URL must reach Tuklas over HTTPS with a valid certificate'; exit 1; }
           [[ "$IOS_TEAM_ID" =~ ^[A-Z0-9]{10}$ ]] || { echo 'IOS_TEAM_ID must be the 10-character Apple Developer Team ID'; exit 1; }
 
           echo "BUILD_NUMBER=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
@@ -168,11 +169,12 @@ jobs:
           }
           Path('ExportOptions.plist').write_bytes(plistlib.dumps(options))
           PY
+          api_base="${PUBLIC_APP_URL%/}/api/mobile"
           flutter build ipa --release \
             --build-name "$VERSION_NAME" \
             --build-number "$BUILD_NUMBER" \
             --export-options-plist=ExportOptions.plist \
-            --dart-define="API_BASE=$PUBLIC_APP_URL/api/mobile"
+            --dart-define="API_BASE=$api_base"
 
       - uses: actions/upload-artifact@v4
         with:

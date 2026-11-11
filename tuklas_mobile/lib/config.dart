@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart' show kReleaseMode;
 
 class AppConfig {
-  // Override the Android emulator default for a physical device, iOS simulator,
-  // or deployed API:
+  // Override for a physical device, iOS simulator, or deployed API:
   //   flutter run --dart-define=API_BASE=http://127.0.0.1:8000/api/mobile
   static const String apiBase = String.fromEnvironment(
     'API_BASE',
@@ -10,4 +9,7 @@ class AppConfig {
         ? 'https://16.178.208.201/api/mobile'
         : 'http://10.0.2.2:8000/api/mobile',
   );
+
+  static String get normalizedApiBase =>
+      apiBase.replaceFirst(RegExp(r'/+$'), '');
 }

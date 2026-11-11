@@ -13,6 +13,9 @@ What’s new
 - The app waits for a slow server response before reporting a connection problem.
 - It retries a saved sign-in automatically when the server becomes reachable again or the app resumes.
 - Connection errors now distinguish a slow response from a secure connection problem.
+- Scanner uploads now use the same API URL and connection error handling as other mobile requests.
+- Scan history can be retried, and failed scans keep the files you still need to send.
+- Android and iOS release builds trim a trailing slash from the website URL before setting the API address.
 - View jobs, scholarships, training centers, and training sessions in the app.
 - Apply for training and track applications and assessment records.
 - Staff can manage centers, trainers, schedules, and opportunities according to their role.

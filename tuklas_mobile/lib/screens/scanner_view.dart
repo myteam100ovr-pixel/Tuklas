@@ -184,9 +184,12 @@ class _ScannerViewState extends State<ScannerView> {
       _error = null;
       _latestDocument = null;
     });
+    final filesToScan = List<PlatformFile>.from(_selectedFiles);
     var scanned = 0;
     final failedFiles = <PlatformFile>[];
-    for (final file in List<PlatformFile>.from(_selectedFiles)) {
+    String? firstFailure;
+    for (var index = 0; index < filesToScan.length; index++) {
+      final file = filesToScan[index];
       try {
         final document = await ApiClient.instance.uploadDocument(
           bytes: file.bytes!,
@@ -201,8 +204,12 @@ class _ScannerViewState extends State<ScannerView> {
         scanned += 1;
       } catch (error) {
         failedFiles.add(file);
-        if (error is ApiException && failedFiles.length == 1) {
-          _error = error.message;
+        firstFailure ??= error is ApiException
+            ? '${file.name}: ${error.message}'
+            : '${file.name}: Could not connect to Tuklas. Check your internet connection and try again.';
+        if (error is! ApiException || error.statusCode != 422) {
+          failedFiles.addAll(filesToScan.skip(index + 1));
+          break;
         }
       }
     }
@@ -216,8 +223,10 @@ class _ScannerViewState extends State<ScannerView> {
         _goalController.clear();
         _error = '$scanned ${scanned == 1 ? 'document' : 'documents'} scanned.';
       } else {
-        _error =
-            '$scanned of ${scanned + failedFiles.length} scanned; ${failedFiles.length} failed. Retry the remaining files.';
+        _error = [
+          firstFailure,
+          '$scanned of ${filesToScan.length} scanned; ${failedFiles.length} remain. Fix the issue and retry the remaining files.',
+        ].whereType<String>().join('\n');
       }
       _history = ApiClient.instance.documentScans();
     });
@@ -452,13 +461,27 @@ class _ScannerViewState extends State<ScannerView> {
                             final message = snapshot.error is ApiException
                                 ? (snapshot.error as ApiException).message
                                 : 'Could not load your scan history.';
-                            return Text(
-                              message,
-                              style: tkText(
-                                context,
-                                size: 13,
-                                color: colors.bad,
-                              ),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  message,
+                                  style: tkText(
+                                    context,
+                                    size: 13,
+                                    color: colors.bad,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                OutlinedButton.icon(
+                                  onPressed: () => setState(
+                                    () => _history = ApiClient.instance
+                                        .documentScans(),
+                                  ),
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Retry loading scans'),
+                                ),
+                              ],
                             );
                           }
                           final documents = snapshot.data ?? [];

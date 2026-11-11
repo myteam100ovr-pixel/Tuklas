@@ -38,6 +38,50 @@ class ApiClient {
 
   Future<String?> get token => _storage.read(key: _tokenKey);
 
+  Uri _apiUri(String path) {
+    final base = AppConfig.normalizedApiBase;
+    final endpoint = path.startsWith('/') ? path : '/$path';
+    return Uri.parse('$base$endpoint');
+  }
+
+  Future<T> _withConnectionHandling<T>(
+    Future<T> Function() request, {
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
+    try {
+      return await request().timeout(timeout);
+    } on TimeoutException {
+      throw ApiException('Tuklas took too long to respond. Please retry.');
+    } on HandshakeException {
+      throw ApiException(
+        'The secure connection to Tuklas failed. Check the app update and your phone’s date and time.',
+      );
+    } on SocketException {
+      throw ApiException(
+        'Could not reach Tuklas. Check your internet connection and try again.',
+      );
+    } on HttpException {
+      throw ApiException(
+        'Could not complete the connection to Tuklas. Check your internet connection and try again.',
+      );
+    } on http.ClientException {
+      throw ApiException(
+        'Could not connect to Tuklas. Check your internet connection and try again.',
+      );
+    }
+  }
+
+  String _httpErrorMessage(int statusCode) => switch (statusCode) {
+    401 => 'Your Tuklas session expired. Sign in again.',
+    403 => 'Your account does not have access to this feature.',
+    413 => 'The selected document is too large for the server. Choose a smaller file.',
+    419 => 'Your Tuklas session expired. Sign in again.',
+    429 => 'Tuklas is receiving too many requests. Wait a moment, then retry.',
+    500 => 'Tuklas encountered a server error. Please retry shortly.',
+    502 || 503 || 504 => 'Tuklas is temporarily unavailable. Check your connection and retry shortly.',
+    _ => 'Tuklas could not complete the request ($statusCode).',
+  };
+
   Map<String, String> _headers(String? bearer) => {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -57,14 +101,16 @@ class ApiClient {
 
     if (response.statusCode >= 200 && response.statusCode < 300) return body;
 
-    if (response.statusCode == 401) {
+    if (response.statusCode == 401 || response.statusCode == 419) {
       await _storage.delete(key: _tokenKey);
       user = null;
     }
 
-    var message =
-        (body['message'] as String?) ??
-        'Something went wrong (${response.statusCode}).';
+    var message = response.statusCode == 401 || response.statusCode == 419
+        ? _httpErrorMessage(response.statusCode)
+        : body['message'] is String
+        ? body['message'] as String
+        : _httpErrorMessage(response.statusCode);
     final fieldErrors = <String, String>{};
     final errors = body['errors'];
     if (errors is Map) {
@@ -96,50 +142,27 @@ class ApiClient {
       if (bearer == null) throw ApiException('Please sign in.');
     }
 
-    final uri = Uri.parse('${AppConfig.apiBase}$path');
+    final uri = _apiUri(path);
     final headers = _headers(bearer);
-    if (bearer != null) {
-      headers['Authorization'] = 'Bearer $bearer';
-    }
     final encoded = body == null ? null : jsonEncode(body);
 
-    late final http.Response response;
-    try {
+    final requestTimeout = path.startsWith('/career-chat')
+        ? const Duration(seconds: 120)
+        : const Duration(seconds: 30);
+    final response = await _withConnectionHandling(() async {
       switch (method) {
         case 'GET':
-          response = await http
-              .get(uri, headers: headers)
-              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+          return http.get(uri, headers: headers);
         case 'POST':
-          response = await http
-              .post(uri, headers: headers, body: encoded)
-              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+          return http.post(uri, headers: headers, body: encoded);
         case 'PUT':
-          response = await http
-              .put(uri, headers: headers, body: encoded)
-              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+          return http.put(uri, headers: headers, body: encoded);
         case 'DELETE':
-          response = await http
-              .delete(uri, headers: headers)
-              .timeout(Duration(seconds: path == '/career-chat' ? 120 : 30));
+          return http.delete(uri, headers: headers);
         default:
           throw ArgumentError('Unsupported method $method');
       }
-    } on TimeoutException {
-      throw ApiException('Tuklas took too long to respond. Please retry.');
-    } on HandshakeException {
-      throw ApiException(
-        'The secure connection to Tuklas failed. Check your phone’s date and time, then retry.',
-      );
-    } on SocketException {
-      throw ApiException(
-        'Could not reach Tuklas. Please check your connection and retry.',
-      );
-    } on http.ClientException {
-      throw ApiException(
-        'Could not connect to Tuklas. Please retry in a moment.',
-      );
-    }
+    }, timeout: requestTimeout);
     return _decode(response);
   }
 
@@ -258,26 +281,21 @@ class ApiClient {
     final bearer = await token;
     if (bearer == null) throw ApiException('Please sign in.');
 
-    final request =
-        http.MultipartRequest(
-            'POST',
-            Uri.parse('${AppConfig.apiBase}/document-scans'),
-          )
-          ..headers.addAll({
-            'Accept': 'application/json',
-            'Authorization': 'Bearer $bearer',
-          })
-          ..files.add(
-            http.MultipartFile.fromBytes('file', bytes, filename: filename),
-          );
+    final request = http.MultipartRequest('POST', _apiUri('/document-scans'))
+      ..headers.addAll({
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $bearer',
+      })
+      ..files.add(
+        http.MultipartFile.fromBytes('file', bytes, filename: filename),
+      );
     if (goal.trim().isNotEmpty) {
       request.fields['goal'] = goal.trim();
     }
-    request.headers['Authorization'] = 'Bearer $bearer';
-    final streamedResponse = await request.send().timeout(
-      const Duration(seconds: 260),
-    );
-    final response = await http.Response.fromStream(streamedResponse);
+    final response = await _withConnectionHandling(() async {
+      final streamedResponse = await request.send();
+      return http.Response.fromStream(streamedResponse);
+    }, timeout: const Duration(seconds: 260));
     final body = await _decode(response);
     return Map<String, dynamic>.from(body['document'] as Map);
   }
@@ -293,9 +311,7 @@ class ApiClient {
     final request =
         http.MultipartRequest(
             'POST',
-            Uri.parse(
-              '${AppConfig.apiBase}/scholarships/$scholarshipId/applications',
-            ),
+            _apiUri('/scholarships/$scholarshipId/applications'),
           )
           ..headers.addAll({
             'Accept': 'application/json',
@@ -316,8 +332,11 @@ class ApiClient {
       );
     }
 
-    final response = await request.send().timeout(const Duration(seconds: 60));
-    return _decode(await http.Response.fromStream(response));
+    final response = await _withConnectionHandling(() async {
+      final streamedResponse = await request.send();
+      return http.Response.fromStream(streamedResponse);
+    }, timeout: const Duration(seconds: 60));
+    return _decode(response);
   }
 
   Future<Map<String, dynamic>> profile() async {
