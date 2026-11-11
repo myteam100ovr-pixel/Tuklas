@@ -45,15 +45,15 @@ class _OperationsViewState extends State<OperationsView> {
     _ => 'records',
   };
   bool get _canManage => switch (widget.section) {
-    'Jobs' => _role == 'super_admin',
+    'Jobs' => _role == 'admin',
     'Scholarships' ||
-    'Centers' => _role == 'super_admin' || _role == 'tesda_admin',
+    'Centers' => _role == 'admin' || _role == 'tesda_admin',
     'Sessions' || 'Assessments' =>
-      _role == 'super_admin' ||
+      _role == 'admin' ||
           _role == 'tesda_admin' ||
           _role == 'center_representative',
     'Trainers' =>
-      _role == 'super_admin' ||
+      _role == 'admin' ||
           _role == 'tesda_admin' ||
           _role == 'center_representative',
     _ => false,

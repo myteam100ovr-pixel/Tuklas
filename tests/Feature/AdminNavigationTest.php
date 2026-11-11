@@ -14,7 +14,7 @@ class AdminNavigationTest extends TestCase
 
     public function test_admin_users_page_shows_group_tabs_sidebar_account_and_chat_link(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
 
         $this->actingAs($admin)->get(route('admin.users.index'))
             ->assertOk()
@@ -43,7 +43,7 @@ class AdminNavigationTest extends TestCase
     #[TestWith(['notifications.index', 'Notifications'])]
     public function test_group_tab_keeps_its_original_page_and_marks_it_active(string $routeName, string $tabLabel): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
 
         $this->actingAs($admin)->get(route($routeName))
             ->assertOk()
@@ -65,7 +65,7 @@ class AdminNavigationTest extends TestCase
     #[TestWith(['/tesda', 'tesda.index'])]
     public function test_legacy_page_url_redirects_to_its_grouped_tab(string $legacyUrl, string $routeName): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
 
         $this->actingAs($admin)->get($legacyUrl)->assertRedirect(route($routeName));
     }

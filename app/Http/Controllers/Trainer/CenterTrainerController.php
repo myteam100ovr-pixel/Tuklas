@@ -59,7 +59,7 @@ class CenterTrainerController extends Controller
 
     private function authorizeManager(Request $request): void
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
+        abort_unless($request->user()->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
         if ($request->user()->hasRole(Role::CenterRepresentative)) {
             abort_unless($request->user()->training_center_id, 403);
         }

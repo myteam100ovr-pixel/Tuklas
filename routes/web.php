@@ -6,7 +6,6 @@ use App\Http\Controllers\Admin\CareerRecommendationController;
 use App\Http\Controllers\Admin\TrainingCatalogController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AssessmentRecordController;
-use App\Http\Controllers\Auth\DemoLoginController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\CareerPathCatalogController;
 use App\Http\Controllers\DashboardController;
@@ -40,23 +39,16 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'show'])->name('p
 Route::get('/admin/programs/tesda', [TesdaCatalogController::class, 'index'])->name('tesda.index');
 Route::get('/tesda', fn (Request $request): RedirectResponse => redirect()->route('tesda.index', $request->query()));
 
-Route::middleware('guest')->group(function () {
-    Route::post('/demo-login/{role}', DemoLoginController::class)
-        ->whereIn('role', ['youth', 'trainer', 'super_admin'])
-        ->middleware('throttle:10,1')->name('demo.login');
-
-});
-
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    'role:super_admin,trainer,tesda_admin,center_representative,youth',
+    'role:admin,trainer,tesda_admin,center_representative,youth',
 ])->group(function () {
     Route::get('/dashboard', fn () => redirect()->route(auth()->user()->role->homeRoute()))
         ->name('dashboard');
 
-    Route::middleware('role:super_admin,youth')->group(function () {
+    Route::middleware('role:admin,youth')->group(function () {
         Route::view('/scanner', 'scanner.index')->name('scanner.index');
         Route::get('/admin/jobs/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
         Route::get('/peso', fn (Request $request): RedirectResponse => redirect()->route('peso.index', $request->query()));
@@ -87,7 +79,7 @@ Route::middleware([
     Route::get('/training-applications', fn (Request $request): RedirectResponse => redirect()->route('applications.index', $request->query()));
     Route::get('/admin/training/results', [AssessmentRecordController::class, 'index'])->name('assessments.index');
     Route::get('/assessment-records', fn (Request $request): RedirectResponse => redirect()->route('assessments.index', $request->query()));
-    Route::middleware('role:super_admin,tesda_admin,center_representative')->group(function () {
+    Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
         Route::get('/admin/training/trainers', [CenterTrainerController::class, 'index'])->name('center-trainers.index');
         Route::get('/center-trainers', fn (Request $request): RedirectResponse => redirect()->route('center-trainers.index', $request->query()));
         Route::post('/center-trainers', [CenterTrainerController::class, 'store'])->name('center-trainers.store');
@@ -109,7 +101,7 @@ Route::middleware([
     Route::get('/account/password-reset', [AccountPasswordResetController::class, 'edit'])->name('account.password-reset.edit');
     Route::put('/account/password-reset', [AccountPasswordResetController::class, 'update'])->name('account.password-reset.update');
 
-    Route::middleware('role:super_admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/employers', fn (Request $request): RedirectResponse => redirect()->route('admin.users.index', $request->query()));
         Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
         Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
@@ -127,18 +119,18 @@ Route::middleware([
         Route::resource('careers', CareerPathController::class)->except(['show', 'destroy']);
     });
 
-    Route::middleware('role:super_admin,tesda_admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('role:admin,tesda_admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('trainings', TrainingCatalogController::class)->except(['show', 'destroy']);
     });
 
-    Route::middleware('role:super_admin,tesda_admin')->group(function () {
+    Route::middleware('role:admin,tesda_admin')->group(function () {
         Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
         Route::put('/scholarships/{scholarship}', [ScholarshipController::class, 'update'])->name('scholarships.update');
         Route::put('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'update'])->name('scholarship-applications.update');
         Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
         Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
     });
-    Route::middleware('role:super_admin,tesda_admin,center_representative')->group(function () {
+    Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
         Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');
         Route::put('/training-sessions/{session}', [TrainingSessionController::class, 'update'])->name('sessions.update');
         Route::put('/training-applications/{application}', [TrainingApplicationController::class, 'update'])->name('applications.update');

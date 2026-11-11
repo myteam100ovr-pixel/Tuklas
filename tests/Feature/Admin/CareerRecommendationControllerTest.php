@@ -20,9 +20,9 @@ class CareerRecommendationControllerTest extends TestCase
         $this->withoutVite();
     }
 
-    public function test_super_admin_can_view_recommendations_with_supporting_context(): void
+    public function test_admin_can_view_recommendations_with_supporting_context(): void
     {
-        $administrator = $this->createUserWithRole(Role::SuperAdmin);
+        $administrator = $this->createUserWithRole(Role::Admin);
         $youth = $this->createUserWithRole(Role::Youth, [
             'name' => 'Job Match Youth',
             'email' => 'private-youth@example.test',
@@ -56,7 +56,7 @@ class CareerRecommendationControllerTest extends TestCase
 
     public function test_scans_are_collapsed_under_each_youth_with_visible_scan_dates(): void
     {
-        $administrator = $this->createUserWithRole(Role::SuperAdmin);
+        $administrator = $this->createUserWithRole(Role::Admin);
         $firstYouth = $this->createUserWithRole(Role::Youth, ['name' => 'First Youth']);
         $secondYouth = $this->createUserWithRole(Role::Youth, ['name' => 'Second Youth']);
 
@@ -91,7 +91,7 @@ class CareerRecommendationControllerTest extends TestCase
 
     public function test_admin_pagination_keeps_a_youths_scans_together(): void
     {
-        $administrator = $this->createUserWithRole(Role::SuperAdmin);
+        $administrator = $this->createUserWithRole(Role::Admin);
         $firstYouth = $this->createUserWithRole(Role::Youth, ['name' => 'Anchor Youth']);
 
         foreach (['anchor-resume.pdf', 'anchor-certificate.pdf'] as $filename) {
@@ -125,7 +125,7 @@ class CareerRecommendationControllerTest extends TestCase
 
     public function test_only_completed_youth_scans_with_recommendations_are_listed(): void
     {
-        $administrator = $this->createUserWithRole(Role::SuperAdmin);
+        $administrator = $this->createUserWithRole(Role::Admin);
         $youthWithMatches = $this->createUserWithRole(Role::Youth, ['name' => 'Eligible Youth']);
         $youthWithoutMatches = $this->createUserWithRole(Role::Youth, ['name' => 'No Matches Youth']);
         $trainer = $this->createUserWithRole(Role::Trainer, ['name' => 'Trainer Account']);
@@ -196,7 +196,7 @@ class CareerRecommendationControllerTest extends TestCase
 
     public function test_youth_names_and_recommendation_text_are_escaped(): void
     {
-        $administrator = $this->createUserWithRole(Role::SuperAdmin);
+        $administrator = $this->createUserWithRole(Role::Admin);
         $youth = $this->createUserWithRole(Role::Youth, [
             'name' => '<script>alert("name")</script>',
         ]);

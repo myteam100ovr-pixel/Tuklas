@@ -13,7 +13,7 @@
                 <div><p class="workspace-eyebrow">START HERE</p><h2 id="workspace-get-started-title">What do you want to do?</h2><p>Choose one task. You can come back to this page at any time.</p></div>
                 <div class="workspace-get-started__links">
                     @switch(auth()->user()->role)
-                        @case(\App\Enums\Role::SuperAdmin)
+                        @case(\App\Enums\Role::Admin)
                             <a href="{{ route('admin.users.index') }}">Manage people <span>↗</span></a>
                             <a href="{{ route('opportunities.index') }}">Post a job <span>↗</span></a>
                             <a href="{{ route('applications.index') }}">Review training requests <span>↗</span></a>

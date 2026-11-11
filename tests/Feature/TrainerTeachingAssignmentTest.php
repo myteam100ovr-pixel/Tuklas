@@ -21,7 +21,7 @@ class TrainerTeachingAssignmentTest extends TestCase
         $trainer->trainerQualifications()->create(['qualification_id' => $qualification['id'], 'title' => $qualification['title'], 'nc_level' => $qualification['nc_level']]);
 
         $this->get(route('tesda.index'))->assertOk()->assertSee('Trainer Unique Name');
-        foreach ([Role::Youth, Role::Trainer, Role::SuperAdmin] as $role) {
+        foreach ([Role::Youth, Role::Trainer, Role::Admin] as $role) {
             $viewer = User::factory()->create(['role' => $role, 'is_active' => true]);
             $this->actingAs($viewer)->get(route('tesda.index'))->assertOk()->assertSee('Trainer Unique Name');
         }

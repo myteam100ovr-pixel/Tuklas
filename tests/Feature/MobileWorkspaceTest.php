@@ -102,7 +102,7 @@ class MobileWorkspaceTest extends TestCase
 
     public function test_administrator_can_manage_users_without_exposing_passwords(): void
     {
-        $admin = User::factory()->create(['is_active' => true, 'role' => Role::SuperAdmin]);
+        $admin = User::factory()->create(['is_active' => true, 'role' => Role::Admin]);
         Sanctum::actingAs($admin);
         $data = ['first_name' => 'Mobile', 'last_name' => 'Trainer', 'email' => 'trainer@example.test', 'role' => 'trainer', 'is_active' => true];
         $this->postJson('/api/mobile/admin/users', [...$data, 'password' => 'Password123!', 'password_confirmation' => 'Password123!'])->assertOk();

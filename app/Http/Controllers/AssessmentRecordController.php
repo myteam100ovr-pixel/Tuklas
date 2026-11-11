@@ -22,11 +22,11 @@ class AssessmentRecordController extends Controller
         } elseif ($user->hasRole(Role::CenterRepresentative)) {
             $query->whereHas('application.session', fn ($session) => $session->where('training_center_id', $user->training_center_id));
         } else {
-            abort_unless($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin), 403);
+            abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
         }
         $records = $query->latest()->paginate(50);
         $eligibleApplications = collect();
-        if ($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative)) {
+        if ($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative)) {
             $eligibleApplications = TrainingApplication::query()->with(['user:id,name', 'program:id,title'])
                 ->where('status', 'accepted')
                 ->when($user->hasRole(Role::CenterRepresentative), fn ($applications) => $applications->whereHas('session', fn ($session) => $session->where('training_center_id', $user->training_center_id)))
@@ -63,7 +63,7 @@ class AssessmentRecordController extends Controller
     private function authorizeApplication(Request $request, TrainingApplication $application): void
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
         if ($user->hasRole(Role::CenterRepresentative)) {
             abort_unless($user->training_center_id && $application->session?->training_center_id === $user->training_center_id, 403);
         }

@@ -123,10 +123,10 @@ class NavComposer
             return;
         }
 
-        $isSuperAdmin = $user->role->value === 'super_admin';
+        $isAdmin = $user->role->value === 'admin';
         $roleGroups = self::ROLE_GROUPS[$user->role->value] ?? null;
-        $isGroupedWorkspace = $isSuperAdmin || $roleGroups !== null;
-        $tabs = $isSuperAdmin
+        $isGroupedWorkspace = $isAdmin || $roleGroups !== null;
+        $tabs = $isAdmin
             ? collect(self::ADMIN_TABS)->map(fn (array $tab): array => [
                 'label' => $tab[0],
                 'group' => $tab[3],
@@ -161,10 +161,10 @@ class NavComposer
                 })
                 ->values()->all());
 
-        $activeAdminTab = $isSuperAdmin ? collect($tabs)->firstWhere('active', true) : null;
+        $activeAdminTab = $isAdmin ? collect($tabs)->firstWhere('active', true) : null;
         $activeWorkspaceTab = collect($tabs)->firstWhere('active', true);
         $activePageKey = $activeAdminTab['page'] ?? $activeWorkspaceTab['page'] ?? null;
-        $pageTabDefinitions = $isSuperAdmin
+        $pageTabDefinitions = $isAdmin
             ? self::ADMIN_PAGE_TABS[$activePageKey] ?? []
             : (($activeWorkspaceTab['page'] ?? null) ? $activeWorkspaceTab['pageTabs'] : []);
         $adminPageTabs = collect($pageTabDefinitions)
@@ -184,7 +184,7 @@ class NavComposer
         $view->with([
             'navTabs' => $tabs,
             'adminPageTabs' => $adminPageTabs,
-            'isSuperAdminWorkspace' => $isSuperAdmin,
+            'isAdminWorkspace' => $isAdmin,
             'isGroupedWorkspace' => $isGroupedWorkspace,
             'showFloatingChatButton' => in_array($user->role->value, ['trainer', 'youth'], true),
             'navCurrentLabel' => $currentTab['label'] ?? (request()->routeIs('tuklasbot.index') ? 'TuklasBot' : null),

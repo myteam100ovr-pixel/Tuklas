@@ -21,7 +21,7 @@ class FictionalDemoCatalogSeederTest extends TestCase
 
     public function test_it_seeds_fifty_deterministic_records_for_catalogs_and_training_activity(): void
     {
-        User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
         $this->seed(FictionalDemoCatalogSeeder::class);
 
@@ -41,7 +41,7 @@ class FictionalDemoCatalogSeederTest extends TestCase
 
     public function test_career_seekers_see_fictional_records_without_demo_badges(): void
     {
-        User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
         $careerSeeker = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
 
@@ -73,9 +73,36 @@ class FictionalDemoCatalogSeederTest extends TestCase
             ->assertJsonFragment(['is_demo' => true]);
     }
 
+    public function test_all_mobile_roles_can_browse_seeded_public_catalogs_and_upcoming_sessions(): void
+    {
+        User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $this->seed(FictionalDemoCatalogSeeder::class);
+        $centerId = TrainingCenter::query()->where('is_demo', true)->orderByDesc('id')->value('id');
+
+        foreach ([Role::Admin, Role::TesdaAdmin, Role::Trainer, Role::CenterRepresentative, Role::Youth] as $role) {
+            $user = User::factory()->create([
+                'role' => $role,
+                'is_active' => true,
+                'training_center_id' => $role === Role::CenterRepresentative ? $centerId : null,
+            ]);
+
+            $this->actingAs($user)->getJson('/api/mobile/opportunities')->assertOk()
+                ->assertJsonFragment(['title' => 'Accounts Assistant']);
+            $this->getJson('/api/mobile/scholarships')->assertOk()
+                ->assertJsonFragment(['title' => 'Technical Skills Starter Grant']);
+            $this->getJson('/api/mobile/training-centers')->assertOk()
+                ->assertJsonFragment(['title' => 'Bookkeeping NC III']);
+            $this->getJson('/api/mobile/tesda')->assertOk()
+                ->assertJsonFragment(['title' => 'Bookkeeping NC III']);
+            $this->getJson('/api/mobile/training-sessions')->assertOk()
+                ->assertJsonStructure(['sessions' => ['data']])
+                ->assertJsonFragment(['title' => 'Bookkeeping NC III']);
+        }
+    }
+
     public function test_staff_can_review_simulated_training_dates_requests_and_results(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
 
         $sessions = $this->actingAs($admin)->get(route('sessions.index'))

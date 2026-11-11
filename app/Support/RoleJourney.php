@@ -22,7 +22,7 @@ class RoleJourney
         $items = match ($user->role) {
             Role::Youth => $this->careerSeeker($user),
             Role::TesdaAdmin => $this->tesda(),
-            Role::SuperAdmin => $this->superAdmin(),
+            Role::Admin => $this->admin(),
             Role::CenterRepresentative => $this->centerRepresentative($user),
             Role::Trainer => $this->trainer($user),
         };
@@ -66,7 +66,7 @@ class RoleJourney
     }
 
     /** @return array<int, array{id: string, title: string, description: string, state: string, href: ?string, action: ?string}> */
-    private function superAdmin(): array
+    private function admin(): array
     {
         return [
             $this->step('staff', 'Set up staff accounts', 'Create TESDA, trainer, and center representative accounts.', User::query()->whereIn('role', [Role::TesdaAdmin->value, Role::Trainer->value, Role::CenterRepresentative->value])->exists(), 'admin.users.index', 'Users'),

@@ -47,7 +47,7 @@
         </div>
         <p class="tesda-note">This list includes programs published in Tuklas by authorized local staff. Training dates, slots, requirements, and scholarship availability can change; confirm them with TESDA or the provider before applying.</p>
         @auth
-            @if (auth()->user()->hasRole(\App\Enums\Role::SuperAdmin, \App\Enums\Role::TesdaAdmin))
+            @if (auth()->user()->hasRole(\App\Enums\Role::Admin, \App\Enums\Role::TesdaAdmin))
                 <aside class="tesda-note" aria-label="Training catalog review process">
                     <strong>For TESDA staff:</strong> Review source-listed programs, confirm requirements and schedules with the provider, then publish verified details.
                     <a class="tesda-manage-link" href="{{ route('admin.trainings.index') }}">Review training program drafts ↗</a>

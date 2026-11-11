@@ -49,7 +49,7 @@ class ScholarshipApplicationController extends Controller
 
     public function update(Request $request, ScholarshipApplication $application): RedirectResponse|JsonResponse
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin), 403);
+        abort_unless($request->user()->hasRole(Role::Admin, Role::TesdaAdmin), 403);
         $data = $request->validate([
             'status' => ['required', Rule::in(['reviewing', 'approved', 'rejected'])],
             'review_notes' => ['nullable', 'string', 'max:3000'],
@@ -68,7 +68,7 @@ class ScholarshipApplicationController extends Controller
     {
         $user = $request->user();
         abort_unless(
-            $user->id === $application->user_id || $user->hasRole(Role::SuperAdmin, Role::TesdaAdmin),
+            $user->id === $application->user_id || $user->hasRole(Role::Admin, Role::TesdaAdmin),
             403,
         );
         $file = $application->documents[$document] ?? null;

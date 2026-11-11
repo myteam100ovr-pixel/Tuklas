@@ -16,7 +16,7 @@ class RoleNavigationTest extends TestCase
     public static function workspaceRoles(): array
     {
         return [
-            'PESO administrator' => [Role::SuperAdmin, 'admin.dashboard', true],
+            'PESO administrator' => [Role::Admin, 'admin.dashboard', true],
             'trainer' => [Role::Trainer, 'trainer.dashboard', false],
             'youth' => [Role::Youth, 'youth.dashboard', false],
         ];
@@ -39,7 +39,7 @@ class RoleNavigationTest extends TestCase
             ->assertOk()
             ->assertSee('tk-tabs--workspace');
 
-        if ($role === Role::SuperAdmin) {
+        if ($role === Role::Admin) {
             $response->assertSee('Jobs')->assertSee('Document Scanner')->assertSee('Ask TuklasBot');
         } elseif ($role === Role::Youth) {
             $response->assertSee('<span>Work</span>', false);

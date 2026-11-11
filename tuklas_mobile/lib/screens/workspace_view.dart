@@ -539,7 +539,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
               'trainer',
               'tesda_admin',
               'center_representative',
-              'super_admin',
+              'admin',
             ],
           ),
           WorkspaceField(

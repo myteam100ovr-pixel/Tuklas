@@ -16,7 +16,7 @@ class JobOpportunityController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
-        $canManage = $request->user()->hasRole(Role::SuperAdmin);
+        $canManage = $request->user()->hasRole(Role::Admin);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $jobs = JobOpportunity::query()->with('employer')
             ->when($search !== '', fn ($query) => $query->where(fn ($jobs) => $jobs->where('title', 'like', '%'.$search.'%')->orWhere('location', 'like', '%'.$search.'%')->orWhere('employer_name', 'like', '%'.$search.'%')->orWhereHas('employer', fn ($employer) => $employer->where('name', 'like', '%'.$search.'%'))))
@@ -48,7 +48,7 @@ class JobOpportunityController extends Controller
 
     public function recommend(Request $request, JobOpportunity $job): RedirectResponse|JsonResponse
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin), 403);
+        abort_unless($request->user()->hasRole(Role::Admin), 403);
         abort_unless(JobOpportunity::published()->whereKey($job->id)->exists() && ($job->is_demo || $job->employer_verified || $job->employer?->is_verified), 422);
         $data = $request->validate(['youth_email' => ['required', 'email', 'exists:users,email']]);
         $youth = User::query()->where('email', $data['youth_email'])->where('role', Role::Youth->value)->where('is_active', true)->firstOrFail();
@@ -59,7 +59,7 @@ class JobOpportunityController extends Controller
 
     private function validatedData(Request $request): array
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin), 403);
+        abort_unless($request->user()->hasRole(Role::Admin), 403);
 
         return $request->validate([
             'employer_name' => ['required', 'string', 'max:255'],

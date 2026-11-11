@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware(['auth:sanctum', 'role:super_admin,trainer,tesda_admin,center_representative,youth']);
+})->middleware(['auth:sanctum', 'role:admin,trainer,tesda_admin,center_representative,youth']);
 
 Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/legal/{document}', function (string $document) {
@@ -50,7 +50,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         ->middleware('throttle:5,1')->name('auth.password.update');
     Route::get('/tesda', [MobileCatalogController::class, 'index'])->name('tesda.index');
 
-    Route::middleware(['auth:sanctum', 'role:super_admin,trainer,tesda_admin,center_representative,youth'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin,trainer,tesda_admin,center_representative,youth'])->group(function () {
         Route::get('/me', [MobileAuthController::class, 'me'])->name('me');
         Route::put('/account', [MobileAuthController::class, 'updateAccount'])->name('account.update');
         Route::put('/password', [MobileAuthController::class, 'updatePassword'])->middleware('throttle:account-security')->name('password.update');
@@ -81,24 +81,24 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::get('/training-sessions', [TrainingSessionController::class, 'index'])->name('sessions.index');
             Route::get('/training-applications', [TrainingApplicationController::class, 'index'])->name('applications.index');
             Route::get('/assessment-records', [AssessmentRecordController::class, 'index'])->name('assessments.index');
-            Route::middleware('role:super_admin,tesda_admin,center_representative')->group(function () {
+            Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
                 Route::get('/center-trainers', [CenterTrainerController::class, 'index'])->name('center-trainers.index');
                 Route::post('/center-trainers', [CenterTrainerController::class, 'store'])->name('center-trainers.store');
                 Route::delete('/center-trainers/{assignment}', [CenterTrainerController::class, 'destroy'])->name('center-trainers.destroy');
             });
-            Route::middleware('role:super_admin')->group(function () {
+            Route::middleware('role:admin')->group(function () {
                 Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
                 Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
                 Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
             });
-            Route::middleware('role:super_admin,tesda_admin')->group(function () {
+            Route::middleware('role:admin,tesda_admin')->group(function () {
                 Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
                 Route::put('/scholarships/{scholarship}', [ScholarshipController::class, 'update'])->name('scholarships.update');
                 Route::put('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'update'])->name('scholarship-applications.update');
                 Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
                 Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
             });
-            Route::middleware('role:super_admin,tesda_admin,center_representative')->group(function () {
+            Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
                 Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');
                 Route::put('/training-sessions/{session}', [TrainingSessionController::class, 'update'])->name('sessions.update');
                 Route::put('/training-applications/{application}', [TrainingApplicationController::class, 'update'])->name('applications.update');
@@ -127,20 +127,20 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::delete('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->middleware('role:trainer')->name('trainer.teaching.destroy');
             Route::post('/trainer/qualifications', [TrainerQualificationController::class, 'store'])->middleware('role:trainer')->name('trainer.qualifications.store');
             Route::delete('/trainer/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->middleware('role:trainer')->name('trainer.qualifications.destroy');
-            Route::get('/admin/users', [UserController::class, 'index'])->middleware('role:super_admin')->name('admin.users.index');
-            Route::post('/admin/users', [UserController::class, 'store'])->middleware('role:super_admin')->name('admin.users.store');
-            Route::get('/admin/users/{user}', [UserController::class, 'edit'])->middleware('role:super_admin')->name('admin.users.show');
-            Route::put('/admin/users/{user}', [UserController::class, 'update'])->middleware('role:super_admin')->name('admin.users.update');
-            Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->middleware('role:super_admin')->name('admin.users.destroy');
-            Route::post('/admin/users/{user}/restore', [UserController::class, 'restore'])->middleware('role:super_admin')->name('admin.users.restore');
-            Route::post('/admin/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('role:super_admin')->middleware('throttle:5,1')->name('admin.users.reset-password');
+            Route::get('/admin/users', [UserController::class, 'index'])->middleware('role:admin')->name('admin.users.index');
+            Route::post('/admin/users', [UserController::class, 'store'])->middleware('role:admin')->name('admin.users.store');
+            Route::get('/admin/users/{user}', [UserController::class, 'edit'])->middleware('role:admin')->name('admin.users.show');
+            Route::put('/admin/users/{user}', [UserController::class, 'update'])->middleware('role:admin')->name('admin.users.update');
+            Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->middleware('role:admin')->name('admin.users.destroy');
+            Route::post('/admin/users/{user}/restore', [UserController::class, 'restore'])->middleware('role:admin')->name('admin.users.restore');
+            Route::post('/admin/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('role:admin')->middleware('throttle:5,1')->name('admin.users.reset-password');
             Route::get('/assessment', [SkillsAssessmentController::class, 'index'])->middleware('role:youth')->name('assessment.index');
             Route::post('/assessment', [SkillsAssessmentController::class, 'store'])->middleware('role:youth')->name('assessment.store');
             Route::get('/dashboard', [MobileDashboardController::class, 'index'])->name('dashboard');
             Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
             Route::post('/career-chat', CareerChatController::class)
                 ->middleware('throttle:10,1')->name('career-chat.store');
-            Route::middleware('role:super_admin,youth')->group(function () {
+            Route::middleware('role:admin,youth')->group(function () {
                 Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
                 Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
                 Route::post('/document-scans', [DocumentScanController::class, 'store'])

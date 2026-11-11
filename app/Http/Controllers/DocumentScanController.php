@@ -22,7 +22,7 @@ class DocumentScanController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin, Role::Youth), 403);
+        abort_unless($request->user()->hasRole(Role::Admin, Role::Youth), 403);
         $documents = $request->user()
             ->documentScans()
             ->latest()
@@ -35,7 +35,7 @@ class DocumentScanController extends Controller
 
     public function store(StoreDocumentScanRequest $request, GeminiDocumentScanner $scanner, TesdaQualificationCatalog $catalog, ActivityNotifier $activity): JsonResponse
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin, Role::Youth), 403);
+        abort_unless($request->user()->hasRole(Role::Admin, Role::Youth), 403);
         if (! $scanner->isConfigured()) {
             return response()->json([
                 'message' => 'AI scanning is not configured yet. Add GOOGLE_AI_API_KEY to the server environment.',

@@ -45,6 +45,31 @@ void main() {
     expect(find.text('Opening TESDA…'), findsOneWidget);
   });
 
+  testWidgets('admin role receives the shared PESO and admin destinations', (
+    tester,
+  ) async {
+    ApiClient.instance.user = {
+      'email_verified': true,
+      'name': 'PESO Admin',
+      'role': 'admin',
+    };
+    addTearDown(() => ApiClient.instance.user = null);
+    await tester.pumpWidget(const MaterialApp(home: HomeShell()));
+
+    expect(find.byTooltip('PESO AI'), findsOneWidget);
+    expect(find.byTooltip('Scanner'), findsOneWidget);
+    expect(find.byTooltip('TESDA'), findsOneWidget);
+
+    await tester.tap(find.text('More tools ▾'));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Users'), findsOneWidget);
+    expect(find.text('Scholarships'), findsOneWidget);
+    expect(find.text('Sessions'), findsOneWidget);
+    expect(find.text('Applications'), findsOneWidget);
+    expect(find.text('Assessments'), findsOneWidget);
+  });
+
   testWidgets('registration consent starts unchecked and blocks submission', (
     tester,
   ) async {

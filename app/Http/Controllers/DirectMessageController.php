@@ -35,7 +35,7 @@ class DirectMessageController extends Controller
         $search = trim((string) $request->query('search', ''));
         $people = User::query()->whereKeyNot($currentUser->id)->where('is_active', true)->whereNotNull('email_verified_at')
             ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.addcslashes($search, '%_\\').'%'))
-            ->orderByRaw("CASE WHEN role = 'super_admin' THEN 0 ELSE 1 END")->orderBy('name')->limit(100)->get()
+            ->orderByRaw("CASE WHEN role = 'admin' THEN 0 ELSE 1 END")->orderBy('name')->limit(100)->get()
             ->map(fn (User $person): array => ['id' => $person->id, 'name' => $person->name, 'role' => $person->role->label()]);
 
         return response()->json(['people' => $people]);

@@ -16,7 +16,7 @@ class ScholarshipController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
-        $canManage = $request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin);
+        $canManage = $request->user()->hasRole(Role::Admin, Role::TesdaAdmin);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $scholarships = Scholarship::query()->when(! $canManage, fn ($query) => $query->published())
             ->when($search !== '', fn ($query) => $query->where(fn ($items) => $items->where('title', 'like', '%'.$search.'%')->orWhere('provider', 'like', '%'.$search.'%')))
@@ -61,7 +61,7 @@ class ScholarshipController extends Controller
 
     private function validatedData(Request $request): array
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin), 403);
+        abort_unless($request->user()->hasRole(Role::Admin, Role::TesdaAdmin), 403);
 
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],

@@ -15,7 +15,7 @@ class TrainingCenterController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         $user = $request->user();
-        $canManage = $user->hasRole(Role::SuperAdmin, Role::TesdaAdmin);
+        $canManage = $user->hasRole(Role::Admin, Role::TesdaAdmin);
         $canSeeDrafts = $canManage || $user->hasRole(Role::CenterRepresentative);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $centers = TrainingCenter::query()
@@ -49,7 +49,7 @@ class TrainingCenterController extends Controller
 
     private function authorizeManager(Request $request): void
     {
-        abort_unless($request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin), 403);
+        abort_unless($request->user()->hasRole(Role::Admin, Role::TesdaAdmin), 403);
     }
 
     private function validatedData(Request $request): array

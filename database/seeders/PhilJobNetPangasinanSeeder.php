@@ -17,12 +17,12 @@ class PhilJobNetPangasinanSeeder extends Seeder
     public function run(): void
     {
         $posterId = User::query()
-            ->where('role', Role::SuperAdmin->value)
+            ->where('role', Role::Admin->value)
             ->oldest('id')
             ->value('id');
 
         if ($posterId === null) {
-            throw new RuntimeException('A PESO super administrator is required before importing job listings.');
+            throw new RuntimeException('A PESO administrator is required before importing job listings.');
         }
 
         $listings = [

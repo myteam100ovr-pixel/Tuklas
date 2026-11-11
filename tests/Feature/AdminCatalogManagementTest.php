@@ -16,7 +16,7 @@ class AdminCatalogManagementTest extends TestCase
 
     public function test_admin_shortcuts_open_catalog_management_pages(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
 
         $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk()
             ->assertSee(route('admin.careers.index'))
@@ -28,7 +28,7 @@ class AdminCatalogManagementTest extends TestCase
 
     public function test_admin_can_publish_and_archive_career_paths_seen_by_members(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
 
         $this->actingAs($admin)->post(route('admin.careers.store'), [
@@ -54,7 +54,7 @@ class AdminCatalogManagementTest extends TestCase
 
     public function test_admin_can_manage_training_without_transferring_trainer_ownership(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
         $center = TrainingCenter::factory()->create();
         $this->actingAs($admin)->post(route('admin.trainings.store'), [
@@ -109,7 +109,7 @@ class AdminCatalogManagementTest extends TestCase
         $this->actingAs($youth)->get(route('admin.careers.index'))->assertForbidden();
         $this->post(route('admin.trainings.store'), ['title' => 'Course', 'status' => 'published'])->assertForbidden();
 
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->actingAs($admin)->post(route('admin.careers.store'), ['title' => '', 'status' => 'public'])
             ->assertSessionHasErrors(['title', 'status']);
         $this->post(route('admin.trainings.store'), ['title' => 'Course', 'nc_level' => 'NC V', 'status' => 'published'])

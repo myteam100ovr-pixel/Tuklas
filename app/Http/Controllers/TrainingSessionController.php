@@ -17,7 +17,7 @@ class TrainingSessionController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         $user = $request->user();
-        $canManage = $user->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative);
+        $canManage = $user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $sessions = TrainingSession::query()->with(['program:id,title,status', 'center:id,name,type'])
             ->when($search !== '', fn ($query) => $query->where(fn ($sessions) => $sessions->whereHas('program', fn ($program) => $program->where('title', 'like', '%'.$search.'%'))->orWhereHas('center', fn ($center) => $center->where('name', 'like', '%'.$search.'%'))))
@@ -55,7 +55,7 @@ class TrainingSessionController extends Controller
     private function authorizeManager(Request $request, ?TrainingSession $session = null): void
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
         if ($user->hasRole(Role::CenterRepresentative)) {
             abort_unless($user->training_center_id && ($session === null || $session->training_center_id === $user->training_center_id), 403);
         }

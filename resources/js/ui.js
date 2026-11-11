@@ -28,14 +28,6 @@ document.addEventListener('click', (event) => {
     showNavigationLoading('Opening page…');
     requestAnimationFrame(() => requestAnimationFrame(() => { location.href = destination.href; }));
 });
-document.addEventListener('submit', (event) => {
-    if (!event.target.matches('.auth-demo-card') || event.defaultPrevented) return;
-    event.preventDefault();
-    showNavigationLoading('Opening demo account…');
-    const form = event.target;
-    requestAnimationFrame(() => requestAnimationFrame(() => form.submit()));
-});
-
 document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-menu-btn]');
     document.querySelectorAll('[data-menu]').forEach((menu) => {

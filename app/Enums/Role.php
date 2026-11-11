@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum Role: string
 {
-    case SuperAdmin = 'super_admin';
+    case Admin = 'admin';
     case Trainer = 'trainer';
     case TesdaAdmin = 'tesda_admin';
     case CenterRepresentative = 'center_representative';
@@ -13,7 +13,7 @@ enum Role: string
     public function homeRoute(): string
     {
         return match ($this) {
-            self::SuperAdmin => 'admin.dashboard',
+            self::Admin => 'admin.dashboard',
             self::Trainer => 'trainer.dashboard',
             self::TesdaAdmin, self::CenterRepresentative => 'trainer.dashboard',
             self::Youth => 'youth.dashboard',
@@ -23,7 +23,7 @@ enum Role: string
     public function label(): string
     {
         return match ($this) {
-            self::SuperAdmin => 'PESO Bugallon (Super Admin)',
+            self::Admin => 'PESO Bugallon Admin',
             self::Trainer => 'Trainer',
             self::TesdaAdmin => 'TESDA',
             self::CenterRepresentative => 'Training Center Representative',

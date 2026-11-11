@@ -62,7 +62,7 @@ class ScholarshipApplicationTest extends TestCase
 
     public function test_authorized_staff_can_review_a_submitted_scholarship_application(): void
     {
-        $staff = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $staff = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $applicant = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $application = ScholarshipApplication::query()->create([
             'scholarship_id' => Scholarship::factory()->create()->id,

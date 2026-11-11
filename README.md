@@ -12,11 +12,13 @@ Tuklas is a career-guidance and technical-vocational training platform for Panga
 - Members can message one another. TuklasBot offers AI career guidance; the document scanner can read a resume or certificate with the user's consent.
 - Flutter clients use the same Laravel APIs and server-side records as the website. They do not have a separate system database. Production uses MySQL; local development can use MySQL or SQLite.
 
+The PESO role is stored as `admin` and uses the same role value in web middleware, mobile API responses, and the Flutter app. A forward migration converts existing `super_admin` user rows without changing their records. Published seeded jobs, scholarships, training programs, centers, and upcoming sessions are available through the same role-authorized web and mobile catalogs. Requests, assessment results, and applications remain limited to the participant, authorized staff, and assigned training center.
+
 AI output is guidance, not a guarantee of employment, admission, funding, or a training place. PESO job recommendations are selected by authorized staff; the system does not claim automatic qualification scoring.
 
 ## Roles and the normal user flow
 
-### PESO super administrator
+### PESO Admin
 
 1. Sign in and use the overview to review platform activity.
 2. Manage career-seeker and authorized staff accounts, including role and center assignments.
@@ -322,12 +324,13 @@ DB_PORT=3306
 DB_DATABASE=tuklas
 DB_USERNAME=tuklas_local
 DB_PASSWORD=replace-with-a-local-password
-TUKLAS_SUPERADMIN_EMAIL=admin@tuklas.test
-TUKLAS_SUPERADMIN_NAME="PESO Bugallon"
-TUKLAS_SUPERADMIN_PASSWORD="replace-with-a-strong-local-password"
+TUKLAS_ADMIN_EMAIL=admin@tuklas.com
+TUKLAS_ADMIN_NAME="PESO Bugallon Admin"
+TUKLAS_ADMIN_PASSWORD="replace-with-a-strong-local-password"
+TUKLAS_DEMO_PASSWORD="replace-with-a-local-demo-password"
 ```
 
-Install dependencies, generate the app key, migrate the schema, and create the configured super admin:
+Install dependencies, generate the app key, migrate the schema, and create the configured Admin account. The sample email and password above are for local setup only; set a real mailbox and strong secret in the production environment:
 
 ```powershell
 composer install
@@ -337,6 +340,16 @@ php artisan migrate --seed
 php artisan storage:link
 npm run build
 ```
+
+To create or update only the configured Admin account without reseeding catalog data, run:
+
+```powershell
+php artisan db:seed --class=AdminAccountSeeder --force
+```
+
+`TUKLAS_ADMIN_EMAIL` is the canonical Admin login email. Set it to the existing administrator's intended mailbox before running the seeder; if the old local demo Admin exists, the seeder converts it to that email and keeps its password unless `TUKLAS_ADMIN_PASSWORD` is set.
+
+For local role testing, set `TUKLAS_DEMO_PASSWORD` and run `php artisan db:seed --class=DemoAccountsSeeder`. This creates Career Seeker, Trainer, and Admin demo logins; it is intentionally blocked in production.
 
 For the fictional records used to test catalog and training workflows, run the separate seeder:
 

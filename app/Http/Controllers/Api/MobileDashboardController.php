@@ -23,7 +23,7 @@ class MobileDashboardController extends Controller
         $dashboard = match ($user->role) {
             Role::Youth => $this->youthDashboard($user, $scanHistory),
             Role::Trainer, Role::TesdaAdmin, Role::CenterRepresentative => $this->trainerDashboard($user),
-            Role::SuperAdmin => $this->adminDashboard(),
+            Role::Admin => $this->adminDashboard(),
         };
         $dashboard['journey'] = $journey->for($user);
 
@@ -64,7 +64,7 @@ class MobileDashboardController extends Controller
             ->get();
 
         return [
-            'role' => Role::SuperAdmin->value,
+            'role' => Role::Admin->value,
             'title' => 'PESO Bugallon overview',
             'stats' => [
                 $this->stat('Youth accounts', $youthTotal, $youthNew > 0 ? '+'.$youthNew : null, 'good', 'Last 30 days'),

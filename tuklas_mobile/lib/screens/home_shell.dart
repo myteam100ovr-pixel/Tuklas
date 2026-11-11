@@ -30,7 +30,7 @@ class _HomeShellState extends State<HomeShell> {
   int _version = 0; // bumped after a profile save so the dashboard reloads
 
   bool get _careerTools =>
-      ['youth', 'super_admin'].contains(ApiClient.instance.user?['role']);
+      ['youth', 'admin'].contains(ApiClient.instance.user?['role']);
 
   Widget _selectedView() {
     final role = '${ApiClient.instance.user?['role']}';
@@ -276,13 +276,13 @@ class _HomeShellState extends State<HomeShell> {
                           'center_representative',
                         ].contains(ApiClient.instance.user?['role']))
                           'My programs',
-                        if (ApiClient.instance.user?['role'] == 'super_admin')
+                        if (ApiClient.instance.user?['role'] == 'admin')
                           'Users',
-                        if (ApiClient.instance.user?['role'] == 'super_admin')
+                        if (ApiClient.instance.user?['role'] == 'admin')
                         'Scholarships',
                         'Centers',
                         if ([
-                          'super_admin',
+                          'admin',
                           'tesda_admin',
                           'center_representative',
                         ].contains(ApiClient.instance.user?['role']))

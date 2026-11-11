@@ -43,7 +43,7 @@ class PangasinanTrainingCenterSeederTest extends TestCase
             'duration_days' => 25,
         ]);
 
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->actingAs($admin)->get(route('centers.index'))
             ->assertSee($provincialCenter->name)
             ->assertSee($psat->name)

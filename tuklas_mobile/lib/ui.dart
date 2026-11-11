@@ -284,7 +284,7 @@ class TkBottomNavigation extends StatelessWidget {
     final user = ApiClient.instance.user ?? <String, dynamic>{};
     final name = '${user['name'] ?? ''}';
     final role = '${user['role'] ?? ''}';
-    final careerTools = role == 'youth' || role == 'super_admin';
+    final careerTools = role == 'youth' || role == 'admin';
     final secondaryLabel = role == 'trainer' ? 'Teaching' : 'Training';
     final tertiaryLabel = role == 'trainer' ? 'Messages' : 'Sessions';
 

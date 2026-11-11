@@ -45,7 +45,7 @@ class MobilePesoControllerTest extends TestCase
 
     public function test_peso_admin_can_view_youth_matches_but_not_non_youth_matches(): void
     {
-        $administrator = $this->createUserWithRole(Role::SuperAdmin);
+        $administrator = $this->createUserWithRole(Role::Admin);
         $youth = $this->createUserWithRole(Role::Youth, ['name' => 'Guidance Youth']);
         $trainer = $this->createUserWithRole(Role::Trainer);
 

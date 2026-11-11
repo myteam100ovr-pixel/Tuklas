@@ -18,7 +18,7 @@ class MobilePesoController extends Controller
             ->where('status', 'done')
             ->whereJsonLength('result->jobRecommendations', '>', 0);
 
-        if ($user->hasRole(Role::SuperAdmin)) {
+        if ($user->hasRole(Role::Admin)) {
             $scans
                 ->with(['user:id,name'])
                 ->whereHas('user', fn (Builder $query): Builder => $query->where('role', Role::Youth->value));
@@ -32,7 +32,7 @@ class MobilePesoController extends Controller
             ->get()
             ->map(fn (DocumentScan $scan): array => [
                 'id' => $scan->getKey(),
-                'name' => $user->hasRole(Role::SuperAdmin) ? $scan->user?->name : null,
+                'name' => $user->hasRole(Role::Admin) ? $scan->user?->name : null,
                 'document_type' => $scan->doc_type,
                 'original_name' => $scan->original_name,
                 'processed_at' => $scan->processed_at,

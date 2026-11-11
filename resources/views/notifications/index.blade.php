@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="suite-page trainer-courses">
-        <x-workspace-heading eyebrow="WORKSPACE · UPDATES" title="Notifications" :description="auth()->user()->hasRole(\App\Enums\Role::SuperAdmin) ? 'Activity across Youth, TESDA trainers, and administrators.' : 'Updates about your Tuklas account.'" />
+        <x-workspace-heading eyebrow="WORKSPACE · UPDATES" title="Notifications" :description="auth()->user()->hasRole(\App\Enums\Role::Admin) ? 'Activity across Youth, TESDA trainers, and administrators.' : 'Updates about your Tuklas account.'" />
         @if (session('status'))<p class="trainer-courses__feedback" role="status">{{ session('status') }}</p>@endif
         <div class="users-directory__toolbar"><span>{{ auth()->user()->unreadNotifications()->count() }} unread</span><form method="POST" action="{{ route('notifications.read-all') }}">@csrf<button type="submit">Mark all as read</button></form></div>
         <section aria-label="Notifications" class="notifications-list">

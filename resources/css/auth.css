@@ -88,17 +88,6 @@ body { margin: 0; }
 .auth-social-button:hover { border-color: #c8b7f5; background: #fbf9ff; }
 .auth-social-button svg { width: 1rem; height: 1rem; flex: none; }
 .auth-facebook-mark { display: grid; width: 1rem; height: 1rem; place-items: end center; overflow: hidden; border-radius: 50%; color: #fff; background: #1877f2; font-family: Arial, sans-serif; font-size: .9rem; font-weight: 700; line-height: 1; }
-.auth-demo { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid #eeecf1; }
-.auth-demo-heading h3 { margin: .25rem 0 0; font-size: 1.1rem; font-weight: 600; letter-spacing: -.035em; }
-.auth-demo-heading > p:last-child { margin: .35rem 0 0; color: var(--auth-muted); font-size: .76rem; line-height: 1.5; }
-.auth-demo-list { display: grid; gap: .6rem; margin-top: 1rem; }
-.auth-demo-card { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-width: 0; padding: .75rem; border: 1px solid #e7e4ec; border-radius: .7rem; background: #faf9fd; }
-.auth-demo-card > div { display: grid; min-width: 0; gap: .2rem; }
-.auth-demo-card strong { color: var(--auth-ink); font-size: .78rem; font-weight: 600; }
-.auth-demo-card > div span { overflow-wrap: anywhere; color: var(--auth-muted); font-size: .68rem; }
-.auth-demo-card button { flex: none; padding: .5rem .65rem; border: 0; border-radius: .5rem; color: #fff; background: var(--auth-purple); font: inherit; font-size: .68rem; cursor: pointer; }
-.auth-demo-card button:hover { background: #4b10df; }
-.auth-demo-card button:focus-visible { outline: 2px solid var(--auth-purple); outline-offset: 2px; }
 .auth-switch { margin-top: 1.5rem; color: #777382; text-align: center; font-size: .78rem; }
 .auth-switch a { color: var(--auth-purple); font-weight: 500; }
 .auth-switch a:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -244,11 +233,6 @@ html[data-theme='dark'] .auth-input { color: #f4f4f6 !important; border-color: #
 html[data-theme='dark'] .auth-input::placeholder { color: #92929d; }
 html[data-theme='dark'] .auth-social-button { color: #f4f4f6; border-color: #3c3c44; background: #222228; }
 html[data-theme='dark'] .auth-social-button:hover { background: #2c2934; }
-html[data-theme='dark'] .auth-demo { border-color: #3c3c44; }
-html[data-theme='dark'] .auth-demo-heading > p:last-child,
-html[data-theme='dark'] .auth-demo-card > div span { color: #aaaab4; }
-html[data-theme='dark'] .auth-demo-card { border-color: #3c3c44; background: #222228; }
-html[data-theme='dark'] .auth-demo-card strong { color: #f4f4f6; }
 html[data-theme='dark'] .auth-divider { color: #aaaab4; }
 html[data-theme='dark'] .auth-divider::before,
 html[data-theme='dark'] .auth-divider::after { background: #3c3c44; }

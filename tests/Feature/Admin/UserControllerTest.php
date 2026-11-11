@@ -17,13 +17,13 @@ class UserControllerTest extends TestCase
         $this->withoutVite();
     }
 
-    public function test_super_admin_sees_users_from_every_role_including_admin_accounts(): void
+    public function test_admin_sees_users_from_every_role_including_admin_accounts(): void
     {
         $administrator = User::factory()->create([
             'name' => 'Directory Administrator',
             'email' => 'admin-directory@example.test',
         ]);
-        $administrator->role = Role::SuperAdmin;
+        $administrator->role = Role::Admin;
         $administrator->is_active = true;
         $administrator->email_verified_at = now();
         $administrator->save();
@@ -44,7 +44,7 @@ class UserControllerTest extends TestCase
         $youth->email_verified_at = now();
         $youth->save();
 
-        $this->assertSame(Role::SuperAdmin, $administrator->role);
+        $this->assertSame(Role::Admin, $administrator->role);
         $this->assertTrue($administrator->is_active);
         $this->assertTrue($administrator->hasVerifiedEmail());
 
@@ -53,7 +53,7 @@ class UserControllerTest extends TestCase
             ->assertOk()
             ->assertSee($administrator->name)
             ->assertSee($administrator->email)
-            ->assertSee(Role::SuperAdmin->label())
+            ->assertSee(Role::Admin->label())
             ->assertSee($trainer->email)
             ->assertSee(Role::Trainer->label())
             ->assertSee($youth->email)
@@ -62,12 +62,12 @@ class UserControllerTest extends TestCase
             ->assertSee('3 total');
     }
 
-    public function test_super_admin_can_reach_users_beyond_the_first_page(): void
+    public function test_admin_can_reach_users_beyond_the_first_page(): void
     {
         $administrator = User::factory()->create([
             'name' => 'Directory Admin',
         ]);
-        $administrator->role = Role::SuperAdmin;
+        $administrator->role = Role::Admin;
         $administrator->is_active = true;
         $administrator->email_verified_at = now();
         $administrator->save();

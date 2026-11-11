@@ -149,7 +149,7 @@ class CareerChatControllerTest extends TestCase
         $this->assertDatabaseCount('career_chat_messages', 2);
     }
 
-    #[TestWith([Role::SuperAdmin])]
+    #[TestWith([Role::Admin])]
     #[TestWith([Role::Trainer])]
     #[TestWith([Role::Youth])]
     public function test_tuklasbot_page_shows_chat_and_profile_for_each_role(Role $role): void

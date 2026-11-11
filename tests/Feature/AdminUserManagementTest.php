@@ -25,7 +25,7 @@ class AdminUserManagementTest extends TestCase
 
     public function test_admin_can_create_verified_accounts_for_every_role(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $center = TrainingCenter::factory()->create();
         $this->actingAs($admin);
         $this->get(route('admin.users.create'))->assertOk()->assertSee('Initial password');
@@ -58,7 +58,7 @@ class AdminUserManagementTest extends TestCase
 
     public function test_admin_can_edit_delete_and_restore_an_account(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $account = User::factory()->create(['role' => Role::Youth]);
         $this->actingAs($admin)->get(route('admin.users.edit', $account))->assertOk()->assertSee('Edit user account');
 
@@ -85,7 +85,7 @@ class AdminUserManagementTest extends TestCase
     public function test_reset_sends_email_link_and_in_app_notice_without_exposing_a_password(): void
     {
         Notification::fake();
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $account = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
 
         $this->actingAs($admin)->post(route('admin.users.reset-password', $account))->assertRedirect();
@@ -104,21 +104,21 @@ class AdminUserManagementTest extends TestCase
 
     public function test_admin_cannot_delete_self_or_last_active_administrator(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->actingAs($admin)->delete(route('admin.users.destroy', $admin))->assertStatus(422);
         $this->assertNotSoftDeleted($admin);
     }
 
     public function test_admin_cannot_deactivate_their_own_account_from_the_form(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
-        User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
 
         $this->actingAs($admin)->put(route('admin.users.update', $admin), [
             'first_name' => 'Current',
             'last_name' => 'Admin',
             'email' => $admin->email,
-            'role' => Role::SuperAdmin->value,
+            'role' => Role::Admin->value,
             'is_active' => '0',
         ])->assertStatus(422);
 
@@ -134,7 +134,7 @@ class AdminUserManagementTest extends TestCase
 
     public function test_admin_sees_different_youth_and_trainer_activity_notices(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
         $program = TrainingProgram::factory()->create();

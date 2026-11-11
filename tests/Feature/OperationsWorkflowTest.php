@@ -131,7 +131,7 @@ class OperationsWorkflowTest extends TestCase
 
     public function test_peso_can_publish_a_verified_job_with_the_employer_entered_on_the_opening(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
 
         $response = $this->actingAs($admin)->post('/admin/opportunities', [
             'employer_name' => 'Northstar Works',
@@ -153,7 +153,7 @@ class OperationsWorkflowTest extends TestCase
 
     public function test_peso_cannot_publish_a_job_without_confirming_employer_details(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
 
         $this->actingAs($admin)->from('/opportunities')->post('/admin/opportunities', [
             'employer_name' => 'Northstar Works',

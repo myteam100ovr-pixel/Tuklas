@@ -90,7 +90,7 @@ class UserController extends Controller
         $data['is_active'] = (bool) $data['is_active'];
         $this->protectLastAdministrator($user, $data['role'], $data['is_active']);
         abort_if($request->user()->is($user) && $data['is_active'] === false, 422, 'You cannot deactivate your own account.');
-        abort_if($request->user()->is($user) && $data['role'] !== Role::SuperAdmin->value, 422, 'You cannot change your own administrator role.');
+        abort_if($request->user()->is($user) && $data['role'] !== Role::Admin->value, 422, 'You cannot change your own administrator role.');
 
         DB::transaction(function () use ($user, $data): void {
             $emailChanged = $user->email !== $data['email'];
@@ -195,8 +195,8 @@ class UserController extends Controller
 
     private function protectLastAdministrator(User $user, ?string $newRole, bool $isActive): void
     {
-        if ($user->role === Role::SuperAdmin && $user->is_active && ($newRole !== Role::SuperAdmin->value || ! $isActive)) {
-            abort_if(User::query()->where('role', Role::SuperAdmin->value)->where('is_active', true)->count() <= 1, 422, 'The last active administrator cannot be removed.');
+        if ($user->role === Role::Admin && $user->is_active && ($newRole !== Role::Admin->value || ! $isActive)) {
+            abort_if(User::query()->where('role', Role::Admin->value)->where('is_active', true)->count() <= 1, 422, 'The last active administrator cannot be removed.');
         }
     }
 }

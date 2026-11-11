@@ -19,7 +19,7 @@ class DashboardMetricsTest extends TestCase
     #[TestWith(['trainer', 'My programs'])]
     #[TestWith(['tesda_admin', 'Centers'])]
     #[TestWith(['center_representative', 'Centers'])]
-    #[TestWith(['super_admin', 'Users'])]
+    #[TestWith(['admin', 'Users'])]
     public function test_each_role_has_the_same_actionable_first_step_on_web_and_mobile(string $role, string $action): void
     {
         $user = User::factory()->create([
@@ -31,6 +31,7 @@ class DashboardMetricsTest extends TestCase
         $this->actingAs($user)->get(route($user->role->homeRoute()))->assertOk()
             ->assertViewHas('journey', fn (array $journey): bool => $journey['items'][0]['action'] === $action);
         $this->getJson(route('mobile.dashboard'))->assertOk()
+            ->assertJsonPath('role', $role)
             ->assertJsonPath('journey.items.0.action', $action);
     }
 
@@ -64,7 +65,7 @@ class DashboardMetricsTest extends TestCase
 
     public function test_empty_profile_and_empty_admin_chart_have_true_zero_values(): void
     {
-        $user = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $user = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->assertSame(0, ProfileCompletion::for($user)['percent']);
         $this->actingAs($user)->get(route('admin.dashboard'))->assertOk()
             ->assertViewHas('chart', fn (array $chart): bool => array_sum(array_column($chart['bars'], 'h')) === 0);

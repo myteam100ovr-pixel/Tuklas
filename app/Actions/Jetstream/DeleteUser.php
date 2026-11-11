@@ -14,8 +14,8 @@ class DeleteUser implements DeletesUsers
      */
     public function delete(User $user): void
     {
-        if ($user->role === Role::SuperAdmin) {
-            abort_if(User::query()->where('role', Role::SuperAdmin->value)->where('is_active', true)->count() <= 1, 422, 'The last active administrator cannot be removed.');
+        if ($user->role === Role::Admin) {
+            abort_if(User::query()->where('role', Role::Admin->value)->where('is_active', true)->count() <= 1, 422, 'The last active administrator cannot be removed.');
         }
 
         app(ActivityNotifier::class)->record($user, 'deleted their account.');

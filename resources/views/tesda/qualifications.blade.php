@@ -8,7 +8,7 @@
         @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
             <p class="qualification-assign-link">Choose the qualifications you plan to teach. Your choices appear in Teaching.</p>
         @endif
-        @if (auth()->user()->hasRole(\App\Enums\Role::Trainer, \App\Enums\Role::SuperAdmin))
+        @if (auth()->user()->hasRole(\App\Enums\Role::Trainer, \App\Enums\Role::Admin))
             <a class="qualification-assign-link" href="{{ route('tesda.choices.index') }}">Choose training for a youth account ↗</a>
         @endif
         @if ($choiceUser)

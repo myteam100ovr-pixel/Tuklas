@@ -25,12 +25,12 @@ class FictionalDemoCatalogSeeder extends Seeder
     public function run(): void
     {
         $adminId = User::query()
-            ->where('role', Role::SuperAdmin->value)
+            ->where('role', Role::Admin->value)
             ->oldest('id')
             ->value('id');
 
         if ($adminId === null) {
-            throw new RuntimeException('Create the PESO super administrator before seeding demo catalog records.');
+            throw new RuntimeException('Create the PESO administrator before seeding catalog records.');
         }
 
         $centers = [

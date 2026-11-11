@@ -321,7 +321,7 @@
     <article class="row">
         <div class="tileimg"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#6f84e8"/><path d="M50 14 C 20 26, 24 62, 50 86 C 76 62, 80 26, 50 14Z" fill="none" stroke="#3a14b0" stroke-width="9"/><circle cx="50" cy="48" r="10" fill="#ffd92e"/></svg></div>
         <div class="numwrap"><span class="tag t-p">Roles</span><div class="num" data-to="3">3</div></div>
-        <p class="desc">Youth, PESO Bugallon as Super Administrator, and TESDA Lingayen as Trainer. Each role only sees the features it needs.</p>
+        <p class="desc">Career Seekers, PESO Bugallon Admin, and TESDA staff. Each role only sees the features it needs.</p>
     </article>
     <article class="row">
         <div class="tileimg"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#3a14b0"/><rect x="18" y="22" width="64" height="12" rx="6" fill="#f55ba8"/><rect x="18" y="44" width="64" height="12" rx="6" fill="#ffd92e"/><rect x="18" y="66" width="40" height="12" rx="6" fill="#8f96ea"/></svg></div>
@@ -375,7 +375,7 @@
     <div class="cols">
         <div class="col c-a" data-speed="70">
             <article class="qc"><i class="qm">&#10022;</i><p>Share your interests, skills, schooling, credentials, and livelihood interests once, and update them when your situation changes.</p><footer><b>Youth users</b><span>Profile</span></footer></article>
-            <article class="qc"><i class="qm">&#10022;</i><p>Oversee users and keep career, skills, and training information organized in one place.</p><footer><b>PESO Bugallon</b><span>Super Administrator</span></footer></article>
+            <article class="qc"><i class="qm">&#10022;</i><p>Oversee users and keep career, skills, and training information organized in one place.</p><footer><b>PESO Bugallon</b><span>Admin</span></footer></article>
         </div>
         <div class="col c-b" data-speed="130">
             <article class="qc"><i class="qm">&#10022;</i><p>Complete the skills assessment and see suggested careers and TESDA Lingayen programs, with the reasons behind each suggestion.</p><footer><b>Youth users</b><span>Recommendations</span></footer></article>

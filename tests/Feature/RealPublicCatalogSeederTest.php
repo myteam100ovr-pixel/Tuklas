@@ -18,7 +18,7 @@ class RealPublicCatalogSeederTest extends TestCase
 
     public function test_it_publishes_real_source_checked_pangasinan_jobs_and_closes_the_unverified_search_result(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $employer = Employer::factory()->create(['name' => 'Asiawide Human Resources and Consultancy, Corp']);
         JobOpportunity::factory()->create([
             'employer_id' => $employer->id,
@@ -75,7 +75,7 @@ class RealPublicCatalogSeederTest extends TestCase
 
     public function test_it_publishes_official_tesda_scholarship_information_without_claiming_local_slots(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(TesdaScholarshipInfoSeeder::class);
         $this->seed(TesdaScholarshipInfoSeeder::class);
 

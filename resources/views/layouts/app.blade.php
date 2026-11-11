@@ -47,7 +47,7 @@
         <div class="tk-context"><span>Workspace</span><span aria-hidden="true">/</span><strong>{{ $navCurrentLabel ?? 'Workspace' }}</strong></div>
 
         <div class="tk-right">
-            @unless ($isSuperAdminWorkspace)<span class="tk-account-name">{{ $navUser['name'] }}</span>@endunless
+            @unless ($isAdminWorkspace)<span class="tk-account-name">{{ $navUser['name'] }}</span>@endunless
             <a class="tk-ibtn tk-notification-link" href="{{ route('notifications.index') }}" aria-label="Notifications{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.' unread)' : '' }}" title="Notifications">
                 <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>
                 @if ($unreadNotificationCount)<span class="tk-notification-count">{{ $unreadNotificationCount }}</span>@endif
@@ -55,7 +55,7 @@
             <button type="button" class="tk-ibtn" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
                 <svg class="ic ic-sun"><use href="#i-sun"/></svg><svg class="ic ic-moon"><use href="#i-moon"/></svg>
             </button>
-            @if ($isSuperAdminWorkspace)
+            @if ($isAdminWorkspace)
                 <div class="tk-menu" data-menu>
                     <button type="button" class="tk-avatar" data-menu-btn aria-haspopup="true" aria-expanded="false" aria-label="Account menu for {{ $navUser['name'] }}">
                         @if ($navUser['photo'])<img src="{{ $navUser['photo'] }}" alt="">@else<span>{{ $navUser['initials'] }}</span>@endif
@@ -107,7 +107,7 @@
         {{ $slot }}
     </main>
 
-    @if ($isSuperAdminWorkspace || $showFloatingChatButton)
+    @if ($isAdminWorkspace || $showFloatingChatButton)
         <a class="tk-admin-chat-button" href="{{ route('tuklasbot.index') }}" aria-label="Open TuklasBot chat">
             <svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Ask TuklasBot</span>
         </a>

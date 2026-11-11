@@ -24,7 +24,7 @@ class TrainingApplicationController extends Controller
         } elseif ($user->hasRole(Role::CenterRepresentative)) {
             $query->whereHas('session', fn ($session) => $session->where('training_center_id', $user->training_center_id));
         } else {
-            abort_unless($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin), 403);
+            abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
         }
         $applications = $query->latest()->paginate(50);
 
@@ -52,7 +52,7 @@ class TrainingApplicationController extends Controller
     public function update(Request $request, TrainingApplication $application): RedirectResponse|JsonResponse
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
         if ($user->hasRole(Role::CenterRepresentative)) {
             abort_unless($user->training_center_id && $application->session?->training_center_id === $user->training_center_id, 403);
         }

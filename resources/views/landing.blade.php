@@ -180,7 +180,7 @@
     <div class="row reveal">
         <svg class="art" viewBox="0 0 138 138"><rect width="138" height="138" rx="12" fill="#6f7de3"/><path d="M69 22c26 18 36 46 0 94-36-48-26-76 0-94z" fill="none" stroke="#4300b9" stroke-width="12"/><circle cx="69" cy="66" r="12" fill="#fbe132"/></svg>
         <div class="big" data-count-counter="3">2</div>
-        <p>Career Seekers, Super Admin, TESDA staff, trainers, and training center representatives each have tools for their work.</p>
+        <p>Career Seekers, Admin, TESDA staff, trainers, and training center representatives each have tools for their work.</p>
         <span class="tag pk">Roles</span>
     </div>
     <div class="row reveal">
@@ -226,7 +226,7 @@
     <div class="masonry" style="margin-top: 40px">
         <div class="col">
             <div class="mcard reveal"><span class="star">&#10022;</span><p>Share your interests, skills, schooling, credentials, and livelihood interests once, and update them when your situation changes.</p><div class="who">Youth users<small>Profile</small></div></div>
-            <div class="mcard reveal"><span class="star">&#10022;</span><p>Oversee users and keep career, skills, and training information organized in one place.</p><div class="who">PESO Bugallon<small>Super Administrator</small></div></div>
+            <div class="mcard reveal"><span class="star">&#10022;</span><p>Oversee users and keep career, skills, and training information organized in one place.</p><div class="who">PESO Bugallon<small>Admin</small></div></div>
         </div>
         <div class="col">
             <div class="mcard reveal"><span class="star">&#10022;</span><p>Complete the skills assessment and see suggested careers and TESDA Lingayen programs, with the reasons behind each suggestion.</p><div class="who">Youth users<small>Recommendations</small></div></div>
@@ -244,7 +244,7 @@
     <h2 class="h-xl reveal">Frequently Asked<br>Questions</h2>
     <div class="faq-list">
         @foreach ([
-            ['Who can use Tuklas?', 'Career Seekers aged 15 to 30 can create a profile. Super Admin manages the system, and TESDA staff manage training information.'],
+            ['Who can use Tuklas?', 'Career Seekers aged 15 to 30 can create a profile. Admin manages the system, and TESDA staff manage training information.'],
             ['Which trainings does Tuklas show?', 'Tuklas shows programs published by TESDA Lingayen, along with the reasons each program fits your profile.'],
             ['Does Tuklas guarantee a job or a training slot?', 'No. Tuklas offers guidance to help you decide. A suggestion is not a guarantee of a job, admission, or a training slot.'],
             ['How does the resume and certificate scan work?', 'Uploading is optional. Google Gemini reads a resume or certificate and suggests profile details for you to review and confirm before they are saved.'],

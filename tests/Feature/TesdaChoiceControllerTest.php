@@ -78,9 +78,9 @@ class TesdaChoiceControllerTest extends TestCase
         $this->assertDatabaseCount('tesda_choices', 0);
     }
 
-    public function test_super_admin_can_choose_for_youth_and_plan_is_visible_in_catalog(): void
+    public function test_admin_can_choose_for_youth_and_plan_is_visible_in_catalog(): void
     {
-        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $qualification = collect(app(TesdaQualificationCatalog::class)->all()['qualifications'])
             ->firstWhere('status', 'current');
