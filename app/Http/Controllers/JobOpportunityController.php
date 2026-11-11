@@ -21,7 +21,7 @@ class JobOpportunityController extends Controller
         $jobs = JobOpportunity::query()->with('employer')
             ->when($search !== '', fn ($query) => $query->where(fn ($jobs) => $jobs->where('title', 'like', '%'.$search.'%')->orWhere('location', 'like', '%'.$search.'%')->orWhere('employer_name', 'like', '%'.$search.'%')->orWhereHas('employer', fn ($employer) => $employer->where('name', 'like', '%'.$search.'%'))))
             ->when($request->user()->hasRole(Role::Youth), fn ($query) => $query->withExists(['recommendedUsers as recommended_for_me' => fn ($users) => $users->whereKey($request->user()->id)]))
-            ->when(! $canManage, fn ($query) => $query->published()->where(fn ($employers) => $employers->where('employer_verified', true)->orWhereHas('employer', fn ($employer) => $employer->where('is_verified', true))))
+            ->when(! $canManage, fn ($query) => $query->published()->where(fn ($employers) => $employers->where('is_demo', true)->orWhere('employer_verified', true)->orWhereHas('employer', fn ($employer) => $employer->where('is_verified', true))))
             ->latest()->paginate(20)->withQueryString();
 
         return $request->routeIs('mobile.*') ? response()->json(compact('jobs', 'canManage')) : view('operations.jobs', compact('jobs', 'canManage'));
@@ -49,7 +49,7 @@ class JobOpportunityController extends Controller
     public function recommend(Request $request, JobOpportunity $job): RedirectResponse|JsonResponse
     {
         abort_unless($request->user()->hasRole(Role::SuperAdmin), 403);
-        abort_unless(JobOpportunity::published()->whereKey($job->id)->exists() && ($job->employer_verified || $job->employer?->is_verified), 422);
+        abort_unless(JobOpportunity::published()->whereKey($job->id)->exists() && ($job->is_demo || $job->employer_verified || $job->employer?->is_verified), 422);
         $data = $request->validate(['youth_email' => ['required', 'email', 'exists:users,email']]);
         $youth = User::query()->where('email', $data['youth_email'])->where('role', Role::Youth->value)->where('is_active', true)->firstOrFail();
         $job->recommendedUsers()->syncWithoutDetaching([$youth->id => ['recommended_by' => $request->user()->id]]);

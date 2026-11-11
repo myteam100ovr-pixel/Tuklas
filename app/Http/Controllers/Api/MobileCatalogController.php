@@ -34,6 +34,7 @@ class MobileCatalogController extends Controller
                 'requirements' => $program->requirements,
                 'schedule_note' => $program->schedule_note,
                 'last_verified_at' => $program->last_verified_at?->toDateString(),
+                'is_demo' => $program->is_demo,
             ])->all(),
             'pagination' => [
                 'current_page' => $programs->currentPage(),

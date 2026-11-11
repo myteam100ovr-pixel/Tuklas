@@ -16,12 +16,12 @@ class TrainingProgram extends Model
 
     protected $fillable = [
         'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'requirements',
-        'schedule_note', 'status', 'source_reference', 'last_verified_at', 'created_by', 'training_center_id',
+        'schedule_note', 'status', 'source_reference', 'last_verified_at', 'created_by', 'training_center_id', 'is_demo',
     ];
 
     protected function casts(): array
     {
-        return ['last_verified_at' => 'datetime'];
+        return ['last_verified_at' => 'datetime', 'is_demo' => 'boolean'];
     }
 
     public function scopePublished(Builder $query): Builder

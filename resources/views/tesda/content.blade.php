@@ -80,7 +80,7 @@
                             @foreach ($levelPrograms as $program)
                                 <li class="tesda-offer">
                                     <div class="tesda-offer-main">
-                                        <h4>{{ $program->title }}</h4>
+                                        <h4>{{ $program->title }} @if ($program->is_demo)<small class="tesda-application-state">Simulated demo data</small>@endif</h4>
                                         @if ($program->description)
                                             <p>{{ $program->description }}</p>
                                         @endif

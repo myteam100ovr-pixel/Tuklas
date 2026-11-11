@@ -14,11 +14,11 @@ class JobOpportunity extends Model
     /** @use HasFactory<JobOpportunityFactory> */
     use HasFactory;
 
-    protected $fillable = ['employer_id', 'employer_name', 'employer_verified', 'title', 'compensation', 'location', 'description', 'requirements', 'application_url', 'source_url', 'source_checked_at', 'closes_at', 'status', 'posted_by'];
+    protected $fillable = ['employer_id', 'employer_name', 'employer_verified', 'title', 'compensation', 'location', 'description', 'requirements', 'application_url', 'source_url', 'source_checked_at', 'closes_at', 'status', 'posted_by', 'is_demo'];
 
     protected function casts(): array
     {
-        return ['closes_at' => 'date', 'source_checked_at' => 'date', 'employer_verified' => 'boolean'];
+        return ['closes_at' => 'date', 'source_checked_at' => 'date', 'employer_verified' => 'boolean', 'is_demo' => 'boolean'];
     }
 
     public function scopePublished(Builder $query): Builder

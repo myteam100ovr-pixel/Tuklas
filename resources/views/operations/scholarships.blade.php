@@ -28,7 +28,7 @@
             </section>
         @endif
         @forelse ($scholarships as $scholarship)
-            <article class="operations-card"><h2>{{ $scholarship->title }}</h2><p>{{ $scholarship->provider }} <span class="operations-status">{{ ucfirst($scholarship->status) }}</span></p><p>{{ $scholarship->description }}</p>
+            <article class="operations-card"><h2>{{ $scholarship->title }} @if ($scholarship->is_demo)<small class="operations-status">Simulated demo data</small>@endif</h2><p>{{ $scholarship->provider }} <span class="operations-status">{{ ucfirst($scholarship->status) }}</span></p><p>{{ $scholarship->description }}</p>
                 <p><strong>Who can apply:</strong> {{ $scholarship->eligibility ?: 'Not specified by provider' }}</p>
                 <p><strong>Requirements:</strong> {{ $scholarship->requirements ?: 'Not specified by provider' }}</p>
                 <p><strong>Assessment:</strong> {{ $scholarship->assessment_type ?: 'Not specified by provider' }}@if ($scholarship->assessment_details) — {{ $scholarship->assessment_details }}@endif</p>

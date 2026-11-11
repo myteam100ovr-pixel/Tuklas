@@ -21,7 +21,7 @@ class TrainingCenterController extends Controller
         $centers = TrainingCenter::query()
             ->with(['programs' => fn ($programs) => $programs
                 ->when(! $canSeeDrafts, fn ($query) => $query->published())
-                ->select(['id', 'training_center_id', 'title', 'nc_level', 'duration_days', 'status'])
+                ->select(['id', 'training_center_id', 'title', 'nc_level', 'duration_days', 'status', 'is_demo'])
                 ->orderBy('title')])
             ->when($search !== '', fn ($query) => $query->where(fn ($centers) => $centers->where('name', 'like', '%'.$search.'%')->orWhere('address', 'like', '%'.$search.'%')))
             ->when(! $canManage, fn ($query) => $query->where('is_active', true))

@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="trainer-courses suite-page operations-page">
-        <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Verified employer openings published by PESO." />
+        <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Source-checked openings and clearly marked simulated records for workflow testing." />
         <aside class="suite-note"><strong>Want more current openings?</strong> Search the official DOLE PhilJobNet vacancy portal. Openings shown below have been checked by PESO staff.<br><a href="https://philjobnet.gov.ph/job-vacancies/" target="_blank" rel="noopener noreferrer">Browse live PhilJobNet vacancies ↗</a></aside>
         @include('operations.search', ['placeholder' => 'Search job titles or employers', 'count' => $jobs->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
@@ -19,7 +19,7 @@
             </form></section>
         @endif
         @forelse ($jobs as $job)
-            <article class="operations-card"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small class="operations-status">Recommended by PESO</small>@endif</h2><p>{{ $job->employer_name ?: $job->employer?->name }} @if ($job->location) · {{ $job->location }} @endif @if ($job->compensation) · {{ $job->compensation }} @endif <span class="operations-status">{{ ucfirst($job->status) }}</span></p><p>{{ $job->description }}</p>
+            <article class="operations-card"><h2>{{ $job->title }} @if ($job->is_demo)<small class="operations-status">Simulated demo data</small>@endif @if ($job->recommended_for_me ?? false)<small class="operations-status">Recommended by PESO</small>@endif</h2><p>{{ $job->employer_name ?: $job->employer?->name }} @if ($job->location) · {{ $job->location }} @endif @if ($job->compensation) · {{ $job->compensation }} @endif <span class="operations-status">{{ ucfirst($job->status) }}</span></p><p>{{ $job->description }}</p>
                 @if ($job->requirements)<p><strong>Requirements:</strong> {{ $job->requirements }}</p>@endif
                 @if ($job->closes_at)<p>Closes {{ $job->closes_at->format('M j, Y') }}</p>@endif
                 @if ($job->source_url)<p><a href="{{ $job->source_url }}" target="_blank" rel="noopener noreferrer">Source listing ↗</a> @if ($job->source_checked_at)<span>· Checked {{ $job->source_checked_at->format('M j, Y') }}</span>@endif</p>@endif

@@ -484,6 +484,10 @@ class _OperationsViewState extends State<OperationsView> {
                         _title(item),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
+                      if (item['is_demo'] == true) ...[
+                        const SizedBox(height: 6),
+                        const Text('SIMULATED DEMO DATA'),
+                      ],
                       const SizedBox(height: 8),
                       Text(_details(item)),
                       if (widget.section == 'Centers' &&
@@ -497,9 +501,7 @@ class _OperationsViewState extends State<OperationsView> {
                           Padding(
                             padding: const EdgeInsets.only(top: 5),
                             child: Text(
-                              _programSummary(
-                                Map<String, dynamic>.from(rawProgram),
-                              ),
+                              '${_programSummary(Map<String, dynamic>.from(rawProgram))}${rawProgram['is_demo'] == true ? ' · Simulated demo' : ''}',
                             ),
                           ),
                       ],

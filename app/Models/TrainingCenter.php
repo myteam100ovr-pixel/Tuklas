@@ -12,11 +12,11 @@ class TrainingCenter extends Model
     /** @use HasFactory<TrainingCenterFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'type', 'address', 'contact_email', 'contact_phone', 'is_active'];
+    protected $fillable = ['name', 'type', 'address', 'contact_email', 'contact_phone', 'is_active', 'is_demo'];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'is_demo' => 'boolean'];
     }
 
     public function representatives(): HasMany
