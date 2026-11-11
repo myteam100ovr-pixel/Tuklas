@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="trainer-courses suite-page operations-page">
         <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Verified employer openings published by PESO." />
+        @include('operations.search', ['placeholder' => 'Search jobs or employers', 'count' => $jobs->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
         @if ($canManage)
@@ -15,7 +16,7 @@
             </form></section>
         @endif
         @forelse ($jobs as $job)
-            <article class="operations-card"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small>Recommended by PESO</small>@endif</h2><p>{{ $job->employer->name }} · {{ $job->location }} · {{ $job->status }}</p><p>{{ $job->description }}</p>
+            <article class="operations-card"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small class="operations-status">Recommended by PESO</small>@endif</h2><p>{{ $job->employer->name }} @if ($job->location) · {{ $job->location }} @endif <span class="operations-status">{{ ucfirst($job->status) }}</span></p><p>{{ $job->description }}</p>
                 @if ($job->requirements)<p><strong>Requirements:</strong> {{ $job->requirements }}</p>@endif
                 @if ($job->closes_at)<p>Closes {{ $job->closes_at->format('M j, Y') }}</p>@endif
                 @if ($job->application_url)<a href="{{ $job->application_url }}" target="_blank" rel="noopener noreferrer">Apply with employer ↗</a>@endif
@@ -27,7 +28,7 @@
                     <label>Status <select name="status">@foreach (['draft', 'published', 'closed'] as $status)<option value="{{ $status }}" @selected($job->status === $status)>{{ ucfirst($status) }}</option>@endforeach</select></label><button type="submit">Update</button>
                 </form></details>@endif
             </article>
-        @empty <p>No published opportunities yet.</p> @endforelse
+        @empty <p class="operations-empty">{{ request()->filled('q') ? 'No jobs match your search.' : 'No published opportunities yet.' }}</p> @endforelse
         {{ $jobs->links() }}
     </div>
 </x-app-layout>

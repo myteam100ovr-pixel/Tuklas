@@ -18,11 +18,13 @@ class TrainingSessionController extends Controller
     {
         $user = $request->user();
         $canManage = $user->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative);
+        $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $sessions = TrainingSession::query()->with(['program:id,title,status', 'center:id,name,type'])
+            ->when($search !== '', fn ($query) => $query->where(fn ($sessions) => $sessions->whereHas('program', fn ($program) => $program->where('title', 'like', '%'.$search.'%'))->orWhereHas('center', fn ($center) => $center->where('name', 'like', '%'.$search.'%'))))
             ->withCount(['applications as accepted_count' => fn ($query) => $query->where('status', 'accepted')])
             ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->where('training_center_id', $user->training_center_id))
             ->when(! $canManage, fn ($query) => $query->where('status', 'open')->where('starts_at', '>', now())->whereHas('program', fn ($program) => $program->published())->whereHas('center', fn ($center) => $center->where('is_active', true)))
-            ->orderBy('starts_at')->paginate(20);
+            ->orderBy('starts_at')->paginate(20)->withQueryString();
         $centers = $canManage ? TrainingCenter::query()->where('is_active', true)->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get() : collect();
         $programs = $canManage ? TrainingProgram::published()->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->where('training_center_id', $user->training_center_id))->orderBy('title')->get(['id', 'title']) : collect();
 

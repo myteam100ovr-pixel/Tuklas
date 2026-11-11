@@ -11,8 +11,8 @@
     </section>
     @forelse ($assignments as $assignment)
         <article class="operations-card"><h2>{{ $assignment->trainer->name }}</h2><p>{{ $assignment->program->title }}</p>
-            <form method="POST" action="{{ route('center-trainers.destroy', $assignment) }}">@csrf @method('DELETE')<button type="submit">Remove assignment</button></form>
+            <form method="POST" action="{{ route('center-trainers.destroy', $assignment) }}">@csrf @method('DELETE')<button class="operations-secondary" type="submit">Remove assignment</button></form>
         </article>
-    @empty <p>No trainer assignments yet.</p> @endforelse
+    @empty <p class="operations-empty">No trainer assignments yet.</p> @endforelse
     {{ $assignments->links() }}
 </div></x-app-layout>

@@ -15,10 +15,12 @@ class TrainingCenterController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         $canManage = $request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin);
+        $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $centers = TrainingCenter::query()
+            ->when($search !== '', fn ($query) => $query->where(fn ($centers) => $centers->where('name', 'like', '%'.$search.'%')->orWhere('address', 'like', '%'.$search.'%')))
             ->when(! $canManage, fn ($query) => $query->where('is_active', true))
             ->when($request->user()->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereKey($request->user()->training_center_id))
-            ->orderBy('name')->paginate(20);
+            ->orderBy('name')->paginate(20)->withQueryString();
 
         return $request->routeIs('mobile.*') ? response()->json(['centers' => $centers, 'can_manage' => $canManage]) : view('operations.centers', compact('centers', 'canManage'));
     }

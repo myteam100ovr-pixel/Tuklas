@@ -14,7 +14,7 @@
             </form>
         </section>
         @forelse ($employers as $employer)
-            <section class="operations-card"><h2>{{ $employer->name }}</h2><p>{{ $employer->location }} · {{ $employer->is_verified ? 'Verified' : 'Unverified' }}</p>
+            <section class="operations-card"><h2>{{ $employer->name }} <span class="operations-status">{{ $employer->is_verified ? 'Verified' : 'Unverified' }}</span></h2><p>{{ $employer->location }}</p>
                 <form method="POST" action="{{ route('admin.employers.update', $employer) }}">@csrf @method('PUT')
                     <label>Name <input name="name" required value="{{ $employer->name }}"></label><label>Location <input name="location" value="{{ $employer->location }}"></label>
                     <label>Contact email <input name="contact_email" type="email" value="{{ $employer->contact_email }}"></label><label>Website <input name="website" type="url" value="{{ $employer->website }}"></label>
@@ -22,7 +22,7 @@
                     <button type="submit">Update</button>
                 </form>
             </section>
-        @empty <p>No employers yet.</p> @endforelse
+        @empty <p class="operations-empty">No employers yet.</p> @endforelse
         {{ $employers->links() }}
     </div>
 </x-app-layout>

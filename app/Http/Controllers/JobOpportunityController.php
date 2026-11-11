@@ -17,10 +17,12 @@ class JobOpportunityController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         $canManage = $request->user()->hasRole(Role::SuperAdmin);
+        $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $jobs = JobOpportunity::query()->with('employer')
+            ->when($search !== '', fn ($query) => $query->where(fn ($jobs) => $jobs->where('title', 'like', '%'.$search.'%')->orWhere('location', 'like', '%'.$search.'%')->orWhereHas('employer', fn ($employer) => $employer->where('name', 'like', '%'.$search.'%'))))
             ->when($request->user()->hasRole(Role::Youth), fn ($query) => $query->withExists(['recommendedUsers as recommended_for_me' => fn ($users) => $users->whereKey($request->user()->id)]))
             ->when(! $canManage, fn ($query) => $query->published()->whereHas('employer', fn ($employer) => $employer->where('is_verified', true)))
-            ->latest()->paginate(20);
+            ->latest()->paginate(20)->withQueryString();
         $employers = $canManage ? Employer::query()->where('is_verified', true)->orderBy('name')->get() : collect();
 
         return $request->routeIs('mobile.*') ? response()->json(compact('jobs', 'canManage', 'employers')) : view('operations.jobs', compact('jobs', 'canManage', 'employers'));

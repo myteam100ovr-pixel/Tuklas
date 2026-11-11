@@ -88,6 +88,28 @@ class OperationsWorkflowTest extends TestCase
         $this->postJson('/api/mobile/opportunities', [])->assertForbidden();
     }
 
+    public function test_search_finds_relevant_operations_without_exposing_unpublished_records(): void
+    {
+        $employer = Employer::factory()->create(['name' => 'Northstar Works', 'is_verified' => true]);
+        $job = JobOpportunity::factory()->create(['employer_id' => $employer->id, 'title' => 'Electrician']);
+        JobOpportunity::factory()->create(['employer_id' => $employer->id, 'title' => 'Secret Planner', 'status' => 'draft']);
+        $scholarship = Scholarship::factory()->create(['title' => 'Training Support', 'provider' => 'Northstar Foundation']);
+        $center = TrainingCenter::factory()->create(['name' => 'Northstar Center', 'is_active' => true]);
+        $program = TrainingProgram::factory()->create(['title' => 'Electrical Installation']);
+        $session = TrainingSession::factory()->create(['training_program_id' => $program->id, 'training_center_id' => $center->id]);
+        Sanctum::actingAs(User::factory()->create(['role' => Role::Youth, 'is_active' => true]));
+
+        $this->getJson('/api/mobile/opportunities?q=Northstar')->assertOk()
+            ->assertJsonCount(1, 'jobs.data')->assertJsonPath('jobs.data.0.id', $job->id);
+        $this->getJson('/api/mobile/opportunities?q=Secret')->assertOk()->assertJsonCount(0, 'jobs.data');
+        $this->getJson('/api/mobile/scholarships?q=Northstar')->assertOk()
+            ->assertJsonCount(1, 'scholarships.data')->assertJsonPath('scholarships.data.0.id', $scholarship->id);
+        $this->getJson('/api/mobile/training-centers?q=Northstar')->assertOk()
+            ->assertJsonCount(1, 'centers.data')->assertJsonPath('centers.data.0.id', $center->id);
+        $this->getJson('/api/mobile/training-sessions?q=Electrical')->assertOk()
+            ->assertJsonCount(1, 'sessions.data')->assertJsonPath('sessions.data.0.id', $session->id);
+    }
+
     public function test_representative_can_assign_only_trainers_and_programs_at_their_center(): void
     {
         $center = TrainingCenter::factory()->create();

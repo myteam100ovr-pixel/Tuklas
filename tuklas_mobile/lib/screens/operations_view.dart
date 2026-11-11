@@ -18,6 +18,11 @@ class _OperationsViewState extends State<OperationsView> {
   String? _error;
   bool _busy = false;
   int _page = 1;
+  final _search = TextEditingController();
+  String _query = '';
+
+  bool get _searchable =>
+      ['Jobs', 'Scholarships', 'Centers', 'Sessions'].contains(widget.section);
 
   String get _role => '${ApiClient.instance.user?['role']}';
   String get _path => switch (widget.section) {
@@ -73,13 +78,33 @@ class _OperationsViewState extends State<OperationsView> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  void _applySearch() {
+    setState(() {
+      _query = _search.text.trim();
+      _page = 1;
+    });
+    _load();
+  }
+
   Future<void> _load() async {
     setState(() {
       _busy = true;
       _error = null;
+      _response = null;
     });
     try {
-      final response = await ApiClient.instance.workspace('$_path?page=$_page');
+      final query = _query.isEmpty
+          ? ''
+          : '&q=${Uri.encodeQueryComponent(_query)}';
+      final response = await ApiClient.instance.workspace(
+        '$_path?page=$_page$query',
+      );
       if (mounted) setState(() => _response = response);
     } catch (error) {
       if (mounted) {
@@ -342,7 +367,47 @@ class _OperationsViewState extends State<OperationsView> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
-            if (_busy) const LinearProgressIndicator(),
+            if (_searchable)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: TextField(
+                  controller: _search,
+                  maxLength: 100,
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => _applySearch(),
+                  decoration: InputDecoration(
+                    hintText: 'Search ${widget.section.toLowerCase()}',
+                    counterText: '',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_query.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            tooltip: 'Clear search',
+                            onPressed: () {
+                              _search.clear();
+                              _applySearch();
+                            },
+                          ),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward),
+                          tooltip: 'Search',
+                          onPressed: _applySearch,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            if (_busy) ...[
+              const LinearProgressIndicator(),
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Loading current results…'),
+              ),
+            ],
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.all(12),
@@ -353,11 +418,18 @@ class _OperationsViewState extends State<OperationsView> {
               ),
             if (_response == null && !_busy)
               OutlinedButton(onPressed: _load, child: const Text('Try again')),
+            if (_searchable && _response?[_key] is Map)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text('${_response![_key]['total']} results'),
+              ),
             if (_response != null && items.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  _canManage
+                  _query.isNotEmpty
+                      ? 'No results match your search.'
+                      : _canManage
                       ? 'Nothing here yet. Tap Add to create the first item.'
                       : 'Nothing here yet. Pull down to refresh later.',
                 ),

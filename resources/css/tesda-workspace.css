@@ -62,23 +62,41 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 /* Shared layout for PESO, TESDA, center, and career seeker operations. */
 .operations-page { width:100%; max-width:68rem; gap:1.15rem; }
 .operations-page > .operations-card { display:block; min-width:0; margin:0; padding:clamp(1.1rem,2.5vw,1.75rem); border:1px solid var(--line); border-radius:1rem; background:var(--surface); overflow-wrap:anywhere; }
+.operations-page > .operations-card:hover { border-color:color-mix(in srgb,var(--violet) 38%,var(--line)); }
 .operations-page > .operations-card h2 { margin:0 0 .65rem; color:var(--ink); font-size:clamp(1.1rem,2vw,1.4rem); line-height:1.3; }
 .operations-page > .operations-card p { margin:.5rem 0; color:var(--muted); font-size:.88rem; line-height:1.6; }
 .operations-page > .operations-card p strong { color:var(--ink); }
 .operations-page > .operations-card a { color:var(--violet); font-weight:600; text-decoration:underline; text-underline-offset:.2em; }
 .operations-page > .operations-card form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end; gap:1rem; margin-top:1rem; }
+.operations-page > .operations-card form:not(:has(label)) { display:flex; align-items:center; flex-wrap:wrap; }
 .operations-page > .operations-card form label { display:grid; min-width:0; gap:.45rem; color:var(--ink); font-size:.82rem; font-weight:600; }
 .operations-page > .operations-card form input,.operations-page > .operations-card form select,.operations-page > .operations-card form textarea { width:100%; min-width:0; padding:.72rem .85rem; border:1px solid var(--line); border-radius:.65rem; color:var(--ink); background:var(--surface-2); font:inherit; font-weight:400; }
 .operations-page > .operations-card form textarea { min-height:6rem; resize:vertical; }
+.operations-page > .operations-card form label:has(textarea) { grid-column:1 / -1; }
+.operations-page > .operations-card form label:has(input[type="checkbox"]) { display:flex; align-items:center; }
+.operations-page > .operations-card form input[type="checkbox"] { width:auto; accent-color:var(--violet); }
+.operations-page > .operations-card form:has(label) > button:last-child { grid-column:1 / -1; justify-self:start; }
 .operations-page > .operations-card form input:focus-visible,.operations-page > .operations-card form select:focus-visible,.operations-page > .operations-card form textarea:focus-visible { outline:2px solid var(--violet); outline-offset:2px; }
 .operations-page > .operations-card form button { width:max-content; max-width:100%; padding:.72rem 1rem; border:1px solid var(--violet); border-radius:.65rem; color:#fff; background:var(--violet); font:inherit; font-size:.82rem; font-weight:650; cursor:pointer; }
 .operations-page > .operations-card form button:hover { filter:brightness(1.1); }
+.operations-page > .operations-card form button.operations-secondary { color:var(--violet); background:transparent; }
 .operations-page > .operations-card details { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line); }
 .operations-page > .operations-card details summary { width:max-content; color:var(--violet); font-size:.85rem; font-weight:650; cursor:pointer; }
 .operations-page > [role="status"],.operations-page > [role="alert"] { margin:0; padding:.8rem 1rem; border:1px solid var(--line); border-radius:.7rem; background:var(--surface-2); color:var(--ink); }
 .operations-page > [role="alert"] { color:#b44838; }
 .operations-page > p { color:var(--muted); }
-@media(max-width:650px) { .operations-page > .operations-card form { grid-template-columns:1fr; } .operations-page > .operations-card form button { width:100%; } }
+.operations-status { display:inline-flex; align-items:center; margin-left:.4rem; padding:.2rem .55rem; border-radius:999px; color:var(--violet); background:var(--surface-2); font-size:.7rem; font-weight:700; vertical-align:middle; }
+.operations-search { display:grid; gap:.5rem; padding:1rem 1.2rem; border:1px solid var(--line); border-radius:.9rem; background:var(--surface); }
+.operations-search label { color:var(--ink); font-size:.85rem; font-weight:650; }
+.operations-search__controls { display:flex; flex-wrap:wrap; gap:.6rem; }
+.operations-search input { flex:1 1 16rem; min-width:0; padding:.7rem .85rem; border:1px solid var(--line); border-radius:.65rem; color:var(--ink); background:var(--surface-2); font:inherit; }
+.operations-search input:focus-visible,.operations-search button:focus-visible,.operations-search a:focus-visible { outline:2px solid var(--violet); outline-offset:2px; }
+.operations-search button,.operations-search a { display:inline-flex; align-items:center; justify-content:center; padding:.7rem 1rem; border-radius:.65rem; font-size:.82rem; font-weight:650; }
+.operations-search button { border:1px solid var(--violet); color:#fff; background:var(--violet); font:inherit; font-size:.82rem; font-weight:650; cursor:pointer; }
+.operations-search a { color:var(--violet); border:1px solid var(--line); }
+.operations-search p { margin:0; color:var(--muted); font-size:.75rem; }
+.operations-page > .operations-empty { margin:0; padding:1.5rem; border:1px dashed var(--line); border-radius:.9rem; background:var(--surface); color:var(--muted); }
+@media(max-width:650px) { .operations-page > .operations-card form { grid-template-columns:1fr; } .operations-page > .operations-card form label:has(textarea) { grid-column:auto; } .operations-page > .operations-card form button { width:100%; } .operations-search__controls button { flex:1; } }
 .tesda-resource-number { color: var(--violet); font-family: ui-monospace, monospace; font-size: .68rem; }
 .tesda-resource a:hover, .tesda-empty a:hover { text-decoration: underline; }
 .tesda-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.25rem var(--pad); border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; line-height: 1.5; }

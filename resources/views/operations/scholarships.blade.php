@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="trainer-courses suite-page operations-page">
         <x-workspace-heading eyebrow="TRAINING · SUPPORT" title="Scholarships" description="Verified support opportunities for training and assessment." />
+        @include('operations.search', ['placeholder' => 'Search scholarships or providers', 'count' => $scholarships->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
         @if ($canManage)
@@ -22,7 +23,7 @@
             </section>
         @endif
         @forelse ($scholarships as $scholarship)
-            <article class="operations-card"><h2>{{ $scholarship->title }}</h2><p>{{ $scholarship->provider }} · {{ $scholarship->status }}</p><p>{{ $scholarship->description }}</p>
+            <article class="operations-card"><h2>{{ $scholarship->title }}</h2><p>{{ $scholarship->provider }} <span class="operations-status">{{ ucfirst($scholarship->status) }}</span></p><p>{{ $scholarship->description }}</p>
                 @if ($scholarship->eligibility)<p><strong>Eligibility:</strong> {{ $scholarship->eligibility }}</p>@endif
                 @if ($scholarship->deadline)<p>Deadline {{ $scholarship->deadline->format('M j, Y') }}</p>@endif
                 @if ($scholarship->application_url)<a href="{{ $scholarship->application_url }}" target="_blank" rel="noopener noreferrer">Apply ↗</a>@endif
@@ -33,7 +34,7 @@
                     <label>Status <select name="status">@foreach (['draft', 'published', 'closed'] as $status)<option value="{{ $status }}" @selected($scholarship->status === $status)>{{ ucfirst($status) }}</option>@endforeach</select></label><button type="submit">Update</button>
                 </form></details>@endif
             </article>
-        @empty <p>No published scholarships yet.</p> @endforelse
+        @empty <p class="operations-empty">{{ request()->filled('q') ? 'No scholarships match your search.' : 'No published scholarships yet.' }}</p> @endforelse
         {{ $scholarships->links() }}
     </div>
 </x-app-layout>

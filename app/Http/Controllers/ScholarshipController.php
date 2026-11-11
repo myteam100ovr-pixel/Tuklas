@@ -15,7 +15,10 @@ class ScholarshipController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         $canManage = $request->user()->hasRole(Role::SuperAdmin, Role::TesdaAdmin);
-        $scholarships = Scholarship::query()->when(! $canManage, fn ($query) => $query->published())->latest()->paginate(20);
+        $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
+        $scholarships = Scholarship::query()->when(! $canManage, fn ($query) => $query->published())
+            ->when($search !== '', fn ($query) => $query->where(fn ($items) => $items->where('title', 'like', '%'.$search.'%')->orWhere('provider', 'like', '%'.$search.'%')))
+            ->latest()->paginate(20)->withQueryString();
 
         return $request->routeIs('mobile.*') ? response()->json(compact('scholarships', 'canManage')) : view('operations.scholarships', compact('scholarships', 'canManage'));
     }
