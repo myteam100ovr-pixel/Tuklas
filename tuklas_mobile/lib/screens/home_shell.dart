@@ -163,51 +163,59 @@ class _HomeShellState extends State<HomeShell> {
         child: Column(
           children: [
             const TkHeader(),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  for (final section in [
-                    'TuklasBot',
-                    'Messages',
-                    'Notifications',
-                    'Training plans',
-                    if (ApiClient.instance.user?['role'] == 'youth')
-                      'Skills assessment',
-                    if ([
-                      'trainer',
-                      'tesda_admin',
-                      'center_representative',
-                    ].contains(ApiClient.instance.user?['role']))
-                      'My programs',
-                    if (ApiClient.instance.user?['role'] == 'super_admin')
-                      'Users',
-                    if (ApiClient.instance.user?['role'] == 'super_admin')
-                      'Employers',
-                    'Jobs',
-                    'Scholarships',
-                    'Centers',
-                    if ([
-                      'super_admin',
-                      'tesda_admin',
-                      'center_representative',
-                    ].contains(ApiClient.instance.user?['role']))
-                      'Trainers',
-                    'Sessions',
-                    if (ApiClient.instance.user?['role'] != 'trainer') ...[
-                      'Applications',
-                      'Assessments',
+                  ActionChip(
+                    label: const Text('Messages'),
+                    onPressed: () => _openWorkspace('Messages'),
+                  ),
+                  const SizedBox(width: 8),
+                  ActionChip(
+                    label: const Text('Jobs'),
+                    onPressed: () => _openWorkspace('Jobs'),
+                  ),
+                  const Spacer(),
+                  PopupMenuButton<String>(
+                    tooltip: 'Open a Tuklas tool',
+                    onSelected: _openWorkspace,
+                    itemBuilder: (_) => [
+                      for (final section in [
+                        'TuklasBot',
+                        'Notifications',
+                        'Training plans',
+                        if (ApiClient.instance.user?['role'] == 'youth')
+                          'Skills assessment',
+                        if ([
+                          'trainer',
+                          'tesda_admin',
+                          'center_representative',
+                        ].contains(ApiClient.instance.user?['role']))
+                          'My programs',
+                        if (ApiClient.instance.user?['role'] == 'super_admin')
+                          'Users',
+                        if (ApiClient.instance.user?['role'] == 'super_admin')
+                          'Employers',
+                        'Scholarships',
+                        'Centers',
+                        if ([
+                          'super_admin',
+                          'tesda_admin',
+                          'center_representative',
+                        ].contains(ApiClient.instance.user?['role']))
+                          'Trainers',
+                        'Sessions',
+                        if (ApiClient.instance.user?['role'] != 'trainer') ...[
+                          'Applications',
+                          'Assessments',
+                        ],
+                        'Account & security',
+                      ])
+                        PopupMenuItem(value: section, child: Text(section)),
                     ],
-                    'Account & security',
-                  ])
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ActionChip(
-                        label: Text(section),
-                        onPressed: () => _openWorkspace(section),
-                      ),
-                    ),
+                    child: const Chip(label: Text('More tools ▾')),
+                  ),
                 ],
               ),
             ),

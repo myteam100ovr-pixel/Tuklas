@@ -54,6 +54,18 @@ class _OperationsViewState extends State<OperationsView> {
           _role == 'center_representative',
     _ => false,
   };
+  String get _helpText => switch (widget.section) {
+    'Employers' => 'Add and verify an employer before posting its jobs.',
+    'Jobs' => 'Browse openings. PESO staff can post a job and recommend it to a career seeker.',
+    'Scholarships' =>
+      'Find support for training. Staff can publish verified opportunities.',
+    'Centers' => 'See the training centers that provide Tuklas programs.',
+    'Trainers' => 'Assign a trainer to a published program at the same center.',
+    'Sessions' => 'See upcoming training dates and available places. Open a session to request a place.',
+    'Applications' =>
+      'Track a training request. Staff can accept or decline pending requests.',
+    _ => 'See recorded assessment dates and results for your training.',
+  };
 
   @override
   void initState() {
@@ -323,6 +335,13 @@ class _OperationsViewState extends State<OperationsView> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                _helpText,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
             if (_busy) const LinearProgressIndicator(),
             if (_error != null)
               Padding(
@@ -335,9 +354,13 @@ class _OperationsViewState extends State<OperationsView> {
             if (_response == null && !_busy)
               OutlinedButton(onPressed: _load, child: const Text('Try again')),
             if (_response != null && items.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('Nothing here yet.'),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  _canManage
+                      ? 'Nothing here yet. Tap Add to create the first item.'
+                      : 'Nothing here yet. Pull down to refresh later.',
+                ),
               ),
             for (final item in items)
               Card(

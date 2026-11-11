@@ -9,6 +9,37 @@
                 <div><p class="workspace-eyebrow">YOUR WORKSPACE, AT A GLANCE</p><h1>{{ $title }}</h1><p class="workspace-heading-description">{{ $isYouth ? 'Your skills, your progress, and what comes next.' : 'A clear view of your community and the work ahead.' }}</p></div>
                 <span class="workspace-date">{{ now()->timezone('Asia/Manila')->format('l, M j') }}</span>
             </header>
+            <section class="workspace-get-started" aria-labelledby="workspace-get-started-title">
+                <div><p class="workspace-eyebrow">START HERE</p><h2 id="workspace-get-started-title">What do you want to do?</h2><p>Choose one task. You can come back to this page at any time.</p></div>
+                <div class="workspace-get-started__links">
+                    @switch(auth()->user()->role)
+                        @case(\App\Enums\Role::SuperAdmin)
+                            <a href="{{ route('admin.users.index') }}">Manage people <span>↗</span></a>
+                            <a href="{{ route('opportunities.index') }}">Post a job <span>↗</span></a>
+                            <a href="{{ route('applications.index') }}">Review training requests <span>↗</span></a>
+                            @break
+                        @case(\App\Enums\Role::TesdaAdmin)
+                            <a href="{{ route('centers.index') }}">Manage training centers <span>↗</span></a>
+                            <a href="{{ route('trainer.programs.index') }}">Manage programs <span>↗</span></a>
+                            <a href="{{ route('applications.index') }}">Review training requests <span>↗</span></a>
+                            @break
+                        @case(\App\Enums\Role::CenterRepresentative)
+                            <a href="{{ route('sessions.index') }}">Set training dates <span>↗</span></a>
+                            <a href="{{ route('applications.index') }}">Review trainees <span>↗</span></a>
+                            <a href="{{ route('assessments.index') }}">Record assessments <span>↗</span></a>
+                            @break
+                        @case(\App\Enums\Role::Trainer)
+                            <a href="{{ route('trainer.programs.index') }}">My programs <span>↗</span></a>
+                            <a href="{{ route('tesda.index') }}">Browse training <span>↗</span></a>
+                            <a href="{{ route('messages.index') }}">Messages <span>↗</span></a>
+                            @break
+                        @default
+                            <a href="{{ route('profile.show') }}">Complete my profile <span>↗</span></a>
+                            <a href="{{ route('sessions.index') }}">Find training dates <span>↗</span></a>
+                            <a href="{{ route('opportunities.index') }}">See jobs <span>↗</span></a>
+                    @endswitch
+                </div>
+            </section>
             <section class="workspace-stats" aria-label="Your overview">
                 @foreach ($stats as $stat)
                     <article><div><span>{{ $stat['label'] }}</span><span class="workspace-stat-number">0{{ $loop->iteration }}</span></div><strong>{{ $stat['value'] }}</strong><p>{{ $stat['note'] }} @if (! empty($stat['delta']))<em>{{ $stat['delta'] }}</em>@endif</p></article>

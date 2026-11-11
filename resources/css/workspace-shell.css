@@ -66,6 +66,15 @@ html:not([data-theme="dark"]) body.tk-workspace {
 .tk-workspace .btn-primary { background:#5b17ff; color:#fff; }
 .tk-workspace .card,.tk-workspace .career-chat { border-radius:12px; box-shadow:var(--shadow); }
 .tk-workspace .suite-page { padding-top:0; }
+.workspace-get-started { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); align-items:center; gap:1.5rem; padding:1.35rem; border:1px solid var(--line); border-radius:1rem; background:var(--surface); }
+.workspace-get-started h2 { margin:.25rem 0; color:var(--ink); font-size:1.2rem; }
+.workspace-get-started p:last-child { margin:.25rem 0 0; color:var(--muted); font-size:.85rem; line-height:1.5; }
+.workspace-get-started__links { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; }
+.workspace-get-started__links a { display:flex; align-items:center; justify-content:space-between; gap:.5rem; min-height:3.5rem; padding:.75rem; border:1px solid var(--line); border-radius:.7rem; color:var(--ink); background:var(--surface-2); font-size:.8rem; font-weight:600; line-height:1.25; }
+.workspace-get-started__links a:hover,.workspace-get-started__links a:focus-visible { border-color:var(--violet); color:var(--violet); }
+.workspace-get-started__links span { color:var(--violet); }
+@media(max-width:900px) { .workspace-get-started { grid-template-columns:1fr; } }
+@media(max-width:600px) { .workspace-get-started__links { grid-template-columns:1fr; } }
 
 .operations-page .operations-editor { display:block; min-width:0; padding:clamp(1.25rem,2.4vw,2rem); border:1px solid var(--line); border-radius:1rem; background:var(--surface); }
 .operations-editor__intro { margin-bottom:1.25rem; }
