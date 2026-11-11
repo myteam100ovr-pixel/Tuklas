@@ -1,11 +1,11 @@
 <x-app-layout>
-    <div class="trainer-courses suite-page">
+    <div class="trainer-courses suite-page operations-page">
         <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Verified employer openings published by PESO." />
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
         @if ($canManage)
             <a href="{{ route('admin.employers.index') }}">Manage employers</a>
-            <section class="trainer-courses__card"><h2>Add opening</h2><form method="POST" action="{{ route('admin.opportunities.store') }}">@csrf
+            <section class="operations-card"><h2>Add opening</h2><form method="POST" action="{{ route('admin.opportunities.store') }}">@csrf
                 <label>Verified employer <select name="employer_id" required>@foreach ($employers as $employer)<option value="{{ $employer->id }}">{{ $employer->name }}</option>@endforeach</select></label>
                 <label>Title <input name="title" required></label><label>Location <input name="location"></label>
                 <label>Description <textarea name="description" required></textarea></label><label>Requirements <textarea name="requirements"></textarea></label>
@@ -15,7 +15,7 @@
             </form></section>
         @endif
         @forelse ($jobs as $job)
-            <article class="trainer-courses__card"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small>Recommended by PESO</small>@endif</h2><p>{{ $job->employer->name }} · {{ $job->location }} · {{ $job->status }}</p><p>{{ $job->description }}</p>
+            <article class="operations-card"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small>Recommended by PESO</small>@endif</h2><p>{{ $job->employer->name }} · {{ $job->location }} · {{ $job->status }}</p><p>{{ $job->description }}</p>
                 @if ($job->requirements)<p><strong>Requirements:</strong> {{ $job->requirements }}</p>@endif
                 @if ($job->closes_at)<p>Closes {{ $job->closes_at->format('M j, Y') }}</p>@endif
                 @if ($job->application_url)<a href="{{ $job->application_url }}" target="_blank" rel="noopener noreferrer">Apply with employer ↗</a>@endif

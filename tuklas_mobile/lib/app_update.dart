@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'config.dart';
@@ -13,11 +14,13 @@ class AppUpdate {
     required this.versionCode,
     required this.versionName,
     required this.apkUrl,
+    required this.patchNotes,
   });
 
   final int versionCode;
   final String versionName;
   final Uri apkUrl;
+  final String patchNotes;
 
   static AppUpdate? fromJson(Object? value, Uri manifestUrl) {
     if (value is! Map<String, dynamic>) {
@@ -44,6 +47,7 @@ class AppUpdate {
       versionCode: versionCode,
       versionName: versionName,
       apkUrl: apkUrl,
+      patchNotes: value['patch_notes'] is String ? value['patch_notes'] as String : '',
     );
   }
 }
@@ -104,18 +108,34 @@ class _AppUpdateWatcherState extends State<AppUpdateWatcher>
       }
       final update = AppUpdate.fromJson(jsonDecode(response.body), manifestUrl);
       if (update == null ||
-          update.versionCode <= installedVersion ||
-          update.versionCode == _lastOfferedVersion ||
           !mounted) {
         return;
       }
+      final preferences = await SharedPreferences.getInstance();
+      final notesShownFor = preferences.getInt('patch_notes_shown_version') ?? 0;
+      if (update.versionCode == installedVersion &&
+          update.versionCode > notesShownFor && update.patchNotes.trim().isNotEmpty) {
+        await preferences.setInt('patch_notes_shown_version', update.versionCode);
+        if (!mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text('What’s new in ${update.versionName}'),
+            content: SingleChildScrollView(child: Text(update.patchNotes)),
+            actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Done'))],
+          ),
+        );
+        return;
+      }
+      if (update.versionCode <= installedVersion ||
+          update.versionCode == _lastOfferedVersion) return;
       _lastOfferedVersion = update.versionCode;
       await showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Tuklas update available'),
           content: Text(
-            'Version ${update.versionName} is ready. Download the APK and confirm the Android installation to update.',
+            'Version ${update.versionName} is ready.\n\n${update.patchNotes}\n\nDownload the APK and confirm the Android installation to update.',
           ),
           actions: [
             TextButton(

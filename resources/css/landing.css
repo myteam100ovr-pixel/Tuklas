@@ -321,6 +321,10 @@ html:not(.js) .a > p { padding-bottom: 1.15rem; }
 .app-download-card > p { margin-top: .65rem; color: var(--muted); font-size: .85rem; line-height: 1.65; }
 .app-download-card .btn { margin-top: 1.2rem; }
 .app-download-card .app-download-note { margin-top: .8rem; font-size: .72rem; }
+.app-download-notes { width:100%; margin-top:1.2rem; padding:1rem; border:1px solid var(--line); border-radius:.8rem; background:var(--surface); }
+.app-download-notes[hidden] { display:none; }
+.app-download-notes h3 { margin:0 0 .5rem; color:var(--ink); font-size:.95rem; }
+.app-download-notes p { margin:0; color:var(--muted); font-size:.82rem; line-height:1.6; white-space:pre-line; overflow-wrap:anywhere; }
 .app-download-steps { display: grid; gap: .5rem; margin: .9rem 0 0; padding-left: 1.2rem; color: var(--muted); font-size: .82rem; line-height: 1.55; }
 .app-download-permalink { margin-top: 1.8rem; color: var(--muted); font-size: .72rem; text-align: center; overflow-wrap: anywhere; }
 .app-download-permalink a { color: var(--violet); text-decoration: underline; text-underline-offset: .2em; }

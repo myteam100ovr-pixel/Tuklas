@@ -1,17 +1,28 @@
 <x-app-layout>
-    <div class="trainer-courses suite-page">
+    <div class="trainer-courses suite-page operations-page">
         <x-workspace-heading eyebrow="TRAINING · SUPPORT" title="Scholarships" description="Verified support opportunities for training and assessment." />
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
-        @if ($canManage)<section class="trainer-courses__card"><h2>Add scholarship</h2><form method="POST" action="{{ route('scholarships.store') }}">@csrf
-            <label>Title <input name="title" required></label><label>Provider <input name="provider" required></label>
-            <label>Description <textarea name="description" required></textarea></label><label>Eligibility <textarea name="eligibility"></textarea></label>
-            <label>Application URL <input name="application_url" type="url"></label><label>Deadline <input name="deadline" type="date"></label>
-            <label>Status <select name="status"><option value="draft">Draft</option><option value="published">Publish as verified</option><option value="closed">Closed</option></select></label>
-            <button class="trainer-courses__primary" type="submit">Save scholarship</button>
-        </form></section>@endif
+        @if ($canManage)
+            <section class="operations-editor" aria-labelledby="add-scholarship-heading">
+                <div class="operations-editor__intro">
+                    <h2 id="add-scholarship-heading">Add scholarship</h2>
+                    <p>Share verified funding opportunities with career seekers.</p>
+                </div>
+                <form class="operations-editor__form" method="POST" action="{{ route('scholarships.store') }}">@csrf
+                    <label>Title <input name="title" required></label>
+                    <label>Provider <input name="provider" required></label>
+                    <label class="operations-editor__wide">Description <textarea name="description" required></textarea></label>
+                    <label class="operations-editor__wide">Eligibility <textarea name="eligibility"></textarea></label>
+                    <label>Application URL <input name="application_url" type="url"></label>
+                    <label>Deadline <input name="deadline" type="date"></label>
+                    <label>Status <select name="status"><option value="draft">Draft</option><option value="published">Publish as verified</option><option value="closed">Closed</option></select></label>
+                    <div class="operations-editor__actions"><button class="trainer-courses__primary" type="submit">Save scholarship</button></div>
+                </form>
+            </section>
+        @endif
         @forelse ($scholarships as $scholarship)
-            <article class="trainer-courses__card"><h2>{{ $scholarship->title }}</h2><p>{{ $scholarship->provider }} · {{ $scholarship->status }}</p><p>{{ $scholarship->description }}</p>
+            <article class="operations-card"><h2>{{ $scholarship->title }}</h2><p>{{ $scholarship->provider }} · {{ $scholarship->status }}</p><p>{{ $scholarship->description }}</p>
                 @if ($scholarship->eligibility)<p><strong>Eligibility:</strong> {{ $scholarship->eligibility }}</p>@endif
                 @if ($scholarship->deadline)<p>Deadline {{ $scholarship->deadline->format('M j, Y') }}</p>@endif
                 @if ($scholarship->application_url)<a href="{{ $scholarship->application_url }}" target="_blank" rel="noopener noreferrer">Apply ↗</a>@endif
