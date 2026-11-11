@@ -398,16 +398,6 @@ class _TesdaViewState extends State<TesdaView> {
             '${program['title'] ?? ''}',
             style: tkText(context, size: 15, weight: 500),
           ),
-          if (program['is_demo'] == true)
-            Text(
-              'SIMULATED DEMO DATA',
-              style: tkText(
-                context,
-                size: 11,
-                color: TkColors.violet,
-                weight: 600,
-              ),
-            ),
           if (program['training_center'] != null) ...[
             const SizedBox(height: 4),
             Text(

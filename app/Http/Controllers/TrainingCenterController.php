@@ -26,7 +26,7 @@ class TrainingCenterController extends Controller
             ->when($search !== '', fn ($query) => $query->where(fn ($centers) => $centers->where('name', 'like', '%'.$search.'%')->orWhere('address', 'like', '%'.$search.'%')))
             ->when(! $canManage, fn ($query) => $query->where('is_active', true))
             ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereKey($user->training_center_id))
-            ->orderBy('name')->paginate(20)->withQueryString();
+            ->orderBy('name')->paginate(50)->withQueryString();
 
         return $request->routeIs('mobile.*') ? response()->json(['centers' => $centers, 'can_manage' => $canManage]) : view('operations.centers', compact('centers', 'canManage'));
     }

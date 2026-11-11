@@ -19,7 +19,7 @@
             </form></section>
         @endif
         @forelse ($jobs as $job)
-            <article class="operations-card"><h2>{{ $job->title }} @if ($job->is_demo)<small class="operations-status">Simulated demo data</small>@endif @if ($job->recommended_for_me ?? false)<small class="operations-status">Recommended by PESO</small>@endif</h2><p>{{ $job->employer_name ?: $job->employer?->name }} @if ($job->location) · {{ $job->location }} @endif @if ($job->compensation) · {{ $job->compensation }} @endif <span class="operations-status">{{ ucfirst($job->status) }}</span></p><p>{{ $job->description }}</p>
+            <article class="operations-card"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small class="operations-status">Recommended by PESO</small>@endif</h2><p>{{ $job->employer_name ?: $job->employer?->name }} @if ($job->location) · {{ $job->location }} @endif @if ($job->compensation) · {{ $job->compensation }} @endif <span class="operations-status">{{ ucfirst($job->status) }}</span></p><p>{{ $job->description }}</p>
                 @if ($job->requirements)<p><strong>Requirements:</strong> {{ $job->requirements }}</p>@endif
                 @if ($job->closes_at)<p>Closes {{ $job->closes_at->format('M j, Y') }}</p>@endif
                 @if ($job->source_url)<p><a href="{{ $job->source_url }}" target="_blank" rel="noopener noreferrer">Source listing ↗</a> @if ($job->source_checked_at)<span>· Checked {{ $job->source_checked_at->format('M j, Y') }}</span>@endif</p>@endif

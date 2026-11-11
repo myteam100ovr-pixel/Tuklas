@@ -26,7 +26,7 @@ class TrainingApplicationController extends Controller
         } else {
             abort_unless($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin), 403);
         }
-        $applications = $query->latest()->paginate(20);
+        $applications = $query->latest()->paginate(50);
 
         return $request->routeIs('mobile.*') ? response()->json(compact('applications')) : view('operations.applications', compact('applications'));
     }

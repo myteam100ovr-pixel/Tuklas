@@ -173,7 +173,7 @@ class FictionalDemoCatalogSeeder extends Seeder
 
         $this->seedTrainingActivity($adminId);
 
-        $this->command?->info('Seeded 50 fictional training listings, 50 fictional job listings, 50 fictional scholarship scenarios, 10 fictional training dates, 5 fictional training requests, and 3 fictional assessment records. Activity rows are visibly marked as simulated demo data.');
+        $this->command?->info('Seeded 50 fictional training listings, 50 fictional job listings, 50 fictional scholarship scenarios, 50 fictional training dates, 50 fictional training requests, and 50 fictional assessment records. Descriptions identify fictional listings as test data.');
     }
 
     private function seedTrainingActivity(int $adminId): void
@@ -189,65 +189,63 @@ class FictionalDemoCatalogSeeder extends Seeder
         $sessionIndex = 0;
 
         foreach (TrainingCenter::query()->where('is_demo', true)->orderBy('id')->get() as $center) {
-            $programs = TrainingProgram::query()->where('training_center_id', $center->id)->where('is_demo', true)->orderBy('id')->limit(2)->get();
+            $programs = TrainingProgram::query()->where('training_center_id', $center->id)->where('is_demo', true)->orderBy('id')->get();
             foreach ($programs as $program) {
-                $startsAt = today()->addDays($sessionIndex + 2)->setTime(9, 0, 0);
+                $startsAt = today()->addDays($sessionIndex - 15)->setTime(9, 0, 0);
                 $session = TrainingSession::query()->firstOrNew([
                     'training_program_id' => $program->id,
-                    'starts_at' => $startsAt,
+                    'is_demo' => true,
                 ]);
                 $session->fill([
                     'training_center_id' => $center->id,
                     'ends_at' => $startsAt->copy()->addHours(6),
                     'capacity' => 20,
-                    'status' => 'open',
+                    'starts_at' => $startsAt,
+                    'status' => $sessionIndex > 15 ? 'open' : 'closed',
                     'created_by' => $adminId,
                     'is_demo' => true,
                 ])->save();
 
-                if (isset($demoApplicants[$sessionIndex])) {
-                    $applicantData = $demoApplicants[$sessionIndex];
-                    $applicant = User::query()->firstOrCreate(
-                        ['email' => $applicantData['email']],
-                        [
-                            'name' => $applicantData['name'],
-                            'password' => Hash::make(Str::random(40)),
-                            'email_verified_at' => now(),
-                            'role' => Role::Youth,
-                            'is_active' => true,
-                        ],
-                    );
-                    $status = match ($sessionIndex) {
-                        0, 2, 4 => 'accepted',
-                        1 => 'pending',
-                        default => 'declined',
-                    };
-                    $application = TrainingApplication::query()->firstOrNew([
-                        'training_program_id' => $program->id,
-                        'user_id' => $applicant->id,
-                    ]);
-                    $application->fill([
-                        'training_session_id' => $session->id,
-                        'status' => $status,
-                        'is_demo' => true,
-                    ])->save();
-                    $applications[$sessionIndex] = $application;
-                }
+                $applicantData = $demoApplicants[$sessionIndex % count($demoApplicants)];
+                $applicant = User::query()->firstOrCreate(
+                    ['email' => $applicantData['email']],
+                    [
+                        'name' => $applicantData['name'],
+                        'password' => Hash::make(Str::random(40)),
+                        'email_verified_at' => now(),
+                        'role' => Role::Youth,
+                        'is_active' => true,
+                    ],
+                );
+                $application = TrainingApplication::query()->firstOrNew([
+                    'training_program_id' => $program->id,
+                    'user_id' => $applicant->id,
+                ]);
+                $application->fill([
+                    'training_session_id' => $session->id,
+                    'status' => 'accepted',
+                    'is_demo' => true,
+                ])->save();
+                $applications[$sessionIndex] = [
+                    'application' => $application,
+                    'starts_at' => $startsAt,
+                    'is_completed' => $sessionIndex <= 10,
+                ];
 
                 $sessionIndex++;
             }
         }
 
-        foreach ([0 => ['completed', 'passed'], 2 => ['completed', 'failed'], 4 => ['scheduled', 'pending']] as $applicantIndex => [$status, $result]) {
-            $application = $applications[$applicantIndex] ?? null;
-            if (! $application) {
-                continue;
-            }
-
+        foreach ($applications as $applicantIndex => $activity) {
+            $application = $activity['application'];
+            $isCompleted = $activity['is_completed'];
+            $result = $isCompleted ? ($applicantIndex % 4 === 0 ? 'failed' : 'passed') : 'pending';
             $assessment = AssessmentRecord::query()->firstOrNew(['training_application_id' => $application->id]);
             $assessment->fill([
-                'scheduled_at' => $application->session->starts_at->copy()->addDays(10),
-                'status' => $status,
+                'scheduled_at' => $isCompleted
+                    ? $activity['starts_at']->copy()->addDays(5)
+                    : $activity['starts_at']->copy()->addDays(10),
+                'status' => $isCompleted ? 'completed' : 'scheduled',
                 'result' => $result,
                 'notes' => 'SIMULATED DEMO RECORD — '.$result.' result for workflow testing only; this is not an official TESDA assessment result.',
                 'recorded_by' => $adminId,

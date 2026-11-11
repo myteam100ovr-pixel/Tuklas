@@ -11,6 +11,7 @@ What’s new
 - The website shows a clear loading state when opening workspace pages.
 - Web management forms keep entered details if a validation error needs correction.
 - The app waits for a slow server response before reporting a connection problem.
+- Fictional training, job, scholarship, and training activity records now show without demo badges; their descriptions retain testing disclosures.
 - It retries a saved sign-in automatically when the server becomes reachable again or the app resumes.
 - Connection errors now distinguish a slow response from a secure connection problem.
 - Scanner uploads now use the same API URL and connection error handling as other mobile requests.

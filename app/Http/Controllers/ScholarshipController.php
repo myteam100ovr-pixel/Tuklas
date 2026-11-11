@@ -20,7 +20,7 @@ class ScholarshipController extends Controller
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $scholarships = Scholarship::query()->when(! $canManage, fn ($query) => $query->published())
             ->when($search !== '', fn ($query) => $query->where(fn ($items) => $items->where('title', 'like', '%'.$search.'%')->orWhere('provider', 'like', '%'.$search.'%')))
-            ->latest()->paginate(20)->withQueryString();
+            ->latest()->paginate(50)->withQueryString();
         $myApplications = $request->user()->hasRole(Role::Youth)
             ? ScholarshipApplication::query()->with('scholarship:id,title,provider,is_demo')->where('user_id', $request->user()->id)->latest()->get()
             : collect();

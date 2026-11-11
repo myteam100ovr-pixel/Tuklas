@@ -22,7 +22,7 @@ class JobOpportunityController extends Controller
             ->when($search !== '', fn ($query) => $query->where(fn ($jobs) => $jobs->where('title', 'like', '%'.$search.'%')->orWhere('location', 'like', '%'.$search.'%')->orWhere('employer_name', 'like', '%'.$search.'%')->orWhereHas('employer', fn ($employer) => $employer->where('name', 'like', '%'.$search.'%'))))
             ->when($request->user()->hasRole(Role::Youth), fn ($query) => $query->withExists(['recommendedUsers as recommended_for_me' => fn ($users) => $users->whereKey($request->user()->id)]))
             ->when(! $canManage, fn ($query) => $query->published()->where(fn ($employers) => $employers->where('is_demo', true)->orWhere('employer_verified', true)->orWhereHas('employer', fn ($employer) => $employer->where('is_verified', true))))
-            ->latest()->paginate(20)->withQueryString();
+            ->latest()->paginate(50)->withQueryString();
 
         return $request->routeIs('mobile.*') ? response()->json(compact('jobs', 'canManage')) : view('operations.jobs', compact('jobs', 'canManage'));
     }

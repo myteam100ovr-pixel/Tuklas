@@ -19,7 +19,7 @@ class FictionalDemoCatalogSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_it_seeds_fifty_deterministic_demo_records_for_each_public_catalog(): void
+    public function test_it_seeds_fifty_deterministic_records_for_catalogs_and_training_activity(): void
     {
         User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
@@ -34,31 +34,33 @@ class FictionalDemoCatalogSeederTest extends TestCase
         $this->assertSame(50, JobOpportunity::query()->where('is_demo', true)->where('employer_verified', false)->count());
         $this->assertSame(50, Scholarship::query()->where('is_demo', true)->count());
         $this->assertSame(5, TrainingCenter::query()->where('is_demo', true)->count());
-        $this->assertSame(10, TrainingSession::query()->where('is_demo', true)->count());
-        $this->assertSame(5, TrainingApplication::query()->where('is_demo', true)->count());
-        $this->assertSame(3, AssessmentRecord::query()->where('is_demo', true)->count());
+        $this->assertSame(50, TrainingSession::query()->where('is_demo', true)->count());
+        $this->assertSame(50, TrainingApplication::query()->where('is_demo', true)->count());
+        $this->assertSame(50, AssessmentRecord::query()->where('is_demo', true)->count());
     }
 
-    public function test_career_seekers_see_simulated_records_labeled_on_web_and_mobile(): void
+    public function test_career_seekers_see_fictional_records_without_demo_badges(): void
     {
         User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
         $careerSeeker = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
 
-        $this->actingAs($careerSeeker)->get(route('opportunities.index'))
+        $jobs = $this->actingAs($careerSeeker)->get(route('opportunities.index'))
             ->assertSee('Accounts Assistant')
-            ->assertSee('Simulated demo data')
+            ->assertDontSee('Simulated demo data')
             ->assertSee('no actual employer is recruiting');
-        $this->get(route('scholarships.index'))
+        $this->assertCount(50, $jobs->viewData('jobs'));
+        $scholarships = $this->get(route('scholarships.index'))
             ->assertSee('Technical Skills Starter Grant')
-            ->assertSee('Simulated demo data')
+            ->assertDontSee('Simulated demo data')
             ->assertSee('not a real scholarship');
+        $this->assertCount(50, $scholarships->viewData('scholarships'));
         $this->get(route('centers.index'))
             ->assertSee('Baybay Norte Skills Institute')
-            ->assertSee('Simulated demo data');
+            ->assertDontSee('Simulated demo data');
         $this->get(route('tesda.index'))
             ->assertSee('Bookkeeping NC III')
-            ->assertSee('Simulated demo data');
+            ->assertDontSee('Simulated demo data');
 
         $this->getJson('/api/mobile/opportunities')->assertOk()
             ->assertJsonFragment(['is_demo' => true]);
@@ -76,14 +78,20 @@ class FictionalDemoCatalogSeederTest extends TestCase
         $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
 
-        $this->actingAs($admin)->get(route('sessions.index'))
-            ->assertSee('Simulated demo data')
-            ->assertSee('Bookkeeping NC III');
-        $this->get(route('applications.index'))
+        $sessions = $this->actingAs($admin)->get(route('sessions.index'))
+            ->assertSee('Bookkeeping NC III')
+            ->assertDontSee('Simulated demo data');
+        $this->assertCount(50, $sessions->viewData('sessions'));
+        $sessions->assertDontSee('Simulated demo data');
+
+        $applications = $this->get(route('applications.index'))
             ->assertSee('Maria Teresa Dela Cruz')
-            ->assertSee('Simulated demo data');
-        $this->get(route('assessments.index'))
+            ->assertDontSee('Simulated demo data');
+        $this->assertCount(50, $applications->viewData('applications'));
+
+        $assessments = $this->get(route('assessments.index'))
             ->assertSee('Angela Mae Ramos')
-            ->assertSee('Simulated demo data');
+            ->assertDontSee('Simulated demo data');
+        $this->assertCount(50, $assessments->viewData('records'));
     }
 }

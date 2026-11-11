@@ -24,7 +24,7 @@ class AssessmentRecordController extends Controller
         } else {
             abort_unless($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin), 403);
         }
-        $records = $query->latest()->paginate(20);
+        $records = $query->latest()->paginate(50);
         $eligibleApplications = collect();
         if ($user->hasRole(Role::SuperAdmin, Role::TesdaAdmin, Role::CenterRepresentative)) {
             $eligibleApplications = TrainingApplication::query()->with(['user:id,name', 'program:id,title'])
