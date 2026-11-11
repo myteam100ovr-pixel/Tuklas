@@ -37,7 +37,7 @@
         <div class="hero-copy">
             <span class="hero-badge"><span aria-hidden="true">&#10022;</span> Powered by Google Gemini AI</span>
             <h1>AI-Powered Career Path and<br>Skills Development for Youth in Pangasinan</h1>
-            <p>Piloting in Bugallon, with TESDA Lingayen trainings.</p>
+            <p>Piloting in Bugallon, with TESDA training.</p>
             <div class="hero-actions">
                 <a class="hero-primary" href="{{ Route::has('register') ? route('register') : url('/register') }}">Get started</a>
                 <a class="hero-secondary" href="#pathways">See how it works</a>
@@ -180,7 +180,7 @@
     <div class="row reveal">
         <svg class="art" viewBox="0 0 138 138"><rect width="138" height="138" rx="12" fill="#6f7de3"/><path d="M69 22c26 18 36 46 0 94-36-48-26-76 0-94z" fill="none" stroke="#4300b9" stroke-width="12"/><circle cx="69" cy="66" r="12" fill="#fbe132"/></svg>
         <div class="big" data-count-counter="3">2</div>
-        <p>Youth, PESO Bugallon as Super Administrator, and TESDA Lingayen as Trainer. Each role only sees the features it needs.</p>
+        <p>Career Seekers, Super Admin, TESDA staff, trainers, and training center representatives each have tools for their work.</p>
         <span class="tag pk">Roles</span>
     </div>
     <div class="row reveal">
@@ -244,7 +244,7 @@
     <h2 class="h-xl reveal">Frequently Asked<br>Questions</h2>
     <div class="faq-list">
         @foreach ([
-            ['Who can use Tuklas?', 'Youth users aged 15 to 30 can create a profile. PESO Bugallon manages the system as Super Administrator and TESDA Lingayen manages training information as Trainer.'],
+            ['Who can use Tuklas?', 'Career Seekers aged 15 to 30 can create a profile. Super Admin manages the system, and TESDA staff manage training information.'],
             ['Which trainings does Tuklas show?', 'Tuklas shows programs published by TESDA Lingayen, along with the reasons each program fits your profile.'],
             ['Does Tuklas guarantee a job or a training slot?', 'No. Tuklas offers guidance to help you decide. A suggestion is not a guarantee of a job, admission, or a training slot.'],
             ['How does the resume and certificate scan work?', 'Uploading is optional. Google Gemini reads a resume or certificate and suggests profile details for you to review and confirm before they are saved.'],

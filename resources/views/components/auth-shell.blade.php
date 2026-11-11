@@ -19,7 +19,7 @@
                     <article class="auth-feature-slide is-active" data-feature-slide aria-roledescription="slide" aria-label="1 of 5: Career guidance" aria-hidden="false">
                         <p class="auth-feature-count">01 <span>/ 05</span> · CAREER GUIDANCE</p>
                         <h1>Find a path that fits you.</h1>
-                        <p class="auth-story-text">Take a skills assessment and explore career and TESDA Lingayen training suggestions shaped by your interests and strengths.</p>
+                        <p class="auth-story-text">Take a skills assessment and explore career and TESDA training suggestions based on your interests and strengths.</p>
                     </article>
                     <article class="auth-feature-slide" data-feature-slide aria-roledescription="slide" aria-label="2 of 5: Resume and certificate scan" aria-hidden="true">
                         <p class="auth-feature-count">02 <span>/ 05</span> · AI DOCUMENT SCAN</p>
@@ -34,7 +34,7 @@
                     <article class="auth-feature-slide" data-feature-slide aria-roledescription="slide" aria-label="4 of 5: Local training opportunities" aria-hidden="true">
                         <p class="auth-feature-count">04 <span>/ 05</span> · LOCAL TRAINING</p>
                         <h2>Explore training offered nearby.</h2>
-                        <p class="auth-story-text">See TVET programs offered by TESDA Lingayen and maintained by authorized staff.</p>
+                        <p class="auth-story-text">See TESDA training programs maintained by authorized staff.</p>
                     </article>
                     <article class="auth-feature-slide" data-feature-slide aria-roledescription="slide" aria-label="5 of 5: Local guidance" aria-hidden="true">
                         <p class="auth-feature-count">05 <span>/ 05</span> · MADE FOR PANGASINAN</p>

@@ -72,8 +72,8 @@
                     </section>
                 </div>
                 <aside class="workspace-side">
-                    <section class="workspace-panel tasks" id="next-steps">@include('dashboard.partials.tasks')</section>
-                    <section class="workspace-panel workspace-shortcuts"><p class="workspace-eyebrow">QUICK ACCESS</p><h2>Keep moving.</h2><div>@foreach ($actions as $action)@if ($action['href'])<a href="{{ $action['href'] }}"><svg class="ic" aria-hidden="true"><use href="#i-{{ $action['icon'] }}"/></svg>{{ $action['label'] }}<span>↗</span></a>@else<span class="workspace-unavailable">{{ $action['label'] }} <small>Coming soon</small></span>@endif @endforeach</div></section>
+                    <section class="workspace-panel tasks" id="next-steps">@include('dashboard.partials.tasks', ['tasks' => $journey])</section>
+                    <section class="workspace-panel workspace-shortcuts"><p class="workspace-eyebrow">QUICK ACCESS</p><h2>Keep moving.</h2><div>@foreach ($actions as $action)@if ($action['href'])<a href="{{ $action['href'] }}"><svg class="ic" aria-hidden="true"><use href="#i-{{ $action['icon'] }}"/></svg>{{ $action['label'] }}<span>↗</span></a>@endif @endforeach</div></section>
                     <div id="workspace-assistant"><x-career-chat /></div>
                 </aside>
             </div>

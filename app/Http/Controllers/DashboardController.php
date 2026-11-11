@@ -10,12 +10,13 @@ use App\Models\User;
 use App\Services\DocumentScanHistory;
 use App\Services\TesdaQualificationCatalog;
 use App\Support\ProfileCompletion;
+use App\Support\RoleJourney;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly TesdaQualificationCatalog $catalog) {}
+    public function __construct(private readonly TesdaQualificationCatalog $catalog, private readonly RoleJourney $journey) {}
 
     public function admin(): View
     {
@@ -46,6 +47,7 @@ class DashboardController extends Controller
             ->get(['id', 'name', 'email', 'role', 'is_active', 'created_at']);
 
         return view('dashboard.show', [
+            'journey' => $this->journey->for(auth()->user()),
             'title' => 'PESO Bugallon overview',
             'nationalCatalog' => $this->catalog->all(),
             'stats' => [
@@ -115,6 +117,7 @@ class DashboardController extends Controller
         $pct = fn (int $n) => $total > 0 ? (int) round($n / $total * 100) : 0;
 
         return view('dashboard.show', [
+            'journey' => $this->journey->for(auth()->user()),
             'title' => $user->hasRole(Role::CenterRepresentative) ? 'Training center overview' : 'TESDA training overview',
             'nationalCatalog' => $this->catalog->all(),
             'stats' => [
@@ -213,6 +216,7 @@ class DashboardController extends Controller
         }
 
         return view('dashboard.show', [
+            'journey' => $this->journey->for($user),
             'title' => 'Hi, '.explode(' ', trim($user->name))[0],
             'nationalCatalog' => $this->catalog->all(),
             'stats' => [

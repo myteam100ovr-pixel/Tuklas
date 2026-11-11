@@ -457,10 +457,13 @@ class _ProfileViewState extends State<ProfileView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Youth details', style: tkText(context, size: 17, weight: 500)),
+          Text(
+            'Career Seeker details',
+            style: tkText(context, size: 17, weight: 500),
+          ),
           const SizedBox(height: 6),
           Text(
-            'Tell us about your schooling and interests. Tuklas uses these to suggest careers and TESDA Lingayen trainings. Suggestions are guidance, not guarantees of jobs, admission, or training slots.',
+            'Tell us about your education and interests. Tuklas uses these to suggest careers and TESDA training. Suggestions are guidance; they do not guarantee a job, admission, or a training place.',
             style: tkText(context, size: 13, color: c.muted, height: 1.5),
           ),
           const SizedBox(height: 20),

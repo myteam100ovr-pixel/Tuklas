@@ -51,7 +51,7 @@ class CareerRecommendationControllerTest extends TestCase
             ->assertDontSee('private-youth@example.test')
             ->assertSee('career guidance')
             ->assertSee('PESO')
-            ->assertSee('AI Scanner');
+            ->assertSee('Document Scanner');
     }
 
     public function test_scans_are_collapsed_under_each_youth_with_visible_scan_dates(): void

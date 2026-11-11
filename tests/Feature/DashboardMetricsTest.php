@@ -3,15 +3,36 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Support\ProfileCompletion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class DashboardMetricsTest extends TestCase
 {
     use RefreshDatabase;
+
+    #[TestWith(['youth', 'profile'])]
+    #[TestWith(['trainer', 'My programs'])]
+    #[TestWith(['tesda_admin', 'Centers'])]
+    #[TestWith(['center_representative', 'Centers'])]
+    #[TestWith(['super_admin', 'Users'])]
+    public function test_each_role_has_the_same_actionable_first_step_on_web_and_mobile(string $role, string $action): void
+    {
+        $user = User::factory()->create([
+            'role' => Role::from($role),
+            'is_active' => true,
+            'training_center_id' => $role === 'center_representative' ? TrainingCenter::factory()->create()->id : null,
+        ]);
+
+        $this->actingAs($user)->get(route($user->role->homeRoute()))->assertOk()
+            ->assertViewHas('journey', fn (array $journey): bool => $journey['items'][0]['action'] === $action);
+        $this->getJson(route('mobile.dashboard'))->assertOk()
+            ->assertJsonPath('journey.items.0.action', $action);
+    }
 
     public function test_partial_profile_uses_field_counts_on_web_and_mobile(): void
     {

@@ -16,7 +16,7 @@
                 <label>Training center (required for representatives)<select name="training_center_id"><option value="">None</option>@foreach ($centers as $center)<option value="{{ $center->id }}" @selected((string) old('training_center_id', $account->training_center_id) === (string) $center->id)>{{ $center->name }} ({{ $center->type }})</option>@endforeach</select>@error('training_center_id')<small>{{ $message }}</small>@enderror</label>
                 <label>Account status<select name="is_active"><option value="1" @selected(old('is_active', $account->exists ? (int) $account->is_active : 1) == 1)>Active</option><option value="0" @selected(old('is_active', $account->exists ? (int) $account->is_active : 1) == 0)>Inactive</option></select>@error('is_active')<small>{{ $message }}</small>@enderror</label>
             </div>
-            <fieldset class="users-form__fieldset"><legend>Youth details, when applicable</legend>
+            <fieldset class="users-form__fieldset"><legend>Career Seeker details, when applicable</legend>
                 <div class="trainer-courses__form-row"><label>Birth date<input name="date_of_birth" type="date" value="{{ old('date_of_birth', $account->date_of_birth?->toDateString()) }}">@error('date_of_birth')<small>{{ $message }}</small>@enderror</label><label>Phone<input name="contact_number" type="tel" maxlength="30" value="{{ old('contact_number', $account->youthProfile?->contact_number) }}">@error('contact_number')<small>{{ $message }}</small>@enderror</label></div>
                 <label>Barangay<input name="barangay" maxlength="100" value="{{ old('barangay', $account->youthProfile?->barangay) }}">@error('barangay')<small>{{ $message }}</small>@enderror</label>
             </fieldset>

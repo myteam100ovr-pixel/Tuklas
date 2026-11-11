@@ -10,20 +10,24 @@ use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Services\DocumentScanHistory;
 use App\Support\ProfileCompletion;
+use App\Support\RoleJourney;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MobileDashboardController extends Controller
 {
-    public function index(Request $request, DocumentScanHistory $scanHistory): JsonResponse
+    public function index(Request $request, DocumentScanHistory $scanHistory, RoleJourney $journey): JsonResponse
     {
         $user = $request->user();
 
-        return response()->json(match ($user->role) {
+        $dashboard = match ($user->role) {
             Role::Youth => $this->youthDashboard($user, $scanHistory),
             Role::Trainer, Role::TesdaAdmin, Role::CenterRepresentative => $this->trainerDashboard($user),
             Role::SuperAdmin => $this->adminDashboard(),
-        });
+        };
+        $dashboard['journey'] = $journey->for($user);
+
+        return response()->json($dashboard);
     }
 
     /** @return array<string, mixed> */

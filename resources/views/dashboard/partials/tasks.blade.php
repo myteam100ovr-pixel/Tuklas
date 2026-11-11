@@ -6,9 +6,9 @@
                 @if ($t['state'] === 'done')<svg class="ic"><use href="#i-check"/></svg>@endif
             </span>
             <div class="task-body">
-                <b>{{ $t['title'] }}</b>
-                <span class="task-meta">{{ $t['meta'] }}</span>
-                <p>{{ $t['desc'] }}</p>
+                <b>{{ $loop->iteration }}. {{ $t['title'] }}</b>
+                <span class="task-meta">{{ match ($t['state']) { 'done' => 'Done', 'ongoing' => 'In progress', 'waiting' => 'Waiting for TESDA', default => 'To do' } }}</span>
+                <p>{{ $t['description'] }}</p>
             </div>
             @if (! empty($t['href']))
                 <a class="task-go" href="{{ $t['href'] }}" aria-label="Open: {{ $t['title'] }}"><svg class="ic"><use href="#i-chev"/></svg></a>

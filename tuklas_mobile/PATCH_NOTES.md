@@ -1,5 +1,7 @@
 What’s new
 
+- Follow role-specific next steps from the dashboard on both web and mobile.
+- Use the updated Career Seeker, TESDA, and document scanner labels throughout the app.
 - Navigation responds immediately when changing sections in the mobile app.
 - The website shows a clear loading state when opening workspace pages.
 - Web management forms keep entered details if a validation error needs correction.

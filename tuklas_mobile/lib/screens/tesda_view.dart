@@ -115,7 +115,7 @@ class _TesdaViewState extends State<TesdaView> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Explore TESDA Lingayen programs and official training, scholarship, and certification resources for Pangasinan.',
+                      'Explore TESDA programs and official training, scholarship, and certification resources for Pangasinan.',
                       style: tkText(
                         context,
                         size: 14,
@@ -240,7 +240,7 @@ class _TesdaViewState extends State<TesdaView> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'TESDA Lingayen programs',
+                                  'TESDA programs',
                                   style: tkText(context, size: 17, weight: 500),
                                 ),
                               ),

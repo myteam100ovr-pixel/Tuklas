@@ -41,7 +41,7 @@
         <div class="tesda-section-heading">
             <div>
                 <p class="tesda-eyebrow">Tuklas local catalog</p>
-                <h2 id="local-programs-title">TESDA Lingayen programs</h2>
+                <h2 id="local-programs-title">TESDA programs</h2>
             </div>
             <span class="tesda-count">{{ $programCount }} published</span>
         </div>

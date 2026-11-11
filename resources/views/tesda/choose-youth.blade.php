@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="suite-page suite-tesda">
-        <x-workspace-heading eyebrow="TESDA · TRAINING PLANS" title="Choose who you’re guiding" description="Select a youth account, then choose a current TESDA qualification as their training goal. This does not enroll them with a provider." />
+        <x-workspace-heading eyebrow="TESDA · TRAINING PLANS" title="Choose who you’re guiding" description="Select a Career Seeker, then choose a current TESDA qualification as a training goal. This does not enroll them with a provider." />
         <section class="card tbl" aria-label="Youth training plans">
             <div class="tbl-wrap">
                 <table class="tbl-t">

@@ -6,8 +6,8 @@
 
 <section class="card tk-sec">
     <div class="tk-sec-title">
-        <h3>Youth details</h3>
-        <p>Tell us about your schooling and interests. Tuklas uses these to suggest careers and TESDA Lingayen trainings. Suggestions are guidance, not guarantees of jobs, admission, or training slots.</p>
+        <h3>Career Seeker details</h3>
+        <p>Tell us about your education and interests. Tuklas uses these to suggest careers and TESDA training. Suggestions are guidance; they do not guarantee a job, admission, or a training place.</p>
     </div>
 
     <form method="POST" action="{{ route('youth.profile.update') }}" class="tk-sec-form">

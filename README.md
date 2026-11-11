@@ -50,14 +50,14 @@ Tuklas uses role based access. Users sign in through the same web or mobile acco
 
 Trainers can manage their permitted program information and teaching assignments. Training center representatives or TESDA administrators manage center staff assignments. Trainer accounts should be associated with a center to be assignable to that center's programs.
 
-### Career seeker (youth)
+### Career Seeker
 
-1. Register, verify the email address, and complete the profile with education, skills, interests, and credentials.
-2. Use **Skills assessment**, the resume and certificate scanner, and career chat to support career exploration.
-3. Browse published jobs, scholarships, training centers, and future training sessions. Apply for an open session with available capacity.
-4. Track applications and assessment records, and message active members or administrators.
+1. Register, verify your email address, and complete your profile with education, skills, interests, and credentials.
+2. Record your skills and interests, then optionally scan a resume or certificate for suggestions.
+3. Review career suggestions and explore current TESDA qualifications, jobs, scholarships, centers, and open training dates.
+4. Save a training goal, request a place in an open session, then track the request and assessment records.
 
-Job recommendations are currently selected by PESO staff. Tuklas does not yet calculate or rank job matches automatically from profile qualifications.
+Job recommendations are selected by PESO (the local employment office) staff. Tuklas does not automatically rank jobs from profile qualifications.
 
 ## Where the features live
 

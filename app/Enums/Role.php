@@ -24,10 +24,10 @@ enum Role: string
     {
         return match ($this) {
             self::SuperAdmin => 'PESO Bugallon (Super Admin)',
-            self::Trainer => 'TESDA Lingayen (Trainer)',
-            self::TesdaAdmin => 'TESDA Training Administrator',
+            self::Trainer => 'Trainer',
+            self::TesdaAdmin => 'TESDA',
             self::CenterRepresentative => 'Training Center Representative',
-            self::Youth => 'Youth',
+            self::Youth => 'Career Seeker',
         };
     }
 }

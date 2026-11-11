@@ -123,7 +123,7 @@ class _DashboardViewState extends State<DashboardView> {
 
                 final right = Column(
                   children: [
-                    _tasksCard(context, asMap(data['tasks'])),
+                    _tasksCard(context, asMap(data['journey'])),
                     const SizedBox(height: 16),
                     const CareerChatCard(),
                   ],
@@ -847,25 +847,66 @@ class _DashboardViewState extends State<DashboardView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _cardHead(context, '${tasks['title'] ?? ''}'),
+          _cardHead(context, '${tasks['title'] ?? 'Your steps'}'),
           for (final raw in asList(tasks['items']))
             Builder(
               builder: (context) {
                 final t = asMap(raw);
-                final done = '${t['state']}' == 'done';
+                final state = '${t['state']}';
+                final done = state == 'done';
+                final meta =
+                    t['meta'] ??
+                    switch (state) {
+                      'done' => 'Done',
+                      'ongoing' => 'In progress',
+                      'waiting' => 'Waiting for TESDA',
+                      _ => 'To do',
+                    };
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10,
                     horizontal: 4,
                   ),
                   child: InkWell(
-                    onTap: switch (t['href']) {
+                    onTap: switch (t['action'] ?? t['href']) {
                       'profile' => widget.onEditProfile,
                       'scanner' => widget.onOpenScanner,
                       'peso' => widget.onOpenPeso,
                       'tesda' => widget.onOpenTesda,
                       'assessment' => () => widget.onOpenWorkspace?.call(
                         'Skills assessment',
+                      ),
+                      'sessions' => () => widget.onOpenWorkspace?.call(
+                        'Sessions',
+                      ),
+                      'applications' => () => widget.onOpenWorkspace?.call(
+                        'Applications',
+                      ),
+                      'Centers' => () => widget.onOpenWorkspace?.call(
+                        'Centers',
+                      ),
+                      'My programs' => () => widget.onOpenWorkspace?.call(
+                        'My programs',
+                      ),
+                      'Trainers' => () => widget.onOpenWorkspace?.call(
+                        'Trainers',
+                      ),
+                      'Assessments' => () => widget.onOpenWorkspace?.call(
+                        'Assessments',
+                      ),
+                      'Scholarships' => () => widget.onOpenWorkspace?.call(
+                        'Scholarships',
+                      ),
+                      'Users' => () => widget.onOpenWorkspace?.call('Users'),
+                      'Employers' => () => widget.onOpenWorkspace?.call(
+                        'Employers',
+                      ),
+                      'Jobs' => () => widget.onOpenWorkspace?.call('Jobs'),
+                      'Careers' => () => widget.onOpenWorkspace?.call(
+                        'Careers',
+                      ),
+                      'Messages' => () => widget.onOpenWorkspace?.call(
+                        'Messages',
                       ),
                       'users' => () => widget.onOpenWorkspace?.call('Users'),
                       'programs' => () => widget.onOpenWorkspace?.call(
@@ -908,7 +949,7 @@ class _DashboardViewState extends State<DashboardView> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${t['meta'] ?? ''}',
+                                '$meta',
                                 style: tkText(
                                   context,
                                   size: 11.5,
@@ -917,7 +958,7 @@ class _DashboardViewState extends State<DashboardView> {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                '${t['desc'] ?? ''}',
+                                '${t['description'] ?? ''}',
                                 style: tkText(
                                   context,
                                   size: 12.5,

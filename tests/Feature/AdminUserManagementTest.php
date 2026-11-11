@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
@@ -25,6 +26,7 @@ class AdminUserManagementTest extends TestCase
     public function test_admin_can_create_verified_accounts_for_every_role(): void
     {
         $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $center = TrainingCenter::factory()->create();
         $this->actingAs($admin);
         $this->get(route('admin.users.create'))->assertOk()->assertSee('Initial password');
 
@@ -34,6 +36,7 @@ class AdminUserManagementTest extends TestCase
                 'last_name' => 'Member',
                 'email' => $role->value.'@example.test',
                 'role' => $role->value,
+                'training_center_id' => $role === Role::CenterRepresentative ? $center->id : null,
                 'is_active' => 1,
                 'password' => 'StrongPassword123!',
                 'password_confirmation' => 'StrongPassword123!',

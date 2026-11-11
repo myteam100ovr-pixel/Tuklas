@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <x-auth-shell mode="register" title="Create your account" description="Create your Youth account to explore career guidance, skills, and local TESDA training.">
+    <x-auth-shell mode="register" title="Create your account" description="Create your Career Seeker account to explore career guidance, skills, and TESDA training.">
         <x-validation-errors class="auth-errors" />
 
         <form method="POST" action="{{ route('register') }}" class="auth-form auth-form--register">
