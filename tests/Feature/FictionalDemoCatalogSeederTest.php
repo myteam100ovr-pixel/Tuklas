@@ -11,7 +11,9 @@ use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Models\TrainingSession;
 use App\Models\User;
+use App\Support\ProfileCompletion;
 use Database\Seeders\FictionalDemoCatalogSeeder;
+use Database\Seeders\LocalWorkflowDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -120,5 +122,48 @@ class FictionalDemoCatalogSeederTest extends TestCase
             ->assertSee('Angela Mae Ramos')
             ->assertDontSee('Simulated demo data');
         $this->assertCount(50, $assessments->viewData('records'));
+    }
+
+    public function test_local_workflow_seeder_populates_the_career_seeker_demo_account(): void
+    {
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $this->seed(FictionalDemoCatalogSeeder::class);
+        $center = TrainingCenter::query()->where('is_demo', true)->oldest('id')->firstOrFail();
+        $careerSeeker = User::factory()->create([
+            'email' => config('tuklas.demo_accounts.career_seeker_email'),
+            'role' => Role::Youth,
+            'is_active' => true,
+        ]);
+        $representative = User::factory()->create([
+            'role' => Role::CenterRepresentative,
+            'training_center_id' => $center->id,
+            'is_active' => true,
+        ]);
+
+        $this->seed(LocalWorkflowDataSeeder::class);
+        $this->seed(LocalWorkflowDataSeeder::class);
+
+        $careerSeeker->refresh()->load('youthProfile');
+        $this->assertSame(100, ProfileCompletion::for($careerSeeker)['percent']);
+        $this->assertDatabaseCount('training_applications', 53);
+        $this->assertSame(3, $careerSeeker->trainingApplications()->count());
+        $this->assertSame(2, AssessmentRecord::query()->whereHas('application', fn ($query) => $query->where('user_id', $careerSeeker->id))->count());
+
+        $this->actingAs($careerSeeker)->get(route('applications.index'))
+            ->assertOk()
+            ->assertSee('Training applications')
+            ->assertSee('Pending')
+            ->assertSee('Accepted');
+        $this->actingAs($careerSeeker)->get(route('assessments.index'))
+            ->assertOk()
+            ->assertSee('Assessment records')
+            ->assertSee('passed');
+        $this->actingAs($representative)->get(route('applications.index'))
+            ->assertOk()
+            ->assertSee($careerSeeker->name)
+            ->assertSee('Pending');
+        $this->actingAs($admin)->get(route('assessments.index'))
+            ->assertOk()
+            ->assertSee($careerSeeker->name);
     }
 }

@@ -148,8 +148,17 @@ if (!reduce) {
         const write = (k) => { num.textContent = parts.map((t) => Math.round(t * k)).join(sep); };
         const o = { k: 0 };
         const trig = { trigger: row, start: 'top 94%', end: 'top 40%', scrub: 0.4 };
-        write(0);
-        gsap.to(o, { k: 1, ease: 'none', scrollTrigger: trig, onUpdate: () => write(o.k) });
+        ScrollTrigger.create({
+            trigger: row,
+            start: 'top 94%',
+            once: true,
+            onEnter: () => gsap.to(o, {
+                k: 1,
+                duration: 0.8,
+                ease: 'power2.out',
+                onUpdate: () => write(o.k),
+            }),
+        });
         gsap.fromTo($('.tileimg', row), { scale: 0.55 }, { scale: 1, ease: 'none', scrollTrigger: trig });
         gsap.fromTo($('.tag', row), { y: 16, opacity: 0 }, { y: 0, opacity: 1, ease: 'none', scrollTrigger: trig });
     });
