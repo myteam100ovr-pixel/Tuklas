@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
+import '../date_format.dart';
 import 'workspace_form.dart';
 
 class OperationsView extends StatefulWidget {
@@ -46,23 +47,17 @@ class _OperationsViewState extends State<OperationsView> {
   };
   bool get _canManage => switch (widget.section) {
     'Jobs' => _role == 'admin',
-    'Scholarships' ||
-    'Centers' => _role == 'admin' || _role == 'tesda_admin',
-    'Sessions' || 'Assessments' =>
-      _role == 'admin' ||
-          _role == 'tesda_admin' ||
-          _role == 'center_representative',
-    'Trainers' =>
-      _role == 'admin' ||
-          _role == 'tesda_admin' ||
-          _role == 'center_representative',
+    'Scholarships' || 'Centers' => _role == 'admin' || _role == 'tesda_admin',
+    'Sessions' || 'Assessments' => _role == 'admin' || _role == 'tesda_admin',
+    'Trainers' => _role == 'admin' || _role == 'tesda_admin',
     _ => false,
   };
   String get _helpText => switch (widget.section) {
     'Jobs' => 'Browse openings. PESO staff enter the employer and listing together, verify current details, then publish and recommend the opening.',
     'Scholarships' => 'Find support for training. Check the provider source, eligibility, required documents, assessment, and deadline before applying.',
     'Centers' => 'See the training centers that provide Tuklas programs.',
-    'Trainers' => 'Assign a trainer to a published program at the same center.',
+    'Trainers' =>
+      'Assign TESDA staff to a published program at the same center.',
     'Sessions' => 'See upcoming training dates and available places. Open a session to request a place.',
     'Applications' =>
       'Track a training request. Staff can accept or decline pending requests.',
@@ -268,7 +263,7 @@ class _OperationsViewState extends State<OperationsView> {
       ),
     ],
     'Trainers' => [
-      _choice('user_id', 'Trainer', 'trainers', 'name'),
+      _choice('user_id', 'TESDA staff', 'trainers', 'name'),
       _choice('training_program_id', 'Program', 'programs', 'title'),
     ],
     'Assessments' => [
@@ -467,16 +462,25 @@ class _OperationsViewState extends State<OperationsView> {
   String _details(Map<String, dynamic> item) => switch (widget.section) {
     'Jobs' =>
       '${item['employer_name'] ?? (item['employer'] as Map?)?['name'] ?? ''} · ${item['location'] ?? ''}\n${item['description'] ?? ''}',
-    'Scholarships' =>
-      '${item['provider'] ?? ''}\n${item['description'] ?? ''}\nWho can apply: ${item['eligibility'] ?? 'Not specified by provider'}\nRequirements: ${item['requirements'] ?? 'Not specified by provider'}\nAssessment: ${item['assessment_type'] ?? 'Not specified by provider'}\n${item['assessment_details'] ?? ''}\nSource: ${item['source_url'] ?? 'Not specified by provider'}',
+    'Scholarships' => [
+      '${item['provider'] ?? ''}',
+      '${item['description'] ?? ''}',
+      'Who can apply: ${item['eligibility'] ?? 'Not specified by provider'}',
+      'Requirements: ${item['requirements'] ?? 'Not specified by provider'}',
+      'Assessment: ${item['assessment_type'] ?? 'Not specified by provider'}',
+      '${item['assessment_details'] ?? ''}',
+      if (item['deadline'] != null)
+        'Deadline: ${formatTuklasDate(item['deadline'])}',
+      'Source: ${item['source_url'] ?? 'Not specified by provider'}',
+    ].where((line) => line.isNotEmpty).join('\n'),
     'Centers' => '${item['type'] ?? ''} · ${item['address'] ?? ''}',
     'Sessions' =>
-      '${(item['center'] as Map?)?['name'] ?? ''} · ${item['starts_at'] ?? ''}\n${item['accepted_count'] ?? 0} of ${item['capacity'] ?? 0} places accepted',
+      '${(item['center'] as Map?)?['name'] ?? ''} · ${formatTuklasDate(item['starts_at'], includeTime: true)} – ${formatTuklasDate(item['ends_at'], includeTime: true)}\n${item['accepted_count'] ?? 0} of ${item['capacity'] ?? 0} places accepted',
     'Trainers' => '${(item['program'] as Map?)?['title'] ?? ''}',
     'Applications' =>
       '${(item['user'] as Map?)?['name'] ?? ''} · ${item['status'] ?? ''}',
     'Assessments' =>
-      '${((item['application'] as Map?)?['user'] as Map?)?['name'] ?? ''} · ${item['status'] ?? ''} · ${item['result'] ?? 'Pending'}',
+      '${((item['application'] as Map?)?['user'] as Map?)?['name'] ?? ''} · ${item['status'] ?? ''} · ${item['result'] ?? 'Pending'}${item['scheduled_at'] == null ? '' : ' · ${formatTuklasDate(item['scheduled_at'], includeTime: true)}'}',
     _ => '${item['location'] ?? item['contact_email'] ?? ''}',
   };
 
@@ -694,7 +698,9 @@ class _OperationsViewState extends State<OperationsView> {
                           Padding(
                             padding: const EdgeInsets.only(top: 5),
                             child: Text(
-                              _programSummary(Map<String, dynamic>.from(rawProgram)),
+                              _programSummary(
+                                Map<String, dynamic>.from(rawProgram),
+                              ),
                             ),
                           ),
                       ],

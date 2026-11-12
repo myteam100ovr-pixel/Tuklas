@@ -285,8 +285,8 @@ class TkBottomNavigation extends StatelessWidget {
     final name = '${user['name'] ?? ''}';
     final role = '${user['role'] ?? ''}';
     final careerTools = role == 'youth' || role == 'admin';
-    final secondaryLabel = role == 'trainer' ? 'Teaching' : 'Training';
-    final tertiaryLabel = role == 'trainer' ? 'Messages' : 'Sessions';
+    final secondaryLabel = role == 'tesda_admin' ? 'My courses' : 'Training';
+    final tertiaryLabel = 'Sessions';
 
     return SafeArea(
       top: false,
@@ -352,10 +352,10 @@ class TkBottomNavigation extends StatelessWidget {
                   selectedIcon: Icon(careerTools ? Icons.school : Icons.forum),
                   label: careerTools
                       ? 'TESDA'
-                      : (role == 'trainer' ? 'TESDA' : 'Messages'),
+                      : (role == 'tesda_admin' ? 'Courses' : 'Messages'),
                   tooltip: careerTools
                       ? 'TESDA'
-                      : (role == 'trainer' ? 'TESDA' : 'Messages'),
+                      : (role == 'tesda_admin' ? 'Courses' : 'Messages'),
                 ),
                 NavigationDestination(
                   key: const ValueKey('profile-destination'),

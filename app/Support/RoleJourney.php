@@ -21,10 +21,8 @@ class RoleJourney
     {
         $items = match ($user->role) {
             Role::Youth => $this->careerSeeker($user),
-            Role::TesdaAdmin => $this->tesda(),
+            Role::TesdaAdmin => $this->tesda($user),
             Role::Admin => $this->admin(),
-            Role::CenterRepresentative => $this->centerRepresentative($user),
-            Role::Trainer => $this->trainer($user),
         };
 
         return ['title' => 'Your steps', 'items' => $items];
@@ -49,18 +47,21 @@ class RoleJourney
     }
 
     /** @return array<int, array{id: string, title: string, description: string, state: string, href: ?string, action: ?string}> */
-    private function tesda(): array
+    private function tesda(User $user): array
     {
-        $centers = TrainingCenter::query()->where('is_active', true)->exists();
-        $published = TrainingProgram::published()->exists();
+        $centerId = $user->isCenterScopedTesda() ? $user->training_center_id : null;
+        $centers = TrainingCenter::query()->where('is_active', true)->when($centerId, fn ($query) => $query->whereKey($centerId))->exists();
+        $programs = TrainingProgram::query()->when($centerId, fn ($query) => $query->where('training_center_id', $centerId));
+        $published = (clone $programs)->where('status', 'published')->exists();
 
         return [
-            $this->step('centers', 'Set up training centers', 'Add active centers so programs and sessions can be listed.', $centers, 'centers.index', 'Centers'),
-            $this->step('programs', 'Add and publish programs', 'Check program details, then publish them for Career Seekers.', $published, 'trainer.programs.index', 'My programs'),
-            $this->step('trainers', 'Assign trainers', 'Connect each trainer to a published program at their center.', TrainingProgram::published()->whereHas('teachingAssignments')->exists(), 'center-trainers.index', 'Trainers'),
-            $this->step('sessions', 'Publish training dates', 'Set dates, capacity, and whether requests are open.', TrainingSession::query()->where('status', 'open')->exists(), 'sessions.index', 'Sessions'),
-            $this->step('requests', 'Review training requests', 'Accept or decline pending requests.', TrainingApplication::query()->where('status', 'pending')->exists(), 'applications.index', 'Applications', 'ongoing'),
-            $this->step('assessments', 'Record assessments', 'Save assessment dates and results for trainees.', AssessmentRecord::query()->exists(), 'assessments.index', 'Assessments', 'ongoing'),
+            $this->step('centers', $centerId ? 'Confirm your training center' : 'Set up training centers', $centerId ? 'Your account is scoped to its assigned center.' : 'Add active centers so programs and sessions can be listed.', $centers, 'centers.index', 'Centers'),
+            $this->step('qualifications', 'Select teaching qualifications', 'Keep your TESDA qualifications up to date.', $user->trainerQualifications()->exists(), 'tesda.index', 'Course catalog'),
+            $this->step('programs', 'Manage training programs', 'Review details and publish verified programs for Career Seekers.', $published, 'trainer.programs.index', 'My courses'),
+            $this->step('trainers', 'Assign TESDA staff to programs', 'Connect staff to published programs at their training center.', (clone $programs)->where('status', 'published')->whereHas('teachingAssignments')->exists(), 'center-trainers.index', 'Assign trainers'),
+            $this->step('sessions', 'Publish training dates', 'Set dates, capacity, and whether requests are open.', TrainingSession::query()->when($centerId, fn ($query) => $query->where('training_center_id', $centerId))->where('status', 'open')->exists(), 'sessions.index', 'Training dates'),
+            $this->step('requests', 'Review training requests', 'Accept or decline pending requests for your center.', TrainingApplication::query()->where('status', 'pending')->when($centerId, fn ($query) => $query->whereHas('session', fn ($sessions) => $sessions->where('training_center_id', $centerId)))->exists(), 'applications.index', 'Training requests', 'ongoing'),
+            $this->step('assessments', 'Record assessments', 'Save assessment dates and results for trainees.', AssessmentRecord::query()->when($centerId, fn ($query) => $query->whereHas('application.session', fn ($sessions) => $sessions->where('training_center_id', $centerId)))->exists(), 'assessments.index', 'Assessment results', 'ongoing'),
             $this->step('scholarships', 'Manage scholarships', 'Publish verified funding opportunities.', Scholarship::query()->exists(), 'scholarships.index', 'Scholarships'),
         ];
     }
@@ -69,39 +70,11 @@ class RoleJourney
     private function admin(): array
     {
         return [
-            $this->step('staff', 'Set up staff accounts', 'Create TESDA, trainer, and center representative accounts.', User::query()->whereIn('role', [Role::TesdaAdmin->value, Role::Trainer->value, Role::CenterRepresentative->value])->exists(), 'admin.users.index', 'Users'),
+            $this->step('staff', 'Set up TESDA accounts', 'Create accounts for staff who manage training information.', User::query()->where('role', Role::TesdaAdmin->value)->exists(), 'admin.users.index', 'Users'),
             $this->step('jobs', 'Publish verified job openings', 'Enter the employer and opening details, then verify the listing before publishing.', JobOpportunity::query()->where('status', 'published')->exists(), 'opportunities.index', 'Jobs'),
             $this->step('recommend', 'Recommend jobs to Career Seekers', 'Send a suitable published opening to an active account.', JobOpportunity::query()->whereHas('recommendedUsers')->exists(), 'opportunities.index', 'Jobs', 'ongoing'),
             $this->step('training', 'Oversee training activity', 'Review requests, sessions, scholarships, and assessment records.', TrainingProgram::query()->exists(), 'sessions.index', 'Sessions', 'ongoing'),
             $this->step('careers', 'Publish career paths', 'Maintain career information available to members.', CareerPath::published()->exists(), 'admin.careers.index', 'Careers'),
-        ];
-    }
-
-    /** @return array<int, array{id: string, title: string, description: string, state: string, href: ?string, action: ?string}> */
-    private function centerRepresentative(User $user): array
-    {
-        $centerId = $user->training_center_id;
-        $programs = TrainingProgram::query()->where('training_center_id', $centerId);
-
-        return [
-            $this->step('center', 'Confirm your center assignment', 'Ask an administrator to assign your account to a center.', $centerId !== null, 'centers.index', 'Centers'),
-            $this->step('program_details', 'Add program details', 'Save course information for your assigned center.', $centerId !== null && (clone $programs)->exists(), 'trainer.programs.index', 'My programs'),
-            $this->step('publication', 'Wait for TESDA to publish programs', 'TESDA reviews program details and controls publication.', $centerId !== null && (clone $programs)->where('status', 'published')->exists(), null, null, 'waiting'),
-            $this->step('trainers', 'Assign trainers', 'Choose trainers and published programs from your center.', $centerId !== null && TrainingProgram::published()->where('training_center_id', $centerId)->whereHas('teachingAssignments')->exists(), 'center-trainers.index', 'Trainers'),
-            $this->step('sessions', 'Set training dates', 'Choose a published program, dates, and capacity.', $centerId !== null && TrainingSession::query()->where('training_center_id', $centerId)->exists(), 'sessions.index', 'Sessions'),
-            $this->step('requests', 'Review training requests', 'Accept or decline requests for your center.', TrainingApplication::query()->where('status', 'pending')->whereHas('session', fn ($query) => $query->where('training_center_id', $centerId))->exists(), 'applications.index', 'Applications', 'ongoing'),
-            $this->step('assessments', 'Record assessments', 'Save dates and results for your center’s trainees.', AssessmentRecord::query()->whereHas('application.session', fn ($query) => $query->where('training_center_id', $centerId))->exists(), 'assessments.index', 'Assessments', 'ongoing'),
-        ];
-    }
-
-    /** @return array<int, array{id: string, title: string, description: string, state: string, href: ?string, action: ?string}> */
-    private function trainer(User $user): array
-    {
-        return [
-            $this->step('qualifications', 'Add your qualifications', 'Record your TESDA credentials and skills.', $user->trainerQualifications()->exists(), 'trainer.programs.index', 'My programs'),
-            $this->step('programs', 'Review your permitted programs', 'Open programs linked to your account or center.', TrainingProgram::query()->where('created_by', $user->id)->exists() || $user->teachingAssignments()->exists(), 'trainer.programs.index', 'My programs'),
-            $this->step('plans', 'Help Career Seekers choose training', 'Review qualification options and explain provider requirements.', false, 'tesda.index', 'tesda'),
-            $this->step('messages', 'Keep in touch with trainees and staff', 'Use messages for training updates and questions.', $user->sentDirectMessages()->exists() || $user->receivedDirectMessages()->exists(), 'messages.index', 'Messages', 'ongoing'),
         ];
     }
 

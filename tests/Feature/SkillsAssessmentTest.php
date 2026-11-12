@@ -53,7 +53,7 @@ class SkillsAssessmentTest extends TestCase
     public function test_guests_and_trainers_cannot_submit_youth_assessments(): void
     {
         $this->postJson(route('youth.assessment.store'), [])->assertUnauthorized();
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $this->actingAs($trainer)->postJson(route('youth.assessment.store'), [])->assertForbidden();
         $this->assertDatabaseCount('youth_profiles', 0);
     }

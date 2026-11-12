@@ -14,7 +14,7 @@ class TrainerTrainingProgramTest extends TestCase
 
     public function test_trainer_can_publish_and_update_an_offered_course(): void
     {
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
 
         $this->actingAs($trainer)->post(route('trainer.programs.store'), [
             'title' => 'Community Baking Workshop NC II',
@@ -38,13 +38,14 @@ class TrainerTrainingProgramTest extends TestCase
         $this->get(route('tesda.index'))->assertDontSee('Community Baking Workshop NC II');
     }
 
-    public function test_trainer_cannot_edit_another_trainers_course(): void
+    public function test_center_scoped_tesda_cannot_edit_programs_at_another_center(): void
     {
-        $owner = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
-        $otherTrainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
-        $program = TrainingProgram::factory()->create(['created_by' => $owner->id]);
+        $center = \App\Models\TrainingCenter::factory()->create();
+        $otherCenter = \App\Models\TrainingCenter::factory()->create();
+        $tesda = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'training_center_id' => $center->id]);
+        $program = TrainingProgram::factory()->create(['training_center_id' => $otherCenter->id]);
 
-        $this->actingAs($otherTrainer)->get(route('trainer.programs.edit', $program))->assertForbidden();
+        $this->actingAs($tesda)->get(route('trainer.programs.edit', $program))->assertForbidden();
         $this->put(route('trainer.programs.update', $program), ['title' => 'Changed', 'status' => 'published'])->assertForbidden();
 
         $this->assertNotSame('Changed', $program->fresh()->title);
@@ -55,7 +56,7 @@ class TrainerTrainingProgramTest extends TestCase
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $this->actingAs($youth)->post(route('trainer.programs.store'), ['title' => 'Course', 'status' => 'published'])->assertForbidden();
 
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $this->actingAs($trainer)->post(route('trainer.programs.store'), ['title' => '', 'nc_level' => 'NC V', 'status' => 'published'])
             ->assertSessionHasErrors(['title', 'nc_level']);
 

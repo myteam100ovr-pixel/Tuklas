@@ -22,7 +22,7 @@ class MobileDashboardController extends Controller
 
         $dashboard = match ($user->role) {
             Role::Youth => $this->youthDashboard($user, $scanHistory),
-            Role::Trainer, Role::TesdaAdmin, Role::CenterRepresentative => $this->trainerDashboard($user),
+            Role::TesdaAdmin => $this->trainerDashboard($user),
             Role::Admin => $this->adminDashboard(),
         };
         $dashboard['journey'] = $journey->for($user);
@@ -37,7 +37,7 @@ class MobileDashboardController extends Controller
         $youth = User::query()->where('role', Role::Youth->value);
         $youthTotal = (clone $youth)->count();
         $youthNew = (clone $youth)->where('created_at', '>=', $since)->count();
-        $trainerTotal = User::query()->where('role', Role::Trainer->value)->count();
+        $tesdaStaffTotal = User::query()->where('role', Role::TesdaAdmin->value)->count();
         $publishedPrograms = TrainingProgram::published()->count();
         $publishedCareers = CareerPath::published()->count();
 
@@ -68,7 +68,7 @@ class MobileDashboardController extends Controller
             'title' => 'PESO Bugallon overview',
             'stats' => [
                 $this->stat('Youth accounts', $youthTotal, $youthNew > 0 ? '+'.$youthNew : null, 'good', 'Last 30 days'),
-                $this->stat('Trainer accounts', $trainerTotal, null, 'neutral', 'TESDA Lingayen'),
+                $this->stat('TESDA accounts', $tesdaStaffTotal, null, 'neutral', 'Training staff and administrators'),
                 $this->stat('Published programs', $publishedPrograms, null, 'neutral', $publishedCareers.' career paths published'),
             ],
             'chart' => [
@@ -102,7 +102,7 @@ class MobileDashboardController extends Controller
             'tasks' => [
                 'title' => 'Setup checklist',
                 'items' => [
-                    $this->task('Create a TESDA Lingayen trainer account', $trainerTotal.' created', 'Trainers maintain the training catalog.', $trainerTotal > 0),
+                    $this->task('Create a TESDA account', $tesdaStaffTotal.' created', 'TESDA accounts manage training information and assignments.', $tesdaStaffTotal > 0),
                     $this->task('Publish TESDA Lingayen programs', $publishedPrograms.' published', 'Only programs in the system can be recommended.', $publishedPrograms > 0),
                     $this->task('Publish career paths', $publishedCareers.' published', 'Recommendations draw on these.', $publishedCareers > 0),
                     $this->task('Youth sign-ups', $youthTotal.' accounts', 'Share the site with Bugallon youth.', $youthTotal > 0),
@@ -124,7 +124,7 @@ class MobileDashboardController extends Controller
     private function trainerDashboard(User $user): array
     {
         $programs = TrainingProgram::query();
-        if ($user->hasRole(Role::CenterRepresentative)) {
+        if ($user->isCenterScopedTesda()) {
             abort_unless($user->training_center_id, 403);
             $programs->where('training_center_id', $user->training_center_id);
         } elseif (! $user->hasRole(Role::TesdaAdmin)) {
@@ -143,7 +143,7 @@ class MobileDashboardController extends Controller
 
         return [
             'role' => $user->role->value,
-            'title' => $user->hasRole(Role::CenterRepresentative) ? 'Training center overview' : 'TESDA training overview',
+            'title' => $user->isCenterScopedTesda() ? 'Training center overview' : 'TESDA training overview',
             'stats' => [
                 $this->stat('My programs', $total, null, 'neutral', 'All statuses'),
                 $this->stat('Published', $published, null, 'neutral', 'Visible to youth'),

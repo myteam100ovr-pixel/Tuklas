@@ -26,7 +26,7 @@ class DemoAccountsSeeder extends Seeder
 
         $accounts = [
             ['role' => Role::Youth, 'name' => 'Demo Career Seeker', 'email' => 'demo-youth@tuklas.test', 'date_of_birth' => '2003-01-01'],
-            ['role' => Role::Trainer, 'name' => 'Demo Trainer', 'email' => 'demo-trainer@tuklas.test'],
+            ['role' => Role::TesdaAdmin, 'name' => 'Demo TESDA', 'email' => config('tuklas.demo_accounts.tesda_email')],
             ['role' => Role::Admin, 'name' => 'Demo Admin', 'email' => 'admin@tuklas.test'],
         ];
 

@@ -6,9 +6,8 @@ Tuklas is a career-guidance and technical-vocational training platform for Panga
 
 - Career seekers create a profile, complete a skills assessment, explore jobs, TESDA qualifications, training dates, and scholarships, and track training and scholarship applications.
 - PESO administrators manage accounts and job opportunities, send job recommendations, publish scholarships, and monitor platform activity.
-- TESDA administrators manage qualifications, training programs, participating centers, and scholarship information.
-- Training-center representatives manage their assigned center's schedules, applications, trainers, and assessment records within their permissions.
-- Trainers maintain their qualifications and assigned teaching list, and view relevant training activity.
+- TESDA accounts manage qualifications, training programs, participating centers, staff assignments, schedules, requests, assessment records, and scholarship information.
+- TESDA accounts assigned to a training center are limited to that center; unassigned TESDA accounts can manage the full training workspace.
 - Members can message one another. TuklasBot offers AI career guidance; the document scanner can read a resume or certificate with the user's consent.
 - Flutter clients use the same Laravel APIs and server-side records as the website. They do not have a separate system database. Production uses MySQL; local development can use MySQL or SQLite.
 
@@ -28,25 +27,13 @@ AI output is guidance, not a guarantee of employment, admission, funding, or a t
 
 Employer information is stored with job opportunities. There is no separate Employers destination in the PESO navigation.
 
-### TESDA training administrator
+### TESDA
 
-1. Maintain participating centers and training programs.
-2. Publish accurate program details and qualification requirements.
-3. Assign trainers and maintain training information.
-4. Manage scholarships and review training activity according to permissions.
-
-### Training-center representative
-
-1. An administrator assigns the account to one training center.
-2. Manage that center's schedules and available places.
-3. Review training requests and keep trainer assignments current.
-4. Record authorized assessment schedules and results. Center scoping limits the account to its assigned center.
-
-### Trainer
-
-1. Maintain trainer qualifications and review assigned courses.
-2. View relevant sessions and communicate with Tuklas members.
-3. TESDA administrators or center representatives handle center and schedule administration.
+1. Browse the national qualification catalog and maintain teaching qualifications.
+2. Manage local programs and publish verified details. Center-assigned accounts can save drafts for their center; unassigned accounts can publish across centers.
+3. Assign TESDA staff to programs, maintain training dates, review requests, and record assessment results.
+4. Manage verified scholarship information and communicate with Career Seekers and staff.
+5. If an account is assigned to a center, its lists and write actions stay within that center.
 
 ### Career seeker
 
@@ -82,15 +69,11 @@ flowchart TD
     AUTH --> ROLES{Role-specific workspace}
 
     ROLES --> PESO[PESO: accounts, jobs, recommendations, scholarships, monitoring]
-    ROLES --> TESDA[TESDA: programs, centers, training information]
-    ROLES --> CENTER[Center representative: center-scoped schedules and records]
-    ROLES --> TRAINER[Trainer: qualifications and assigned teaching]
+    ROLES --> TESDA[TESDA: programs, centers, teaching qualifications, schedules, requests, and results]
     ROLES --> YOUTH[Career seeker: profile, assessment, applications, jobs, training]
 
     PESO --> DB[(MySQL or SQLite via Laravel migrations)]
     TESDA --> DB
-    CENTER --> DB
-    TRAINER --> DB
     YOUTH --> DB
 
     YOUTH -->|Consent + document| SCANNER[Document scanner]
@@ -346,9 +329,9 @@ php artisan storage:link
 npm run build
 ```
 
-The demo login emails default to `demo-youth@tuklas.test` (Career Seeker), `demo-admin@tuklas.test` (Admin), and `demo-tesda@tuklas.test` (TESDA). The initial Admin email is `admin@tuklas.test`. The 50 additional TESDA beta accounts use `tesda-beta-01@tuklas.test` through `tesda-beta-50@tuklas.test`; all use the password set in `TUKLAS_DEMO_TESDA_PASSWORD`. The `.test` addresses are reserved for testing and do not receive email. To add a Training Center Representative, sign in as Admin, create the account, and assign it to a center.
+The demo login emails default to `demo-youth@tuklas.test` (Career Seeker), `demo-admin@tuklas.test` (Admin), and `demo-tesda@tuklas.test` (TESDA). The initial Admin email is `admin@tuklas.test`. The 50 additional TESDA beta accounts use `tesda-beta-01@tuklas.test` through `tesda-beta-50@tuklas.test`; all use the password set in `TUKLAS_DEMO_TESDA_PASSWORD`. The `.test` addresses are reserved for testing and do not receive email. To limit a TESDA account to one center, sign in as Admin and assign it a training center.
 
-The fictional catalog and Career Seeker workflow seeders are intended for local testing. `TesdaDemoAccountsSeeder` creates active TESDA administrator accounts with management permissions. The `.test` addresses are marked verified for sign-in but cannot receive email. Only run this seeder on Amazon if you intend these beta accounts to access the live system. Set a dedicated `TUKLAS_DEMO_TESDA_PASSWORD` in the server environment first; do not reuse the local password. After pulling the code on EC2, run:
+The fictional catalog and Career Seeker workflow seeders are intended for local testing. `TesdaDemoAccountsSeeder` creates active TESDA accounts with management permissions. The `.test` addresses are marked verified for sign-in but cannot receive email. Only run this seeder on Amazon if you intend these beta accounts to access the live system. Set a dedicated `TUKLAS_DEMO_TESDA_PASSWORD` in the server environment first; do not reuse the local password. After pulling the code on EC2, run:
 
 ```bash
 cd /var/www/tuklas

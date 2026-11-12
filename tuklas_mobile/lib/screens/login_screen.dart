@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 
 import '../api.dart';
+import '../date_format.dart';
 import '../theme.dart';
 import '../ui.dart';
 import 'home_shell.dart';
@@ -54,6 +55,10 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(
         () => _error = 'Please accept the Terms of use and Privacy notice.',
       );
+      return;
+    }
+    if (_registering && _birthDate.text.trim().isEmpty) {
+      setState(() => _error = 'Select your date of birth.');
       return;
     }
     setState(() {
@@ -127,6 +132,28 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
       _notice = null;
     });
+  }
+
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final firstDate = DateTime(
+      now.year - 31,
+      now.month,
+      now.day,
+    ).add(const Duration(days: 1));
+    final lastDate = DateTime(now.year - 15, now.month, now.day);
+    final initialDate = DateTime(now.year - 20, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      helpText: 'Choose a date between ages 15 and 30',
+    );
+
+    if (picked != null) {
+      setState(() => _birthDate.text = formatDateForApi(picked));
+    }
   }
 
   Widget _label(BuildContext context, String text) => Padding(
@@ -221,22 +248,39 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 16),
                               for (final field in [
                                 ('Last name', _lastName),
-                                ('Birth date (YYYY-MM-DD)', _birthDate),
                                 ('Contact number', _contact),
                                 ('Barangay', _barangay),
                               ]) ...[
                                 _label(context, field.$1),
-                                TextField(
-                                  controller: field.$2,
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        field.$1 == 'Birth date (YYYY-MM-DD)'
-                                        ? 'YYYY-MM-DD'
-                                        : null,
-                                  ),
-                                ),
+                                TextField(controller: field.$2),
                                 const SizedBox(height: 16),
                               ],
+                              _label(context, 'Date of birth'),
+                              InkWell(
+                                onTap: _pickBirthDate,
+                                borderRadius: BorderRadius.circular(13),
+                                child: InputDecorator(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Select your date of birth',
+                                    suffixIcon: Icon(
+                                      Icons.calendar_month_outlined,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _birthDate.text.isEmpty
+                                        ? 'Select your date of birth'
+                                        : formatTuklasDate(_birthDate.text),
+                                    style: tkText(
+                                      context,
+                                      size: 14.5,
+                                      color: _birthDate.text.isEmpty
+                                          ? c.muted
+                                          : c.ink,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
                             ],
                             _label(context, 'Email'),
                             TextField(

@@ -13,6 +13,9 @@ class TeachingAssignmentController extends Controller
 {
     public function store(Request $request, TrainingProgram $program, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
+        if ($request->user()->isCenterScopedTesda()) {
+            abort_unless($program->training_center_id === $request->user()->training_center_id, 403);
+        }
         abort_unless($program->status === 'published', 404);
 
         $assignment = $request->user()->teachingAssignments()->firstOrCreate([
@@ -32,6 +35,9 @@ class TeachingAssignmentController extends Controller
 
     public function destroy(Request $request, TrainingProgram $program, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
+        if ($request->user()->isCenterScopedTesda()) {
+            abort_unless($program->training_center_id === $request->user()->training_center_id, 403);
+        }
         $assignment = $request->user()->teachingAssignments()
             ->where('training_program_id', $program->id)
             ->firstOrFail();

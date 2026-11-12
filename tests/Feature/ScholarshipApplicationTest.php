@@ -102,7 +102,7 @@ class ScholarshipApplicationTest extends TestCase
 
     public function test_other_roles_cannot_submit_or_review_scholarship_applications(): void
     {
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $scholarship = Scholarship::factory()->create();
         $applicant = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $application = ScholarshipApplication::query()->create([

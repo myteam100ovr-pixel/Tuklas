@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api.dart';
+import '../date_format.dart';
 import '../ui.dart';
 import 'workspace_form.dart';
 
@@ -21,6 +22,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   String _search = '';
   final _assessment = <String, dynamic>{};
   String get _role => '${ApiClient.instance.user?['role']}';
+  bool get _centerScopedTesda =>
+      _role == 'tesda_admin' &&
+      ApiClient.instance.user?['training_center_id'] != null;
   String get _path => switch (widget.section) {
     'Users' => '/admin/users?page=$_page${_deleted ? '&status=deleted' : ''}',
     'My programs' => '/trainer/programs?page=$_page',
@@ -318,26 +322,30 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         Builder(
           builder: (context) {
             final row = asMap(raw), notice = asMap(asMap(raw)['data']);
-            return _card('${notice['title'] ?? 'Notification'}', [
-              Text('${notice['message'] ?? ''}'),
-              if (row['read_at'] == null)
-                _button(
-                  'Mark read',
-                  () => _act('/notifications/${row['id']}/read'),
-                ),
-              if ('${notice['action_url'] ?? ''}'.contains(
-                '/account/password-reset',
-              ))
-                _button(
-                  'Reset password',
-                  () => _form(
-                    'Reset password',
-                    '/account/password-reset',
-                    _passwordFields,
-                    method: 'PUT',
+            return _card(
+              '${notice['title'] ?? 'Notification'}',
+              [
+                Text('${notice['message'] ?? ''}'),
+                if (row['read_at'] == null)
+                  _button(
+                    'Mark read',
+                    () => _act('/notifications/${row['id']}/read'),
                   ),
-                ),
-            ], subtitle: '${row['created_at'] ?? ''}');
+                if ('${notice['action_url'] ?? ''}'.contains(
+                  '/account/password-reset',
+                ))
+                  _button(
+                    'Reset password',
+                    () => _form(
+                      'Reset password',
+                      '/account/password-reset',
+                      _passwordFields,
+                      method: 'PUT',
+                    ),
+                  ),
+              ],
+              subtitle: formatTuklasDate(row['created_at'], includeTime: true),
+            );
           },
         ),
       _pages(pagination),
@@ -434,7 +442,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     final centers = asList(_data!['centers']);
     List<WorkspaceField> fieldsFor(String status) => [
       ..._programFields.where((field) => field.name != 'status'),
-      if (_role != 'center_representative')
+      if (!_centerScopedTesda)
         _programFields.last
       else
         WorkspaceField(
@@ -534,13 +542,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
             'role',
             'Role',
             required: true,
-            options: [
-              'youth',
-              'trainer',
-              'tesda_admin',
-              'center_representative',
-              'admin',
-            ],
+            options: ['youth', 'tesda_admin', 'admin'],
           ),
           WorkspaceField(
             'training_center_id',
@@ -695,7 +697,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                     },
                   ),
                 ),
-              if (_role == 'trainer')
+              if (_role == 'tesda_admin')
                 _button(
                   teaching.containsKey('${raw['id']}')
                       ? 'Stop teaching'
@@ -718,7 +720,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         for (final raw in asList(group))
           _card('${raw['title']}', [
             Text('${raw['description'] ?? ''}\n${raw['schedule_note'] ?? ''}'),
-            if (_role == 'trainer')
+            if (_role == 'tesda_admin')
               _button(
                 asMap(_data!['teachingByProgram']).containsKey('${raw['id']}')
                     ? 'Stop teaching course'

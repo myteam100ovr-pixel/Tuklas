@@ -20,14 +20,16 @@ class CenterTrainerController extends Controller
         $user = $request->user();
         $this->authorizeManager($request);
         $centerId = $user->training_center_id;
-        $trainers = User::query()->where('role', Role::Trainer->value)->where('is_active', true)
-            ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->where('training_center_id', $centerId))
-            ->orderBy('name')->get(['id', 'name', 'training_center_id']);
+        $trainers = User::query()->where('role', Role::TesdaAdmin->value)
+            ->where('id', '!=', $user->id)
+            ->where('is_active', true)
+            ->when($user->isCenterScopedTesda(), fn ($query) => $query->where(fn ($eligibleUsers) => $eligibleUsers->whereNull('training_center_id')->orWhere('training_center_id', $centerId)))
+            ->orderBy('name')->get(['id', 'name', 'role', 'training_center_id']);
         $programs = TrainingProgram::query()->published()
-            ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->where('training_center_id', $centerId))
+            ->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $centerId))
             ->orderBy('title')->get(['id', 'title', 'training_center_id']);
         $assignments = TrainingAssignment::query()->with(['trainer:id,name,training_center_id', 'program:id,title,training_center_id'])
-            ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereHas('program', fn ($program) => $program->where('training_center_id', $centerId)))
+            ->when($user->isCenterScopedTesda(), fn ($query) => $query->whereHas('program', fn ($program) => $program->where('training_center_id', $centerId)))
             ->latest()->paginate(20);
 
         return $request->routeIs('mobile.*') ? response()->json(compact('trainers', 'programs', 'assignments')) : view('operations.trainers', compact('trainers', 'programs', 'assignments'));
@@ -37,7 +39,7 @@ class CenterTrainerController extends Controller
     {
         $this->authorizeManager($request);
         $data = $request->validate([
-            'user_id' => ['required', Rule::exists('users', 'id')->where('role', Role::Trainer->value)->where('is_active', true)],
+            'user_id' => ['required', Rule::exists('users', 'id')->where('role', Role::TesdaAdmin->value)->where('is_active', true)],
             'training_program_id' => ['required', Rule::exists('training_programs', 'id')->where('status', 'published')],
         ]);
         $trainer = User::findOrFail($data['user_id']);
@@ -59,16 +61,21 @@ class CenterTrainerController extends Controller
 
     private function authorizeManager(Request $request): void
     {
-        abort_unless($request->user()->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
-        if ($request->user()->hasRole(Role::CenterRepresentative)) {
+        abort_unless($request->user()->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+        if ($request->user()->isCenterScopedTesda()) {
             abort_unless($request->user()->training_center_id, 403);
         }
     }
 
     private function authorizePair(Request $request, User $trainer, TrainingProgram $program): void
     {
-        abort_unless($program->training_center_id && $trainer->training_center_id === $program->training_center_id, 422, 'Trainer and program must belong to the same center.');
-        if ($request->user()->hasRole(Role::CenterRepresentative)) {
+        abort_unless($program->training_center_id, 422, 'The program must belong to a training center.');
+
+        if ($trainer->isCenterScopedTesda()) {
+            abort_unless($trainer->training_center_id === $program->training_center_id, 422, 'TESDA staff and program must belong to the same center.');
+        }
+
+        if ($request->user()->isCenterScopedTesda()) {
             abort_unless($program->training_center_id === $request->user()->training_center_id, 403);
         }
     }

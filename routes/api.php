@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware(['auth:sanctum', 'role:admin,trainer,tesda_admin,center_representative,youth']);
+})->middleware(['auth:sanctum', 'role:admin,tesda_admin,youth']);
 
 Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/legal/{document}', function (string $document) {
@@ -50,7 +50,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         ->middleware('throttle:5,1')->name('auth.password.update');
     Route::get('/tesda', [MobileCatalogController::class, 'index'])->name('tesda.index');
 
-    Route::middleware(['auth:sanctum', 'role:admin,trainer,tesda_admin,center_representative,youth'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin,tesda_admin,youth'])->group(function () {
         Route::get('/me', [MobileAuthController::class, 'me'])->name('me');
         Route::put('/account', [MobileAuthController::class, 'updateAccount'])->name('account.update');
         Route::put('/password', [MobileAuthController::class, 'updatePassword'])->middleware('throttle:account-security')->name('password.update');
@@ -81,7 +81,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::get('/training-sessions', [TrainingSessionController::class, 'index'])->name('sessions.index');
             Route::get('/training-applications', [TrainingApplicationController::class, 'index'])->name('applications.index');
             Route::get('/assessment-records', [AssessmentRecordController::class, 'index'])->name('assessments.index');
-            Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
+            Route::middleware('role:admin,tesda_admin')->group(function () {
                 Route::get('/center-trainers', [CenterTrainerController::class, 'index'])->name('center-trainers.index');
                 Route::post('/center-trainers', [CenterTrainerController::class, 'store'])->name('center-trainers.store');
                 Route::delete('/center-trainers/{assignment}', [CenterTrainerController::class, 'destroy'])->name('center-trainers.destroy');
@@ -98,7 +98,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
                 Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
             });
-            Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
+            Route::middleware('role:admin,tesda_admin')->group(function () {
                 Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');
                 Route::put('/training-sessions/{session}', [TrainingSessionController::class, 'update'])->name('sessions.update');
                 Route::put('/training-applications/{application}', [TrainingApplicationController::class, 'update'])->name('applications.update');
@@ -120,13 +120,13 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::get('/tesda/choices', [TesdaChoiceController::class, 'index'])->name('tesda.choices');
             Route::post('/tesda/choice', [TesdaChoiceController::class, 'store'])->name('tesda.choice');
             Route::get('/tesda/workspace', [TesdaCatalogController::class, 'index'])->name('tesda.workspace');
-            Route::get('/trainer/programs', [TrainingProgramController::class, 'index'])->middleware('role:trainer,tesda_admin,center_representative')->name('trainer.programs.index');
-            Route::post('/trainer/programs', [TrainingProgramController::class, 'store'])->middleware('role:trainer,tesda_admin,center_representative')->name('trainer.programs.store');
-            Route::put('/trainer/programs/{program}', [TrainingProgramController::class, 'update'])->middleware('role:trainer,tesda_admin,center_representative')->name('trainer.programs.update');
-            Route::post('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'store'])->middleware('role:trainer')->name('trainer.teaching.store');
-            Route::delete('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->middleware('role:trainer')->name('trainer.teaching.destroy');
-            Route::post('/trainer/qualifications', [TrainerQualificationController::class, 'store'])->middleware('role:trainer')->name('trainer.qualifications.store');
-            Route::delete('/trainer/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->middleware('role:trainer')->name('trainer.qualifications.destroy');
+            Route::get('/trainer/programs', [TrainingProgramController::class, 'index'])->middleware('role:tesda_admin')->name('trainer.programs.index');
+            Route::post('/trainer/programs', [TrainingProgramController::class, 'store'])->middleware('role:tesda_admin')->name('trainer.programs.store');
+            Route::put('/trainer/programs/{program}', [TrainingProgramController::class, 'update'])->middleware('role:tesda_admin')->name('trainer.programs.update');
+            Route::post('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'store'])->middleware('role:tesda_admin')->name('trainer.teaching.store');
+            Route::delete('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->middleware('role:tesda_admin')->name('trainer.teaching.destroy');
+            Route::post('/trainer/qualifications', [TrainerQualificationController::class, 'store'])->middleware('role:tesda_admin')->name('trainer.qualifications.store');
+            Route::delete('/trainer/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->middleware('role:tesda_admin')->name('trainer.qualifications.destroy');
             Route::get('/admin/users', [UserController::class, 'index'])->middleware('role:admin')->name('admin.users.index');
             Route::post('/admin/users', [UserController::class, 'store'])->middleware('role:admin')->name('admin.users.store');
             Route::get('/admin/users/{user}', [UserController::class, 'edit'])->middleware('role:admin')->name('admin.users.show');

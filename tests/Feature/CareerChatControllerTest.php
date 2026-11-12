@@ -150,7 +150,7 @@ class CareerChatControllerTest extends TestCase
     }
 
     #[TestWith([Role::Admin])]
-    #[TestWith([Role::Trainer])]
+    #[TestWith([Role::TesdaAdmin])]
     #[TestWith([Role::Youth])]
     public function test_tuklasbot_page_shows_chat_and_profile_for_each_role(Role $role): void
     {

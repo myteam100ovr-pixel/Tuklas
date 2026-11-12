@@ -16,7 +16,7 @@ class TrainingCenterController extends Controller
     {
         $user = $request->user();
         $canManage = $user->hasRole(Role::Admin, Role::TesdaAdmin);
-        $canSeeDrafts = $canManage || $user->hasRole(Role::CenterRepresentative);
+        $canSeeDrafts = $canManage || $user->isCenterScopedTesda();
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $centers = TrainingCenter::query()
             ->with(['programs' => fn ($programs) => $programs
@@ -25,7 +25,7 @@ class TrainingCenterController extends Controller
                 ->orderBy('title')])
             ->when($search !== '', fn ($query) => $query->where(fn ($centers) => $centers->where('name', 'like', '%'.$search.'%')->orWhere('address', 'like', '%'.$search.'%')))
             ->when(! $canManage, fn ($query) => $query->where('is_active', true))
-            ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereKey($user->training_center_id))
+            ->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))
             ->orderBy('name')->paginate(50)->withQueryString();
 
         return $request->routeIs('mobile.*') ? response()->json(['centers' => $centers, 'can_manage' => $canManage]) : view('operations.centers', compact('centers', 'canManage'));

@@ -55,7 +55,7 @@ class AdminCatalogManagementTest extends TestCase
     public function test_admin_can_manage_training_without_transferring_trainer_ownership(): void
     {
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $center = TrainingCenter::factory()->create();
         $this->actingAs($admin)->post(route('admin.trainings.store'), [
             'title' => 'Community baking', 'nc_level' => 'NC II', 'duration_days' => 40,

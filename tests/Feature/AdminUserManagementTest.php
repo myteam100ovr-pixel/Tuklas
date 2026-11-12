@@ -36,7 +36,7 @@ class AdminUserManagementTest extends TestCase
                 'last_name' => 'Member',
                 'email' => $role->value.'@example.test',
                 'role' => $role->value,
-                'training_center_id' => $role === Role::CenterRepresentative ? $center->id : null,
+                'training_center_id' => $role === Role::TesdaAdmin ? $center->id : null,
                 'is_active' => 1,
                 'password' => 'StrongPassword123!',
                 'password_confirmation' => 'StrongPassword123!',
@@ -66,13 +66,13 @@ class AdminUserManagementTest extends TestCase
             'first_name' => 'Edited',
             'last_name' => 'Trainer',
             'email' => 'edited@example.test',
-            'role' => Role::Trainer->value,
+            'role' => Role::TesdaAdmin->value,
             'is_active' => 0,
         ])->assertRedirect(route('admin.users.index'));
 
         $account->refresh();
         $this->assertSame('Edited Trainer', $account->name);
-        $this->assertSame(Role::Trainer, $account->role);
+        $this->assertSame(Role::TesdaAdmin, $account->role);
         $this->assertFalse($account->is_active);
         $this->assertTrue($account->hasVerifiedEmail());
 
@@ -86,7 +86,7 @@ class AdminUserManagementTest extends TestCase
     {
         Notification::fake();
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
-        $account = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $account = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
 
         $this->actingAs($admin)->post(route('admin.users.reset-password', $account))->assertRedirect();
 
@@ -127,7 +127,7 @@ class AdminUserManagementTest extends TestCase
 
     public function test_non_admin_cannot_manage_users(): void
     {
-        $trainer = User::factory()->create(['role' => Role::Trainer]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin]);
         $this->actingAs($trainer)->get(route('admin.users.create'))->assertForbidden();
         $this->post(route('admin.users.store'), [])->assertForbidden();
     }
@@ -136,7 +136,7 @@ class AdminUserManagementTest extends TestCase
     {
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $program = TrainingProgram::factory()->create();
 
         $this->actingAs($youth)->post(route('youth.assessment.store'), [
@@ -147,7 +147,7 @@ class AdminUserManagementTest extends TestCase
         $this->actingAs($admin)->get(route('notifications.index'))
             ->assertOk()
             ->assertSee('Youth activity')
-            ->assertSee('TESDA trainer activity')
+            ->assertSee('TESDA activity')
             ->assertSee('updated their skills assessment')
             ->assertSee('chose to teach');
         $this->assertSame(2, $admin->unreadNotifications()->count());
@@ -156,7 +156,7 @@ class AdminUserManagementTest extends TestCase
     public function test_account_notification_is_visible_only_to_its_owner_and_can_be_marked_read(): void
     {
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $youth->forceFill(['admin_password_reset_requested_at' => now()])->save();
         $youth->notify(new WorkspaceNotice('Password reset requested', 'Choose a new password.', 'account', null, route('account.password-reset.edit')));
         $notice = $youth->notifications()->sole();

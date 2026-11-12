@@ -43,7 +43,7 @@ class TesdaChoiceControllerTest extends TestCase
     {
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $otherYouth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $qualification = collect(app(TesdaQualificationCatalog::class)->all()['qualifications'])
             ->firstWhere('status', 'current');
 

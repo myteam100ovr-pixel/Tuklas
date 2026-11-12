@@ -74,7 +74,7 @@ class AdminNavigationTest extends TestCase
     #[TestWith(['/admin/training/trainers'])]
     public function test_training_trainer_tab_keeps_its_existing_role_restriction(string $path): void
     {
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
 
         $this->actingAs($trainer)->get($path)->assertForbidden();
     }

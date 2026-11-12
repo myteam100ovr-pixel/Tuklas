@@ -165,7 +165,7 @@ class SecurityHardeningTest extends TestCase
         $token = $user->createToken('old-device');
         match ($change) {
             'deactivate' => $user->forceFill(['is_active' => false])->save(),
-            'role' => $user->forceFill(['role' => Role::Trainer])->save(),
+            'role' => $user->forceFill(['role' => Role::TesdaAdmin])->save(),
             'delete' => $user->delete(),
         };
         $this->assertSame(0, $user->tokens()->count());

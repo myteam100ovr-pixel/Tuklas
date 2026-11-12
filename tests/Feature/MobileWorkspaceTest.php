@@ -41,21 +41,24 @@ class MobileWorkspaceTest extends TestCase
         $this->getJson('/api/mobile/admin/users')->assertForbidden();
         $this->postJson('/api/mobile/trainer/programs', ['title' => 'Course', 'status' => 'published'])->assertForbidden();
         $this->getJson('/api/mobile/tesda/choices')->assertForbidden();
-        Sanctum::actingAs(User::factory()->create(['is_active' => true, 'role' => Role::Trainer]));
+        Sanctum::actingAs(User::factory()->create(['is_active' => true, 'role' => Role::TesdaAdmin]));
         $this->getJson('/api/mobile/assessment')->assertForbidden();
     }
 
-    public function test_trainer_can_publish_and_edit_own_program_but_not_another_trainers(): void
+    public function test_center_scoped_tesda_can_manage_its_programs_only(): void
     {
-        $trainer = User::factory()->create(['is_active' => true, 'role' => Role::Trainer]);
-        $other = TrainingProgram::factory()->create();
-        Sanctum::actingAs($trainer);
-        $this->postJson('/api/mobile/trainer/programs', ['title' => 'Mobile baking course', 'status' => 'published'])->assertOk();
+        $center = \App\Models\TrainingCenter::factory()->create();
+        $otherCenter = \App\Models\TrainingCenter::factory()->create();
+        $tesda = User::factory()->create(['is_active' => true, 'role' => Role::TesdaAdmin, 'training_center_id' => $center->id]);
+        $other = TrainingProgram::factory()->create(['training_center_id' => $otherCenter->id]);
+        Sanctum::actingAs($tesda);
+        $this->postJson('/api/mobile/trainer/programs', ['title' => 'Mobile baking course', 'status' => 'draft'])->assertOk();
         $program = TrainingProgram::where('title', 'Mobile baking course')->sole();
-        $this->assertSame($trainer->id, $program->created_by);
+        $this->assertSame($tesda->id, $program->created_by);
+        $this->assertSame($center->id, $program->training_center_id);
         $this->getJson('/api/mobile/trainer/programs')->assertJsonPath('programs.data.0.title', 'Mobile baking course');
-        $this->putJson('/api/mobile/trainer/programs/'.$program->id, ['title' => 'Updated course', 'status' => 'archived'])->assertOk();
-        $this->assertSame('archived', $program->fresh()->status);
+        $this->putJson('/api/mobile/trainer/programs/'.$program->id, ['title' => 'Updated course', 'status' => 'draft'])->assertOk();
+        $this->assertSame('draft', $program->fresh()->status);
         $this->putJson('/api/mobile/trainer/programs/'.$other->id, ['title' => 'Not mine', 'status' => 'published'])->assertForbidden();
     }
 
@@ -83,7 +86,7 @@ class MobileWorkspaceTest extends TestCase
         $this->postJson('/api/mobile/tesda/choice', ['qualification_id' => $qualification['id'], 'user_id' => $user->id])->assertForbidden();
         $this->postJson('/api/mobile/tesda/choice', ['qualification_id' => $qualification['id']])->assertOk();
         $this->getJson('/api/mobile/tesda/workspace')->assertOk()->assertJsonPath('choiceUser.tesda_choice.qualification_id', $qualification['id']);
-        $trainer = User::factory()->create(['is_active' => true, 'role' => Role::Trainer]);
+        $trainer = User::factory()->create(['is_active' => true, 'role' => Role::TesdaAdmin]);
         Sanctum::actingAs($trainer);
         $this->getJson('/api/mobile/tesda/choices')->assertOk()->assertJsonPath('youthUsers.data.0.id', $user->id);
         $this->postJson('/api/mobile/tesda/choice', ['qualification_id' => $qualification['id'], 'user_id' => $user->id])->assertOk();
@@ -104,12 +107,12 @@ class MobileWorkspaceTest extends TestCase
     {
         $admin = User::factory()->create(['is_active' => true, 'role' => Role::Admin]);
         Sanctum::actingAs($admin);
-        $data = ['first_name' => 'Mobile', 'last_name' => 'Trainer', 'email' => 'trainer@example.test', 'role' => 'trainer', 'is_active' => true];
+        $data = ['first_name' => 'Mobile', 'last_name' => 'TESDA', 'email' => 'tesda@example.test', 'role' => Role::TesdaAdmin->value, 'is_active' => true];
         $this->postJson('/api/mobile/admin/users', [...$data, 'password' => 'Password123!', 'password_confirmation' => 'Password123!'])->assertOk();
         $user = User::where('email', $data['email'])->sole();
         $this->getJson('/api/mobile/admin/users/'.$user->id)->assertOk()->assertJsonMissingPath('account.password')->assertJsonPath('account.first_name', 'Mobile');
         $this->putJson('/api/mobile/admin/users/'.$user->id, [...$data, 'first_name' => 'Updated'])->assertOk();
-        $this->assertSame('Updated Trainer', $user->fresh()->name);
+        $this->assertSame('Updated TESDA', $user->fresh()->name);
         $this->deleteJson('/api/mobile/admin/users/'.$admin->id)->assertUnprocessable();
         $this->deleteJson('/api/mobile/admin/users/'.$user->id)->assertOk();
         $this->assertSoftDeleted($user);

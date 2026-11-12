@@ -43,7 +43,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    'role:admin,trainer,tesda_admin,center_representative,youth',
+    'role:admin,tesda_admin,youth',
 ])->group(function () {
     Route::get('/dashboard', fn () => redirect()->route(auth()->user()->role->homeRoute()))
         ->name('dashboard');
@@ -79,7 +79,7 @@ Route::middleware([
     Route::get('/training-applications', fn (Request $request): RedirectResponse => redirect()->route('applications.index', $request->query()));
     Route::get('/admin/training/results', [AssessmentRecordController::class, 'index'])->name('assessments.index');
     Route::get('/assessment-records', fn (Request $request): RedirectResponse => redirect()->route('assessments.index', $request->query()));
-    Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
+    Route::middleware('role:admin,tesda_admin')->group(function () {
         Route::get('/admin/training/trainers', [CenterTrainerController::class, 'index'])->name('center-trainers.index');
         Route::get('/center-trainers', fn (Request $request): RedirectResponse => redirect()->route('center-trainers.index', $request->query()));
         Route::post('/center-trainers', [CenterTrainerController::class, 'store'])->name('center-trainers.store');
@@ -130,7 +130,7 @@ Route::middleware([
         Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
         Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
     });
-    Route::middleware('role:admin,tesda_admin,center_representative')->group(function () {
+    Route::middleware('role:admin,tesda_admin')->group(function () {
         Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');
         Route::put('/training-sessions/{session}', [TrainingSessionController::class, 'update'])->name('sessions.update');
         Route::put('/training-applications/{application}', [TrainingApplicationController::class, 'update'])->name('applications.update');
@@ -143,13 +143,13 @@ Route::middleware([
         Route::delete('/training-applications/{application}', [TrainingApplicationController::class, 'destroy'])->name('applications.destroy');
     });
 
-    Route::middleware('role:trainer,tesda_admin,center_representative')->prefix('trainer')->name('trainer.')->group(function () {
+    Route::middleware('role:tesda_admin')->prefix('trainer')->name('trainer.')->group(function () {
         Route::get('/', [DashboardController::class, 'trainer'])->name('dashboard');
         Route::resource('programs', TrainingProgramController::class)->except(['show', 'destroy']);
-        Route::post('/teaching/{program}', [TeachingAssignmentController::class, 'store'])->middleware('role:trainer')->name('teaching.store');
-        Route::delete('/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->middleware('role:trainer')->name('teaching.destroy');
-        Route::post('/qualifications', [TrainerQualificationController::class, 'store'])->middleware('role:trainer')->name('qualifications.store');
-        Route::delete('/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->middleware('role:trainer')->name('qualifications.destroy');
+        Route::post('/teaching/{program}', [TeachingAssignmentController::class, 'store'])->name('teaching.store');
+        Route::delete('/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->name('teaching.destroy');
+        Route::post('/qualifications', [TrainerQualificationController::class, 'store'])->name('qualifications.store');
+        Route::delete('/qualifications/{qualification}', [TrainerQualificationController::class, 'destroy'])->name('qualifications.destroy');
     });
 
     Route::middleware('role:youth')->prefix('youth')->name('youth.')->group(function () {

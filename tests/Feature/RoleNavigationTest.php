@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Models\DocumentScan;
+use App\Models\TrainingCenter;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -13,12 +14,32 @@ class RoleNavigationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_removed_roles_are_not_available_for_new_accounts(): void
+    {
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+
+        $this->assertNull(Role::tryFrom('trainer'));
+        $this->assertNull(Role::tryFrom('center_representative'));
+        $this->assertSame(['admin', 'tesda_admin', 'youth'], array_map(fn (Role $role): string => $role->value, Role::cases()));
+
+        foreach (['trainer', 'center_representative'] as $role) {
+            $this->actingAs($admin)->post(route('admin.users.store'), [
+                'first_name' => 'Old',
+                'last_name' => 'Role',
+                'email' => $role.'@example.test',
+                'role' => $role,
+                'is_active' => 1,
+                'password' => 'StrongPassword123!',
+                'password_confirmation' => 'StrongPassword123!',
+            ])->assertSessionHasErrors('role');
+        }
+    }
+
     public static function workspaceRoles(): array
     {
         return [
             'PESO administrator' => [Role::Admin, 'admin.dashboard', true],
             'TESDA administrator' => [Role::TesdaAdmin, 'trainer.dashboard', false],
-            'trainer' => [Role::Trainer, 'trainer.dashboard', false],
             'youth' => [Role::Youth, 'youth.dashboard', false],
         ];
     }
@@ -64,32 +85,6 @@ class RoleNavigationTest extends TestCase
         }
     }
 
-    public function test_trainer_menu_groups_teaching_and_catalog_links_once_and_shows_floating_chat(): void
-    {
-        $trainer = User::factory()->create([
-            'role' => Role::Trainer,
-            'is_active' => true,
-            'email_verified_at' => now(),
-        ]);
-
-        $response = $this->actingAs($trainer)->get(route('trainer.programs.index'))->assertOk();
-        $navigation = $this->workspaceNavigation($response->getContent());
-        $pageTabs = $this->workspacePageTabs($response->getContent());
-
-        foreach (['Overview', 'Training', 'Communication', 'Account'] as $label) {
-            $this->assertStringContainsString('<span>'.$label.'</span>', $navigation, $label.' sidebar item');
-        }
-        foreach (['My courses', 'Sessions', 'Course catalog', 'Scholarships'] as $label) {
-            $this->assertStringContainsString('>'.$label.'</a>', $pageTabs, $label.' training tab');
-        }
-        $this->assertStringContainsString('href="'.route('trainer.programs.index').'"', $pageTabs);
-        $this->assertStringContainsString('href="'.route('tesda.index').'"', $pageTabs);
-        $this->assertStringNotContainsString('<span>TuklasBot</span>', $navigation);
-        $response->assertSee('Ask TuklasBot')->assertSee('href="'.route('tuklasbot.index').'"', false);
-
-        $this->assertSame(1, substr_count($navigation, '<span>Training</span>'), 'Training sidebar item count');
-    }
-
     public function test_tesda_admin_uses_the_grouped_sidebar_and_keeps_existing_training_pages_as_tabs(): void
     {
         $tesdaAdmin = User::factory()->create([
@@ -105,7 +100,7 @@ class RoleNavigationTest extends TestCase
         foreach (['Overview', 'Training', 'Communication', 'Account'] as $label) {
             $this->assertStringContainsString('<span>'.$label.'</span>', $navigation, $label.' sidebar item');
         }
-        foreach (['Centers', 'Programs', 'Assign trainers', 'Training dates', 'Training requests', 'Assessment results', 'Scholarships'] as $label) {
+        foreach (['Centers', 'My courses', 'Course catalog', 'Assign trainers', 'Training dates', 'Training requests', 'Assessment results', 'Scholarships'] as $label) {
             $this->assertStringContainsString('>'.$label.'</a>', $pageTabs, $label.' training tab');
         }
         foreach (['Messages', 'Notifications', 'Profile'] as $label) {
@@ -122,6 +117,31 @@ class RoleNavigationTest extends TestCase
         $this->assertStringContainsString('tk-sidebar--admin', $response->getContent());
         $this->assertStringContainsString('tk-admin-page-tab is-active', $pageTabs);
         $this->assertSame(1, substr_count($navigation, '<span>Training</span>'), 'Training sidebar item count');
+        $response->assertSee('Ask TuklasBot')->assertSee('href="'.route('tuklasbot.index').'"', false);
+    }
+
+    public function test_center_assigned_tesda_uses_the_same_grouped_navigation(): void
+    {
+        $center = TrainingCenter::factory()->create();
+        $centerTesda = User::factory()->create([
+            'role' => Role::TesdaAdmin,
+            'is_active' => true,
+            'email_verified_at' => now(),
+            'training_center_id' => $center->id,
+        ]);
+
+        $response = $this->actingAs($centerTesda)->get(route('centers.index'))->assertOk();
+        $navigation = $this->workspaceNavigation($response->getContent());
+
+        foreach (['Overview', 'Training', 'Communication', 'Account'] as $label) {
+            $this->assertStringContainsString('<span>'.$label.'</span>', $navigation, $label.' sidebar item');
+        }
+        foreach (['Centers', 'My courses', 'Course catalog', 'Assign trainers', 'Training dates', 'Training requests', 'Assessment results', 'Scholarships'] as $label) {
+            $this->assertStringContainsString('>'.$label.'</a>', $this->workspacePageTabs($response->getContent()), $label.' training tab');
+        }
+        $this->assertStringContainsString('tk-sidebar--admin', $response->getContent());
+        $this->assertSame(1, substr_count($navigation, '<span>Training</span>'), 'Training sidebar item count');
+        $this->assertSame('TESDA', $centerTesda->role->label());
     }
 
     public function test_career_seeker_menu_groups_all_existing_links_once_and_shows_floating_chat(): void

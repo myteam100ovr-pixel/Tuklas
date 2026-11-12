@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'chat_view.dart';
 
 import '../api.dart';
+import '../date_format.dart';
 import '../theme.dart';
 import '../ui.dart';
 
@@ -745,7 +746,6 @@ class _DashboardViewState extends State<DashboardView> {
       ('learning_recommendations', 'Learning recommendations'),
     ];
     final colors = TkColors.of(context);
-    final processedAt = DateTime.tryParse('${scan['processed_at'] ?? ''}');
 
     return Container(
       width: double.infinity,
@@ -764,7 +764,7 @@ class _DashboardViewState extends State<DashboardView> {
             style: tkText(context, size: 13, weight: 500),
           ),
           Text(
-            '${scan['document_type'] ?? 'Document'} · ${processedAt == null ? 'Date unavailable' : '${processedAt.toLocal().year}-${processedAt.toLocal().month.toString().padLeft(2, '0')}-${processedAt.toLocal().day.toString().padLeft(2, '0')}'}',
+            '${scan['document_type'] ?? 'Document'} · ${formatTuklasDate(scan['processed_at'])}',
             style: tkText(context, size: 11, color: colors.muted),
           ),
           for (final (key, title) in groups)

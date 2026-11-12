@@ -2,40 +2,10 @@
 
 namespace App\View\Composers;
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class NavComposer
 {
-    private const TABS = [
-        'tesda_admin' => [
-            ['Overview', 'trainer.dashboard', 'i-list'],
-            ['Training centers', 'centers.index', 'i-cap'],
-            ['Programs', 'trainer.programs.index', 'i-cap'],
-            ['Assign trainers', 'center-trainers.index', 'i-users'],
-            ['Training dates', 'sessions.index', 'i-cap'],
-            ['Training requests', 'applications.index', 'i-list'],
-            ['Assessment results', 'assessments.index', 'i-list'],
-            ['Scholarships', 'scholarships.index', 'i-cap'],
-            ['Messages', 'messages.index', 'i-chat'],
-            ['Notifications', 'notifications.index', 'i-check'],
-            ['Profile', 'profile.show', 'i-user'],
-        ],
-        'center_representative' => [
-            ['Overview', 'trainer.dashboard', 'i-list'],
-            ['My center', 'centers.index', 'i-cap'],
-            ['Programs', 'trainer.programs.index', 'i-cap'],
-            ['Assign trainers', 'center-trainers.index', 'i-users'],
-            ['Training dates', 'sessions.index', 'i-cap'],
-            ['Training requests', 'applications.index', 'i-users'],
-            ['Assessment results', 'assessments.index', 'i-list'],
-            ['Messages', 'messages.index', 'i-chat'],
-            ['Notifications', 'notifications.index', 'i-check'],
-            ['Profile', 'profile.show', 'i-user'],
-        ],
-    ];
-
     private const ROLE_GROUPS = [
         'tesda_admin' => [
             ['Overview', null, 'i-list', [
@@ -43,7 +13,8 @@ class NavComposer
             ]],
             ['Training', 'tesda_training', 'i-cap', [
                 ['Centers', 'centers.index', ['centers.*']],
-                ['Programs', 'trainer.programs.index', ['trainer.programs.*']],
+                ['My courses', 'trainer.programs.index', ['trainer.programs.*']],
+                ['Course catalog', 'tesda.index', ['tesda.index', 'tesda.choices.*']],
                 ['Assign trainers', 'center-trainers.index', ['center-trainers.*']],
                 ['Training dates', 'sessions.index', ['sessions.*']],
                 ['Training requests', 'applications.index', ['applications.*']],
@@ -55,24 +26,6 @@ class NavComposer
                 ['Notifications', 'notifications.index', ['notifications.*']],
             ]],
             ['Account', 'tesda_account', 'i-user', [
-                ['Profile', 'profile.show', ['profile.*']],
-            ]],
-        ],
-        'trainer' => [
-            ['Overview', null, 'i-list', [
-                ['Overview', 'trainer.dashboard', ['trainer.dashboard']],
-            ]],
-            ['Training', 'trainer_training', 'i-cap', [
-                ['My courses', 'trainer.programs.index', ['trainer.programs.*']],
-                ['Sessions', 'sessions.index', ['sessions.*']],
-                ['Course catalog', 'tesda.index', ['tesda.index', 'tesda.choices.*']],
-                ['Scholarships', 'scholarships.index', ['scholarships.*']],
-            ]],
-            ['Communication', 'trainer_communication', 'i-chat', [
-                ['Messages', 'messages.index', ['messages.*']],
-                ['Notifications', 'notifications.index', ['notifications.*']],
-            ]],
-            ['Account', 'trainer_account', 'i-user', [
                 ['Profile', 'profile.show', ['profile.*']],
             ]],
         ],
@@ -156,31 +109,15 @@ class NavComposer
                 'active' => request()->routeIs(...$tab[4]),
                 'page' => $tab[5],
             ])->all()
-            : ($roleGroups !== null
-                ? collect($roleGroups)->map(fn (array $group): array => [
-                    'label' => $group[0],
-                    'group' => null,
-                    'href' => route($group[3][0][1]),
-                    'icon' => $group[2],
-                    'active' => collect($group[3])->contains(fn (array $tab): bool => request()->routeIs(...$tab[2])),
-                    'page' => $group[1],
-                    'pageTabs' => $group[3],
-                ])->all()
-            : collect(self::TABS[$user->role->value] ?? [])
-                ->filter(fn ($tab) => Route::has($tab[1]))
-                ->map(function (array $tab): array {
-                    $pattern = Str::endsWith($tab[1], '.dashboard') ? $tab[1] : Str::beforeLast($tab[1], '.').'.*';
-
-                    return [
-                        'label' => $tab[0],
-                        'group' => $this->groupFor($tab[1]),
-                        'href' => route($tab[1]),
-                        'icon' => $tab[2],
-                        'active' => request()->routeIs($pattern),
-                        'page' => null,
-                    ];
-                })
-                ->values()->all());
+            : collect($roleGroups ?? [])->map(fn (array $group): array => [
+                'label' => $group[0],
+                'group' => null,
+                'href' => route($group[3][0][1]),
+                'icon' => $group[2],
+                'active' => collect($group[3])->contains(fn (array $tab): bool => request()->routeIs(...$tab[2])),
+                'page' => $group[1],
+                'pageTabs' => $group[3],
+            ])->all();
 
         $activeAdminTab = $isAdmin ? collect($tabs)->firstWhere('active', true) : null;
         $activeWorkspaceTab = collect($tabs)->firstWhere('active', true);
@@ -207,7 +144,7 @@ class NavComposer
             'adminPageTabs' => $adminPageTabs,
             'isAdminWorkspace' => $isAdmin,
             'isGroupedWorkspace' => $isGroupedWorkspace,
-            'showFloatingChatButton' => in_array($user->role->value, ['trainer', 'youth'], true),
+            'showFloatingChatButton' => in_array($user->role->value, ['tesda_admin', 'youth'], true),
             'navCurrentLabel' => $currentTab['label'] ?? (request()->routeIs('tuklasbot.index') ? 'TuklasBot' : null),
             'unreadNotificationCount' => $user->unreadNotifications()->count(),
             'navUser' => [
@@ -218,18 +155,5 @@ class NavComposer
                 'role' => $user->role->label(),
             ],
         ]);
-    }
-
-    private function groupFor(string $route): string
-    {
-        return match (true) {
-            str_contains($route, 'dashboard') => 'Home',
-            str_contains($route, 'users') => 'People',
-            str_contains($route, 'opportunities') || str_contains($route, 'careers') || str_contains($route, 'peso') => 'Work',
-            str_contains($route, 'scanner') => 'Work',
-            str_contains($route, 'messages') || str_contains($route, 'notifications') || str_contains($route, 'tuklasbot') => 'Communication',
-            str_contains($route, 'profile') => 'Account',
-            default => 'Training',
-        };
     }
 }

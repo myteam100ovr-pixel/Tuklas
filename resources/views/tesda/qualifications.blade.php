@@ -5,10 +5,10 @@
     </header>
     <p class="qualification-intro">Browse national qualifications from NC I to NC IV. These standards describe training and assessment; they do not confirm open enrollment or availability at a particular school.</p>
     @auth
-        @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
+        @if (auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin))
             <p class="qualification-assign-link">Choose the qualifications you plan to teach. Your choices appear in Teaching.</p>
         @endif
-        @if (auth()->user()->hasRole(\App\Enums\Role::Trainer, \App\Enums\Role::Admin))
+        @if (auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin, \App\Enums\Role::Admin))
             <a class="qualification-assign-link" href="{{ route('tesda.choices.index') }}">Choose training for a youth account ↗</a>
         @endif
         @if ($choiceUser)
@@ -84,7 +84,7 @@
                     </form>
                 @endif
                 @auth
-                    @if (auth()->user()->hasRole(\App\Enums\Role::Trainer) && $qualification['status'] === 'current')
+                    @if (auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin) && $qualification['status'] === 'current')
                         @if ($trainerQualifications->has($qualification['id']))
                             <form method="POST" action="{{ route('trainer.qualifications.destroy', $qualification['id']) }}" class="qualification-choice-form">@csrf @method('DELETE')<button type="submit">Remove from teaching</button></form>
                         @else

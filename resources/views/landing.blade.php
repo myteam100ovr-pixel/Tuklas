@@ -180,7 +180,7 @@
     <div class="row reveal">
         <svg class="art" viewBox="0 0 138 138"><rect width="138" height="138" rx="12" fill="#6f7de3"/><path d="M69 22c26 18 36 46 0 94-36-48-26-76 0-94z" fill="none" stroke="#4300b9" stroke-width="12"/><circle cx="69" cy="66" r="12" fill="#fbe132"/></svg>
         <div class="big" data-count-counter="3">2</div>
-        <p>Career Seekers, Admin, TESDA staff, trainers, and training center representatives each have tools for their work.</p>
+        <p>Career Seekers, PESO administrators, and TESDA staff each have tools for their work.</p>
         <span class="tag pk">Roles</span>
     </div>
     <div class="row reveal">

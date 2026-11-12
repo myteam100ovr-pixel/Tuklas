@@ -26,7 +26,7 @@ class WorkspaceSecurityTest extends TestCase
     }
 
     #[TestWith(['youth'])]
-    #[TestWith(['trainer'])]
+    #[TestWith(['tesda_admin'])]
     public function test_non_admin_roles_cannot_read_the_user_directory(string $role): void
     {
         $user = User::factory()->create(['is_active' => true, 'role' => Role::from($role)]);

@@ -1,10 +1,10 @@
 <x-app-layout><div class="trainer-courses suite-page operations-page">
-    <x-workspace-heading eyebrow="TESDA · STAFF" title="Assigned trainers" description="Assign trainers to published programs at their training center." />
+    <x-workspace-heading eyebrow="TESDA · STAFF" title="Program staff assignments" description="Assign TESDA staff to published programs at their training center." />
     @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
     @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
-    <section class="operations-card"><h2>Assign trainer</h2>
+    <section class="operations-card"><h2>Assign TESDA staff</h2>
         <form method="POST" action="{{ route('center-trainers.store') }}">@csrf
-            <label>Trainer <select name="user_id" required>@foreach ($trainers as $trainer)<option value="{{ $trainer->id }}">{{ $trainer->name }}</option>@endforeach</select></label>
+            <label>TESDA staff member <select name="user_id" required>@foreach ($trainers as $trainer)<option value="{{ $trainer->id }}">{{ $trainer->name }} · {{ $trainer->role->label() }}</option>@endforeach</select></label>
             <label>Program <select name="training_program_id" required>@foreach ($programs as $program)<option value="{{ $program->id }}">{{ $program->title }}</option>@endforeach</select></label>
             <button type="submit">Assign trainer</button>
         </form>

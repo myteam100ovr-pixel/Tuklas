@@ -53,7 +53,7 @@
                     <a class="tesda-manage-link" href="{{ route('admin.trainings.index') }}">Review training program drafts ↗</a>
                 </aside>
             @endif
-            @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
+            @if (auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin))
                 <a class="tesda-manage-link" href="{{ route('trainer.programs.index') }}">My teaching courses ↗</a>
             @endif
             @if (session('status'))<p class="qualification-feedback" role="status">{{ session('status') }}</p>@endif
@@ -92,7 +92,7 @@
                                         <span>Trainer: {{ $program->teachingAssignments->pluck('trainer.name')->filter()->unique()->implode(', ') ?: 'Not yet assigned' }}</span>
                                         @if ($program->last_verified_at)<small>Checked {{ $program->last_verified_at->format('M Y') }}</small>@endif
                                         @auth
-                                            @if (auth()->user()->hasRole(\App\Enums\Role::Trainer))
+                                            @if (auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin))
                                                 @if ($teachingByProgram->has($program->id))
                                                     <span class="tesda-application-state">On your teaching list</span>
                                                     <form method="POST" action="{{ route('trainer.teaching.destroy', $program) }}">

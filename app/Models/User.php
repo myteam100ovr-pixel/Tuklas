@@ -133,6 +133,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return in_array($this->role, $roles, true);
     }
 
+    public function isCenterScopedTesda(): bool
+    {
+        return $this->hasRole(Role::TesdaAdmin) && $this->training_center_id !== null;
+    }
+
     protected function defaultProfilePhotoUrl(): string
     {
         $initials = collect(preg_split('/\s+/', trim($this->name)))

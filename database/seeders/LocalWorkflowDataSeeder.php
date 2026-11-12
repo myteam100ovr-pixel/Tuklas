@@ -78,12 +78,12 @@ class LocalWorkflowDataSeeder extends Seeder
 
     private function seedTrainingActivity(User $careerSeeker, User $admin): void
     {
-        $representative = User::query()
-            ->where('role', Role::CenterRepresentative->value)
+        $centerStaff = User::query()
+            ->where('role', Role::TesdaAdmin->value)
             ->whereNotNull('training_center_id')
             ->oldest('id')
             ->first();
-        $center = $representative?->trainingCenter
+        $center = $centerStaff?->trainingCenter
             ?? TrainingCenter::query()->where('is_demo', true)->oldest('id')->first();
 
         if ($center === null) {

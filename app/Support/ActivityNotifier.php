@@ -13,9 +13,7 @@ class ActivityNotifier
         $role = $actor->role ?? $actor->fresh()?->role ?? Role::Youth;
         $title = match ($role) {
             Role::Youth => 'Youth activity',
-            Role::Trainer => 'TESDA trainer activity',
-            Role::TesdaAdmin => 'TESDA administration activity',
-            Role::CenterRepresentative => 'Training center activity',
+            Role::TesdaAdmin => 'TESDA activity',
             Role::Admin => 'Admin activity',
         };
 

@@ -24,7 +24,7 @@ class DashboardController extends Controller
 
         $youthTotal = User::where('role', Role::Youth->value)->count();
         $youthNew = User::where('role', Role::Youth->value)->where('created_at', '>=', $since)->count();
-        $trainers = User::where('role', Role::Trainer->value)->count();
+        $tesdaStaff = User::where('role', Role::TesdaAdmin->value)->count();
         $published = TrainingProgram::published()->count();
         $careers = CareerPath::published()->count();
 
@@ -52,7 +52,7 @@ class DashboardController extends Controller
             'nationalCatalog' => $this->catalog->all(),
             'stats' => [
                 $this->stat('Youth accounts', $youthTotal, $youthNew > 0 ? '+'.$youthNew : null, 'good', 'Last 30 days'),
-                $this->stat('Trainer accounts', $trainers, null, 'neutral', 'TESDA Lingayen'),
+                $this->stat('TESDA accounts', $tesdaStaff, null, 'neutral', 'Training staff and administrators'),
                 $this->stat('Published programs', $published, null, 'neutral', $careers.' career paths published'),
             ],
             'chart' => [
@@ -80,7 +80,7 @@ class DashboardController extends Controller
             'tasks' => [
                 'title' => 'Setup checklist',
                 'items' => [
-                    $this->task('Create a TESDA Lingayen trainer account', $trainers.' created', 'Trainers maintain the training catalog.', $trainers > 0),
+                    $this->task('Create a TESDA account', $tesdaStaff.' created', 'TESDA accounts manage training information and assignments.', $tesdaStaff > 0),
                     $this->task('Publish TESDA Lingayen programs', $published.' published', 'Only programs in the system can be recommended.', $published > 0),
                     $this->task('Publish career paths', $careers.' published', 'Published paths are available for members to explore.', $careers > 0, route('admin.careers.index')),
                     $this->task('Youth sign-ups', $youthTotal.' accounts', 'Share the site with Bugallon youth.', $youthTotal > 0),
@@ -99,7 +99,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $mine = TrainingProgram::query();
-        if ($user->hasRole(Role::CenterRepresentative)) {
+        if ($user->isCenterScopedTesda()) {
             abort_unless($user->training_center_id, 403);
             $mine->where('training_center_id', $user->training_center_id);
         } elseif (! $user->hasRole(Role::TesdaAdmin)) {
@@ -118,7 +118,7 @@ class DashboardController extends Controller
 
         return view('dashboard.show', [
             'journey' => $this->journey->for(auth()->user()),
-            'title' => $user->hasRole(Role::CenterRepresentative) ? 'Training center overview' : 'TESDA training overview',
+            'title' => $user->isCenterScopedTesda() ? 'Training center overview' : 'TESDA training overview',
             'nationalCatalog' => $this->catalog->all(),
             'stats' => [
                 $this->stat('My programs', $total, null, 'neutral', 'All statuses'),

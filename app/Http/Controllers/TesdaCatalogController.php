@@ -19,7 +19,7 @@ class TesdaCatalogController extends Controller
         $choiceUser = null;
         if ($request->user()?->hasRole(Role::Youth)) {
             $choiceUser = $request->user();
-        } elseif ($request->user()?->hasRole(Role::Trainer, Role::TesdaAdmin, Role::Admin) && $request->filled('for_user')) {
+        } elseif ($request->user()?->hasRole(Role::TesdaAdmin, Role::Admin) && $request->filled('for_user')) {
             $choiceUser = User::query()
                 ->whereKey($request->integer('for_user'))
                 ->where('role', Role::Youth->value)
@@ -29,6 +29,7 @@ class TesdaCatalogController extends Controller
         $choiceUser?->load('tesdaChoice.selector');
 
         $programs = TrainingProgram::published()
+            ->when($request->user()?->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $request->user()->training_center_id))
             ->with(['teachingAssignments.trainer:id,name', 'center:id,name'])
             ->orderBy('title')
             ->get(['id', 'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'training_center_id', 'schedule_note', 'last_verified_at', 'is_demo']);
@@ -37,13 +38,13 @@ class TesdaCatalogController extends Controller
             ->groupBy(fn (TrainingProgram $program): string => filled($program->nc_level) ? trim($program->nc_level) : 'Other / Not specified')
             ->sortBy(fn ($levelPrograms, string $level): int => $levelOrder[$level] ?? 5);
 
-        $teachingByProgram = $request->user()?->hasRole(Role::Trainer)
+        $teachingByProgram = $request->user()?->hasRole(Role::TesdaAdmin)
             ? $request->user()->teachingAssignments()
                 ->whereIn('training_program_id', $programs->pluck('id'))
                 ->get(['training_program_id'])
                 ->keyBy('training_program_id')
             : collect();
-        $trainerQualifications = $request->user()?->hasRole(Role::Trainer)
+        $trainerQualifications = $request->user()?->hasRole(Role::TesdaAdmin)
             ? $request->user()->trainerQualifications()->get(['qualification_id', 'title', 'nc_level'])->keyBy('qualification_id')
             : collect();
 

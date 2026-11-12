@@ -17,16 +17,16 @@ class TrainingSessionController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         $user = $request->user();
-        $canManage = $user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative);
+        $canManage = $user->hasRole(Role::Admin, Role::TesdaAdmin);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $sessions = TrainingSession::query()->with(['program:id,title,status', 'center:id,name,type'])
             ->when($search !== '', fn ($query) => $query->where(fn ($sessions) => $sessions->whereHas('program', fn ($program) => $program->where('title', 'like', '%'.$search.'%'))->orWhereHas('center', fn ($center) => $center->where('name', 'like', '%'.$search.'%'))))
             ->withCount(['applications as accepted_count' => fn ($query) => $query->where('status', 'accepted')])
-            ->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->where('training_center_id', $user->training_center_id))
+            ->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $user->training_center_id))
             ->when(! $canManage, fn ($query) => $query->where('status', 'open')->where('starts_at', '>', now())->whereHas('program', fn ($program) => $program->published())->whereHas('center', fn ($center) => $center->where('is_active', true)))
             ->orderBy('starts_at')->paginate(50)->withQueryString();
-        $centers = $canManage ? TrainingCenter::query()->where('is_active', true)->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get() : collect();
-        $programs = $canManage ? TrainingProgram::published()->when($user->hasRole(Role::CenterRepresentative), fn ($query) => $query->where('training_center_id', $user->training_center_id))->orderBy('title')->get(['id', 'title']) : collect();
+        $centers = $canManage ? TrainingCenter::query()->where('is_active', true)->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get() : collect();
+        $programs = $canManage ? TrainingProgram::published()->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $user->training_center_id))->orderBy('title')->get(['id', 'title']) : collect();
 
         return $request->routeIs('mobile.*') ? response()->json(compact('sessions', 'centers', 'programs', 'canManage')) : view('operations.sessions', compact('sessions', 'centers', 'programs', 'canManage'));
     }
@@ -55,8 +55,8 @@ class TrainingSessionController extends Controller
     private function authorizeManager(Request $request, ?TrainingSession $session = null): void
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
-        if ($user->hasRole(Role::CenterRepresentative)) {
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+        if ($user->isCenterScopedTesda()) {
             abort_unless($user->training_center_id && ($session === null || $session->training_center_id === $user->training_center_id), 403);
         }
     }
@@ -74,7 +74,7 @@ class TrainingSessionController extends Controller
         ]);
         $program = TrainingProgram::findOrFail($data['training_program_id']);
         abort_if($program->training_center_id && $program->training_center_id !== (int) $data['training_center_id'], 422, 'This program belongs to another training center.');
-        if ($request->user()->hasRole(Role::CenterRepresentative)) {
+        if ($request->user()->isCenterScopedTesda()) {
             abort_unless((int) $data['training_center_id'] === $request->user()->training_center_id, 403);
             abort_unless($program->training_center_id === $request->user()->training_center_id, 403);
         }

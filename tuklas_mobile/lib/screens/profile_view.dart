@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api.dart';
+import '../date_format.dart';
 import 'workspace_view.dart';
 import '../theme.dart';
 import '../ui.dart';
@@ -85,12 +86,13 @@ class _ProfileViewState extends State<ProfileView> {
 
   bool get _minor => (_age() ?? 99) < 18;
 
-  String _fmt(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
   Future<void> _pickDob() async {
     final now = DateTime.now();
-    final first = DateTime(now.year - 31, now.month, now.day);
+    final first = DateTime(
+      now.year - 31,
+      now.month,
+      now.day,
+    ).add(const Duration(days: 1));
     final last = DateTime(now.year - 15, now.month, now.day);
     var initial =
         DateTime.tryParse(_dob ?? '') ??
@@ -105,7 +107,7 @@ class _ProfileViewState extends State<ProfileView> {
       lastDate: last,
     );
     if (picked == null) return;
-    setState(() => _dob = _fmt(picked));
+    setState(() => _dob = formatDateForApi(picked));
   }
 
   Future<String?> _choose(String title, List<String> options, String? current) {
@@ -408,8 +410,9 @@ class _ProfileViewState extends State<ProfileView> {
     String key,
     String? value,
     String hint,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    String? displayValue,
+  }) {
     final c = TkColors.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,7 +433,9 @@ class _ProfileViewState extends State<ProfileView> {
               children: [
                 Expanded(
                   child: Text(
-                    value == null || value.isEmpty ? hint : value,
+                    value == null || value.isEmpty
+                        ? hint
+                        : displayValue ?? value,
                     style: tkText(
                       context,
                       size: 14.5,
@@ -504,6 +509,7 @@ class _ProfileViewState extends State<ProfileView> {
             _dob,
             'Select your date of birth',
             _pickDob,
+            displayValue: _dob == null ? null : formatTuklasDate(_dob),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 5),

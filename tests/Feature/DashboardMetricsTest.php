@@ -16,16 +16,14 @@ class DashboardMetricsTest extends TestCase
     use RefreshDatabase;
 
     #[TestWith(['youth', 'profile'])]
-    #[TestWith(['trainer', 'My programs'])]
     #[TestWith(['tesda_admin', 'Centers'])]
-    #[TestWith(['center_representative', 'Centers'])]
     #[TestWith(['admin', 'Users'])]
     public function test_each_role_has_the_same_actionable_first_step_on_web_and_mobile(string $role, string $action): void
     {
         $user = User::factory()->create([
             'role' => Role::from($role),
             'is_active' => true,
-            'training_center_id' => $role === 'center_representative' ? TrainingCenter::factory()->create()->id : null,
+            'training_center_id' => null,
         ]);
 
         $this->actingAs($user)->get(route($user->role->homeRoute()))->assertOk()
@@ -72,14 +70,13 @@ class DashboardMetricsTest extends TestCase
         $this->getJson(route('mobile.dashboard'))->assertOk()->assertJsonPath('chart.bars.0.h', 0);
     }
 
-    public function test_trainer_percentages_use_owned_programs_and_explain_empty_data(): void
+    public function test_tesda_percentages_use_all_programs_and_explain_empty_data(): void
     {
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $this->actingAs($trainer)->get(route('trainer.dashboard'))->assertOk()->assertSee('No data yet');
         foreach (['published', 'published', 'draft', 'archived'] as $status) {
             TrainingProgram::create(['title' => 'Program', 'status' => $status, 'created_by' => $trainer->id]);
         }
-        TrainingProgram::create(['title' => 'Someone else', 'status' => 'published']);
         $this->get(route('trainer.dashboard'))->assertOk()
             ->assertViewHas('chart', fn (array $chart): bool => array_column($chart['items'], 'pct') === [50, 25, 25]);
         $this->getJson(route('mobile.dashboard'))->assertOk()->assertJsonPath('chart.items.0.pct', 50);

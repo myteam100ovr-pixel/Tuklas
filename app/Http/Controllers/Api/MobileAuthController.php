@@ -305,6 +305,7 @@ class MobileAuthController extends Controller
             'email_verified' => $user->hasVerifiedEmail(),
             'role' => $user->role->value,
             'role_label' => $user->role->label(),
+            'training_center_id' => $user->training_center_id,
             'date_of_birth' => $user->date_of_birth?->toDateString(),
         ];
     }

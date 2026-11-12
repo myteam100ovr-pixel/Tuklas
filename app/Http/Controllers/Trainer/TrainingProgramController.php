@@ -19,7 +19,7 @@ class TrainingProgramController extends Controller
     {
         $user = $request->user();
         $programs = TrainingProgram::query();
-        if ($user->hasRole(Role::CenterRepresentative)) {
+        if ($user->isCenterScopedTesda()) {
             abort_unless($user->training_center_id, 403);
             $programs->where('training_center_id', $user->training_center_id);
         } elseif (! $user->hasRole(Role::TesdaAdmin)) {
@@ -36,26 +36,32 @@ class TrainingProgramController extends Controller
                 ->get(),
             'trainerQualifications' => $request->user()->trainerQualifications()->orderBy('title')->get(),
             'centers' => $user->hasRole(Role::TesdaAdmin)
-                ? TrainingCenter::query()->where('is_active', true)->orderBy('name')->get(['id', 'name'])
+                ? TrainingCenter::query()->where('is_active', true)->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get(['id', 'name'])
                 : collect(),
         ];
 
         return $request->routeIs('mobile.*') ? response()->json($data) : view('trainer.programs.index', $data);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('trainer.programs.form', ['program' => new TrainingProgram, 'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get()]);
+        $user = $request->user();
+        abort_unless($user->hasRole(Role::TesdaAdmin), 403);
+        if ($user->isCenterScopedTesda()) {
+            abort_unless($user->training_center_id, 403);
+        }
+
+        return view('trainer.programs.form', ['program' => new TrainingProgram, 'centers' => TrainingCenter::query()->where('is_active', true)->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get()]);
     }
 
     public function store(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $data = $this->validatedData($request);
         $data['created_by'] = $request->user()->id;
-        $data['training_center_id'] = $request->user()->hasRole(Role::CenterRepresentative, Role::Trainer)
+        $data['training_center_id'] = $request->user()->isCenterScopedTesda()
             ? $request->user()->training_center_id : ($data['training_center_id'] ?? null);
-        abort_if($request->user()->hasRole(Role::CenterRepresentative) && ! $data['training_center_id'], 403);
-        abort_if($request->user()->hasRole(Role::CenterRepresentative) && $data['status'] !== 'draft', 403, 'TESDA must publish center programs.');
+        abort_if($request->user()->isCenterScopedTesda() && ! $data['training_center_id'], 403);
+        abort_if($request->user()->isCenterScopedTesda() && $data['status'] !== 'draft', 403, 'TESDA must publish center programs.');
         $data['last_verified_at'] = $data['status'] === 'published' ? now() : null;
 
         $program = TrainingProgram::create($data);
@@ -76,7 +82,8 @@ class TrainingProgramController extends Controller
     {
         $this->authorizeOwner($request, $program);
 
-        return view('trainer.programs.form', ['program' => $program, 'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get()]);
+        $user = $request->user();
+        return view('trainer.programs.form', ['program' => $program, 'centers' => TrainingCenter::query()->where('is_active', true)->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get()]);
     }
 
     public function update(Request $request, TrainingProgram $program, ActivityNotifier $activity): RedirectResponse|JsonResponse
@@ -84,9 +91,9 @@ class TrainingProgramController extends Controller
         $this->authorizeOwner($request, $program);
 
         $data = $this->validatedData($request);
-        $data['training_center_id'] = $request->user()->hasRole(Role::TesdaAdmin)
+        $data['training_center_id'] = $request->user()->hasRole(Role::TesdaAdmin) && ! $request->user()->isCenterScopedTesda()
             ? ($data['training_center_id'] ?? null) : $program->training_center_id;
-        abort_if($request->user()->hasRole(Role::CenterRepresentative) && $data['status'] !== $program->status, 403, 'TESDA manages program publication.');
+        abort_if($request->user()->isCenterScopedTesda() && $data['status'] !== $program->status, 403, 'TESDA manages program publication.');
         if ($data['status'] === 'published') {
             $data['last_verified_at'] = now();
         }
@@ -105,8 +112,7 @@ class TrainingProgramController extends Controller
     {
         $user = $request->user();
         abort_unless($user->hasRole(Role::TesdaAdmin)
-            || ($user->hasRole(Role::CenterRepresentative) && $user->training_center_id && $program->training_center_id === $user->training_center_id)
-            || ($user->hasRole(Role::Trainer) && $program->created_by === $user->id), 403);
+            && (! $user->isCenterScopedTesda() || $program->training_center_id === $user->training_center_id), 403);
     }
 
     /** @return array<string, mixed> */

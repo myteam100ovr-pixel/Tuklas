@@ -21,16 +21,10 @@
                         @case(\App\Enums\Role::TesdaAdmin)
                             <a href="{{ route('centers.index') }}">Manage training centers <span>↗</span></a>
                             <a href="{{ route('trainer.programs.index') }}">Manage programs <span>↗</span></a>
-                            <a href="{{ route('applications.index') }}">Review training requests <span>↗</span></a>
-                            @break
-                        @case(\App\Enums\Role::CenterRepresentative)
+                            <a href="{{ route('center-trainers.index') }}">Assign trainers <span>↗</span></a>
                             <a href="{{ route('sessions.index') }}">Set training dates <span>↗</span></a>
-                            <a href="{{ route('applications.index') }}">Review trainees <span>↗</span></a>
+                            <a href="{{ route('applications.index') }}">Review training requests <span>↗</span></a>
                             <a href="{{ route('assessments.index') }}">Record assessments <span>↗</span></a>
-                            @break
-                        @case(\App\Enums\Role::Trainer)
-                            <a href="{{ route('trainer.programs.index') }}">My programs <span>↗</span></a>
-                            <a href="{{ route('tesda.index') }}">Browse training <span>↗</span></a>
                             <a href="{{ route('messages.index') }}">Messages <span>↗</span></a>
                             @break
                         @default

@@ -59,10 +59,10 @@ class _HomeShellState extends State<HomeShell> {
         ),
       };
     }
-    if (role == 'trainer') {
+    if (role == 'tesda_admin') {
       return switch (_tab) {
         1 => const WorkspaceView(section: 'My programs'),
-        2 => const MessagesView(),
+        2 => const OperationsView(section: 'Sessions'),
         3 => const TesdaView(),
         _ => DashboardView(
           key: ValueKey(_version),
@@ -270,25 +270,28 @@ class _HomeShellState extends State<HomeShell> {
                         'Training plans',
                         if (ApiClient.instance.user?['role'] == 'youth')
                           'Skills assessment',
-                        if ([
-                          'trainer',
-                          'tesda_admin',
-                          'center_representative',
-                        ].contains(ApiClient.instance.user?['role']))
+                        if (['tesda_admin']
+                            .contains(ApiClient.instance.user?['role']))
                           'My programs',
                         if (ApiClient.instance.user?['role'] == 'admin')
                           'Users',
-                        if (ApiClient.instance.user?['role'] == 'admin')
-                        'Scholarships',
+                        if ([
+                          'admin',
+                          'tesda_admin',
+                        ].contains(ApiClient.instance.user?['role']))
+                          'Scholarships',
                         'Centers',
                         if ([
                           'admin',
                           'tesda_admin',
-                          'center_representative',
                         ].contains(ApiClient.instance.user?['role']))
                           'Trainers',
                         'Sessions',
-                        if (ApiClient.instance.user?['role'] != 'trainer') ...[
+                        if ([
+                          'admin',
+                          'tesda_admin',
+                          'youth',
+                        ].contains(ApiClient.instance.user?['role'])) ...[
                           'Applications',
                           'Assessments',
                         ],

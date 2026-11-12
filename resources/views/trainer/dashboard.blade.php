@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-role-dashboard accent="trainer" role-label="TESDA Lingayen · Trainer" eyebrow="Training workspace / Trainer" title="Make every learning session count." description="Prepare cohorts, support learners, and keep skills training on track from one workspace." :focus-areas="['Cohorts', 'Sessions', 'Resources']">
+    <x-role-dashboard accent="trainer" role-label="TESDA training staff" eyebrow="Training workspace / TESDA" title="Make every learning session count." description="Manage programs, support learners, and keep skills training on track from one workspace." :focus-areas="['Programs', 'Sessions', 'Resources']">
         <section class="role-dashboard__summary" aria-label="Workspace summary">
             <div class="role-dashboard__summary-card"><span>Account</span><strong>Active</strong></div>
             <div class="role-dashboard__summary-card"><span>Role</span><strong>Trainer</strong></div>

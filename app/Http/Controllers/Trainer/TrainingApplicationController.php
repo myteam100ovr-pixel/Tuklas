@@ -21,7 +21,8 @@ class TrainingApplicationController extends Controller
         $query = TrainingApplication::query()->with(['program:id,title', 'session.center:id,name', 'user:id,name,email']);
         if ($user->hasRole(Role::Youth)) {
             $query->where('user_id', $user->id);
-        } elseif ($user->hasRole(Role::CenterRepresentative)) {
+        } elseif ($user->isCenterScopedTesda()) {
+            abort_unless($user->training_center_id, 403);
             $query->whereHas('session', fn ($session) => $session->where('training_center_id', $user->training_center_id));
         } else {
             abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
@@ -52,8 +53,8 @@ class TrainingApplicationController extends Controller
     public function update(Request $request, TrainingApplication $application): RedirectResponse|JsonResponse
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
-        if ($user->hasRole(Role::CenterRepresentative)) {
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+        if ($user->isCenterScopedTesda()) {
             abort_unless($user->training_center_id && $application->session?->training_center_id === $user->training_center_id, 403);
         }
         $data = $request->validate(['status' => ['required', Rule::in(['accepted', 'declined'])]]);

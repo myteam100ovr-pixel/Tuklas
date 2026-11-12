@@ -47,7 +47,7 @@ class MobilePesoControllerTest extends TestCase
     {
         $administrator = $this->createUserWithRole(Role::Admin);
         $youth = $this->createUserWithRole(Role::Youth, ['name' => 'Guidance Youth']);
-        $trainer = $this->createUserWithRole(Role::Trainer);
+        $trainer = $this->createUserWithRole(Role::TesdaAdmin);
 
         DocumentScan::factory()->for($youth)->create([
             'result' => ['jobRecommendations' => [['title' => 'Agricultural Technician']]],

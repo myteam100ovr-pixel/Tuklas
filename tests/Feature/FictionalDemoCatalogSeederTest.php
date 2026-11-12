@@ -81,11 +81,11 @@ class FictionalDemoCatalogSeederTest extends TestCase
         $this->seed(FictionalDemoCatalogSeeder::class);
         $centerId = TrainingCenter::query()->where('is_demo', true)->orderByDesc('id')->value('id');
 
-        foreach ([Role::Admin, Role::TesdaAdmin, Role::Trainer, Role::CenterRepresentative, Role::Youth] as $role) {
+        foreach ([Role::Admin, Role::TesdaAdmin, Role::Youth] as $role) {
             $user = User::factory()->create([
                 'role' => $role,
                 'is_active' => true,
-                'training_center_id' => $role === Role::CenterRepresentative ? $centerId : null,
+                'training_center_id' => $role === Role::TesdaAdmin ? $centerId : null,
             ]);
 
             $this->actingAs($user)->getJson('/api/mobile/opportunities')->assertOk()
@@ -135,7 +135,7 @@ class FictionalDemoCatalogSeederTest extends TestCase
             'is_active' => true,
         ]);
         $representative = User::factory()->create([
-            'role' => Role::CenterRepresentative,
+            'role' => Role::TesdaAdmin,
             'training_center_id' => $center->id,
             'is_active' => true,
         ]);

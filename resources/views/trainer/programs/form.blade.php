@@ -54,7 +54,7 @@
             </label>
             <label>Visibility
                 <select name="status" required>
-                    @foreach (auth()->user()->hasRole(\App\Enums\Role::CenterRepresentative) ? [($program->status ?: 'draft') => ucfirst($program->status ?: 'draft').' · TESDA manages publication'] : ['draft' => 'Draft · only you can see it', 'published' => 'Published · shown in TESDA catalog', 'archived' => 'Archived · hidden from catalog'] as $value => $label)
+                    @foreach (auth()->user()->isCenterScopedTesda() ? [($program->status ?: 'draft') => ucfirst($program->status ?: 'draft').' · TESDA manages publication'] : ['draft' => 'Draft · only you can see it', 'published' => 'Published · shown in TESDA catalog', 'archived' => 'Archived · hidden from catalog'] as $value => $label)
                         <option value="{{ $value }}" @selected(old('status', $program->status ?: 'draft') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>

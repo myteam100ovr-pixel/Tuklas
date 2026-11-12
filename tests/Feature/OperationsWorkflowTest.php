@@ -24,7 +24,7 @@ class OperationsWorkflowTest extends TestCase
     {
         $ownCenter = TrainingCenter::factory()->create();
         $otherCenter = TrainingCenter::factory()->create();
-        $representative = User::factory()->create(['role' => Role::CenterRepresentative, 'is_active' => true, 'training_center_id' => $ownCenter->id]);
+        $representative = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'training_center_id' => $ownCenter->id]);
         $ownSession = TrainingSession::factory()->create(['training_center_id' => $ownCenter->id]);
         $otherSession = TrainingSession::factory()->create(['training_center_id' => $otherCenter->id]);
         Sanctum::actingAs($representative);
@@ -49,7 +49,7 @@ class OperationsWorkflowTest extends TestCase
         $session = TrainingSession::factory()->create(['training_center_id' => $center->id, 'capacity' => 1]);
         $firstYouth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $secondYouth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
-        $representative = User::factory()->create(['role' => Role::CenterRepresentative, 'is_active' => true, 'training_center_id' => $center->id]);
+        $representative = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'training_center_id' => $center->id]);
 
         Sanctum::actingAs($firstYouth);
         $this->postJson('/api/mobile/training-sessions/'.$session->id.'/apply')->assertCreated();
@@ -165,24 +165,35 @@ class OperationsWorkflowTest extends TestCase
         $this->assertDatabaseMissing('job_opportunities', ['title' => 'Electrical Technician']);
     }
 
-    public function test_representative_can_assign_only_trainers_and_programs_at_their_center(): void
+    public function test_center_scoped_tesda_can_assign_staff_only_to_their_centers_programs(): void
     {
         $center = TrainingCenter::factory()->create();
         $otherCenter = TrainingCenter::factory()->create();
-        $representative = User::factory()->create(['role' => Role::CenterRepresentative, 'is_active' => true, 'training_center_id' => $center->id]);
-        $trainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true, 'training_center_id' => $center->id]);
-        $otherTrainer = User::factory()->create(['role' => Role::Trainer, 'is_active' => true, 'training_center_id' => $otherCenter->id]);
+        $representative = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'training_center_id' => $center->id]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'training_center_id' => $center->id]);
+        $otherTrainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'training_center_id' => $otherCenter->id]);
+        $tesdaUser = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
         $program = TrainingProgram::factory()->create(['training_center_id' => $center->id]);
+        $otherProgram = TrainingProgram::factory()->create(['training_center_id' => $otherCenter->id]);
         Sanctum::actingAs($representative);
+
+        $this->getJson('/api/mobile/me')->assertOk()
+            ->assertJsonPath('user.role', Role::TesdaAdmin->value)
+            ->assertJsonPath('user.training_center_id', $center->id);
 
         $this->postJson('/api/mobile/trainer/programs', ['title' => 'New course', 'status' => 'published'])->assertForbidden();
         $this->putJson('/api/mobile/trainer/programs/'.$program->id, ['title' => $program->title, 'status' => 'draft'])->assertForbidden();
 
+        $this->getJson('/api/mobile/center-trainers')->assertOk()
+            ->assertJsonCount(2, 'trainers')
+            ->assertJsonFragment(['id' => $tesdaUser->id, 'role' => Role::TesdaAdmin->value]);
         $this->postJson('/api/mobile/center-trainers', ['user_id' => $trainer->id, 'training_program_id' => $program->id])->assertCreated();
         $this->postJson('/api/mobile/center-trainers', ['user_id' => $otherTrainer->id, 'training_program_id' => $program->id])->assertUnprocessable();
-        $this->getJson('/api/mobile/center-trainers')->assertOk()->assertJsonCount(1, 'assignments.data');
-        $assignment = TrainingAssignment::firstOrFail();
-        $this->deleteJson('/api/mobile/center-trainers/'.$assignment->id)->assertOk();
+        $this->postJson('/api/mobile/center-trainers', ['user_id' => $tesdaUser->id, 'training_program_id' => $program->id])->assertCreated();
+        $this->postJson('/api/mobile/center-trainers', ['user_id' => $tesdaUser->id, 'training_program_id' => $otherProgram->id])->assertForbidden();
+        $this->getJson('/api/mobile/center-trainers')->assertOk()->assertJsonCount(2, 'assignments.data');
+        $tesdaAssignment = TrainingAssignment::query()->where('user_id', $tesdaUser->id)->firstOrFail();
+        $this->deleteJson('/api/mobile/center-trainers/'.$tesdaAssignment->id)->assertOk();
         $this->assertDatabaseCount('training_assignments', 0);
     }
 }

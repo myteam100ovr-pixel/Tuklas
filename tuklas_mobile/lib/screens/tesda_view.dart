@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
+import '../date_format.dart';
 import '../theme.dart';
 import '../ui.dart';
 
@@ -388,7 +389,7 @@ class _TesdaViewState extends State<TesdaView> {
               ),
               if (verified != null)
                 Text(
-                  'Checked $verified',
+                  'Checked ${formatTuklasDate(verified)}',
                   style: tkText(context, size: 11.5, color: colors.muted),
                 ),
             ],

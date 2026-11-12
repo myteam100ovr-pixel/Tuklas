@@ -21,7 +21,7 @@ class DirectMessageTest extends TestCase
     {
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true, 'email_verified_at' => now()]);
-        $other = User::factory()->create(['role' => Role::Trainer, 'is_active' => true, 'email_verified_at' => now()]);
+        $other = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'email_verified_at' => now()]);
 
         $this->actingAs($youth)->post(route('messages.store', $admin), ['body' => 'Can you help me?'])->assertRedirect(route('messages.show', $admin));
         $this->assertSame('message', $admin->fresh()->notifications()->first()->data['kind']);
@@ -57,7 +57,7 @@ class DirectMessageTest extends TestCase
     {
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true, 'email_verified_at' => now()]);
-        $other = User::factory()->create(['role' => Role::Trainer, 'is_active' => true, 'email_verified_at' => now()]);
+        $other = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'email_verified_at' => now()]);
 
         $first = $this->actingAs($youth)->postJson(route('messages.store', $admin), ['body' => 'From website'])
             ->assertCreated()->json('message.id');

@@ -128,7 +128,7 @@ class CareerRecommendationControllerTest extends TestCase
         $administrator = $this->createUserWithRole(Role::Admin);
         $youthWithMatches = $this->createUserWithRole(Role::Youth, ['name' => 'Eligible Youth']);
         $youthWithoutMatches = $this->createUserWithRole(Role::Youth, ['name' => 'No Matches Youth']);
-        $trainer = $this->createUserWithRole(Role::Trainer, ['name' => 'Trainer Account']);
+        $trainer = $this->createUserWithRole(Role::TesdaAdmin, ['name' => 'Trainer Account']);
 
         DocumentScan::factory()->for($youthWithMatches)->create([
             'result' => ['jobRecommendations' => [['title' => 'Agricultural Technician']]],
@@ -157,7 +157,7 @@ class CareerRecommendationControllerTest extends TestCase
 
     public function test_non_admin_users_cannot_view_youth_recommendations(): void
     {
-        $trainer = $this->createUserWithRole(Role::Trainer);
+        $trainer = $this->createUserWithRole(Role::TesdaAdmin);
 
         $this->actingAs($trainer)
             ->get(route('admin.recommendations.index'))
@@ -166,7 +166,7 @@ class CareerRecommendationControllerTest extends TestCase
 
     public function test_trainer_sees_only_their_own_collapsed_scan_history(): void
     {
-        $trainer = $this->createUserWithRole(Role::Trainer);
+        $trainer = $this->createUserWithRole(Role::TesdaAdmin);
         $youth = $this->createUserWithRole(Role::Youth);
         DocumentScan::factory()->for($trainer)->create([
             'original_name' => 'trainer-certificate.pdf',

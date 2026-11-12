@@ -31,7 +31,7 @@ class UserControllerTest extends TestCase
             'name' => 'Directory Trainer',
             'email' => 'trainer-directory@example.test',
         ]);
-        $trainer->role = Role::Trainer;
+        $trainer->role = Role::TesdaAdmin;
         $trainer->is_active = true;
         $trainer->email_verified_at = now();
         $trainer->save();
@@ -55,7 +55,7 @@ class UserControllerTest extends TestCase
             ->assertSee($administrator->email)
             ->assertSee(Role::Admin->label())
             ->assertSee($trainer->email)
-            ->assertSee(Role::Trainer->label())
+            ->assertSee(Role::TesdaAdmin->label())
             ->assertSee($youth->email)
             ->assertSee(Role::Youth->label())
             ->assertSee('Users')
@@ -99,7 +99,7 @@ class UserControllerTest extends TestCase
     {
         $trainer = User::factory()->create([
         ]);
-        $trainer->role = Role::Trainer;
+        $trainer->role = Role::TesdaAdmin;
         $trainer->is_active = true;
         $trainer->email_verified_at = now();
         $trainer->save();

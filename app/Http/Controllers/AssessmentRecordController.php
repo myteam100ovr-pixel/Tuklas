@@ -19,17 +19,18 @@ class AssessmentRecordController extends Controller
         $query = AssessmentRecord::query()->with(['application.user:id,name', 'application.program:id,title', 'application.session.center:id,name']);
         if ($user->hasRole(Role::Youth)) {
             $query->whereHas('application', fn ($application) => $application->where('user_id', $user->id));
-        } elseif ($user->hasRole(Role::CenterRepresentative)) {
+        } elseif ($user->isCenterScopedTesda()) {
+            abort_unless($user->training_center_id, 403);
             $query->whereHas('application.session', fn ($session) => $session->where('training_center_id', $user->training_center_id));
         } else {
             abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
         }
         $records = $query->latest()->paginate(50);
         $eligibleApplications = collect();
-        if ($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative)) {
+        if ($user->hasRole(Role::Admin, Role::TesdaAdmin)) {
             $eligibleApplications = TrainingApplication::query()->with(['user:id,name', 'program:id,title'])
                 ->where('status', 'accepted')
-                ->when($user->hasRole(Role::CenterRepresentative), fn ($applications) => $applications->whereHas('session', fn ($session) => $session->where('training_center_id', $user->training_center_id)))
+                ->when($user->isCenterScopedTesda(), fn ($applications) => $applications->whereHas('session', fn ($session) => $session->where('training_center_id', $user->training_center_id)))
                 ->latest()->limit(100)->get();
         }
 
@@ -63,8 +64,8 @@ class AssessmentRecordController extends Controller
     private function authorizeApplication(Request $request, TrainingApplication $application): void
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin, Role::CenterRepresentative), 403);
-        if ($user->hasRole(Role::CenterRepresentative)) {
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+        if ($user->isCenterScopedTesda()) {
             abort_unless($user->training_center_id && $application->session?->training_center_id === $user->training_center_id, 403);
         }
     }
