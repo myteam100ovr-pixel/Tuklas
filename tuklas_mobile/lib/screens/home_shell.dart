@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../api.dart';
@@ -28,6 +30,46 @@ class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
   bool _switching = false;
   int _version = 0; // bumped after a profile save so the dashboard reloads
+  int _unreadNotifications = 0;
+  Timer? _notificationTimer;
+  bool _checkingNotifications = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnreadNotifications();
+    _notificationTimer = Timer.periodic(
+      const Duration(seconds: 4),
+      (_) => _loadUnreadNotifications(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadUnreadNotifications() async {
+    if (_checkingNotifications ||
+        ApiClient.instance.user?['email_verified'] == false) {
+      return;
+    }
+    _checkingNotifications = true;
+    try {
+      final result = await ApiClient.instance.workspace('/notifications');
+      if (mounted) {
+        setState(
+          () => _unreadNotifications =
+              (result['unread_count'] as num?)?.toInt() ?? 0,
+        );
+      }
+    } catch (_) {
+      // Keep the latest known count until the connection recovers.
+    } finally {
+      _checkingNotifications = false;
+    }
+  }
 
   bool get _careerTools =>
       ['youth', 'admin'].contains(ApiClient.instance.user?['role']);
@@ -158,6 +200,7 @@ class _HomeShellState extends State<HomeShell> {
         },
       ),
     );
+    _loadUnreadNotifications();
     if (mounted) {
       setState(() {
         _switching = false;
@@ -299,7 +342,13 @@ class _HomeShellState extends State<HomeShell> {
                       ])
                         PopupMenuItem(value: section, child: Text(section)),
                     ],
-                    child: const Chip(label: Text('More tools ▾')),
+                    child: Chip(
+                      label: Text(
+                        _unreadNotifications > 0
+                            ? 'More tools ($_unreadNotifications) ▾'
+                            : 'More tools ▾',
+                      ),
+                    ),
                   ),
                 ],
               ),

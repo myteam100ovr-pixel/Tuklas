@@ -90,6 +90,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
                 Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
                 Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
+                Route::post('/opportunities/{job}/hire', [JobOpportunityController::class, 'hire'])->name('opportunities.hire');
             });
             Route::middleware('role:admin,tesda_admin')->group(function () {
                 Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');

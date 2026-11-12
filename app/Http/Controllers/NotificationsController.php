@@ -13,9 +13,10 @@ class NotificationsController extends Controller
     {
         $data = [
             'notifications' => $request->user()->notifications()->paginate(20),
+            'unread_count' => $request->user()->unreadNotifications()->count(),
         ];
 
-        return $request->routeIs('mobile.*') ? response()->json($data) : view('notifications.index', $data);
+        return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json($data) : view('notifications.index', $data);
     }
 
     public function read(Request $request, string $notification): RedirectResponse|JsonResponse

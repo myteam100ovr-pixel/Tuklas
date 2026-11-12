@@ -13,6 +13,7 @@ use App\Models\TrainingProgram;
 use App\Models\TrainingSession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -163,6 +164,71 @@ class OperationsWorkflowTest extends TestCase
         ])->assertRedirect('/opportunities')->assertSessionHasErrors('employer_verified');
 
         $this->assertDatabaseMissing('job_opportunities', ['title' => 'Electrical Technician']);
+    }
+
+    public function test_peso_marks_a_recommended_career_seeker_hired_and_notifies_only_that_seeker(): void
+    {
+        config()->set('mail.default', 'array');
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $seeker = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $other = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
+        $job = JobOpportunity::factory()->create(['title' => 'Electrical Technician', 'employer_name' => 'Northstar Works']);
+        $job->recommendedUsers()->attach($seeker->id, ['recommended_by' => $admin->id]);
+
+        $this->actingAs($admin)->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])
+            ->assertRedirect()->assertSessionHas('status', 'Hiring recorded and the career seeker notified by email and in the app.');
+
+        $this->assertDatabaseHas('job_recommendations', ['job_opportunity_id' => $job->id, 'user_id' => $seeker->id, 'hired_by' => $admin->id]);
+        $this->assertNotNull($job->recommendedUsers()->whereKey($seeker->id)->firstOrFail()->pivot->hired_at);
+        $this->assertSame('hiring', $seeker->notifications()->sole()->data['kind']);
+        $this->assertSame(0, $other->notifications()->count());
+        $this->assertSame(0, $trainer->notifications()->count());
+        $this->assertSame($seeker->email, Mail::mailer('array')->getSymfonyTransport()->messages()->sole()->getEnvelope()->getRecipients()[0]->getAddress());
+        $this->actingAs($seeker)->get(route('opportunities.index'))->assertOk()->assertSee('data-my-hired >Hired', false);
+        $this->getJson('/api/mobile/opportunities')->assertJsonPath('jobs.data.0.recommended_users.0.pivot.hired_by', $admin->id);
+        $this->actingAs($other)->get(route('opportunities.index'))->assertDontSee('data-my-hired >Hired', false);
+        $this->getJson('/api/mobile/opportunities')->assertJsonCount(0, 'jobs.data.0.recommended_users');
+        $this->actingAs($trainer)->get(route('opportunities.index'))->assertDontSee('Career seeker matches');
+        $this->getJson('/api/mobile/opportunities')->assertJsonMissingPath('jobs.data.0.recommended_users');
+
+        $job->update(['status' => 'closed']);
+        $this->actingAs($seeker)->getJson('/api/mobile/opportunities')->assertJsonPath('jobs.data.0.id', $job->id);
+        $this->actingAs($other)->getJson('/api/mobile/opportunities')->assertJsonCount(0, 'jobs.data');
+    }
+
+    public function test_hiring_requires_a_recommendation_and_does_not_send_duplicate_notices(): void
+    {
+        config()->set('mail.default', 'array');
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $seeker = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $trainer = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
+        $job = JobOpportunity::factory()->create();
+
+        $this->actingAs($admin)->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertNotFound();
+        $job->recommendedUsers()->attach($seeker->id, ['recommended_by' => $admin->id]);
+        $this->actingAs($trainer)->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertForbidden();
+        $this->actingAs($admin)->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertRedirect();
+        $this->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertSessionHas('status', 'This career seeker is already marked as hired for this opening.');
+        $this->postJson('/api/mobile/opportunities/'.$job->id.'/hire', ['youth_email' => $seeker->email])
+            ->assertOk()->assertJsonPath('message', 'This career seeker is already marked as hired for this opening.');
+        $this->assertSame(1, $seeker->notifications()->count());
+        $this->assertSame(1, Mail::mailer('array')->getSymfonyTransport()->messages()->count());
+    }
+
+    public function test_hiring_remains_recorded_and_in_app_when_email_delivery_fails(): void
+    {
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $seeker = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $job = JobOpportunity::factory()->create();
+        $job->recommendedUsers()->attach($seeker->id, ['recommended_by' => $admin->id]);
+        Mail::shouldReceive('mailer')->once()->andThrow(new \RuntimeException('Mail unavailable'));
+
+        $this->actingAs($admin)->postJson('/api/mobile/opportunities/'.$job->id.'/hire', ['youth_email' => $seeker->email])
+            ->assertOk()->assertJsonPath('email_sent', false);
+
+        $this->assertNotNull($job->recommendedUsers()->whereKey($seeker->id)->firstOrFail()->pivot->hired_at);
+        $this->assertSame('hiring', $seeker->notifications()->sole()->data['kind']);
     }
 
     public function test_center_scoped_tesda_can_assign_staff_only_to_their_centers_programs(): void

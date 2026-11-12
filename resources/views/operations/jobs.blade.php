@@ -1,9 +1,10 @@
 <x-app-layout>
-    <div class="trainer-courses suite-page operations-page">
+    <div class="trainer-courses suite-page operations-page" data-live-jobs-url="{{ route('opportunities.index', request()->only('q', 'page')) }}" data-hire-csrf="{{ csrf_token() }}">
         <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Source-checked openings and clearly marked simulated records for workflow testing." />
         <aside class="suite-note"><strong>Want more current openings?</strong> Search the official DOLE PhilJobNet vacancy portal. Openings shown below have been checked by PESO staff.<br><a href="https://philjobnet.gov.ph/job-vacancies/" target="_blank" rel="noopener noreferrer">Browse live PhilJobNet vacancies ↗</a></aside>
         @include('operations.search', ['placeholder' => 'Search job titles or employers', 'count' => $jobs->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
+        <p data-live-status role="status" hidden></p>
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
         @if ($canManage)
             @php($creatingJob = old('_operation') === 'create-job')
@@ -19,12 +20,12 @@
             </form></section>
         @endif
         @forelse ($jobs as $job)
-            <article class="operations-card"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small class="operations-status">Recommended by PESO</small>@endif</h2><p>{{ $job->employer_name ?: $job->employer?->name }} @if ($job->location) · {{ $job->location }} @endif @if ($job->compensation) · {{ $job->compensation }} @endif <span class="operations-status">{{ ucfirst($job->status) }}</span></p><p>{{ $job->description }}</p>
+            <article class="operations-card" data-job-id="{{ $job->id }}" data-hire-url="{{ $canManage ? route('admin.opportunities.hire', $job) : '' }}"><h2>{{ $job->title }} @if ($job->recommended_for_me ?? false)<small class="operations-status">Recommended by PESO</small>@endif @unless ($canManage)<small class="operations-status" data-my-hired @if (! $job->recommendedUsers->contains(fn ($member) => $member->pivot->hired_at !== null)) hidden @endif>Hired · recorded by PESO</small>@endunless</h2><p>{{ $job->employer_name ?: $job->employer?->name }} @if ($job->location) · {{ $job->location }} @endif @if ($job->compensation) · {{ $job->compensation }} @endif <span class="operations-status">{{ ucfirst($job->status) }}</span></p><p>{{ $job->description }}</p>
                 @if ($job->requirements)<p><strong>Requirements:</strong> {{ $job->requirements }}</p>@endif
                 @if ($job->closes_at)<p>Closes {{ $job->closes_at->format('M j, Y') }}</p>@endif
                 @if ($job->source_url)<p><a href="{{ $job->source_url }}" target="_blank" rel="noopener noreferrer">Source listing ↗</a> @if ($job->source_checked_at)<span>· Checked {{ $job->source_checked_at->format('M j, Y') }}</span>@endif</p>@endif
                 @if ($job->application_url)<a href="{{ $job->application_url }}" target="_blank" rel="noopener noreferrer">{{ $job->application_url === $job->source_url ? 'View opening and application details ↗' : 'Apply with employer ↗' }}</a>@endif
-                @if ($canManage)<form method="POST" action="{{ route('admin.opportunities.recommend', $job) }}">@csrf<label>Recommend to career seeker email <input type="email" name="youth_email" required></label><button type="submit">Recommend</button></form><details><summary>Edit opening</summary><form method="POST" action="{{ route('admin.opportunities.update', $job) }}">@csrf @method('PUT')
+                @if ($canManage)<div data-hiring-list><h3>Career seeker matches</h3><ul>@forelse ($job->recommendedUsers as $member)<li>{{ $member->name }} ({{ $member->email }}) @if ($member->pivot->hired_at)<strong>Hired {{ \Illuminate\Support\Carbon::parse($member->pivot->hired_at)->format('M j, Y') }}</strong>@else<form method="POST" action="{{ route('admin.opportunities.hire', $job) }}">@csrf<input type="hidden" name="youth_email" value="{{ $member->email }}"><button type="submit">Mark hired</button></form>@endif</li>@empty<li>No career seekers matched yet.</li>@endforelse</ul></div><form method="POST" action="{{ route('admin.opportunities.recommend', $job) }}">@csrf<label>Recommend to career seeker email <input type="email" name="youth_email" required></label><button type="submit">Recommend</button></form><details><summary>Edit opening</summary><form method="POST" action="{{ route('admin.opportunities.update', $job) }}">@csrf @method('PUT')
                     <label>Employer or organization <input name="employer_name" required maxlength="255" value="{{ $job->employer_name ?: $job->employer?->name }}"></label>
                     <label><input type="checkbox" name="employer_verified" value="1" @checked($job->employer_verified || $job->employer?->is_verified)> I checked that this employer and opening are current</label>
                     <label>Title <input name="title" required value="{{ $job->title }}"></label><label>Pay / compensation <input name="compensation" maxlength="100" value="{{ $job->compensation }}"></label><label>Location <input name="location" value="{{ $job->location }}"></label>

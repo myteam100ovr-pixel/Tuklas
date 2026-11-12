@@ -51,7 +51,7 @@
                 <span class="tk-account-name">{{ $navUser['name'] }}</span>
                 <span class="tk-account-role">{{ $navUser['role'] }}</span>
             </div>
-            <a class="tk-ibtn tk-notification-link" href="{{ route('notifications.index') }}" aria-label="Notifications{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.' unread)' : '' }}" title="Notifications">
+            <a class="tk-ibtn tk-notification-link" href="{{ route('notifications.index') }}" data-notifications-url="{{ route('notifications.index') }}" aria-label="Notifications{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.' unread)' : '' }}" title="Notifications">
                 <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>
                 @if ($unreadNotificationCount)<span class="tk-notification-count">{{ $unreadNotificationCount }}</span>@endif
             </a>

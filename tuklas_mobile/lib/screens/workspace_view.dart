@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../date_format.dart';
 import '../ui.dart';
 import 'workspace_form.dart';
+import 'operations_view.dart';
 
 /// Role-specific workspace backed by the same actions as the website.
 class WorkspaceView extends StatefulWidget {
@@ -21,6 +24,8 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   int? _target;
   String _search = '';
   final _assessment = <String, dynamic>{};
+  Timer? _syncTimer;
+  bool _syncing = false;
   String get _role => '${ApiClient.instance.user?['role']}';
   bool get _centerScopedTesda =>
       _role == 'tesda_admin' &&
@@ -38,6 +43,33 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   void initState() {
     super.initState();
     _load();
+    if (widget.section == 'Notifications') {
+      _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
+    }
+  }
+
+  @override
+  void dispose() {
+    _syncTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _sync() async {
+    if (!mounted ||
+        _busy ||
+        _syncing ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    _syncing = true;
+    try {
+      final result = await ApiClient.instance.workspace(_path);
+      if (mounted) setState(() => _data = result);
+    } catch (_) {
+      // Keep the last successful view until the next sync.
+    } finally {
+      _syncing = false;
+    }
   }
 
   Future<void> _load() async {
@@ -326,6 +358,16 @@ class _WorkspaceViewState extends State<WorkspaceView> {
               '${notice['title'] ?? 'Notification'}',
               [
                 Text('${notice['message'] ?? ''}'),
+                if (notice['kind'] == 'hiring' && _role == 'youth')
+                  _button(
+                    'View job',
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const OperationsView(section: 'Jobs'),
+                      ),
+                    ),
+                  ),
                 if (row['read_at'] == null)
                   _button(
                     'Mark read',

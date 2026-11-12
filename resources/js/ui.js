@@ -3,6 +3,7 @@ import './tesda-catalog.js';
 import './career-chat.js';
 import './auth-carousel.js';
 import './auth-legal-dialog.js';
+import './workspace-sync.js';
 
 const showNavigationLoading = (message) => {
     document.body.dataset.navigationLoading = message;

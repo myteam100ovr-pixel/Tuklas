@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,6 +24,8 @@ class _OperationsViewState extends State<OperationsView> {
   int _page = 1;
   final _search = TextEditingController();
   String _query = '';
+  Timer? _syncTimer;
+  bool _syncing = false;
 
   bool get _searchable =>
       ['Jobs', 'Scholarships', 'Centers', 'Sessions'].contains(widget.section);
@@ -68,10 +72,14 @@ class _OperationsViewState extends State<OperationsView> {
   void initState() {
     super.initState();
     _load();
+    if (widget.section == 'Jobs') {
+      _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
+    }
   }
 
   @override
   void dispose() {
+    _syncTimer?.cancel();
     _search.dispose();
     super.dispose();
   }
@@ -111,6 +119,29 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  Future<void> _sync() async {
+    if (!mounted ||
+        _busy ||
+        _syncing ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    _syncing = true;
+    try {
+      final query = _query.isEmpty
+          ? ''
+          : '&q=${Uri.encodeQueryComponent(_query)}';
+      final result = await ApiClient.instance.workspace(
+        '$_path?page=$_page$query',
+      );
+      if (mounted) setState(() => _response = result);
+    } catch (_) {
+      // Keep the last successful view until the next sync.
+    } finally {
+      _syncing = false;
+    }
+  }
+
   List<Map<String, dynamic>> _list(String key) {
     final raw = _response?[key];
     final entries = raw is Map ? raw['data'] : raw;
@@ -118,6 +149,15 @@ class _OperationsViewState extends State<OperationsView> {
     return entries
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+
+  List<Map<String, dynamic>> _recommendedUsers(Map<String, dynamic> job) {
+    final users = job['recommended_users'];
+    if (users is! List) return [];
+    return users
+        .whereType<Map>()
+        .map((user) => Map<String, dynamic>.from(user))
         .toList();
   }
 
@@ -729,6 +769,53 @@ class _OperationsViewState extends State<OperationsView> {
                           padding: EdgeInsets.only(top: 8),
                           child: Text('Recommended by PESO'),
                         ),
+                      if (widget.section == 'Jobs' &&
+                          _role == 'youth' &&
+                          _recommendedUsers(item).any(
+                            (user) =>
+                                (user['pivot'] as Map?)?['hired_at'] != null,
+                          ))
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text('Hired · recorded by PESO'),
+                        ),
+                      if (widget.section == 'Jobs' && _role == 'admin') ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Career seeker matches',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        for (final seeker in _recommendedUsers(item))
+                          Builder(
+                            builder: (context) {
+                              final hiredAt =
+                                  (seeker['pivot'] as Map?)?['hired_at'];
+                              return ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text('${seeker['name']}'),
+                                subtitle: Text(
+                                  hiredAt == null
+                                      ? '${seeker['email']}'
+                                      : 'Hired ${formatTuklasDate(hiredAt)}',
+                                ),
+                                trailing: hiredAt == null
+                                    ? TextButton(
+                                        onPressed: _busy
+                                            ? null
+                                            : () => _action(
+                                                '/opportunities/${item['id']}/hire',
+                                                data: {
+                                                  'youth_email':
+                                                      seeker['email'],
+                                                },
+                                              ),
+                                        child: const Text('Mark hired'),
+                                      )
+                                    : null,
+                              );
+                            },
+                          ),
+                      ],
                       if (_canManage &&
                           widget.section != 'Assessments' &&
                           widget.section != 'Trainers')
