@@ -299,9 +299,65 @@ Other migrations create `password_reset_tokens`, `sessions`, `cache`, `cache_loc
 - Git
 - Flutter and Android Studio for Android development; macOS and Xcode are required to build iOS
 
-## Local setup on Windows with MySQL
+## Clone and start on localhost (Windows PowerShell)
 
-Open PowerShell in the repository directory. Start MySQL in XAMPP, Laragon, or your local MySQL service. The example below assumes XAMPP's MySQL executable is at `C:\xampp\mysql\bin`.
+Install PHP 8.5.12 or newer with the extensions required by Composer, Composer, and Node.js with npm. SQLite is the simplest local database and is the default in `.env.example`; MySQL is optional.
+
+Clone the repository and install its dependencies:
+
+```powershell
+git clone https://github.com/myteam100ovr-pixel/Tuklas.git
+Set-Location Tuklas
+Copy-Item .env.example .env
+composer install
+npm ci
+```
+
+Open `.env` and set a unique local Admin password plus passwords for the demo roles. Do not reuse these values on Amazon or commit `.env`:
+
+```powershell
+notepad .env
+```
+
+For a fresh SQLite clone, leave `DB_CONNECTION=sqlite` and the database settings commented out. Add or update these entries in `.env`:
+
+```dotenv
+APP_NAME=Tuklas
+APP_ENV=local
+APP_URL=http://127.0.0.1:8000
+TUKLAS_ADMIN_EMAIL=admin@tuklas.test
+TUKLAS_ADMIN_NAME="PESO Bugallon Admin"
+TUKLAS_ADMIN_PASSWORD="choose-a-local-admin-password"
+TUKLAS_DEMO_CAREER_SEEKER_PASSWORD="choose-a-local-demo-password"
+TUKLAS_DEMO_ADMIN_PASSWORD="choose-a-local-demo-password"
+TUKLAS_DEMO_TESDA_PASSWORD="choose-a-local-demo-password"
+```
+
+Prepare the database, create the Admin and catalog records, then add the role demo accounts and their workflow records:
+
+```powershell
+php artisan key:generate
+php artisan migrate --seed
+php artisan db:seed --class=FictionalDemoCatalogSeeder
+php artisan db:seed --class=PresentationAccountsSeeder
+php artisan db:seed --class=LocalWorkflowDataSeeder
+php artisan storage:link
+npm run build
+```
+
+The demo login emails default to `demo-youth@tuklas.test` (Career Seeker), `demo-admin@tuklas.test` (Admin), and `demo-tesda@tuklas.test` (TESDA). Their passwords are the values you chose above. The initial Admin email is `admin@tuklas.test`. To add a Training Center Representative, sign in as Admin, create the account, and assign it to a center. The fictional catalog and workflow seeders are for local testing; do not run them on a public production database unless you intend to publish those records.
+
+Start the local website:
+
+```powershell
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000). Keep this PowerShell window open while testing. For updated frontend files during development, run `npm run dev` in a second PowerShell window instead of `npm run build`.
+
+### Optional local setup with MySQL
+
+Start MySQL in XAMPP, Laragon, or your local MySQL service. The example below assumes XAMPP's MySQL executable is at `C:\xampp\mysql\bin`.
 
 Create a database and a local app user (replace the sample password before running):
 
@@ -330,16 +386,7 @@ TUKLAS_ADMIN_PASSWORD="replace-with-a-strong-local-password"
 TUKLAS_DEMO_PASSWORD="replace-with-a-local-demo-password"
 ```
 
-Install dependencies, generate the app key, migrate the schema, and create the configured Admin account. The sample email and password above are for local setup only; set a real mailbox and strong secret in the production environment:
-
-```powershell
-composer install
-npm ci
-php artisan key:generate
-php artisan migrate --seed
-php artisan storage:link
-npm run build
-```
+After creating the database, set `DB_CONNECTION=mysql`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_DATABASE=tuklas`, `DB_USERNAME=tuklas_local`, and `DB_PASSWORD` in `.env`. Then run the same Artisan and npm setup commands above. The sample email and password are for local setup only; use a different mailbox and strong secrets in production.
 
 To create or update only the configured Admin account without reseeding catalog data, run:
 
@@ -361,13 +408,7 @@ php artisan db:seed --class=FictionalDemoCatalogSeeder
 
 It creates 50 fictional training programs, job listings, scholarship scenarios, training dates, training requests, and assessment records across 5 fictional centers. These are test records, not real openings or official outcomes; their descriptions disclose that they are fictional. Do not seed them into a public production database unless you intend to show demo records there.
 
-Start the local site:
-
-```powershell
-php artisan serve --host=127.0.0.1 --port=8000
-```
-
-Visit [http://127.0.0.1:8000](http://127.0.0.1:8000). The initial PESO administrator signs in with the email and password set in `.env`.
+The initial PESO administrator signs in with the email and password set in `.env`.
 
 ### MySQL inspection commands
 
