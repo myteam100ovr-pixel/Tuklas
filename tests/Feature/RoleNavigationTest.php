@@ -90,6 +90,40 @@ class RoleNavigationTest extends TestCase
         $this->assertSame(1, substr_count($navigation, '<span>Training</span>'), 'Training sidebar item count');
     }
 
+    public function test_tesda_admin_uses_the_grouped_sidebar_and_keeps_existing_training_pages_as_tabs(): void
+    {
+        $tesdaAdmin = User::factory()->create([
+            'role' => Role::TesdaAdmin,
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($tesdaAdmin)->get(route('trainer.programs.index'))->assertOk();
+        $navigation = $this->workspaceNavigation($response->getContent());
+        $pageTabs = $this->workspacePageTabs($response->getContent());
+
+        foreach (['Overview', 'Training', 'Communication', 'Account'] as $label) {
+            $this->assertStringContainsString('<span>'.$label.'</span>', $navigation, $label.' sidebar item');
+        }
+        foreach (['Centers', 'Programs', 'Assign trainers', 'Training dates', 'Training requests', 'Assessment results', 'Scholarships'] as $label) {
+            $this->assertStringContainsString('>'.$label.'</a>', $pageTabs, $label.' training tab');
+        }
+        foreach (['Messages', 'Notifications', 'Profile'] as $label) {
+            $this->assertStringContainsString('>'.$label.'</a>', $this->workspacePageTabsForRoute($tesdaAdmin, $label));
+        }
+
+        $this->assertStringContainsString('href="'.route('centers.index').'"', $pageTabs);
+        $this->assertStringContainsString('href="'.route('trainer.programs.index').'"', $pageTabs);
+        $this->assertStringContainsString('href="'.route('center-trainers.index').'"', $pageTabs);
+        $this->assertStringContainsString('href="'.route('sessions.index').'"', $pageTabs);
+        $this->assertStringContainsString('href="'.route('applications.index').'"', $pageTabs);
+        $this->assertStringContainsString('href="'.route('assessments.index').'"', $pageTabs);
+        $this->assertStringContainsString('href="'.route('scholarships.index').'"', $pageTabs);
+        $this->assertStringContainsString('tk-sidebar--admin', $response->getContent());
+        $this->assertStringContainsString('tk-admin-page-tab is-active', $pageTabs);
+        $this->assertSame(1, substr_count($navigation, '<span>Training</span>'), 'Training sidebar item count');
+    }
+
     public function test_career_seeker_menu_groups_all_existing_links_once_and_shows_floating_chat(): void
     {
         $youth = User::factory()->create([
@@ -127,6 +161,18 @@ class RoleNavigationTest extends TestCase
         preg_match('/<nav class="tk-admin-page-tabs".*?<\/nav>/s', $html, $matches);
 
         return $matches[0] ?? '';
+    }
+
+    private function workspacePageTabsForRoute(User $user, string $label): string
+    {
+        $route = match ($label) {
+            'Messages' => 'messages.index',
+            'Notifications' => 'notifications.index',
+            'Profile' => 'profile.show',
+        };
+        $response = $this->actingAs($user)->get(route($route))->assertOk();
+
+        return $this->workspacePageTabs($response->getContent());
     }
 
     public function test_youth_dashboard_shows_a_job_role_from_their_latest_scan(): void

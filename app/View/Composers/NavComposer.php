@@ -37,6 +37,27 @@ class NavComposer
     ];
 
     private const ROLE_GROUPS = [
+        'tesda_admin' => [
+            ['Overview', null, 'i-list', [
+                ['Overview', 'trainer.dashboard', ['trainer.dashboard']],
+            ]],
+            ['Training', 'tesda_training', 'i-cap', [
+                ['Centers', 'centers.index', ['centers.*']],
+                ['Programs', 'trainer.programs.index', ['trainer.programs.*']],
+                ['Assign trainers', 'center-trainers.index', ['center-trainers.*']],
+                ['Training dates', 'sessions.index', ['sessions.*']],
+                ['Training requests', 'applications.index', ['applications.*']],
+                ['Assessment results', 'assessments.index', ['assessments.*']],
+                ['Scholarships', 'scholarships.index', ['scholarships.*']],
+            ]],
+            ['Communication', 'tesda_communication', 'i-chat', [
+                ['Messages', 'messages.index', ['messages.*']],
+                ['Notifications', 'notifications.index', ['notifications.*']],
+            ]],
+            ['Account', 'tesda_account', 'i-user', [
+                ['Profile', 'profile.show', ['profile.*']],
+            ]],
+        ],
         'trainer' => [
             ['Overview', null, 'i-list', [
                 ['Overview', 'trainer.dashboard', ['trainer.dashboard']],
