@@ -340,12 +340,24 @@ php artisan key:generate
 php artisan migrate --seed
 php artisan db:seed --class=FictionalDemoCatalogSeeder
 php artisan db:seed --class=PresentationAccountsSeeder
+php artisan db:seed --class=TesdaDemoAccountsSeeder
 php artisan db:seed --class=LocalWorkflowDataSeeder
 php artisan storage:link
 npm run build
 ```
 
-The demo login emails default to `demo-youth@tuklas.test` (Career Seeker), `demo-admin@tuklas.test` (Admin), and `demo-tesda@tuklas.test` (TESDA). Their passwords are the values you chose above. The initial Admin email is `admin@tuklas.test`. To add a Training Center Representative, sign in as Admin, create the account, and assign it to a center. The fictional catalog and workflow seeders are for local testing; do not run them on a public production database unless you intend to publish those records.
+The demo login emails default to `demo-youth@tuklas.test` (Career Seeker), `demo-admin@tuklas.test` (Admin), and `demo-tesda@tuklas.test` (TESDA). The initial Admin email is `admin@tuklas.test`. The 50 additional TESDA beta accounts use `tesda-beta-01@tuklas.test` through `tesda-beta-50@tuklas.test`; all use the password set in `TUKLAS_DEMO_TESDA_PASSWORD`. The `.test` addresses are reserved for testing and do not receive email. To add a Training Center Representative, sign in as Admin, create the account, and assign it to a center.
+
+The fictional catalog and Career Seeker workflow seeders are intended for local testing. `TesdaDemoAccountsSeeder` creates active TESDA administrator accounts with management permissions. The `.test` addresses are marked verified for sign-in but cannot receive email. Only run this seeder on Amazon if you intend these beta accounts to access the live system. Set a dedicated `TUKLAS_DEMO_TESDA_PASSWORD` in the server environment first; do not reuse the local password. After pulling the code on EC2, run:
+
+```bash
+cd /var/www/tuklas
+php artisan config:clear
+php artisan db:seed --class=TesdaDemoAccountsSeeder --force
+php artisan config:cache
+```
+
+The explicit `--force` is required in production. The seeder refuses to replace existing non-demo accounts that use any of its reserved test emails.
 
 Start the local website:
 
