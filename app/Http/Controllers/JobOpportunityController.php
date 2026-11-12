@@ -79,7 +79,7 @@ class JobOpportunityController extends Controller
 
         $newlyHired = DB::transaction(function () use ($job, $youth, $request): bool {
             $match = $job->recommendedUsers()->whereKey($youth->id)->lockForUpdate()->firstOrFail();
-            if ($match->pivot->hired_at !== null) {
+            if ($match->pivot->hired_at !== null || $match->pivot->not_selected_at !== null) {
                 return false;
             }
 
@@ -92,7 +92,7 @@ class JobOpportunityController extends Controller
         });
 
         if (! $newlyHired) {
-            $message = 'This career seeker is already marked as hired for this opening.';
+            $message = 'A decision has already been recorded for this career seeker.';
 
             return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json(['message' => $message]) : back()->with('status', $message);
         }
@@ -117,6 +117,49 @@ class JobOpportunityController extends Controller
         $message = $emailSent ? 'Hiring recorded and the career seeker notified by email and in the app.' : 'Hiring recorded and the in-app notification sent. The email could not be sent.';
 
         return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json(['message' => $message, 'email_sent' => $emailSent]) : back()->with('status', $message);
+    }
+
+    public function notSelected(Request $request, JobOpportunity $job): RedirectResponse|JsonResponse
+    {
+        abort_unless($request->user()->hasRole(Role::Admin), 403);
+        $data = $request->validate([
+            'youth_email' => ['required', 'email', 'exists:users,email'],
+            'reason' => ['required', 'string', 'min:5', 'max:3000'],
+        ]);
+        $youth = User::query()->where('email', $data['youth_email'])->where('role', Role::Youth->value)->where('is_active', true)->firstOrFail();
+
+        $recorded = DB::transaction(function () use ($job, $youth, $request, $data): bool {
+            $match = $job->recommendedUsers()->whereKey($youth->id)->lockForUpdate()->firstOrFail();
+            if ($match->pivot->hired_at !== null || $match->pivot->not_selected_at !== null) {
+                return false;
+            }
+
+            $job->recommendedUsers()->updateExistingPivot($youth->id, [
+                'not_selected_at' => now(),
+                'not_selected_by' => $request->user()->id,
+                'not_selected_reason' => $data['reason'],
+            ]);
+
+            return true;
+        });
+
+        if (! $recorded) {
+            $message = 'A decision has already been recorded for this career seeker.';
+
+            return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json(['message' => $message], 422) : back()->with('status', $message);
+        }
+
+        $youth->notify(new WorkspaceNotice(
+            'Application update',
+            'You were not selected for '.$job->title.'. PESO feedback: '.$data['reason'],
+            'hiring',
+            Role::Admin->value,
+            route('opportunities.index'),
+        ));
+
+        $message = 'Non-selection recorded and the career seeker was notified.';
+
+        return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json(['message' => $message]) : back()->with('status', $message);
     }
 
     private function validatedData(Request $request): array

@@ -43,9 +43,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   void initState() {
     super.initState();
     _load();
-    if (widget.section == 'Notifications') {
-      _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
-    }
+    _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
   }
 
   @override

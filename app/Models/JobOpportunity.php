@@ -33,6 +33,6 @@ class JobOpportunity extends Model
 
     public function recommendedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'job_recommendations')->withPivot(['hired_at', 'hired_by'])->withTimestamps();
+        return $this->belongsToMany(User::class, 'job_recommendations')->withPivot(['hired_at', 'hired_by', 'not_selected_at', 'not_selected_by', 'not_selected_reason'])->withTimestamps();
     }
 }

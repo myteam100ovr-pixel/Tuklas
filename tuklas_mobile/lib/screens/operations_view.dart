@@ -72,9 +72,7 @@ class _OperationsViewState extends State<OperationsView> {
   void initState() {
     super.initState();
     _load();
-    if (widget.section == 'Jobs') {
-      _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
-    }
+    _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
   }
 
   @override
@@ -159,6 +157,46 @@ class _OperationsViewState extends State<OperationsView> {
         .whereType<Map>()
         .map((user) => Map<String, dynamic>.from(user))
         .toList();
+  }
+
+  Future<void> _markNotSelected(
+    Map<String, dynamic> job,
+    Map<String, dynamic> seeker,
+  ) async {
+    final reasonController = TextEditingController();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reason for non-selection'),
+        content: TextField(
+          controller: reasonController,
+          autofocus: true,
+          minLines: 3,
+          maxLines: 6,
+          maxLength: 3000,
+          decoration: const InputDecoration(
+            labelText: 'Feedback for the career seeker',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, reasonController.text.trim()),
+            child: const Text('Send decision'),
+          ),
+        ],
+      ),
+    );
+    reasonController.dispose();
+    if (reason == null || reason.length < 5 || !mounted) return;
+    await _action(
+      '/opportunities/${job['id']}/not-selected',
+      data: {'youth_email': seeker['email'], 'reason': reason},
+    );
   }
 
   Future<void> _changePage(int page) async {
@@ -769,16 +807,24 @@ class _OperationsViewState extends State<OperationsView> {
                           padding: EdgeInsets.only(top: 8),
                           child: Text('Recommended by PESO'),
                         ),
-                      if (widget.section == 'Jobs' &&
-                          _role == 'youth' &&
-                          _recommendedUsers(item).any(
-                            (user) =>
-                                (user['pivot'] as Map?)?['hired_at'] != null,
-                          ))
-                        const Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Text('Hired · recorded by PESO'),
-                        ),
+                      if (widget.section == 'Jobs' && _role == 'youth')
+                        for (final seeker in _recommendedUsers(item))
+                          if ('${seeker['id']}' ==
+                              '${ApiClient.instance.user?['id']}')
+                            if ((seeker['pivot'] as Map?)?['hired_at'] != null)
+                              const Padding(
+                                padding: EdgeInsets.only(top: 8),
+                                child: Text('Hired · recorded by PESO'),
+                              )
+                            else if ((seeker['pivot']
+                                    as Map?)?['not_selected_at'] !=
+                                null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  'Not selected · ${(seeker['pivot'] as Map?)?['not_selected_reason'] ?? ''}',
+                                ),
+                              ),
                       if (widget.section == 'Jobs' && _role == 'admin') ...[
                         const SizedBox(height: 8),
                         Text(
@@ -788,28 +834,46 @@ class _OperationsViewState extends State<OperationsView> {
                         for (final seeker in _recommendedUsers(item))
                           Builder(
                             builder: (context) {
-                              final hiredAt =
-                                  (seeker['pivot'] as Map?)?['hired_at'];
+                              final pivot = seeker['pivot'] as Map?;
+                              final hiredAt = pivot?['hired_at'];
+                              final notSelectedAt = pivot?['not_selected_at'];
                               return ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 title: Text('${seeker['name']}'),
                                 subtitle: Text(
-                                  hiredAt == null
-                                      ? '${seeker['email']}'
-                                      : 'Hired ${formatTuklasDate(hiredAt)}',
+                                  hiredAt != null
+                                      ? 'Hired ${formatTuklasDate(hiredAt)}'
+                                      : notSelectedAt != null
+                                      ? 'Not selected · ${pivot?['not_selected_reason'] ?? ''}'
+                                      : '${seeker['email']}',
                                 ),
-                                trailing: hiredAt == null
-                                    ? TextButton(
-                                        onPressed: _busy
-                                            ? null
-                                            : () => _action(
-                                                '/opportunities/${item['id']}/hire',
-                                                data: {
-                                                  'youth_email':
-                                                      seeker['email'],
-                                                },
-                                              ),
-                                        child: const Text('Mark hired'),
+                                trailing:
+                                    hiredAt == null && notSelectedAt == null
+                                    ? Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextButton(
+                                            onPressed: _busy
+                                                ? null
+                                                : () => _action(
+                                                    '/opportunities/${item['id']}/hire',
+                                                    data: {
+                                                      'youth_email':
+                                                          seeker['email'],
+                                                    },
+                                                  ),
+                                            child: const Text('Mark hired'),
+                                          ),
+                                          TextButton(
+                                            onPressed: _busy
+                                                ? null
+                                                : () => _markNotSelected(
+                                                    item,
+                                                    seeker,
+                                                  ),
+                                            child: const Text('Not selected'),
+                                          ),
+                                        ],
                                       )
                                     : null,
                               );

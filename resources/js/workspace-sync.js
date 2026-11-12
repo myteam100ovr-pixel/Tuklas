@@ -33,7 +33,7 @@ const updateNotifications = async () => {
 
 const renderHiringList = (container, job, token) => {
     const users = job.recommended_users || [];
-    const signature = JSON.stringify(users.map((user) => [user.id, user.pivot?.hired_at]));
+    const signature = JSON.stringify(users.map((user) => [user.id, user.pivot?.hired_at, user.pivot?.not_selected_at, user.pivot?.not_selected_reason]));
     if (container.dataset.signature === signature) return;
     container.dataset.signature = signature;
     const heading = document.createElement('h3');
@@ -51,6 +51,10 @@ const renderHiringList = (container, job, token) => {
             const hired = document.createElement('strong');
             hired.textContent = `Hired ${new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(user.pivot.hired_at))}`;
             row.append(hired);
+        } else if (user.pivot?.not_selected_at) {
+            const decision = document.createElement('strong');
+            decision.textContent = `Not selected · ${user.pivot.not_selected_reason || 'No reason recorded'}`;
+            row.append(decision);
         } else {
             const form = document.createElement('form');
             form.method = 'POST';
@@ -68,6 +72,23 @@ const renderHiringList = (container, job, token) => {
             button.textContent = 'Mark hired';
             form.append(csrf, email, button);
             row.append(form);
+            const decline = document.createElement('form');
+            decline.method = 'POST';
+            decline.action = `${container.closest('[data-job-id]').dataset.hireUrl}/not-selected`;
+            decline.dataset.hiringDecision = 'not-selected';
+            const declineCsrf = csrf.cloneNode();
+            decline.append(declineCsrf, email.cloneNode());
+            const reason = document.createElement('textarea');
+            reason.name = 'reason';
+            reason.required = true;
+            reason.minLength = 5;
+            reason.maxLength = 3000;
+            reason.placeholder = 'Reason they were not selected';
+            const declineButton = document.createElement('button');
+            declineButton.type = 'submit';
+            declineButton.textContent = 'Mark not selected';
+            decline.append(reason, declineButton);
+            row.append(decline);
         }
         list.append(row);
     });
@@ -86,7 +107,11 @@ const updateJobs = async () => {
         const article = [...document.querySelectorAll('[data-job-id]')].find((element) => Number(element.dataset.jobId) === job.id);
         if (!article) return;
         const hiredBadge = article.querySelector('[data-my-hired]');
-        if (hiredBadge) hiredBadge.hidden = !(job.recommended_users || []).some((user) => user.pivot?.hired_at);
+        if (hiredBadge) {
+            const decision = (job.recommended_users || []).find((user) => user.pivot?.hired_at || user.pivot?.not_selected_at)?.pivot;
+            hiredBadge.hidden = !decision;
+            if (decision) hiredBadge.textContent = decision.hired_at ? 'Hired · recorded by PESO' : `Not selected · ${decision.not_selected_reason || ''}`;
+        }
         const list = article.querySelector('[data-hiring-list]');
         if (list) renderHiringList(list, job, jobsPage.dataset.hireCsrf);
     });
@@ -102,7 +127,7 @@ const sync = async () => {
     }
 };
 
-if (notificationLink) {
+if (notificationLink || jobsPage) {
     setInterval(sync, 4000);
     document.addEventListener('visibilitychange', sync);
     window.addEventListener('focus', sync);
@@ -111,7 +136,7 @@ if (notificationLink) {
 jobsPage?.addEventListener('submit', async (event) => {
     const form = event.target;
     const article = form.closest('[data-job-id]');
-    if (!article || form.action !== article.dataset.hireUrl) return;
+    if (!article || (form.action !== article.dataset.hireUrl && form.action !== `${article.dataset.hireUrl}/not-selected`)) return;
     event.preventDefault();
     const button = form.querySelector('button[type="submit"]');
     const status = jobsPage.querySelector('[data-live-status]');

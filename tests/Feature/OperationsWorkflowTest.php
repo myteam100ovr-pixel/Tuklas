@@ -209,9 +209,9 @@ class OperationsWorkflowTest extends TestCase
         $job->recommendedUsers()->attach($seeker->id, ['recommended_by' => $admin->id]);
         $this->actingAs($trainer)->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertForbidden();
         $this->actingAs($admin)->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertRedirect();
-        $this->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertSessionHas('status', 'This career seeker is already marked as hired for this opening.');
+        $this->post(route('admin.opportunities.hire', $job), ['youth_email' => $seeker->email])->assertSessionHas('status', 'A decision has already been recorded for this career seeker.');
         $this->postJson('/api/mobile/opportunities/'.$job->id.'/hire', ['youth_email' => $seeker->email])
-            ->assertOk()->assertJsonPath('message', 'This career seeker is already marked as hired for this opening.');
+            ->assertOk()->assertJsonPath('message', 'A decision has already been recorded for this career seeker.');
         $this->assertSame(1, $seeker->notifications()->count());
         $this->assertSame(1, Mail::mailer('array')->getSymfonyTransport()->messages()->count());
     }
@@ -229,6 +229,28 @@ class OperationsWorkflowTest extends TestCase
 
         $this->assertNotNull($job->recommendedUsers()->whereKey($seeker->id)->firstOrFail()->pivot->hired_at);
         $this->assertSame('hiring', $seeker->notifications()->sole()->data['kind']);
+    }
+
+    public function test_peso_records_non_selection_with_reason_and_notifies_the_career_seeker(): void
+    {
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $seeker = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $job = JobOpportunity::factory()->create(['title' => 'Electrical Technician']);
+        $job->recommendedUsers()->attach($seeker->id, ['recommended_by' => $admin->id]);
+
+        $this->actingAs($admin)->postJson('/admin/opportunities/'.$job->id.'/not-selected', [
+            'youth_email' => $seeker->email,
+            'reason' => 'The experience required for this opening was not met.',
+        ])->assertOk()->assertJsonPath('message', 'Non-selection recorded and the career seeker was notified.');
+
+        $match = $job->recommendedUsers()->whereKey($seeker->id)->firstOrFail();
+        $this->assertNotNull($match->pivot->not_selected_at);
+        $this->assertSame('The experience required for this opening was not met.', $match->pivot->not_selected_reason);
+        $this->assertSame('hiring', $seeker->notifications()->sole()->data['kind']);
+        $this->assertStringContainsString($match->pivot->not_selected_reason, $seeker->notifications()->sole()->data['message']);
+
+        $this->actingAs($admin)->postJson('/admin/opportunities/'.$job->id.'/not-selected', ['youth_email' => $seeker->email])
+            ->assertUnprocessable()->assertJsonValidationErrors('reason');
     }
 
     public function test_center_scoped_tesda_can_assign_staff_only_to_their_centers_programs(): void

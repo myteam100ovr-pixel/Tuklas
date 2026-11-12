@@ -107,6 +107,7 @@ Route::middleware([
         Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
         Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
         Route::post('/opportunities/{job}/hire', [JobOpportunityController::class, 'hire'])->name('opportunities.hire');
+        Route::post('/opportunities/{job}/not-selected', [JobOpportunityController::class, 'notSelected'])->name('opportunities.not-selected');
         Route::get('/', [DashboardController::class, 'admin'])->name('dashboard');
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
