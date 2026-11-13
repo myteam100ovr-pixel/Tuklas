@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Role;
 use App\Models\TrainingCenter;
+use App\Models\TrainingProgram;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,14 +22,21 @@ class TrainingCenterController extends Controller
         $centers = TrainingCenter::query()
             ->with(['programs' => fn ($programs) => $programs
                 ->when(! $canSeeDrafts, fn ($query) => $query->published())
-                ->select(['id', 'training_center_id', 'title', 'nc_level', 'duration_days', 'status', 'is_demo'])
+                ->select(['id', 'training_center_id', 'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'requirements', 'schedule_note', 'source_reference', 'status', 'is_demo'])
+                ->withCount(['applications', 'sessions', 'teachingAssignments'])
                 ->orderBy('title')])
             ->when($search !== '', fn ($query) => $query->where(fn ($centers) => $centers->where('name', 'like', '%'.$search.'%')->orWhere('address', 'like', '%'.$search.'%')))
             ->when(! $canManage, fn ($query) => $query->where('is_active', true))
             ->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))
             ->orderBy('name')->paginate(50)->withQueryString();
 
-        return $request->routeIs('mobile.*') ? response()->json(['centers' => $centers, 'can_manage' => $canManage]) : view('operations.centers', compact('centers', 'canManage'));
+        return $request->routeIs('mobile.*')
+            ? response()->json(['centers' => $centers, 'can_manage' => $canManage])
+            : view('operations.centers', [
+                'centers' => $centers,
+                'canManage' => $canManage,
+                'newProgram' => new TrainingProgram,
+            ]);
     }
 
     public function store(Request $request): RedirectResponse|JsonResponse

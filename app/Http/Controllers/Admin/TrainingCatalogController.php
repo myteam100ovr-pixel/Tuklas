@@ -48,6 +48,18 @@ class TrainingCatalogController extends Controller
         return redirect()->route('admin.trainings.index')->with('status', 'Training program saved.');
     }
 
+    public function storeForCenter(Request $request, TrainingCenter $center, ActivityNotifier $activity): RedirectResponse
+    {
+        $data = $this->validatedData($request);
+        $data['training_center_id'] = $center->id;
+        $data['created_by'] = $request->user()->id;
+        $data['last_verified_at'] = $data['status'] === 'published' ? now() : null;
+        $program = TrainingProgram::create($data);
+        $activity->record($request->user(), 'added course '.$program->title.' to '.$center->name.'.');
+
+        return redirect()->route('centers.index')->with('status', 'Course added to '.$center->name.'.');
+    }
+
     public function edit(TrainingProgram $training): View
     {
         return view('admin.trainings.form', [
@@ -66,6 +78,38 @@ class TrainingCatalogController extends Controller
         $activity->record($request->user(), 'updated course '.$training->title.' as '.$training->status.'.');
 
         return redirect()->route('admin.trainings.index')->with('status', 'Training program updated.');
+    }
+
+    public function updateForCenter(Request $request, TrainingCenter $center, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse
+    {
+        abort_unless($training->training_center_id === $center->id, 404);
+
+        $data = $this->validatedData($request);
+        $data['training_center_id'] = $center->id;
+        $data['last_verified_at'] = $data['status'] === 'published' ? now() : null;
+        $training->update($data);
+        $activity->record($request->user(), 'updated course '.$training->title.' at '.$center->name.'.');
+
+        return redirect()->route('centers.index')->with('status', 'Course updated.');
+    }
+
+    public function destroyForCenter(Request $request, TrainingCenter $center, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse
+    {
+        abort_unless($training->training_center_id === $center->id, 404);
+
+        if ($training->applications()->exists()
+            || $training->sessions()->exists()
+            || $training->teachingAssignments()->exists()) {
+            return redirect()->route('centers.index')->withErrors([
+                'program' => 'This course has applications, schedules, or trainer assignments. Archive it instead to preserve those records.',
+            ]);
+        }
+
+        $title = $training->title;
+        $training->delete();
+        $activity->record($request->user(), 'deleted course '.$title.' from '.$center->name.'.');
+
+        return redirect()->route('centers.index')->with('status', 'Course deleted.');
     }
 
     /** @return array<string, mixed> */

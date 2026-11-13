@@ -134,6 +134,9 @@ Route::middleware([
         Route::put('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'update'])->name('scholarship-applications.update');
         Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
         Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
+        Route::post('/training-centers/{center}/programs', [TrainingCatalogController::class, 'storeForCenter'])->name('centers.programs.store');
+        Route::put('/training-centers/{center}/programs/{training}', [TrainingCatalogController::class, 'updateForCenter'])->name('centers.programs.update');
+        Route::delete('/training-centers/{center}/programs/{training}', [TrainingCatalogController::class, 'destroyForCenter'])->name('centers.programs.destroy');
     });
     Route::middleware('role:admin,tesda_admin')->group(function () {
         Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');

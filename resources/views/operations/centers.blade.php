@@ -9,9 +9,29 @@
     </form></section>@endif
     @forelse ($centers as $center)<article class="operations-card"><h2>{{ $center->name }} <span class="operations-status">{{ $center->type }}</span></h2><p>{{ $center->address }}</p><p>{{ $center->contact_email }} {{ $center->contact_phone }}</p>
         <section aria-label="{{ $center->name }} program offerings"><h3>Program offerings <span class="operations-status">{{ $center->programs->count() }}</span></h3>
-            @forelse ($center->programs as $program)<p><strong>{{ $program->title }}</strong> · {{ $program->duration_days ? $program->duration_days.' training days' : 'Duration not specified' }} @if ($canManage)<span class="operations-status">{{ ucfirst($program->status) }}</span>@endif</p>
+            @forelse ($center->programs as $program)
+                <p><strong>{{ $program->title }}</strong> · {{ $program->duration_days ? $program->duration_days.' training days' : 'Duration not specified' }} @if ($canManage)<span class="operations-status">{{ ucfirst($program->status) }}</span>@endif</p>
+                @if ($canManage)
+                    <details><summary>Edit course</summary>
+                        @include('operations.center-program-form', ['center' => $center, 'program' => $program])
+                    </details>
+                    @if ($program->applications_count > 0 || $program->sessions_count > 0 || $program->teaching_assignments_count > 0)
+                        <p class="operations-empty">This course has applications, schedules, or trainer assignments. Archive it instead of deleting it so those records are preserved.</p>
+                    @else
+                        <form method="POST" action="{{ route('centers.programs.destroy', [$center, $program]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button class="operations-secondary" type="submit">Delete course</button>
+                        </form>
+                    @endif
+                @endif
             @empty<p class="operations-empty">{{ $canManage ? 'No program offerings loaded for this center yet.' : 'No published offerings listed yet.' }}</p>@endforelse
         </section>
+        @if ($canManage)
+            <details><summary>Add a course to this center</summary>
+                @include('operations.center-program-form', ['center' => $center, 'program' => $newProgram])
+            </details>
+        @endif
         @if ($canManage)<details><summary>Edit center</summary><form method="POST" action="{{ route('centers.update', $center) }}">@csrf @method('PUT')
             <label>Name <input name="name" required value="{{ $center->name }}"></label><label>Type <select name="type"><option @selected($center->type === 'PTC')>PTC</option><option @selected($center->type === 'PSAT')>PSAT</option></select></label>
             <label>Address <input name="address" value="{{ $center->address }}"></label><label>Email <input type="email" name="contact_email" value="{{ $center->contact_email }}"></label><label>Phone <input name="contact_phone" value="{{ $center->contact_phone }}"></label>
