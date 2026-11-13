@@ -1,6 +1,7 @@
 import './theme.js';
 import './tesda-catalog.js';
 import './career-chat.js';
+import './direct-messages.js';
 import './auth-carousel.js';
 import './auth-legal-dialog.js';
 import './workspace-sync.js';

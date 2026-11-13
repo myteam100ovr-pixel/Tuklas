@@ -52,7 +52,11 @@ if (thread && form) {
         try {
             const url = new URL(thread.dataset.updatesUrl, window.location.href);
             url.searchParams.set('after', String(lastFetchedId));
-            const response = await fetch(url, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+            const response = await fetch(url, {
+                cache: 'no-store',
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+            });
             if (!response.ok) throw new Error('Messages could not sync. Retrying…');
             const payload = await response.json();
             if (!Array.isArray(payload.messages)) throw new Error('Messages could not sync. Retrying…');
