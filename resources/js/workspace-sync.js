@@ -46,16 +46,27 @@ const renderHiringList = (container, job, token) => {
     }
     users.forEach((user) => {
         const row = document.createElement('li');
-        row.append(document.createTextNode(`${user.name} (${user.email}) `));
+        const person = document.createElement('div');
+        person.className = 'job-candidate-workflow__person';
+        const name = document.createElement('strong');
+        name.textContent = user.name;
+        const emailAddress = document.createElement('span');
+        emailAddress.textContent = user.email;
+        person.append(name, emailAddress);
+        row.append(person);
         if (user.pivot?.hired_at) {
             const hired = document.createElement('strong');
+            hired.className = 'operations-status';
             hired.textContent = `Hired ${new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(user.pivot.hired_at))}`;
             row.append(hired);
         } else if (user.pivot?.not_selected_at) {
             const decision = document.createElement('strong');
+            decision.className = 'operations-status';
             decision.textContent = `Not selected · ${user.pivot.not_selected_reason || 'No reason recorded'}`;
             row.append(decision);
         } else {
+            const decisions = document.createElement('div');
+            decisions.className = 'job-candidate-workflow__decisions';
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = container.closest('[data-job-id]').dataset.hireUrl;
@@ -71,24 +82,28 @@ const renderHiringList = (container, job, token) => {
             button.type = 'submit';
             button.textContent = 'Mark hired';
             form.append(csrf, email, button);
-            row.append(form);
+            decisions.append(form);
             const decline = document.createElement('form');
             decline.method = 'POST';
             decline.action = `${container.closest('[data-job-id]').dataset.hireUrl}/not-selected`;
             decline.dataset.hiringDecision = 'not-selected';
             const declineCsrf = csrf.cloneNode();
             decline.append(declineCsrf, email.cloneNode());
+            const reasonLabel = document.createElement('label');
+            reasonLabel.append(document.createTextNode('Reason they were not selected'));
             const reason = document.createElement('textarea');
             reason.name = 'reason';
             reason.required = true;
             reason.minLength = 5;
             reason.maxLength = 3000;
             reason.placeholder = 'Reason they were not selected';
+            reasonLabel.append(reason);
             const declineButton = document.createElement('button');
             declineButton.type = 'submit';
             declineButton.textContent = 'Mark not selected';
-            decline.append(reason, declineButton);
-            row.append(decline);
+            decline.append(reasonLabel, declineButton);
+            decisions.append(decline);
+            row.append(decisions);
         }
         list.append(row);
     });

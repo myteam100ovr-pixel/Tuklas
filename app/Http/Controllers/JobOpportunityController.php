@@ -38,7 +38,20 @@ class JobOpportunityController extends Controller
             })
             ->latest()->paginate(50)->withQueryString();
 
-        return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json(compact('jobs', 'canManage')) : view('operations.jobs', compact('jobs', 'canManage'));
+        if ($request->routeIs('mobile.*') || $request->expectsJson()) {
+            return response()->json(compact('jobs', 'canManage'));
+        }
+
+        $careerSeekers = $canManage
+            ? User::query()
+                ->where('role', Role::Youth->value)
+                ->where('is_active', true)
+                ->with('youthProfile:id,user_id,employment_status')
+                ->orderBy('name')
+                ->get(['id', 'name', 'email'])
+            : collect();
+
+        return view('operations.jobs', compact('jobs', 'canManage', 'careerSeekers'));
     }
 
     public function store(Request $request): RedirectResponse|JsonResponse
