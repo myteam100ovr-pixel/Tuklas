@@ -1,5 +1,6 @@
 What’s new
 
+- Messages update in real time across the website and mobile app while connected, with automatic catch-up if the connection drops.
 - Find grouped role navigation, clearly labeled mobile tabs, and an easier next-step workflow.
 - Career Seekers and PESO admins can use PESO AI and document scanning; training staff see their role-specific tools.
 - Scholarship listings show eligibility, application requirements, provider assessments, and verified source links.
