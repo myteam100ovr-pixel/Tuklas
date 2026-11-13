@@ -21,12 +21,18 @@ class UserController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
+        $search = trim((string) ($request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+        ])['q'] ?? ''));
+
         $users = User::query()
             ->when($request->query('status') === 'deleted', fn ($query) => $query->onlyTrashed())
+            ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.$search.'%'))
             ->select(['id', 'name', 'email', 'role', 'is_active', 'email_verified_at', 'created_at', 'deleted_at'])
             ->orderBy('name')
             ->orderBy('id')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         $data = ['users' => $users];
 

@@ -10,9 +10,11 @@ root.querySelectorAll('[data-qualification-catalog]').forEach((catalog) => {
         const words = search.value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
         let count = 0;
         cards.forEach((card) => {
+            const location = card.querySelector('.qualification-location')?.textContent.toLocaleLowerCase() || '';
+            const searchableText = `${card.dataset.title} ${location}`.toLocaleLowerCase();
             const matches = (!level.value || card.dataset.level === level.value)
                 && (!status.value || card.dataset.status === status.value)
-                && words.every((word) => card.dataset.title.toLocaleLowerCase().includes(word));
+                && words.every((word) => searchableText.includes(word));
             card.hidden = !matches;
             if (matches) count++;
         });

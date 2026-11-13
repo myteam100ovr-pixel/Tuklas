@@ -56,6 +56,20 @@ class AdminUserManagementTest extends TestCase
         }
     }
 
+    public function test_admin_can_search_user_directory_by_name(): void
+    {
+        $admin = User::factory()->create(['name' => 'PESO Admin', 'role' => Role::Admin, 'is_active' => true]);
+        User::factory()->create(['name' => 'Maria Clara Santos']);
+        User::factory()->create(['name' => 'Anthony Reyes']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index', ['q' => 'Maria Clara']))
+            ->assertOk()
+            ->assertSee('Maria Clara Santos')
+            ->assertDontSee('Anthony Reyes')
+            ->assertSee('Enter a user’s name');
+    }
+
     public function test_admin_can_edit_delete_and_restore_an_account(): void
     {
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);

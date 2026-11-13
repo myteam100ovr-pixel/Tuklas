@@ -30,7 +30,7 @@
         <p class="qualification-checked">Fetched {{ \Carbon\Carbon::parse($nationalCatalog['fetched_at'])->timezone('Asia/Manila')->format('M j, Y') }} · {{ $nationalCatalog['pages'] }} official pages · {{ count($nationalCatalog['qualifications']) }} entries including archived versions</p>
     @endif
     <div class="qualification-filters">
-        <label>Find a qualification<input type="search" data-qualification-search placeholder="Try cookery, welding, agriculture…" aria-controls="qualification-results"></label>
+        <label>Find a qualification or location<input type="search" data-qualification-search placeholder="Try cookery, welding, Bugallon, or Lingayen…" aria-controls="qualification-results"></label>
         <label>NC level<select data-qualification-level aria-controls="qualification-results"><option value="">All levels</option>@foreach (['NC I', 'NC II', 'NC III', 'NC IV'] as $level)<option value="{{ $level }}">{{ $level }}</option>@endforeach</select></label>
         <label>Listing<select data-qualification-status aria-controls="qualification-results"><option value="current">Current listings</option><option value="archived">Archived / superseded</option><option value="">All entries</option></select></label>
     </div>

@@ -9,6 +9,17 @@
         <a class="trainer-courses__primary" href="{{ route('admin.users.create') }}">Add a user</a>
     </div>
 
+    <form class="operations-search" method="GET" action="{{ route('admin.users.index') }}" role="search">
+        @if (request('status') === 'deleted')<input type="hidden" name="status" value="deleted">@endif
+        <label for="users-name-search">Search users by name</label>
+        <div class="operations-search__controls">
+            <input id="users-name-search" name="q" type="search" value="{{ request('q') }}" maxlength="100" placeholder="Enter a user’s name">
+            <button type="submit">Search</button>
+            @if (request()->filled('q'))<a href="{{ route('admin.users.index', request('status') === 'deleted' ? ['status' => 'deleted'] : []) }}">Clear</a>@endif
+        </div>
+        <p>{{ number_format($users->total()) }} {{ \Illuminate\Support\Str::plural('user', $users->total()) }} found</p>
+    </form>
+
     <section class="card tbl users-directory" aria-labelledby="users-directory-title">
         <div class="card-head">
             <h2 id="users-directory-title">{{ request('status') === 'deleted' ? 'Deleted accounts' : 'Users directory' }}</h2>
@@ -78,7 +89,7 @@
         @else
             <div class="empty">
                 <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>
-                <p>No user accounts are in the database yet.</p>
+                <p>{{ request()->filled('q') ? 'No users match that name.' : (request('status') === 'deleted' ? 'No deleted accounts found.' : 'No user accounts are in the database yet.') }}</p>
             </div>
         @endif
     </section>
