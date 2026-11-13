@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\DirectMessageSent;
+use App\Events\WorkspaceChanged;
 use App\Models\DirectMessage;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
@@ -125,6 +126,12 @@ class DirectMessageController extends Controller
     }
 
     /** @return array{enabled: bool, key: ?string, host: string, port: int, scheme: string} */
+    public function mobileRealtime(Request $request): JsonResponse
+    {
+        return response()->json(['realtime' => $this->realtimeConfiguration($request)]);
+    }
+
+    /** @return array{enabled: bool, key: ?string, host: string, port: int, scheme: string} */
     private function realtimeConfiguration(Request $request): array
     {
         $isSecure = $request->isSecure();
@@ -143,6 +150,7 @@ class DirectMessageController extends Controller
     {
         try {
             broadcast(new DirectMessageSent($message));
+            WorkspaceChanged::dispatch('messages');
         } catch (\Throwable $exception) {
             Log::warning('Direct message was saved but could not be broadcast live.', [
                 'direct_message_id' => $message->id,

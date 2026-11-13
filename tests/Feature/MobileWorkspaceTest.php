@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Events\UserNotificationsChanged;
+use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
@@ -47,8 +49,8 @@ class MobileWorkspaceTest extends TestCase
 
     public function test_center_scoped_tesda_can_manage_its_programs_only(): void
     {
-        $center = \App\Models\TrainingCenter::factory()->create();
-        $otherCenter = \App\Models\TrainingCenter::factory()->create();
+        $center = TrainingCenter::factory()->create();
+        $otherCenter = TrainingCenter::factory()->create();
         $tesda = User::factory()->create(['is_active' => true, 'role' => Role::TesdaAdmin, 'training_center_id' => $center->id]);
         $other = TrainingProgram::factory()->create(['training_center_id' => $otherCenter->id]);
         Sanctum::actingAs($tesda);
@@ -64,10 +66,12 @@ class MobileWorkspaceTest extends TestCase
 
     public function test_notifications_are_scoped_to_the_authenticated_account(): void
     {
+        Event::fake([UserNotificationsChanged::class]);
         $user = User::factory()->create(['is_active' => true, 'role' => Role::Youth]);
         $other = User::factory()->create();
         $user->notify(new WorkspaceNotice('Your update', 'Saved on the website'));
         $other->notify(new WorkspaceNotice('Private update', 'Private'));
+        Event::assertDispatched(UserNotificationsChanged::class, fn (UserNotificationsChanged $event): bool => $event->userId === $user->id);
         Sanctum::actingAs($user);
         $this->getJson('/api/mobile/notifications')->assertJsonCount(1, 'notifications.data')->assertJsonPath('notifications.data.0.data.title', 'Your update');
         $this->postJson('/api/mobile/notifications/'.$other->notifications->first()->id.'/read')->assertNotFound();
@@ -75,6 +79,7 @@ class MobileWorkspaceTest extends TestCase
         $this->assertNotNull($user->notifications->first()->fresh()->read_at);
         $this->assertNull($other->notifications->first()->fresh()->read_at);
         $this->postJson('/api/mobile/notifications/read-all')->assertOk();
+        Event::assertDispatched(UserNotificationsChanged::class, fn (UserNotificationsChanged $event): bool => $event->userId === $user->id);
     }
 
     public function test_training_plans_and_teaching_lists_share_web_records(): void

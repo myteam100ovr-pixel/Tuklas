@@ -8,3 +8,7 @@ Broadcast::channel('users.{userId}', function (User $user, int $userId): bool {
         && $user->is_active
         && $user->hasVerifiedEmail();
 }, ['guards' => ['web', 'sanctum']]);
+
+Broadcast::channel('workspace', function (User $user): bool {
+    return $user->is_active && $user->hasVerifiedEmail();
+}, ['guards' => ['web', 'sanctum']]);

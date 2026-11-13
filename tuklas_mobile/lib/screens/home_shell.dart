@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../api.dart';
 import '../theme.dart';
 import '../ui.dart';
+import '../workspace_realtime.dart';
 import 'dashboard_view.dart';
 import 'login_screen.dart';
 import 'profile_view.dart';
@@ -24,7 +25,7 @@ class HomeShell extends StatefulWidget {
   State<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   bool _checkingVerification = false;
   String? _verificationMessage;
   int _tab = 0;
@@ -37,17 +38,52 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WorkspaceRealtime.instance.revision.addListener(_onWorkspaceChanged);
+    if (ApiClient.instance.user?['email_verified'] != false) {
+      unawaited(WorkspaceRealtime.instance.connect());
+    }
     _loadUnreadNotifications();
-    _notificationTimer = Timer.periodic(
-      const Duration(seconds: 4),
-      (_) => _loadUnreadNotifications(),
-    );
+    _notificationTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!WorkspaceRealtime.instance.isConnected) {
+        _loadUnreadNotifications();
+      }
+    });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    WorkspaceRealtime.instance.revision.removeListener(_onWorkspaceChanged);
     _notificationTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      WorkspaceRealtime.instance.reconnect();
+      _loadUnreadNotifications();
+    }
+  }
+
+  void _onWorkspaceChanged() {
+    if (WorkspaceRealtime.instance.latestResource == 'users') {
+      unawaited(_refreshAccount());
+    }
+    if (mounted) unawaited(_loadUnreadNotifications());
+  }
+
+  Future<void> _refreshAccount() async {
+    final previousName = ApiClient.instance.user?['name'];
+    try {
+      final user = await ApiClient.instance.me();
+      if (mounted && user['name'] != previousName) {
+        setState(() => _version++);
+      }
+    } catch (_) {
+      // Keep the signed-in account cached until the server is reachable again.
+    }
   }
 
   Future<void> _loadUnreadNotifications() async {
@@ -150,6 +186,9 @@ class _HomeShellState extends State<HomeShell> {
         }
       } else {
         await ApiClient.instance.me();
+        if (ApiClient.instance.user?['email_verified'] != false) {
+          unawaited(WorkspaceRealtime.instance.connect());
+        }
         if (mounted) {
           setState(
             () => _verificationMessage = 'If you have not verified yet, open the link in your email and check again.',
@@ -170,6 +209,7 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   Future<void> _logout() async {
+    await WorkspaceRealtime.instance.disconnect();
     await ApiClient.instance.logout();
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
@@ -186,18 +226,20 @@ class _HomeShellState extends State<HomeShell> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => switch (section) {
-          'TuklasBot' => const ChatView(),
-          'Messages' => const MessagesView(),
-          'Jobs' ||
-          'Scholarships' ||
-          'Centers' ||
-          'Trainers' ||
-          'Sessions' ||
-          'Applications' ||
-          'Assessments' => OperationsView(section: section),
-          _ => WorkspaceView(section: section),
-        },
+        builder: (_) => WorkspaceRefreshScope(
+          child: switch (section) {
+            'TuklasBot' => const ChatView(),
+            'Messages' => const MessagesView(),
+            'Jobs' ||
+            'Scholarships' ||
+            'Centers' ||
+            'Trainers' ||
+            'Sessions' ||
+            'Applications' ||
+            'Assessments' => OperationsView(section: section),
+            _ => WorkspaceView(section: section),
+          },
+        ),
       ),
     );
     _loadUnreadNotifications();
@@ -370,7 +412,7 @@ class _HomeShellState extends State<HomeShell> {
                         ],
                       ),
                     )
-                  : _selectedView(),
+                  : WorkspaceRefreshScope(child: _selectedView()),
             ),
           ],
         ),

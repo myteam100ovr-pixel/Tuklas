@@ -35,6 +35,7 @@ class ApiClient {
 
   /// The signed-in person. Filled in after login, or when the app starts with a saved token.
   Map<String, dynamic>? user;
+  DateTime? lastWriteAt;
 
   Future<String?> get token => _storage.read(key: _tokenKey);
 
@@ -136,6 +137,9 @@ class ApiClient {
     Map<String, dynamic>? body,
     bool auth = true,
   }) async {
+    if (method.toUpperCase() != 'GET') {
+      lastWriteAt = DateTime.now();
+    }
     String? bearer;
     if (auth) {
       bearer = await token;

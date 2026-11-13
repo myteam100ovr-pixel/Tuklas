@@ -3,8 +3,27 @@
 namespace App\Providers;
 
 use App\Mail\PhpMailerTransport;
+use App\Models\AssessmentRecord;
+use App\Models\CareerPath;
+use App\Models\Employer;
+use App\Models\JobApplication;
+use App\Models\JobOpportunity;
+use App\Models\Scholarship;
+use App\Models\ScholarshipApplication;
+use App\Models\TesdaChoice;
+use App\Models\TrainerQualification;
+use App\Models\TrainingApplication;
+use App\Models\TrainingAssignment;
+use App\Models\TrainingCenter;
+use App\Models\TrainingProgram;
+use App\Models\TrainingSession;
+use App\Models\User;
+use App\Models\YouthProfile;
+use App\Observers\UserNotificationObserver;
+use App\Observers\WorkspaceSyncObserver;
 use App\View\Composers\NavComposer;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
@@ -19,6 +38,28 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('layouts.app', NavComposer::class);
+        DatabaseNotification::observe(UserNotificationObserver::class);
+
+        foreach ([
+            AssessmentRecord::class,
+            CareerPath::class,
+            Employer::class,
+            JobApplication::class,
+            JobOpportunity::class,
+            Scholarship::class,
+            ScholarshipApplication::class,
+            TrainingApplication::class,
+            TrainingAssignment::class,
+            TrainingCenter::class,
+            TrainingProgram::class,
+            TrainingSession::class,
+            TrainerQualification::class,
+            TesdaChoice::class,
+            User::class,
+            YouthProfile::class,
+        ] as $model) {
+            $model::observe(WorkspaceSyncObserver::class);
+        }
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url): MailMessage {
             $name = trim((string) ($notifiable->name ?? ''));

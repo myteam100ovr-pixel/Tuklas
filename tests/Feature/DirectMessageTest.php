@@ -4,7 +4,10 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Events\DirectMessageSent;
+use App\Events\WorkspaceChanged;
+use App\Models\JobOpportunity;
 use App\Models\User;
+use App\Observers\WorkspaceSyncObserver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Event;
@@ -127,6 +130,11 @@ class DirectMessageTest extends TestCase
 
         $this->withToken($token)->postJson('/api/mobile/broadcasting/auth', [
             'socket_id' => '123.456',
+            'channel_name' => 'private-workspace',
+        ])->assertOk()->assertJsonStructure(['auth']);
+
+        $this->withToken($token)->postJson('/api/mobile/broadcasting/auth', [
+            'socket_id' => '123.456',
             'channel_name' => 'private-users.'.$other->id,
         ])->assertForbidden();
 
@@ -136,6 +144,39 @@ class DirectMessageTest extends TestCase
             'socket_id' => '123.456',
             'channel_name' => 'private-users.'.$owner->id,
         ])->assertUnauthorized();
+    }
+
+    public function test_mobile_can_load_realtime_connection_settings_only_when_authenticated(): void
+    {
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
+        config([
+            'broadcasting.default' => 'reverb',
+            'broadcasting.connections.reverb.key' => 'test-key',
+        ]);
+
+        $token = $user->createToken('realtime-test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/mobile/realtime')
+            ->assertOk()
+            ->assertJsonPath('realtime.enabled', true)
+            ->assertJsonPath('realtime.key', 'test-key')
+            ->assertJsonPath('realtime.scheme', 'ws');
+
+        $this->withoutToken();
+        $this->app['auth']->forgetGuards();
+        $this->getJson('/api/mobile/realtime')->assertUnauthorized();
+    }
+
+    public function test_workspace_model_changes_broadcast_only_private_invalidation_metadata(): void
+    {
+        Event::fake([WorkspaceChanged::class]);
+
+        (new WorkspaceSyncObserver)->saved(new JobOpportunity);
+
+        Event::assertDispatched(WorkspaceChanged::class, function (WorkspaceChanged $event): bool {
+            return $event->broadcastWith() === ['resource' => 'jobs', 'actor_id' => null]
+                && array_map(fn ($channel): string => $channel->name, $event->broadcastOn()) === ['private-workspace'];
+        });
     }
 
     public function test_message_updates_reject_invalid_cursors_and_inactive_people(): void

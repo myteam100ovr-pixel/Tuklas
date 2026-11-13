@@ -48,8 +48,12 @@ document.addEventListener('keydown', (e) => {
     document.querySelectorAll('[data-menu-btn]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
 });
 
-const dob = document.getElementById('date_of_birth');
-const ageOutput = document.querySelector('[data-calculated-age]');
+let activeWorkspaceTabs;
+let revealActiveTab;
+
+const initializeWorkspaceContent = (root = document) => {
+const dob = root.querySelector('#date_of_birth');
+const ageOutput = root.querySelector('[data-calculated-age]');
 if (dob && ageOutput) {
     const updateAge = () => {
         const parts = dob.value.split('-').map(Number);
@@ -66,7 +70,7 @@ if (dob && ageOutput) {
     dob.addEventListener('input', updateAge);
     updateAge();
 }
-const guardian = document.querySelector('[data-guardian]');
+const guardian = root.querySelector('[data-guardian]');
 if (dob && guardian) {
     const update = () => {
         const v = dob.value ? new Date(dob.value) : null;
@@ -84,9 +88,11 @@ if (dob && guardian) {
     update();
 }
 
-const workspaceTabs = document.querySelector('.tk-tabs--workspace');
+if (revealActiveTab) window.removeEventListener('resize', revealActiveTab);
+activeWorkspaceTabs = root.querySelector('.tk-tabs--workspace');
+const workspaceTabs = activeWorkspaceTabs;
 if (workspaceTabs) {
-    const revealActiveTab = () => {
+    revealActiveTab = () => {
         const activeTab = workspaceTabs.querySelector('.tk-tab.is-active');
         if (!activeTab || workspaceTabs.scrollWidth <= workspaceTabs.clientWidth) return;
         const tabBounds = activeTab.getBoundingClientRect();
@@ -97,3 +103,9 @@ if (workspaceTabs) {
     document.fonts.ready.then(revealActiveTab);
     window.addEventListener('resize', revealActiveTab);
 }
+};
+
+initializeWorkspaceContent();
+window.addEventListener('tuklas:content-refreshed', (event) => {
+    initializeWorkspaceContent(event.detail?.main || document);
+});

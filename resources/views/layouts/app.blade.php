@@ -12,7 +12,7 @@
     @endif
     @livewireStyles
 </head>
-<body class="tk-body tk-workspace">
+<body class="tk-body tk-workspace" data-workspace-user="{{ auth()->id() }}">
     @include('partials.sprite')
     <div class="sr-only" id="tk-navigation-status" role="status" aria-live="polite" hidden></div>
 

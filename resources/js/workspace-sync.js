@@ -2,6 +2,8 @@ const notificationLink = document.querySelector('[data-notifications-url]');
 const jobsPage = document.querySelector('[data-live-jobs-url]');
 const jobApplicationsPage = document.querySelector('[data-live-job-applications-url]');
 let syncing = false;
+let pendingWorkspaceSync = false;
+let workspaceSyncTimer;
 
 const updateNotifications = async () => {
     if (!notificationLink) return;
@@ -273,9 +275,144 @@ const sync = async () => {
     }
 };
 
+const updateHeader = (page) => {
+    const nextHeader = page.querySelector('.tk-head');
+    const currentHeader = document.querySelector('.tk-head');
+    if (!nextHeader || !currentHeader) return;
+    const currentIdentity = currentHeader.querySelector('.tk-account-identity');
+    const nextIdentity = nextHeader.querySelector('.tk-account-identity');
+    currentIdentity?.replaceChildren(...Array.from(nextIdentity?.children || [], (child) => child.cloneNode(true)));
+    const currentMenu = currentHeader.querySelector('.tk-pop-who');
+    const nextMenu = nextHeader.querySelector('.tk-pop-who');
+    currentMenu?.replaceChildren(...Array.from(nextMenu?.children || [], (child) => child.cloneNode(true)));
+    const nextAvatar = nextHeader.querySelector('.tk-avatar');
+    if (nextAvatar) currentHeader.querySelector('.tk-avatar')?.setAttribute('aria-label', nextAvatar.getAttribute('aria-label') || 'Account menu');
+};
+
+const refreshHeader = async () => {
+    try {
+        const response = await fetch(window.location.href, {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: { Accept: 'text/html' },
+        });
+        if (response.ok) updateHeader(new DOMParser().parseFromString(await response.text(), 'text/html'));
+    } catch {
+        // The next workspace event or reconnect will retry the header update.
+    }
+};
+
+const pageHasLiveData = Boolean(
+    jobsPage || jobApplicationsPage || document.querySelector('.notifications-list, [data-message-thread]'),
+);
+
+const applyWorkspaceChange = (event) => {
+    sync();
+    if (event.detail?.resource === 'users') refreshHeader();
+    if (pageHasLiveData) {
+        return;
+    }
+
+    if (document.hidden) {
+        pendingWorkspaceSync = true;
+        return;
+    }
+
+    if (document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) {
+        pendingWorkspaceSync = true;
+        return;
+    }
+
+    clearTimeout(workspaceSyncTimer);
+    workspaceSyncTimer = setTimeout(() => {
+        refreshCurrentPage();
+    }, 350);
+};
+
+const refreshCurrentPage = async () => {
+    const main = document.querySelector('#main-content');
+    if (!main) {
+        window.location.reload();
+        return;
+    }
+
+    try {
+        const response = await fetch(window.location.href, {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: { Accept: 'text/html' },
+        });
+        if (!response.ok) throw new Error('Workspace refresh failed.');
+
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        updateHeader(page);
+        const nextMain = page.querySelector('#main-content');
+        if (!nextMain || nextMain.querySelector('[data-document-scanner], [data-career-chat]')) {
+            window.location.reload();
+            return;
+        }
+
+        const preservedValues = [...main.querySelectorAll('input:not([type="file"]), textarea, select')]
+            .filter((field) => field.name || field.id)
+            .map((field) => ({
+                selector: field.id ? `#${CSS.escape(field.id)}` : `[name="${CSS.escape(field.name)}"]`,
+                value: field.value,
+                checked: field.checked,
+            }));
+        main.innerHTML = nextMain.innerHTML;
+        preservedValues.forEach(({ selector, value, checked }) => {
+            const field = main.querySelector(selector);
+            if (!field) return;
+            field.value = value;
+            if ('checked' in field) field.checked = checked;
+        });
+        window.dispatchEvent(new CustomEvent('tuklas:content-refreshed', { detail: { main } }));
+    } catch {
+        // Keep the current screen usable and retry on the next live change or reconnect.
+    }
+};
+
+window.addEventListener('tuklas:workspace-sync', applyWorkspaceChange);
+window.addEventListener('tuklas:workspace-reconnected', applyWorkspaceChange);
+window.addEventListener('tuklas:notifications-sync', sync);
+window.addEventListener('tuklas:profile-updated', (event) => {
+    const name = String(event.detail?.name || '').trim();
+    if (!name) return;
+    document.querySelectorAll('.tk-account-name, .tk-pop-who b').forEach((element) => {
+        element.textContent = name;
+    });
+    document.querySelector('.profile-identity h2')?.replaceChildren(document.createTextNode(name));
+    const initial = [...name.trim()][0]?.toLocaleUpperCase();
+    const avatarInitial = document.querySelector('.profile-identity .suite-avatar, .tk-avatar > span');
+    if (initial && avatarInitial) avatarInitial.textContent = initial;
+    document.querySelector('.tk-avatar')?.setAttribute('aria-label', `Account menu for ${name}`);
+});
+document.addEventListener('submit', (event) => {
+    if (event.target instanceof HTMLFormElement && event.target.method.toLowerCase() !== 'get') {
+        sessionStorage.setItem('tuklas:last-mutation', String(Date.now()));
+    }
+}, true);
+document.addEventListener('focusout', () => {
+    if (pendingWorkspaceSync) {
+        pendingWorkspaceSync = false;
+        applyWorkspaceChange();
+    }
+});
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && pendingWorkspaceSync) {
+        pendingWorkspaceSync = false;
+        applyWorkspaceChange();
+    }
+});
+
 if (notificationLink || jobsPage || jobApplicationsPage) {
-    setInterval(sync, 4000);
-    document.addEventListener('visibilitychange', sync);
+    setInterval(() => {
+        const state = window.Echo?.connector?.pusher?.connection?.state;
+        if (state !== 'connected') sync();
+    }, 30000);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) sync();
+    });
     window.addEventListener('focus', sync);
 }
 

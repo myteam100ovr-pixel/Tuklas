@@ -1,4 +1,5 @@
-document.querySelectorAll('[data-qualification-catalog]').forEach((catalog) => {
+const initializeTesdaCatalog = (root = document) => {
+root.querySelectorAll('[data-qualification-catalog]').forEach((catalog) => {
     const search = catalog.querySelector('[data-qualification-search]');
     const level = catalog.querySelector('[data-qualification-level]');
     const status = catalog.querySelector('[data-qualification-status]');
@@ -24,7 +25,7 @@ document.querySelectorAll('[data-qualification-catalog]').forEach((catalog) => {
     filter();
 });
 
-document.querySelectorAll('[data-provider-directory]').forEach((directory) => {
+root.querySelectorAll('[data-provider-directory]').forEach((directory) => {
     const search = document.querySelector('[data-provider-search]');
     const cards = [...directory.querySelectorAll('[data-provider-card]')];
     const count = document.querySelector('[data-provider-count]');
@@ -41,4 +42,10 @@ document.querySelectorAll('[data-provider-directory]').forEach((directory) => {
         empty.hidden = visible > 0;
     };
     search.addEventListener('input', filter);
+});
+};
+
+initializeTesdaCatalog();
+window.addEventListener('tuklas:content-refreshed', (event) => {
+    initializeTesdaCatalog(event.detail?.main || document);
 });

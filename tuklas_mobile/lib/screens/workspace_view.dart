@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../api.dart';
 import '../date_format.dart';
 import '../ui.dart';
+import '../workspace_realtime.dart';
 import 'workspace_form.dart';
 import 'operations_view.dart';
 
@@ -43,7 +44,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   void initState() {
     super.initState();
     _load();
-    _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
+    _syncTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!WorkspaceRealtime.instance.isConnected) _sync();
+    });
   }
 
   @override

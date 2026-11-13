@@ -2,10 +2,20 @@
 
 namespace App\Livewire\Profile;
 
+use Illuminate\Support\Facades\Auth;
+use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 use Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm;
 
 class PersonalInformationForm extends UpdateProfileInformationForm
 {
+    public function updateProfileInformation(UpdatesUserProfileInformation $updater): mixed
+    {
+        $response = parent::updateProfileInformation($updater);
+        $this->dispatch('tuklas-profile-updated', name: Auth::user()->fresh()->name);
+
+        return $response;
+    }
+
     public function mount(): void
     {
         parent::mount();

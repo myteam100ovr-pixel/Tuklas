@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
+use App\Events\WorkspaceChanged;
 use App\Models\Employer;
 use App\Models\JobOpportunity;
 use App\Models\User;
@@ -81,6 +82,7 @@ class JobOpportunityController extends Controller
         $data = $request->validate(['youth_email' => ['required', 'email', 'exists:users,email']]);
         $youth = User::query()->where('email', $data['youth_email'])->where('role', Role::Youth->value)->where('is_active', true)->firstOrFail();
         $job->recommendedUsers()->syncWithoutDetaching([$youth->id => ['recommended_by' => $request->user()->id]]);
+        WorkspaceChanged::dispatch('job-recommendations');
 
         return $request->routeIs('mobile.*') ? response()->json(['message' => 'Job recommended to career seeker.']) : back()->with('status', 'Job recommended to career seeker.');
     }
@@ -110,6 +112,8 @@ class JobOpportunityController extends Controller
 
             return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json(['message' => $message]) : back()->with('status', $message);
         }
+
+        WorkspaceChanged::dispatch('job-recommendations');
 
         $employerName = $job->employer_name ?: $job->employer?->name ?: 'the employer';
         $youth->notify(new WorkspaceNotice(
@@ -162,6 +166,8 @@ class JobOpportunityController extends Controller
 
             return $request->routeIs('mobile.*') || $request->expectsJson() ? response()->json(['message' => $message], 422) : back()->with('status', $message);
         }
+
+        WorkspaceChanged::dispatch('job-recommendations');
 
         $youth->notify(new WorkspaceNotice(
             'Application update',

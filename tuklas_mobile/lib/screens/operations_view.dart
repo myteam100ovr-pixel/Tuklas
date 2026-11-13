@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../date_format.dart';
+import '../workspace_realtime.dart';
 import 'workspace_form.dart';
 
 class OperationsView extends StatefulWidget {
@@ -72,7 +73,9 @@ class _OperationsViewState extends State<OperationsView> {
   void initState() {
     super.initState();
     _load();
-    _syncTimer = Timer.periodic(const Duration(seconds: 4), (_) => _sync());
+    _syncTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!WorkspaceRealtime.instance.isConnected) _sync();
+    });
   }
 
   @override

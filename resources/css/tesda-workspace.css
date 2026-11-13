@@ -97,7 +97,7 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .operations-search p { margin:0; color:var(--muted); font-size:.75rem; }
 .operations-page > .operations-empty { margin:0; padding:1.5rem; border:1px dashed var(--line); border-radius:.9rem; background:var(--surface); color:var(--muted); }
 @media(max-width:650px) { .operations-page > .operations-card form { grid-template-columns:1fr; } .operations-page > .operations-card form label:has(textarea) { grid-column:auto; } .operations-page > .operations-card form button { width:100%; } .operations-search__controls button { flex:1; } }
-.job-opportunities { max-width:none; }
+.job-opportunities { width:100%; max-width:none; }
 .job-opportunities > .operations-card { width:100%; }
 .job-opportunities__list { display:grid; grid-template-columns:minmax(0,1fr); gap:1rem; }
 .job-opportunities__list > .operations-card { display:flex; min-width:0; flex-direction:column; margin:0; padding:clamp(1.1rem,2vw,1.5rem); border:1px solid var(--line); border-radius:1rem; background:var(--surface); overflow-wrap:anywhere; }
@@ -137,7 +137,7 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .job-candidate-workflow__decisions button:focus-visible,.job-candidate-workflow__recommend select:focus-visible,.job-candidate-workflow__recommend button:focus-visible { outline:2px solid var(--violet); outline-offset:2px; }
 .job-candidate-workflow__empty { padding:.7rem; border:1px dashed var(--line); border-radius:.65rem; }
 .job-opportunities > .pagination { justify-self:center; }
-@media(min-width:1200px) { .job-opportunities__list { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(min-width:1450px) { .job-opportunities__list { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:900px) { .job-candidate-workflow { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:650px) { .job-candidate-workflow__decisions { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:650px) { .job-opportunities__list > .operations-card details form { grid-template-columns:minmax(0,1fr); } .job-opportunities__list > .operations-card details form label:has(textarea) { grid-column:auto; } .job-opportunities__list > .operations-card details form > button { width:100%; } }

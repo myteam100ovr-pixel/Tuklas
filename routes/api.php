@@ -52,6 +52,8 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/tesda', [MobileCatalogController::class, 'index'])->name('tesda.index');
 
     Route::middleware(['auth:sanctum', 'role:admin,tesda_admin,youth'])->group(function () {
+        Route::get('/realtime', [DirectMessageController::class, 'mobileRealtime'])
+            ->middleware('verified')->name('realtime.config');
         Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])->name('broadcasting.mobile-auth');
         Route::get('/me', [MobileAuthController::class, 'me'])->name('me');
         Route::put('/account', [MobileAuthController::class, 'updateAccount'])->name('account.update');

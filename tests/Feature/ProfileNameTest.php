@@ -30,7 +30,8 @@ class ProfileNameTest extends TestCase
             ->set('state.last_name', ' De la Cruz ')
             ->call('updateProfileInformation')
             ->assertHasNoErrors()
-            ->assertDispatched('saved');
+            ->assertDispatched('saved')
+            ->assertDispatched('tuklas-profile-updated', fn (string $name, array $params): bool => $params['name'] === 'Maria Clara De la Cruz');
 
         $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'Maria Clara De la Cruz', 'first_name' => 'Maria Clara', 'last_name' => 'De la Cruz']);
         $this->actingAs($user->fresh());
