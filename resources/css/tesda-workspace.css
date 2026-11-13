@@ -141,6 +141,30 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 @media(max-width:900px) { .job-candidate-workflow { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:650px) { .job-candidate-workflow__decisions { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:650px) { .job-opportunities__list > .operations-card details form { grid-template-columns:minmax(0,1fr); } .job-opportunities__list > .operations-card details form label:has(textarea) { grid-column:auto; } .job-opportunities__list > .operations-card details form > button { width:100%; } }
+.job-application-status { align-self:flex-start; margin-top:auto!important; padding:.65rem .8rem; border:1px solid var(--line); border-radius:.65rem; color:var(--ink)!important; background:var(--surface-2); }
+.job-opportunities__list > .operations-card details.job-application { margin-top:auto; padding-top:.85rem; border-top:1px solid var(--line); }
+.job-opportunities__list > .operations-card details.job-application summary { padding:.15rem 0; }
+.job-opportunities__list > .operations-card details.job-application p { margin:.7rem 0; }
+.job-applications-page { width:100%; max-width:82rem; }
+.job-applications-page__count { color:var(--muted); font-size:.82rem; }
+.job-applications-list { display:grid; gap:1rem; }
+.job-applications-list > .operations-empty { margin:0; padding:1.5rem; border:1px dashed var(--line); border-radius:.9rem; background:var(--surface); color:var(--muted); }
+.job-applications-list > .job-application-card { display:grid; gap:1rem; margin:0; padding:clamp(1.1rem,2.2vw,1.6rem); border:1px solid var(--line); border-radius:1rem; background:var(--surface); }
+.job-application-card__header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
+.job-application-card__header h2 { margin:.25rem 0; color:var(--ink); font-size:1.15rem; }
+.job-application-card__header p,.job-application-card__date,.job-application-card__reviewed { margin:0; color:var(--muted); font-size:.8rem; line-height:1.5; }
+.job-application-card__response { min-width:0; padding:1rem; border:1px solid var(--line); border-radius:.75rem; background:var(--surface-2); }
+.job-application-card__response h3 { margin:0 0 .45rem; color:var(--ink); font-size:.86rem; }
+.job-application-card__response p { margin:0; color:var(--ink-2); font-size:.84rem; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
+.job-applications-list > .job-application-card form.job-application-card__review { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); align-items:end; gap:1rem; margin-top:0; }
+.job-application-card__review label { display:grid; min-width:0; gap:.45rem; color:var(--ink); font-size:.82rem; font-weight:600; }
+.job-application-card__review select,.job-application-card__review textarea { width:100%; min-width:0; padding:.72rem .85rem; border:1px solid var(--line); border-radius:.65rem; color:var(--ink); background:var(--surface-2); font:inherit; font-weight:400; }
+.job-application-card__review textarea { min-height:5rem; resize:vertical; }
+.job-application-card__review label:has(textarea) { grid-column:2; }
+.job-applications-list > .job-application-card form.job-application-card__review > button { grid-column:1/-1; justify-self:end; }
+.job-application-card__review button { padding:.7rem 1rem; border:1px solid var(--violet); border-radius:.65rem; color:#fff; background:var(--violet); font:inherit; font-size:.82rem; font-weight:650; cursor:pointer; }
+.job-application-card__review button:hover { filter:brightness(1.08); }
+@media(max-width:650px) { .job-application-card__header { flex-direction:column; } .job-applications-list > .job-application-card form.job-application-card__review { grid-template-columns:minmax(0,1fr); } .job-application-card__review label:has(textarea) { grid-column:auto; } .job-applications-list > .job-application-card form.job-application-card__review > button { width:100%; } }
 .tesda-resource-number { color: var(--violet); font-family: ui-monospace, monospace; font-size: .68rem; }
 .tesda-resource a:hover, .tesda-empty a:hover { text-decoration: underline; }
 .tesda-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.25rem var(--pad); border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; line-height: 1.5; }

@@ -11,6 +11,7 @@ use App\Http\Controllers\CareerPathCatalogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
+use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ScholarshipApplicationController;
@@ -103,6 +104,8 @@ Route::middleware([
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/employers', fn (Request $request): RedirectResponse => redirect()->route('admin.users.index', $request->query()));
+        Route::get('/jobs/applications', [JobApplicationController::class, 'index'])->name('job-applications.index');
+        Route::put('/jobs/applications/{jobApplication}', [JobApplicationController::class, 'update'])->name('job-applications.update');
         Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
         Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
         Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
@@ -140,6 +143,8 @@ Route::middleware([
         Route::put('/assessment-records/{assessment}', [AssessmentRecordController::class, 'update'])->name('assessments.update');
     });
     Route::middleware('role:youth')->group(function () {
+        Route::post('/opportunities/{job}/applications', [JobApplicationController::class, 'store'])
+            ->middleware('throttle:10,1')->name('job-applications.store');
         Route::post('/scholarships/{scholarship}/applications', [ScholarshipApplicationController::class, 'store'])->middleware('throttle:10,1')->name('scholarship-applications.store');
         Route::post('/training-sessions/{session}/apply', [TrainingApplicationController::class, 'store'])->name('applications.store');
         Route::delete('/training-applications/{application}', [TrainingApplicationController::class, 'destroy'])->name('applications.destroy');

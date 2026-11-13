@@ -25,6 +25,7 @@ class JobOpportunityController extends Controller
         $jobs = JobOpportunity::query()->with('employer')
             ->when($canManage, fn ($query) => $query->with(['recommendedUsers' => fn ($users) => $users->select('users.id', 'users.name', 'users.email')->orderBy('name')]))
             ->when($request->user()->hasRole(Role::Youth), fn ($query) => $query->with(['recommendedUsers' => fn ($users) => $users->select('users.id', 'users.name', 'users.email')->where('users.id', $request->user()->id)]))
+            ->when($request->user()->hasRole(Role::Youth), fn ($query) => $query->with(['applications' => fn ($applications) => $applications->select('id', 'job_opportunity_id', 'user_id', 'status', 'decision_reason')->where('user_id', $request->user()->id)]))
             ->when($search !== '', fn ($query) => $query->where(fn ($jobs) => $jobs->where('title', 'like', '%'.$search.'%')->orWhere('location', 'like', '%'.$search.'%')->orWhere('employer_name', 'like', '%'.$search.'%')->orWhereHas('employer', fn ($employer) => $employer->where('name', 'like', '%'.$search.'%'))))
             ->when($request->user()->hasRole(Role::Youth), fn ($query) => $query->withExists(['recommendedUsers as recommended_for_me' => fn ($users) => $users->where('users.id', $request->user()->id)]))
             ->when(! $canManage, function ($query) use ($request): void {

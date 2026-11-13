@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JobOpportunity extends Model
 {
@@ -34,5 +35,10 @@ class JobOpportunity extends Model
     public function recommendedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'job_recommendations')->withPivot(['hired_at', 'hired_by', 'not_selected_at', 'not_selected_by', 'not_selected_reason'])->withTimestamps();
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class);
     }
 }

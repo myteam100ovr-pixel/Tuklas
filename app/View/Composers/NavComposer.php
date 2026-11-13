@@ -58,7 +58,7 @@ class NavComposer
     private const ADMIN_TABS = [
         ['Overview', 'admin.dashboard', 'i-list', 'Home', ['admin.dashboard'], null],
         ['Users', 'admin.users.index', 'i-users', 'People', ['admin.users.*'], 'users'],
-        ['Jobs', 'opportunities.index', 'i-briefcase', 'Work and careers', ['opportunities.index', 'admin.opportunities.*', 'peso.index'], 'jobs'],
+        ['Jobs', 'opportunities.index', 'i-briefcase', 'Work and careers', ['opportunities.index', 'admin.opportunities.*', 'admin.job-applications.*', 'peso.index'], 'jobs'],
         ['Training', 'centers.index', 'i-cap', 'Training', ['centers.*', 'center-trainers.*', 'sessions.*', 'applications.*', 'assessments.*'], 'training'],
         ['Programs', 'scholarships.index', 'i-cap', 'Training', ['scholarships.*', 'tesda.index', 'tesda.choices.*'], 'programs'],
         ['Inbox', 'messages.index', 'i-chat', 'Communication', ['messages.*', 'notifications.*'], 'inbox'],
@@ -72,6 +72,7 @@ class NavComposer
         'jobs' => [
             ['Openings', 'opportunities.index', ['opportunities.index', 'admin.opportunities.*']],
             ['PESO', 'peso.index', ['peso.index']],
+            ['Applications', 'admin.job-applications.index', ['admin.job-applications.*']],
         ],
         'training' => [
             ['Centers', 'centers.index', ['centers.*']],
