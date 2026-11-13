@@ -68,6 +68,10 @@ class AdminUserManagementTest extends TestCase
             ->assertSee('Maria Clara Santos')
             ->assertDontSee('Anthony Reyes')
             ->assertSee('Enter a user’s name');
+
+        $this->get(route('admin.users.index', ['q' => 'M']))
+            ->assertOk()
+            ->assertSee('Maria Clara Santos');
     }
 
     public function test_admin_can_edit_delete_and_restore_an_account(): void

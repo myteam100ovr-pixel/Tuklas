@@ -9,15 +9,15 @@
         <a class="trainer-courses__primary" href="{{ route('admin.users.create') }}">Add a user</a>
     </div>
 
-    <form class="operations-search" method="GET" action="{{ route('admin.users.index') }}" role="search">
+    <form class="operations-search" method="GET" action="{{ route('admin.users.index') }}" role="search" data-users-search-form>
         @if (request('status') === 'deleted')<input type="hidden" name="status" value="deleted">@endif
         <label for="users-name-search">Search users by name</label>
         <div class="operations-search__controls">
-            <input id="users-name-search" name="q" type="search" value="{{ request('q') }}" maxlength="100" placeholder="Enter a user’s name">
+            <input id="users-name-search" name="q" type="search" value="{{ request('q') }}" maxlength="100" placeholder="Enter a user’s name" data-users-search-input>
             <button type="submit">Search</button>
-            @if (request()->filled('q'))<a href="{{ route('admin.users.index', request('status') === 'deleted' ? ['status' => 'deleted'] : []) }}">Clear</a>@endif
+            <a href="{{ route('admin.users.index', request('status') === 'deleted' ? ['status' => 'deleted'] : []) }}" data-users-search-clear @if (! request()->filled('q')) hidden @endif>Clear</a>
         </div>
-        <p>{{ number_format($users->total()) }} {{ \Illuminate\Support\Str::plural('user', $users->total()) }} found</p>
+        <p data-user-search-count role="status">{{ number_format($users->total()) }} {{ \Illuminate\Support\Str::plural('user', $users->total()) }} found</p>
     </form>
 
     <section class="card tbl users-directory" aria-labelledby="users-directory-title">

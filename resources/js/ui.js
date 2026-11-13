@@ -109,3 +109,79 @@ initializeWorkspaceContent();
 window.addEventListener('tuklas:content-refreshed', (event) => {
     initializeWorkspaceContent(event.detail?.main || document);
 });
+
+let userSearchTimer;
+let userSearchRequest = 0;
+
+const updateUserSearch = async (form) => {
+    const input = form.querySelector('[data-users-search-input]');
+    const directory = document.querySelector('.users-directory');
+    if (!input || !directory) return;
+
+    clearTimeout(userSearchTimer);
+    const requestId = ++userSearchRequest;
+    const parameters = new URLSearchParams(new FormData(form));
+    const searchTerm = input.value.trim();
+    if (searchTerm) parameters.set('q', searchTerm);
+    else parameters.delete('q');
+    const destination = new URL(form.action, window.location.href);
+    destination.search = parameters.toString();
+    directory.setAttribute('aria-busy', 'true');
+
+    try {
+        const response = await fetch(destination, {
+            credentials: 'same-origin',
+            headers: { Accept: 'text/html' },
+        });
+        if (!response.ok || requestId !== userSearchRequest) return;
+
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const nextDirectory = page.querySelector('.users-directory');
+        const nextCount = page.querySelector('[data-user-search-count]');
+        if (!nextDirectory || !nextCount || requestId !== userSearchRequest) return;
+
+        directory.replaceWith(nextDirectory);
+        form.querySelector('[data-user-search-count]').textContent = nextCount.textContent;
+        const clearLink = form.querySelector('[data-users-search-clear]');
+        clearLink.hidden = !searchTerm;
+        const clearDestination = new URL(form.action, window.location.href);
+        const status = parameters.get('status');
+        if (status) clearDestination.searchParams.set('status', status);
+        clearLink.href = clearDestination;
+        window.history.replaceState(window.history.state, '', destination);
+    } catch {
+        // Keep the current results visible if the search request fails.
+    } finally {
+        if (requestId === userSearchRequest) {
+            document.querySelector('.users-directory')?.removeAttribute('aria-busy');
+        }
+    }
+};
+
+document.addEventListener('input', (event) => {
+    if (!event.target.matches('[data-users-search-input]')) return;
+    const form = event.target.closest('[data-users-search-form]');
+    if (!form) return;
+    clearTimeout(userSearchTimer);
+    userSearchRequest++;
+    document.querySelector('.users-directory')?.removeAttribute('aria-busy');
+    userSearchTimer = setTimeout(() => updateUserSearch(form), 180);
+});
+
+document.addEventListener('submit', (event) => {
+    const form = event.target.closest('[data-users-search-form]');
+    if (!form) return;
+    event.preventDefault();
+    updateUserSearch(form);
+});
+
+document.addEventListener('click', (event) => {
+    const clearLink = event.target.closest('[data-users-search-clear]');
+    if (!clearLink) return;
+    const form = clearLink.closest('[data-users-search-form]');
+    const input = form?.querySelector('[data-users-search-input]');
+    if (!form || !input) return;
+    event.preventDefault();
+    input.value = '';
+    updateUserSearch(form);
+});
