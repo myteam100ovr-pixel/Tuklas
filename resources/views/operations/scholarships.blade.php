@@ -1,12 +1,12 @@
 <x-app-layout>
-    <div class="trainer-courses suite-page operations-page">
+    <div class="trainer-courses suite-page operations-page scholarships-page">
         <x-workspace-heading eyebrow="TRAINING · SUPPORT" title="Scholarships" description="Source-checked program information and locally confirmed openings for training and assessment." />
         @include('operations.search', ['placeholder' => 'Search scholarships or providers', 'count' => $scholarships->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
         @php($myScholarshipIds = $myApplications->pluck('scholarship_id')->all())
         @if (auth()->user()->hasRole(\App\Enums\Role::Youth))
-            <section class="operations-card" aria-labelledby="my-scholarship-applications">
+            <section class="operations-card scholarship-applications" aria-labelledby="my-scholarship-applications">
                 <h2 id="my-scholarship-applications">My scholarship applications</h2>
                 @forelse ($myApplications as $application)
                     <article class="operations-card">
@@ -24,7 +24,7 @@
             </section>
         @endif
         @if ($canManage)
-            <section class="operations-card" aria-labelledby="received-scholarship-applications">
+            <section class="operations-card scholarship-applications" aria-labelledby="received-scholarship-applications">
                 <h2 id="received-scholarship-applications">Applications received</h2>
                 @forelse ($applications as $application)
                     <article class="operations-card">
