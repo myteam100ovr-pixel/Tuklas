@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -201,10 +203,15 @@ class _ConversationViewState extends State<_ConversationView>
   final _messages = <Map<String, dynamic>>[];
   final _messageIds = <int>{};
   Timer? _refreshTimer;
+  WebSocket? _socket;
+  StreamSubscription<dynamic>? _socketSubscription;
+  Map<String, dynamic> _realtimeConfig = {};
   int _lastFetchedId = 0;
   bool _initialLoading = true;
   bool _loaded = false;
   bool _refreshing = false;
+  bool _connectingRealtime = false;
+  bool _socketConnected = false;
   bool _sending = false;
   String? _loadError;
 
@@ -216,8 +223,10 @@ class _ConversationViewState extends State<_ConversationView>
     WidgetsBinding.instance.addObserver(this);
     _refreshMessages();
     _refreshTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+      if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed &&
+          !_socketConnected) {
         _refreshMessages();
+        _connectRealtime();
       }
     });
   }
@@ -226,6 +235,7 @@ class _ConversationViewState extends State<_ConversationView>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _refreshMessages();
+      _connectRealtime();
     }
   }
 
@@ -257,6 +267,10 @@ class _ConversationViewState extends State<_ConversationView>
         return;
       }
       final fetched = asList(result['messages']).map(asMap).toList();
+      final shouldConnectRealtime = !_loaded;
+      if (result['realtime'] is Map) {
+        _realtimeConfig = asMap(result['realtime']);
+      }
       setState(() {
         for (final message in fetched) {
           _addMessage(message);
@@ -268,6 +282,7 @@ class _ConversationViewState extends State<_ConversationView>
         _loaded = true;
         _loadError = null;
       });
+      if (shouldConnectRealtime) _connectRealtime();
     } catch (_) {
       if (mounted) {
         setState(
@@ -282,6 +297,120 @@ class _ConversationViewState extends State<_ConversationView>
         setState(() => _initialLoading = false);
       }
     }
+  }
+
+  Future<void> _connectRealtime() async {
+    if (_socketConnected || _connectingRealtime || _realtimeConfig['enabled'] != true) {
+      return;
+    }
+
+    final key = _realtimeConfig['key'];
+    final host = _realtimeConfig['host'];
+    final scheme = _realtimeConfig['scheme'];
+    if (key is! String || key.isEmpty || host is! String || host.isEmpty ||
+        (scheme != 'ws' && scheme != 'wss')) {
+      return;
+    }
+
+    _connectingRealtime = true;
+    WebSocket? socket;
+    try {
+      final socketUri = Uri(
+        scheme: scheme,
+        host: host,
+        port: _realtimeConfig['port'] as int?,
+        path: '/app/$key',
+        queryParameters: const {
+          'protocol': '7',
+          'client': 'flutter',
+          'version': '1.0.0',
+          'flash': 'false',
+        },
+      );
+      socket = await WebSocket.connect(socketUri.toString());
+      if (!mounted) {
+        await socket.close();
+        return;
+      }
+
+      _socket = socket;
+      _socketSubscription = socket.listen(
+        (frame) => unawaited(_handleRealtimeFrame(socket!, frame)),
+        onError: (_) => _handleRealtimeDisconnect(socket!),
+        onDone: () => _handleRealtimeDisconnect(socket!),
+        cancelOnError: true,
+      );
+    } catch (_) {
+      _handleRealtimeDisconnect(socket);
+    } finally {
+      _connectingRealtime = false;
+    }
+  }
+
+  Future<void> _handleRealtimeFrame(WebSocket socket, dynamic frame) async {
+    if (!identical(_socket, socket) || frame is! String) return;
+
+    try {
+      final event = asMap(jsonDecode(frame));
+      final eventName = event['event'];
+      final rawData = event['data'];
+      final data = rawData is String ? asMap(jsonDecode(rawData)) : asMap(rawData);
+
+      if (eventName == 'pusher:ping') {
+        socket.add(jsonEncode({'event': 'pusher:pong', 'data': {}}));
+        return;
+      }
+
+      if (eventName == 'pusher:connection_established') {
+        final socketId = data['socket_id'];
+        final userId = ApiClient.instance.user?['id'];
+        if (socketId is! String || userId is! int) return;
+
+        final authorization = await ApiClient.instance.workspace(
+          '/broadcasting/auth',
+          method: 'POST',
+          data: {
+            'socket_id': socketId,
+            'channel_name': 'private-users.$userId',
+          },
+        );
+        if (!identical(_socket, socket)) return;
+        socket.add(jsonEncode({
+          'event': 'pusher:subscribe',
+          'data': {
+            'auth': authorization['auth'],
+            'channel': 'private-users.$userId',
+          },
+        }));
+        return;
+      }
+
+      if (eventName == 'pusher:subscription_succeeded') {
+        _socketConnected = true;
+        if (mounted) setState(() => _loadError = null);
+        await _refreshMessages();
+        return;
+      }
+
+      if (eventName == 'message.sent') {
+        if (mounted) {
+          setState(() {
+            _addMessage(data);
+            final id = data['id'];
+            if (id is int && id > _lastFetchedId) _lastFetchedId = id;
+          });
+        }
+      }
+    } catch (_) {
+      _handleRealtimeDisconnect(socket);
+    }
+  }
+
+  void _handleRealtimeDisconnect(WebSocket? socket) {
+    if (socket != null && !identical(_socket, socket)) return;
+    _socketConnected = false;
+    _socket = null;
+    _socketSubscription = null;
   }
 
   Future<void> _send() async {
@@ -328,6 +457,8 @@ class _ConversationViewState extends State<_ConversationView>
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _socketSubscription?.cancel();
+    _socket?.close();
     WidgetsBinding.instance.removeObserver(this);
     _composer.dispose();
     super.dispose();

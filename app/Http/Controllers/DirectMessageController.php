@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DirectMessageSent;
 use App\Models\DirectMessage;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class DirectMessageController extends Controller
@@ -29,7 +31,11 @@ class DirectMessageController extends Controller
                 : $conversation->where('id', '>', $after)->oldest('id')->limit(100)->get())
                 ->map(fn (DirectMessage $message): array => ['id' => $message->id, 'sender_id' => $message->sender_id, 'body' => $message->body, 'created_at' => $message->created_at->toIso8601String()]);
 
-            return response()->json(['person' => ['id' => $user->id, 'name' => $user->name, 'role' => $user->role->label()], 'messages' => $messages]);
+            return response()->json([
+                'person' => ['id' => $user->id, 'name' => $user->name, 'role' => $user->role->label()],
+                'messages' => $messages,
+                'realtime' => $this->realtimeConfiguration($request),
+            ]);
         }
 
         $search = trim((string) $request->query('search', ''));
@@ -47,6 +53,7 @@ class DirectMessageController extends Controller
         abort_unless($user->id !== $sender->id && $user->is_active && $user->hasVerifiedEmail(), 404);
         $validated = $request->validate(['body' => ['required', 'string', 'max:2000']]);
         $message = $sender->sentDirectMessages()->create(['recipient_id' => $user->id, 'body' => trim($validated['body'])]);
+        $this->broadcastMessage($message);
         $user->notify(new WorkspaceNotice('New message from '.$sender->name, 'Open Messages to read and reply.', 'message', $sender->role->value, route('messages.show', $sender)));
 
         return response()->json(['message' => ['id' => $message->id, 'sender_id' => $message->sender_id, 'body' => $message->body, 'created_at' => $message->created_at->toIso8601String()]], 201);
@@ -101,6 +108,7 @@ class DirectMessageController extends Controller
             'recipient_id' => $user->id,
             'body' => trim($validated['body']),
         ]);
+        $this->broadcastMessage($message);
         $user->notify(new WorkspaceNotice(
             'New message from '.$sender->name,
             'Open Messages to read and reply.',
@@ -114,5 +122,32 @@ class DirectMessageController extends Controller
         }
 
         return redirect()->route('messages.show', $user);
+    }
+
+    /** @return array{enabled: bool, key: ?string, host: string, port: int, scheme: string} */
+    private function realtimeConfiguration(Request $request): array
+    {
+        $isSecure = $request->isSecure();
+        $port = $isSecure ? 443 : (int) config('reverb.servers.reverb.port', 8080);
+
+        return [
+            'enabled' => config('broadcasting.default') === 'reverb' && filled(config('broadcasting.connections.reverb.key')),
+            'key' => config('broadcasting.connections.reverb.key'),
+            'host' => $request->getHost(),
+            'port' => $port,
+            'scheme' => $isSecure ? 'wss' : 'ws',
+        ];
+    }
+
+    private function broadcastMessage(DirectMessage $message): void
+    {
+        try {
+            broadcast(new DirectMessageSent($message));
+        } catch (\Throwable $exception) {
+            Log::warning('Direct message was saved but could not be broadcast live.', [
+                'direct_message_id' => $message->id,
+                'exception' => $exception,
+            ]);
+        }
     }
 }

@@ -10,6 +10,7 @@ if (thread && form) {
     let lastFetchedId = Math.max(0, ...seenIds);
     let polling = false;
     let sending = false;
+    let socketConnected = false;
     let pollTimer;
 
     const renderMessage = (message, scrollToLatest = false) => {
@@ -45,8 +46,8 @@ if (thread && form) {
         if (nearBottom) thread.scrollTop = thread.scrollHeight;
     };
 
-    const poll = async () => {
-        if (polling || document.hidden) return;
+    const poll = async (force = false) => {
+        if (polling || document.hidden || (socketConnected && !force)) return;
         polling = true;
 
         try {
@@ -77,7 +78,42 @@ if (thread && form) {
         } finally {
             polling = false;
             clearTimeout(pollTimer);
-            pollTimer = setTimeout(poll, 3000);
+            if (!socketConnected && !document.hidden) pollTimer = setTimeout(poll, 3000);
+        }
+    };
+
+    const connectRealtime = () => {
+        if (!window.Echo) {
+            poll();
+            return;
+        }
+
+        try {
+            const connection = window.Echo.connector.pusher.connection;
+            const channel = window.Echo.private(`users.${currentUserId}`);
+
+            channel.listen('.message.sent', (message) => {
+                renderMessage(message);
+                lastFetchedId = Math.max(lastFetchedId, Number(message.id) || 0);
+                if (status.dataset.kind === 'sync') {
+                    status.textContent = '';
+                    delete status.dataset.kind;
+                }
+            });
+            channel.subscribed(() => {
+                socketConnected = true;
+                clearTimeout(pollTimer);
+                poll(true);
+            });
+            connection.bind('state_change', ({ current }) => {
+                if (current === 'connected') return;
+                socketConnected = false;
+                clearTimeout(pollTimer);
+                if (!document.hidden) pollTimer = setTimeout(poll, 3000);
+            });
+        } catch {
+            socketConnected = false;
+            poll();
         }
     };
 
@@ -119,7 +155,8 @@ if (thread && form) {
     });
 
     thread.scrollTop = thread.scrollHeight;
-    pollTimer = setTimeout(poll, 3000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
-    window.addEventListener('focus', poll);
+    connectRealtime();
+    if (!socketConnected) poll();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(true); });
+    window.addEventListener('focus', () => poll(true));
 }

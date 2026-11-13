@@ -25,6 +25,7 @@ use App\Http\Controllers\Trainer\TrainingProgramController;
 use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\TrainingSessionController;
 use App\Http\Controllers\YouthProfileController;
+use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +52,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/tesda', [MobileCatalogController::class, 'index'])->name('tesda.index');
 
     Route::middleware(['auth:sanctum', 'role:admin,tesda_admin,youth'])->group(function () {
+        Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])->name('broadcasting.mobile-auth');
         Route::get('/me', [MobileAuthController::class, 'me'])->name('me');
         Route::put('/account', [MobileAuthController::class, 'updateAccount'])->name('account.update');
         Route::put('/password', [MobileAuthController::class, 'updatePassword'])->middleware('throttle:account-security')->name('password.update');

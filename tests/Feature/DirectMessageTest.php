@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Events\DirectMessageSent;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class DirectMessageTest extends TestCase
@@ -74,6 +77,65 @@ class DirectMessageTest extends TestCase
             ->assertJsonPath('messages.0.body', 'From mobile');
         $this->actingAs($other)->getJson(route('messages.updates', $admin).'?after=0')
             ->assertOk()->assertJsonCount(0, 'messages');
+    }
+
+    public function test_web_and_mobile_message_sends_broadcast_to_both_participants(): void
+    {
+        $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true, 'email_verified_at' => now()]);
+        Event::fake([DirectMessageSent::class]);
+
+        $this->actingAs($youth)->postJson(route('messages.store', $admin), ['body' => 'Web message'])
+            ->assertCreated();
+        $this->actingAs($admin)->postJson('/api/mobile/messages/'.$youth->id, ['body' => 'Mobile message'])
+            ->assertCreated();
+
+        Event::assertDispatchedTimes(DirectMessageSent::class, 2);
+        Event::assertDispatched(DirectMessageSent::class, function (DirectMessageSent $event) use ($youth, $admin): bool {
+            $channels = $event->broadcastOn();
+
+            return $event->broadcastWith()['body'] === 'Web message'
+                && array_map(fn ($channel): string => $channel->name, $channels) === [
+                    'private-users.'.$youth->id,
+                    'private-users.'.$admin->id,
+                ];
+        });
+    }
+
+    public function test_mobile_private_channel_authentication_is_limited_to_the_signed_in_verified_user(): void
+    {
+        $owner = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
+        $other = User::factory()->create(['role' => Role::Admin, 'is_active' => true, 'email_verified_at' => now()]);
+        config([
+            'broadcasting.default' => 'reverb',
+            'broadcasting.connections.reverb.key' => 'test-key',
+            'broadcasting.connections.reverb.secret' => 'test-secret',
+            'broadcasting.connections.reverb.app_id' => 'test-app',
+            'broadcasting.connections.reverb.options.host' => '127.0.0.1',
+            'broadcasting.connections.reverb.options.port' => 8080,
+            'broadcasting.connections.reverb.options.scheme' => 'http',
+            'broadcasting.connections.reverb.options.useTLS' => false,
+        ]);
+        Broadcast::forgetDrivers();
+        require base_path('routes/channels.php');
+
+        $token = $owner->createToken('messages-test')->plainTextToken;
+        $this->withToken($token)->postJson('/api/mobile/broadcasting/auth', [
+            'socket_id' => '123.456',
+            'channel_name' => 'private-users.'.$owner->id,
+        ])->assertOk()->assertJsonStructure(['auth']);
+
+        $this->withToken($token)->postJson('/api/mobile/broadcasting/auth', [
+            'socket_id' => '123.456',
+            'channel_name' => 'private-users.'.$other->id,
+        ])->assertForbidden();
+
+        $this->withoutToken();
+        $this->app['auth']->forgetGuards();
+        $this->postJson('/api/mobile/broadcasting/auth', [
+            'socket_id' => '123.456',
+            'channel_name' => 'private-users.'.$owner->id,
+        ])->assertUnauthorized();
     }
 
     public function test_message_updates_reject_invalid_cursors_and_inactive_people(): void
