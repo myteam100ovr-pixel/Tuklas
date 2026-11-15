@@ -93,6 +93,7 @@ Route::middleware([
     Route::get('/admin/inbox/messages', [DirectMessageController::class, 'index'])->name('messages.index');
     Route::get('/messages', fn (Request $request): RedirectResponse => redirect()->route('messages.index', $request->query()));
     Route::get('/admin/inbox/messages/{user}/updates', [DirectMessageController::class, 'mobileIndex'])->name('messages.updates');
+    Route::get('/admin/inbox/messages/{user}/{message}/attachments/{attachment}', [DirectMessageController::class, 'downloadAttachment'])->whereNumber(['user', 'message', 'attachment'])->name('messages.attachments.download');
     Route::get('/admin/inbox/messages/{user}', [DirectMessageController::class, 'index'])->name('messages.show');
     Route::get('/messages/{user}/updates', fn (Request $request, string $user): RedirectResponse => redirect()->route('messages.updates', array_merge(['user' => $user], $request->query())));
     Route::get('/messages/{user}', fn (Request $request, string $user): RedirectResponse => redirect()->route('messages.show', array_merge(['user' => $user], $request->query())));

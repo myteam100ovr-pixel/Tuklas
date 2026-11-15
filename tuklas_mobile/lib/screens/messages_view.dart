@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../api.dart';
 import '../theme.dart';
@@ -199,8 +201,12 @@ class _ConversationView extends StatefulWidget {
 
 class _ConversationViewState extends State<_ConversationView>
     with WidgetsBindingObserver {
+  static const _maximumAttachmentCount = 5;
+  static const _maximumAttachmentBytes = 10 * 1024 * 1024;
   final _composer = TextEditingController();
+  final _imagePicker = ImagePicker();
   final _messages = <Map<String, dynamic>>[];
+  final _attachments = <PlatformFile>[];
   final _messageIds = <int>{};
   Timer? _refreshTimer;
   WebSocket? _socket;
@@ -300,14 +306,19 @@ class _ConversationViewState extends State<_ConversationView>
   }
 
   Future<void> _connectRealtime() async {
-    if (_socketConnected || _connectingRealtime || _realtimeConfig['enabled'] != true) {
+    if (_socketConnected ||
+        _connectingRealtime ||
+        _realtimeConfig['enabled'] != true) {
       return;
     }
 
     final key = _realtimeConfig['key'];
     final host = _realtimeConfig['host'];
     final scheme = _realtimeConfig['scheme'];
-    if (key is! String || key.isEmpty || host is! String || host.isEmpty ||
+    if (key is! String ||
+        key.isEmpty ||
+        host is! String ||
+        host.isEmpty ||
         (scheme != 'ws' && scheme != 'wss')) {
       return;
     }
@@ -354,7 +365,9 @@ class _ConversationViewState extends State<_ConversationView>
       final event = asMap(jsonDecode(frame));
       final eventName = event['event'];
       final rawData = event['data'];
-      final data = rawData is String ? asMap(jsonDecode(rawData)) : asMap(rawData);
+      final data = rawData is String
+          ? asMap(jsonDecode(rawData))
+          : asMap(rawData);
 
       if (eventName == 'pusher:ping') {
         socket.add(jsonEncode({'event': 'pusher:pong', 'data': {}}));
@@ -375,13 +388,15 @@ class _ConversationViewState extends State<_ConversationView>
           },
         );
         if (!identical(_socket, socket)) return;
-        socket.add(jsonEncode({
-          'event': 'pusher:subscribe',
-          'data': {
-            'auth': authorization['auth'],
-            'channel': 'private-users.$userId',
-          },
-        }));
+        socket.add(
+          jsonEncode({
+            'event': 'pusher:subscribe',
+            'data': {
+              'auth': authorization['auth'],
+              'channel': 'private-users.$userId',
+            },
+          }),
+        );
         return;
       }
 
@@ -415,15 +430,16 @@ class _ConversationViewState extends State<_ConversationView>
 
   Future<void> _send() async {
     final body = _composer.text.trim();
-    if (body.isEmpty || _sending || !_loaded) {
+    if ((body.isEmpty && _attachments.isEmpty) || _sending || !_loaded) {
       return;
     }
+    final sendingAttachments = List<PlatformFile>.of(_attachments);
     setState(() => _sending = true);
     try {
-      final response = await ApiClient.instance.workspace(
-        '/messages/$_personId',
-        method: 'POST',
-        data: {'body': body},
+      final response = await ApiClient.instance.sendMessage(
+        recipientId: _personId,
+        body: body,
+        attachments: sendingAttachments,
       );
       if (!mounted) {
         return;
@@ -431,7 +447,10 @@ class _ConversationViewState extends State<_ConversationView>
       if (_composer.text.trim() == body) {
         _composer.clear();
       }
-      setState(() => _addMessage(asMap(response['message'])));
+      setState(() {
+        _attachments.removeWhere(sendingAttachments.contains);
+        _addMessage(asMap(response['message']));
+      });
     } on ApiException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -450,6 +469,143 @@ class _ConversationViewState extends State<_ConversationView>
     } finally {
       if (mounted) {
         setState(() => _sending = false);
+      }
+    }
+  }
+
+  Future<void> _pickDocuments() async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const [
+          'pdf',
+          'jpg',
+          'jpeg',
+          'png',
+          'webp',
+          'doc',
+          'docx',
+        ],
+        allowMultiple: true,
+        withData: true,
+      );
+      if (result != null && mounted) {
+        _addAttachments(result.files);
+      }
+    } on Exception catch (_) {
+      if (mounted) {
+        _showAttachmentError('Could not open your files. Please try again.');
+      }
+    }
+  }
+
+  Future<void> _pickPhoto(ImageSource source) async {
+    try {
+      final photo = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 88,
+      );
+      if (photo == null || !mounted) {
+        return;
+      }
+      final bytes = await photo.readAsBytes();
+      _addAttachments([
+        PlatformFile(name: photo.name, size: bytes.length, bytes: bytes),
+      ]);
+    } on Exception catch (_) {
+      if (mounted) {
+        _showAttachmentError(
+          'Could not access the image. Check app permissions and try again.',
+        );
+      }
+    }
+  }
+
+  void _addAttachments(List<PlatformFile> selected) {
+    final remaining = _maximumAttachmentCount - _attachments.length;
+    if (selected.length > remaining) {
+      _showAttachmentError(
+        'You can attach up to $_maximumAttachmentCount files per message.',
+      );
+      return;
+    }
+    for (final file in selected) {
+      if (file.size > _maximumAttachmentBytes) {
+        _showAttachmentError('${file.name} is larger than 10 MB.');
+        return;
+      }
+    }
+    setState(() => _attachments.addAll(selected));
+  }
+
+  void _showAttachmentError(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _showAttachmentOptions() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.attach_file),
+              title: const Text('Choose files or photos'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _pickDocuments();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choose a picture'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _pickPhoto(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a picture'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _pickPhoto(ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _downloadAttachment(
+    Map<String, dynamic> message,
+    Map<String, dynamic> attachment,
+  ) async {
+    try {
+      final bytes = await ApiClient.instance.downloadMessageAttachment(
+        personId: _personId,
+        messageId: message['id'] as int,
+        attachmentIndex: attachment['index'] as int,
+      );
+      final saved = await FilePicker.saveFile(
+        fileName: '${attachment['name'] ?? 'tuklas-attachment'}',
+        bytes: bytes,
+      );
+      if (mounted && saved != null) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Attachment saved.')));
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        _showAttachmentError(error.message);
+      }
+    } on Exception catch (_) {
+      if (mounted) {
+        _showAttachmentError(
+          'Could not save this attachment. Please try again.',
+        );
       }
     }
   }
@@ -535,12 +691,60 @@ class _ConversationViewState extends State<_ConversationView>
                             color: mine ? TkColors.violet : c.surface2,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Text(
-                            '${message['body']}',
-                            style: tkText(
-                              context,
-                              color: mine ? Colors.white : c.ink,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if ('${message['body'] ?? ''}'.isNotEmpty)
+                                Text(
+                                  '${message['body']}',
+                                  style: tkText(
+                                    context,
+                                    color: mine ? Colors.white : c.ink,
+                                  ),
+                                ),
+                              for (final rawAttachment in asList(
+                                message['attachments'],
+                              ))
+                                Builder(
+                                  builder: (context) {
+                                    final attachment = asMap(rawAttachment);
+                                    return InkWell(
+                                      onTap: () => _downloadAttachment(
+                                        message,
+                                        attachment,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.attach_file,
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Flexible(
+                                              child: Text(
+                                                '${attachment['name'] ?? 'Attachment'}',
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: tkText(
+                                                  context,
+                                                  color: mine
+                                                      ? Colors.white
+                                                      : c.ink,
+                                                  size: 13,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                            ],
                           ),
                         ),
                       );
@@ -559,32 +763,73 @@ class _ConversationViewState extends State<_ConversationView>
             top: false,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _composer,
-                      minLines: 1,
-                      maxLines: 4,
-                      maxLength: 2000,
-                      decoration: const InputDecoration(
-                        hintText: 'Write a message',
-                        counterText: '',
+                  if (_attachments.isNotEmpty)
+                    SizedBox(
+                      height: 44,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _attachments.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, index) {
+                          final file = _attachments[index];
+                          return InputChip(
+                            avatar: const Icon(Icons.attach_file, size: 16),
+                            label: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 180),
+                              child: Text(
+                                file.name,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            onDeleted: _sending
+                                ? null
+                                : () => setState(
+                                    () => _attachments.removeAt(index),
+                                  ),
+                          );
+                        },
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.filled(
-                    onPressed: _sending || !_loaded ? null : _send,
-                    icon: _sending
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.send),
-                    tooltip: 'Send message',
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: _sending || !_loaded
+                            ? null
+                            : _showAttachmentOptions,
+                        icon: const Icon(Icons.add_circle_outline),
+                        tooltip: 'Attach a file or picture',
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _composer,
+                          minLines: 1,
+                          maxLines: 4,
+                          maxLength: 2000,
+                          decoration: const InputDecoration(
+                            hintText: 'Write a message',
+                            counterText: '',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton.filled(
+                        onPressed: _sending || !_loaded ? null : _send,
+                        icon: _sending
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.send),
+                        tooltip: 'Send message',
+                      ),
+                    ],
                   ),
                 ],
               ),

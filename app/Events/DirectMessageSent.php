@@ -30,13 +30,23 @@ class DirectMessageSent implements ShouldBroadcastNow
         return 'message.sent';
     }
 
-    /** @return array{id: int, sender_id: int, body: string, created_at: string} */
+    /** @return array{id: int, sender_id: int, recipient_id: int, body: string, attachments: list<array{index: int, name: string, mime: string, size: int}>, created_at: string} */
     public function broadcastWith(): array
     {
         return [
             'id' => $this->message->id,
             'sender_id' => $this->message->sender_id,
+            'recipient_id' => $this->message->recipient_id,
             'body' => $this->message->body,
+            'attachments' => collect($this->message->attachments ?? [])
+                ->map(fn (array $file, int $index): array => [
+                    'index' => $index,
+                    'name' => $file['name'],
+                    'mime' => $file['mime'],
+                    'size' => $file['size'],
+                ])
+                ->values()
+                ->all(),
             'created_at' => $this->message->created_at->toIso8601String(),
         ];
     }

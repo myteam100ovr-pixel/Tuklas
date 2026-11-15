@@ -29,6 +29,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   bool _checkingVerification = false;
   String? _verificationMessage;
   int _tab = 0;
+  String? _activeGroupItem;
   bool _switching = false;
   int _version = 0; // bumped after a profile save so the dashboard reloads
   int _unreadNotifications = 0;
@@ -107,65 +108,111 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     }
   }
 
-  bool get _careerTools =>
-      ['youth', 'admin'].contains(ApiClient.instance.user?['role']);
+  String get _role => '${ApiClient.instance.user?['role']}';
+
+  List<String> get _groupItems => switch ((_role, _tab)) {
+    ('admin', 1) => ['Openings', 'PESO', 'Applications'],
+    ('admin', 2) => ['Centers', 'Trainers', 'Dates', 'Requests', 'Results'],
+    ('admin', 3) => ['Messages', 'Notifications'],
+    ('admin', 4) => [
+      'Users',
+      'Scholarships',
+      'Course catalog',
+      'Document Scanner',
+      'TuklasBot',
+      'Profile',
+      'Account & security',
+    ],
+    ('youth', 1) => ['Find jobs', 'PESO AI', 'Document Scanner'],
+    ('youth', 2) => [
+      'Courses',
+      'Scholarships',
+      'Centers',
+      'Dates',
+      'My requests',
+      'My results',
+      'Skills assessment',
+      'Training plans',
+    ],
+    ('youth', 3) => ['Messages', 'Notifications'],
+    ('youth', 4) => ['Profile', 'TuklasBot', 'Account & security'],
+    ('tesda_admin', 1) => [
+      'Centers',
+      'My courses',
+      'Assign trainers',
+      'Dates',
+      'Requests',
+      'Results',
+    ],
+    ('tesda_admin', 2) => ['Course catalog', 'Scholarships'],
+    ('tesda_admin', 3) => ['Messages', 'Notifications'],
+    ('tesda_admin', 4) => ['Profile', 'TuklasBot', 'Account & security'],
+    _ => const [],
+  };
+
+  String get _defaultGroupItem => switch ((_role, _tab)) {
+    ('admin', 1) => 'Openings',
+    ('admin', 2) => 'Centers',
+    ('admin', 3) => 'Messages',
+    ('admin', 4) => 'Profile',
+    ('youth', 1) => 'Find jobs',
+    ('youth', 2) => 'Courses',
+    ('youth', 3) => 'Messages',
+    ('youth', 4) => 'Profile',
+    ('tesda_admin', 1) => 'Centers',
+    ('tesda_admin', 2) => 'Course catalog',
+    ('tesda_admin', 3) => 'Messages',
+    ('tesda_admin', 4) => 'Profile',
+    _ => '',
+  };
 
   Widget _selectedView() {
-    final role = '${ApiClient.instance.user?['role']}';
+    if (_tab == 0) {
+      return DashboardView(
+        key: ValueKey(_version),
+        onEditProfile: () => _selectTab(4),
+        onOpenPeso: () => _selectTab(_role == 'tesda_admin' ? 2 : 1),
+        onOpenScanner: () => _openWorkspace('Document Scanner'),
+        onOpenTesda: () => _selectTab(2),
+        onLogout: _logout,
+        onOpenWorkspace: _openWorkspace,
+      );
+    }
     if (_tab == 4) {
       return ProfileView(
         onSaved: () => setState(() => _version++),
         onLogout: _logout,
       );
     }
-    if (_careerTools) {
-      return switch (_tab) {
-        1 => const PesoView(),
-        2 => ScannerView(
-          key: ValueKey('scanner-$_version'),
-          onScanComplete: () => setState(() => _version++),
-        ),
-        3 => const TesdaView(),
-        _ => DashboardView(
-          key: ValueKey(_version),
-          onEditProfile: () => _selectTab(4),
-          onOpenPeso: () => _selectTab(1),
-          onOpenScanner: () => _selectTab(2),
-          onOpenTesda: () => _selectTab(3),
-          onLogout: _logout,
-          onOpenWorkspace: _openWorkspace,
-        ),
-      };
-    }
-    if (role == 'tesda_admin') {
-      return switch (_tab) {
-        1 => const WorkspaceView(section: 'My programs'),
-        2 => const OperationsView(section: 'Sessions'),
-        3 => const TesdaView(),
-        _ => DashboardView(
-          key: ValueKey(_version),
-          onEditProfile: () => _selectTab(4),
-          onOpenPeso: () => _selectTab(1),
-          onOpenScanner: () => _openWorkspace('My programs'),
-          onOpenTesda: () => _selectTab(3),
-          onLogout: _logout,
-          onOpenWorkspace: _openWorkspace,
-        ),
-      };
-    }
-    return switch (_tab) {
-      1 => const WorkspaceView(section: 'My programs'),
-      2 => const OperationsView(section: 'Sessions'),
-      3 => const MessagesView(),
-      _ => DashboardView(
-        key: ValueKey(_version),
-        onEditProfile: () => _selectTab(4),
-        onOpenPeso: () => _openWorkspace('My programs'),
-        onOpenScanner: () => _openWorkspace('Sessions'),
-        onOpenTesda: () => _openWorkspace('Messages'),
-        onLogout: _logout,
-        onOpenWorkspace: _openWorkspace,
+    if (_tab == 3) return const MessagesView();
+    final item = _activeGroupItem ?? _defaultGroupItem;
+    return switch (item) {
+      'PESO' || 'PESO AI' => const PesoView(),
+      'Courses' || 'Course catalog' => const TesdaView(),
+      'My courses' => const WorkspaceView(section: 'My programs'),
+      'Document Scanner' => ScannerView(
+        key: ValueKey('scanner-$_version'),
+        onScanComplete: () => setState(() => _version++),
       ),
+      'Messages' => const MessagesView(),
+      'Notifications' => const WorkspaceView(section: 'Notifications'),
+      'Users' => const WorkspaceView(section: 'Users'),
+      'Training plans' || 'Skills assessment' => WorkspaceView(section: item),
+      'TuklasBot' => const ChatView(),
+      'Profile' => ProfileView(
+        onSaved: () => setState(() => _version++),
+        onLogout: _logout,
+      ),
+      'Account & security' => const WorkspaceView(
+        section: 'Account & security',
+      ),
+      'Dates' => const OperationsView(section: 'Sessions'),
+      'Requests' ||
+      'My requests' => const OperationsView(section: 'Applications'),
+      'Results' || 'My results' => const OperationsView(section: 'Assessments'),
+      'Assign trainers' => const OperationsView(section: 'Trainers'),
+      'Openings' || 'Find jobs' => const OperationsView(section: 'Jobs'),
+      _ => OperationsView(section: item),
     };
   }
 
@@ -230,6 +277,23 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           child: switch (section) {
             'TuklasBot' => const ChatView(),
             'Messages' => const MessagesView(),
+            'PESO' || 'PESO AI' => const PesoView(),
+            'Course catalog' || 'Courses' => const TesdaView(),
+            'Document Scanner' => ScannerView(
+              onScanComplete: () => setState(() => _version++),
+            ),
+            'Openings' || 'Find jobs' => const OperationsView(section: 'Jobs'),
+            'Dates' => const OperationsView(section: 'Sessions'),
+            'Requests' ||
+            'My requests' => const OperationsView(section: 'Applications'),
+            'Results' ||
+            'My results' => const OperationsView(section: 'Assessments'),
+            'Assign trainers' => const OperationsView(section: 'Trainers'),
+            'My courses' => const WorkspaceView(section: 'My programs'),
+            'Profile' => ProfileView(
+              onSaved: () => setState(() => _version++),
+              onLogout: _logout,
+            ),
             'Jobs' ||
             'Scholarships' ||
             'Centers' ||
@@ -255,11 +319,17 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     if (_switching || index == _tab) return;
     setState(() {
       _tab = index;
+      _activeGroupItem = null;
       _switching = true;
     });
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return;
     setState(() => _switching = false);
+  }
+
+  Future<void> _openGroupedItem(String item) async {
+    setState(() => _activeGroupItem = item);
+    await _openWorkspace(item);
   }
 
   @override
@@ -331,70 +401,31 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         child: Column(
           children: [
             const TkHeader(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  ActionChip(
-                    label: const Text('Messages'),
-                    onPressed: () => _openWorkspace('Messages'),
+            if (_groupItems.isNotEmpty)
+              SizedBox(
+                height: 48,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
                   ),
-                  const SizedBox(width: 8),
-                  ActionChip(
-                    label: const Text('Jobs'),
-                    onPressed: () => _openWorkspace('Jobs'),
-                  ),
-                  const Spacer(),
-                  PopupMenuButton<String>(
-                    tooltip: 'Open a Tuklas tool',
-                    onSelected: _openWorkspace,
-                    itemBuilder: (_) => [
-                      for (final section in [
-                        'TuklasBot',
-                        'Notifications',
-                        'Training plans',
-                        if (ApiClient.instance.user?['role'] == 'youth')
-                          'Skills assessment',
-                        if (['tesda_admin']
-                            .contains(ApiClient.instance.user?['role']))
-                          'My programs',
-                        if (ApiClient.instance.user?['role'] == 'admin')
-                          'Users',
-                        if ([
-                          'admin',
-                          'tesda_admin',
-                        ].contains(ApiClient.instance.user?['role']))
-                          'Scholarships',
-                        'Centers',
-                        if ([
-                          'admin',
-                          'tesda_admin',
-                        ].contains(ApiClient.instance.user?['role']))
-                          'Trainers',
-                        'Sessions',
-                        if ([
-                          'admin',
-                          'tesda_admin',
-                          'youth',
-                        ].contains(ApiClient.instance.user?['role'])) ...[
-                          'Applications',
-                          'Assessments',
-                        ],
-                        'Account & security',
-                      ])
-                        PopupMenuItem(value: section, child: Text(section)),
-                    ],
-                    child: Chip(
+                  itemCount: _groupItems.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final item = _groupItems[index];
+                    return ChoiceChip(
                       label: Text(
-                        _unreadNotifications > 0
-                            ? 'More tools ($_unreadNotifications) ▾'
-                            : 'More tools ▾',
+                        item == 'Notifications' && _unreadNotifications > 0
+                            ? '$item ($_unreadNotifications)'
+                            : item,
                       ),
-                    ),
-                  ),
-                ],
+                      selected: (_activeGroupItem ?? _defaultGroupItem) == item,
+                      onSelected: (_) => _openGroupedItem(item),
+                    );
+                  },
+                ),
               ),
-            ),
             Expanded(
               child: _switching
                   ? Center(
@@ -407,7 +438,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                             const Icon(Icons.hourglass_empty_outlined),
                           const SizedBox(height: 12),
                           Text(
-                            'Opening ${const ['Overview', 'PESO AI or training', 'Scanner or sessions', 'TESDA or messages', 'Profile'][_tab]}…',
+                            'Opening ${_tab == 0 ? 'Overview' : (_activeGroupItem ?? _defaultGroupItem)}…',
                           ),
                         ],
                       ),

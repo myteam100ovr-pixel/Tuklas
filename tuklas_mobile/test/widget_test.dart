@@ -133,7 +133,7 @@ void main() {
   });
 
   testWidgets(
-    'bottom navigation hides labels and uses Tuklas purple selection',
+    'bottom navigation groups destinations and uses Tuklas purple selection',
     (WidgetTester tester) async {
       int? selectedIndex;
       await tester.pumpWidget(
@@ -152,7 +152,7 @@ void main() {
       );
       expect(
         navigation.labelBehavior,
-        NavigationDestinationLabelBehavior.alwaysHide,
+        NavigationDestinationLabelBehavior.alwaysShow,
       );
       expect(navigation.indicatorColor, TkColors.violet);
       expect(navigation.height, 64);
@@ -160,14 +160,13 @@ void main() {
         IconTheme.of(tester.element(find.byIcon(Icons.dashboard))).color,
         Colors.white,
       );
-      for (final label in ['Overview', 'PESO', 'Scanner', 'TESDA', 'Profile']) {
-        expect(find.text(label), findsNothing);
+      for (final label in ['Home', 'Jobs', 'Training', 'Inbox', 'More']) {
+        expect(find.text(label), findsOneWidget);
       }
-      expect(find.byType(TkAvatar), findsOneWidget);
       expect(find.byIcon(Icons.work_outline), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.school_outlined));
-      expect(selectedIndex, 3);
+      expect(selectedIndex, 2);
     },
   );
 
@@ -200,7 +199,7 @@ void main() {
     expect(topDecoration.color, bottomDecoration.color);
   });
 
-  testWidgets('bottom navigation exposes PESO separately from overview', (
+  testWidgets('bottom navigation exposes five role grouped destinations', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -223,17 +222,17 @@ void main() {
       isTrue,
     );
     expect(destinations.map((destination) => destination.tooltip).toList(), [
-      'Overview',
-      'PESO',
-      'Scanner',
-      'TESDA',
-      'Profile',
+      'Home',
+      'Jobs',
+      'Training',
+      'Inbox',
+      'More',
     ]);
     final selection = tester.widget<NavigationBar>(find.byType(NavigationBar));
     expect(selection.indicatorColor, TkColors.violet);
   });
 
-  testWidgets('profile avatar is a bottom navigation destination', (
+  testWidgets('More is the final bottom navigation destination', (
     WidgetTester tester,
   ) async {
     int? selectedIndex;
@@ -248,9 +247,7 @@ void main() {
       ),
     );
 
-    expect(find.byKey(const ValueKey('profile-destination')), findsOneWidget);
-    expect(find.byType(TkAvatar), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('profile-destination')));
+    await tester.tap(find.byTooltip('More'));
     expect(selectedIndex, 4);
   });
 

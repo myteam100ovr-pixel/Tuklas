@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Take pictures to share documents and images in Tuklas messages.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Select pictures and documents to share in Tuklas messages.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

@@ -3,6 +3,7 @@ const form = document.querySelector('[data-message-form]');
 
 if (thread && form) {
     const input = form.querySelector('textarea[name="body"]');
+    const files = form.querySelector('input[name="attachments[]"]');
     const sendButton = form.querySelector('button[type="submit"]');
     const status = form.querySelector('[data-message-status]');
     const currentUserId = Number(thread.dataset.senderId);
@@ -24,10 +25,29 @@ if (thread && form) {
         article.dataset.messageId = String(id);
         article.className = `max-w-[85%] rounded-2xl px-4 py-3 ${mine ? 'self-end bg-violet-700 text-white' : 'self-start bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'}`;
 
-        const body = document.createElement('p');
-        body.className = 'whitespace-pre-wrap break-words text-sm';
-        body.textContent = message.body;
-        article.append(body);
+        if (message.body) {
+            const body = document.createElement('p');
+            body.className = 'whitespace-pre-wrap break-words text-sm';
+            body.textContent = message.body;
+            article.append(body);
+        }
+
+        (Array.isArray(message.attachments) ? message.attachments : []).forEach((attachment) => {
+            const link = document.createElement('a');
+            link.className = 'mt-2 flex items-center gap-2 rounded-lg bg-black/10 px-3 py-2 text-sm underline';
+            link.download = '';
+            link.href = thread.dataset.attachmentUrl
+                .replace('__MESSAGE__', String(id))
+                .replace('__ATTACHMENT__', String(attachment.index));
+            const icon = document.createElement('span');
+            icon.textContent = '📎';
+            icon.setAttribute('aria-hidden', 'true');
+            const name = document.createElement('span');
+            name.className = 'break-all';
+            name.textContent = attachment.name || 'Attachment';
+            link.append(icon, name);
+            article.append(link);
+        });
 
         const date = new Date(message.created_at);
         if (!Number.isNaN(date.getTime())) {
@@ -121,7 +141,7 @@ if (thread && form) {
         event.preventDefault();
         const originalText = input.value;
         const body = originalText.trim();
-        if (!body || sending) return;
+        if ((!body && !files.files.length) || sending) return;
 
         sending = true;
         sendButton.disabled = true;
@@ -134,16 +154,24 @@ if (thread && form) {
                 credentials: 'same-origin',
                 headers: {
                     Accept: 'application/json',
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
                 },
-                body: JSON.stringify({ body }),
+                body: (() => {
+                    const data = new FormData();
+                    data.append('_token', form.querySelector('input[name="_token"]').value);
+                    if (body) data.append('body', body);
+                    [...files.files].forEach((file) => data.append('attachments[]', file, file.name));
+                    return data;
+                })(),
             });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok || !payload.message) throw new Error(payload.message || 'Message could not be sent. Please try again.');
 
             renderMessage(payload.message, true);
-            if (input.value === originalText) input.value = '';
+            if (input.value === originalText) {
+                input.value = '';
+                files.value = '';
+            }
         } catch (error) {
             status.textContent = error.message || 'Message could not be sent. Please try again.';
             status.dataset.kind = 'send';

@@ -118,6 +118,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             });
             Route::get('/messages', [DirectMessageController::class, 'mobileIndex'])->name('messages.index');
             Route::get('/messages/{user}', [DirectMessageController::class, 'mobileIndex'])->name('messages.show');
+            Route::get('/messages/{user}/{message}/attachments/{attachment}', [DirectMessageController::class, 'downloadAttachment'])->whereNumber(['user', 'message', 'attachment'])->name('messages.attachments.download');
             Route::post('/messages/{user}', [DirectMessageController::class, 'mobileStore'])->middleware('throttle:20,1')->name('messages.store');
             Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
             Route::post('/notifications/read-all', [NotificationsController::class, 'readAll'])->name('notifications.read-all');

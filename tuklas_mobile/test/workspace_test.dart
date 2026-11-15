@@ -35,17 +35,17 @@ void main() {
     addTearDown(() => ApiClient.instance.user = null);
     await tester.pumpWidget(const MaterialApp(home: HomeShell()));
 
-    await tester.tap(find.byTooltip('TESDA'));
+    await tester.tap(find.byTooltip('Training'));
     await tester.pump();
 
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      3,
+      2,
     );
-    expect(find.text('Opening TESDA…'), findsOneWidget);
+    expect(find.text('Opening Courses…'), findsOneWidget);
   });
 
-  testWidgets('admin role receives the shared PESO and admin destinations', (
+  testWidgets('admin role receives grouped navigation destinations', (
     tester,
   ) async {
     ApiClient.instance.user = {
@@ -56,18 +56,20 @@ void main() {
     addTearDown(() => ApiClient.instance.user = null);
     await tester.pumpWidget(const MaterialApp(home: HomeShell()));
 
-    expect(find.byTooltip('PESO AI'), findsOneWidget);
-    expect(find.byTooltip('Scanner'), findsOneWidget);
-    expect(find.byTooltip('TESDA'), findsOneWidget);
-
-    await tester.tap(find.text('More tools ▾'));
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.text('Users'), findsOneWidget);
-    expect(find.text('Scholarships'), findsOneWidget);
-    expect(find.text('Sessions'), findsOneWidget);
+    for (final label in ['Home', 'Jobs', 'Training', 'Inbox', 'More']) {
+      expect(find.byTooltip(label), findsOneWidget);
+    }
+    expect(find.text('Openings'), findsOneWidget);
+    expect(find.text('PESO'), findsOneWidget);
     expect(find.text('Applications'), findsOneWidget);
-    expect(find.text('Assessments'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Training'));
+    await tester.pump();
+    expect(find.text('Centers'), findsOneWidget);
+    expect(find.text('Trainers'), findsOneWidget);
+    expect(find.text('Dates'), findsOneWidget);
+    expect(find.text('Requests'), findsOneWidget);
+    expect(find.text('Results'), findsOneWidget);
   });
 
   testWidgets('registration consent starts unchecked and blocks submission', (

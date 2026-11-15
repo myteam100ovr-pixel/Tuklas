@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DirectMessage extends Model
 {
-    protected $fillable = ['recipient_id', 'body'];
+    protected $fillable = ['recipient_id', 'body', 'attachments'];
 
     protected function casts(): array
     {
-        return ['read_at' => 'datetime'];
+        return [
+            'attachments' => 'array',
+            'read_at' => 'datetime',
+        ];
     }
 
     public function sender(): BelongsTo

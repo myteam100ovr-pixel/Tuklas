@@ -225,6 +225,72 @@ class ApiClient {
     bool auth = true,
   }) => _send(method, path, body: data, auth: auth);
 
+  Future<Map<String, dynamic>> sendMessage({
+    required int recipientId,
+    required String body,
+    required List<PlatformFile> attachments,
+  }) async {
+    lastWriteAt = DateTime.now();
+    final bearer = await token;
+    if (bearer == null) throw ApiException('Please sign in.');
+
+    final request =
+        http.MultipartRequest('POST', _apiUri('/messages/$recipientId'))
+          ..headers.addAll({
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $bearer',
+          });
+    if (body.trim().isNotEmpty) request.fields['body'] = body.trim();
+
+    for (final attachment in attachments) {
+      final bytes =
+          attachment.bytes ??
+          (attachment.path == null
+              ? null
+              : await File(attachment.path!).readAsBytes());
+      if (bytes == null) {
+        throw ApiException(
+          'Could not read ${attachment.name}. Please select it again.',
+        );
+      }
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'attachments[]',
+          bytes,
+          filename: attachment.name,
+        ),
+      );
+    }
+
+    final streamedResponse = await _withConnectionHandling(
+      () => request.send(),
+    );
+    final response = await http.Response.fromStream(streamedResponse);
+    return _decode(response);
+  }
+
+  Future<Uint8List> downloadMessageAttachment({
+    required int personId,
+    required int messageId,
+    required int attachmentIndex,
+  }) async {
+    final bearer = await token;
+    if (bearer == null) throw ApiException('Please sign in.');
+    final response = await _withConnectionHandling(
+      () => http.get(
+        _apiUri('/messages/$personId/$messageId/attachments/$attachmentIndex'),
+        headers: {
+          'Accept': 'application/octet-stream',
+          'Authorization': 'Bearer $bearer',
+        },
+      ),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      await _decode(response);
+    }
+    return response.bodyBytes;
+  }
+
   Future<Map<String, dynamic>> dashboard() => _send('GET', '/dashboard');
 
   Future<String> legalDocument(String document) async {

@@ -28,21 +28,33 @@
                         <h2 class="text-lg font-semibold">{{ $user->name }}</h2>
                         <p class="text-sm text-slate-500 dark:text-slate-400">{{ $user->role->label() }}</p>
                     </header>
-                    <div class="flex max-h-[65vh] flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4" data-message-thread data-updates-url="{{ route('messages.updates', $user) }}" data-sender-id="{{ auth()->id() }}" aria-live="polite">
+                    <div class="flex max-h-[65vh] flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4" data-message-thread data-updates-url="{{ route('messages.updates', $user) }}" data-attachment-url="{{ route('messages.index').'/'.$user->id.'/__MESSAGE__/attachments/__ATTACHMENT__' }}" data-sender-id="{{ auth()->id() }}" aria-live="polite">
                         @forelse ($messages as $message)
                             <article data-message-id="{{ $message->id }}" class="max-w-[85%] rounded-2xl px-4 py-3 {{ $message->sender_id === auth()->id() ? 'self-end bg-violet-700 text-white' : 'self-start bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white' }}">
-                                <p class="whitespace-pre-wrap break-words text-sm">{{ $message->body }}</p>
+                                @if (filled($message->body)) <p class="whitespace-pre-wrap break-words text-sm">{{ $message->body }}</p> @endif
+                                @foreach ($message->attachments ?? [] as $index => $attachment)
+                                    <a class="mt-2 flex items-center gap-2 rounded-lg bg-black/10 px-3 py-2 text-sm underline" href="{{ route('messages.attachments.download', [$user, $message, $index]) }}" download>
+                                        <span aria-hidden="true">📎</span><span class="break-all">{{ $attachment['name'] }}</span>
+                                    </a>
+                                @endforeach
                                 <time class="mt-2 block text-xs opacity-75" datetime="{{ $message->created_at->toIso8601String() }}">{{ $message->created_at->format('M j, g:i A') }}</time>
                             </article>
                         @empty
                             <p data-message-empty class="m-auto text-center text-sm text-slate-500">No messages yet. Say hello.</p>
                         @endforelse
                     </div>
-                    <form method="POST" action="{{ route('messages.store', $user) }}" data-message-form class="border-t border-slate-200 p-4 dark:border-slate-700">
+                    <form method="POST" enctype="multipart/form-data" action="{{ route('messages.store', $user) }}" data-message-form class="border-t border-slate-200 p-4 dark:border-slate-700">
                         @csrf
                         <label for="message-body" class="mb-2 block text-sm font-semibold">Your message</label>
-                        <textarea id="message-body" name="body" rows="3" maxlength="2000" required class="w-full rounded-xl border border-slate-300 p-3 text-sm dark:border-slate-600 dark:bg-slate-800">{{ old('body') }}</textarea>
+                        <textarea id="message-body" name="body" rows="3" maxlength="2000" class="w-full rounded-xl border border-slate-300 p-3 text-sm dark:border-slate-600 dark:bg-slate-800" placeholder="Write a message or attach files">{{ old('body') }}</textarea>
+                        <label for="message-attachments" class="mt-3 block text-sm font-semibold">Attachments (up to 5 files, 10 MB each)</label>
+                        <input id="message-attachments" name="attachments[]" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" class="mt-1 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-2 file:font-semibold file:text-violet-800 dark:file:bg-violet-950 dark:file:text-violet-200">
                         @error('body') <p class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p> @enderror
+                        @foreach ($errors->get('attachments.*') as $attachmentErrors)
+                            @foreach ($attachmentErrors as $attachmentError)
+                                <p class="mt-1 text-sm text-red-600" role="alert">{{ $attachmentError }}</p>
+                            @endforeach
+                        @endforeach
                         <p data-message-status class="mt-2 text-sm text-red-600 dark:text-red-400" role="status" aria-live="polite"></p>
                         <div class="mt-3 flex justify-end"><button type="submit" class="rounded-xl bg-violet-700 px-5 py-2.5 font-semibold text-white hover:bg-violet-800 disabled:opacity-50">Send message</button></div>
                     </form>

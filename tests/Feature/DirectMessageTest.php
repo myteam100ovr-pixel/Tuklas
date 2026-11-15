@@ -6,12 +6,15 @@ use App\Enums\Role;
 use App\Events\DirectMessageSent;
 use App\Events\WorkspaceChanged;
 use App\Models\DocumentScan;
+use App\Models\DirectMessage;
 use App\Models\JobOpportunity;
 use App\Models\User;
 use App\Observers\WorkspaceSyncObserver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class DirectMessageTest extends TestCase
@@ -58,6 +61,40 @@ class DirectMessageTest extends TestCase
         $this->actingAs($sender)->post(route('messages.store', $recipient), ['body' => ''])->assertSessionHasErrors('body');
         $this->actingAs($sender)->post(route('messages.store', $recipient), ['body' => str_repeat('x', 2001)])->assertSessionHasErrors('body');
         $this->assertDatabaseCount('direct_messages', 0);
+    }
+
+    public function test_message_attachments_are_shared_between_web_and_mobile_and_only_participants_can_download(): void
+    {
+        Storage::fake('local');
+        $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true, 'email_verified_at' => now()]);
+        $other = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true, 'email_verified_at' => now()]);
+        $file = UploadedFile::fake()->createWithContent('resume.pdf', "%PDF-1.4\nTuklas resume\n%%EOF");
+        $photo = UploadedFile::fake()->image('certificate.png');
+
+        $webResponse = $this->actingAs($youth)->withHeader('Accept', 'application/json')->post(route('messages.store', $admin), [
+            'body' => '',
+            'attachments' => [$file, $photo],
+        ])->assertCreated();
+        $messageId = $webResponse->json('message.id');
+        $webResponse->assertJsonPath('message.attachments.0.name', 'resume.pdf');
+        $webResponse->assertJsonPath('message.attachments.1.name', 'certificate.png');
+        $message = DirectMessage::query()->findOrFail($messageId);
+        Storage::disk('local')->assertExists($message->attachments[0]['path']);
+
+        $this->actingAs($admin)->get(route('messages.attachments.download', [$youth, $message, 0]))
+            ->assertOk()->assertHeader('content-type', 'application/pdf');
+        $this->actingAs($other)->get(route('messages.attachments.download', [$youth, $message, 0]))
+            ->assertForbidden();
+
+        $mobileFile = UploadedFile::fake()->createWithContent('certificate.pdf', "%PDF-1.4\nCertificate\n%%EOF");
+        $mobileResponse = $this->actingAs($admin)->withHeader('Accept', 'application/json')->post('/api/mobile/messages/'.$youth->id, [
+            'attachments' => [$mobileFile],
+        ])->assertCreated();
+        $mobileMessageId = $mobileResponse->json('message.id');
+        $mobileResponse->assertJsonPath('message.attachments.0.name', 'certificate.pdf');
+        $this->actingAs($youth)->get('/api/mobile/messages/'.$admin->id.'/'.$mobileMessageId.'/attachments/0')
+            ->assertOk()->assertHeader('content-type', 'application/pdf');
     }
 
     public function test_web_and_mobile_receive_new_messages_from_the_same_conversation(): void

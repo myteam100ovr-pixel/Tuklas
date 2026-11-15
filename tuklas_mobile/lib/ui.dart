@@ -282,11 +282,22 @@ class TkBottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = TkColors.of(context);
     final user = ApiClient.instance.user ?? <String, dynamic>{};
-    final name = '${user['name'] ?? ''}';
     final role = '${user['role'] ?? ''}';
-    final careerTools = role == 'youth' || role == 'admin';
-    final secondaryLabel = role == 'tesda_admin' ? 'My courses' : 'Training';
-    final tertiaryLabel = 'Sessions';
+    final destinations = role == 'tesda_admin'
+        ? const [
+            ('Home', Icons.dashboard_outlined, Icons.dashboard),
+            ('Training', Icons.school_outlined, Icons.school),
+            ('Programs', Icons.menu_book_outlined, Icons.menu_book),
+            ('Inbox', Icons.forum_outlined, Icons.forum),
+            ('Account', Icons.person_outline, Icons.person),
+          ]
+        : const [
+            ('Home', Icons.dashboard_outlined, Icons.dashboard),
+            ('Jobs', Icons.work_outline, Icons.work),
+            ('Training', Icons.school_outlined, Icons.school),
+            ('Inbox', Icons.forum_outlined, Icons.forum),
+            ('More', Icons.grid_view_outlined, Icons.grid_view),
+          ];
 
     return SafeArea(
       top: false,
@@ -321,49 +332,13 @@ class TkBottomNavigation extends StatelessWidget {
               elevation: 0,
               height: 64,
               destinations: [
-                NavigationDestination(
-                  icon: const Icon(Icons.dashboard_outlined),
-                  selectedIcon: const Icon(Icons.dashboard),
-                  label: 'Home',
-                  tooltip: 'Overview',
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.work_outline),
-                  selectedIcon: const Icon(Icons.work),
-                  label: careerTools ? 'PESO AI' : secondaryLabel,
-                  tooltip: careerTools ? 'PESO AI' : secondaryLabel,
-                ),
-                NavigationDestination(
-                  icon: Icon(
-                    careerTools
-                        ? Icons.document_scanner_outlined
-                        : Icons.calendar_month_outlined,
+                for (final destination in destinations)
+                  NavigationDestination(
+                    icon: Icon(destination.$2),
+                    selectedIcon: Icon(destination.$3),
+                    label: destination.$1,
+                    tooltip: destination.$1,
                   ),
-                  selectedIcon: Icon(
-                    careerTools ? Icons.document_scanner : Icons.calendar_month,
-                  ),
-                  label: careerTools ? 'Scanner' : tertiaryLabel,
-                  tooltip: careerTools ? 'Scanner' : tertiaryLabel,
-                ),
-                NavigationDestination(
-                  icon: Icon(
-                    careerTools ? Icons.school_outlined : Icons.forum_outlined,
-                  ),
-                  selectedIcon: Icon(careerTools ? Icons.school : Icons.forum),
-                  label: careerTools
-                      ? 'TESDA'
-                      : (role == 'tesda_admin' ? 'Courses' : 'Messages'),
-                  tooltip: careerTools
-                      ? 'TESDA'
-                      : (role == 'tesda_admin' ? 'Courses' : 'Messages'),
-                ),
-                NavigationDestination(
-                  key: const ValueKey('profile-destination'),
-                  icon: TkAvatar(initials: tkInitials(name), size: 34),
-                  selectedIcon: TkAvatar(initials: tkInitials(name), size: 34),
-                  label: 'Profile',
-                  tooltip: 'Profile',
-                ),
               ],
             ),
           ),
