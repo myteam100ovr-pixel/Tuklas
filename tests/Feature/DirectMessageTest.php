@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\Role;
 use App\Events\DirectMessageSent;
 use App\Events\WorkspaceChanged;
+use App\Models\DocumentScan;
 use App\Models\JobOpportunity;
 use App\Models\User;
 use App\Observers\WorkspaceSyncObserver;
@@ -175,6 +176,18 @@ class DirectMessageTest extends TestCase
 
         Event::assertDispatched(WorkspaceChanged::class, function (WorkspaceChanged $event): bool {
             return $event->broadcastWith() === ['resource' => 'jobs', 'actor_id' => null]
+                && array_map(fn ($channel): string => $channel->name, $event->broadcastOn()) === ['private-workspace'];
+        });
+    }
+
+    public function test_document_scans_broadcast_a_private_history_invalidation(): void
+    {
+        Event::fake([WorkspaceChanged::class]);
+
+        (new WorkspaceSyncObserver)->saved(new DocumentScan);
+
+        Event::assertDispatched(WorkspaceChanged::class, function (WorkspaceChanged $event): bool {
+            return $event->broadcastWith() === ['resource' => 'document-scans', 'actor_id' => null]
                 && array_map(fn ($channel): string => $channel->name, $event->broadcastOn()) === ['private-workspace'];
         });
     }

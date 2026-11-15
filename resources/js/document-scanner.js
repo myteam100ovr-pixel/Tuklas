@@ -20,6 +20,7 @@ if (scanner) {
     const maxFiles = 5;
     let selectedFiles = [];
     let isScanning = false;
+    let historyRequestId = 0;
 
     const formatSize = (bytes) => {
         if (bytes < 1024 * 1024) {
@@ -347,6 +348,7 @@ if (scanner) {
         }
 
         isScanning = true;
+        historyRequestId += 1;
         updateSubmitState();
         input.disabled = true;
         chooseButton.disabled = true;
@@ -373,6 +375,7 @@ if (scanner) {
         consent.disabled = false;
         isScanning = false;
         updateSubmitState();
+        await loadHistory();
         if (failedFiles.length > 0) {
             progress.hidden = true;
             setStatus(`${completed} of ${filesToScan.length} files scanned. ${failedFiles.length} failed; keep them selected and try again.`, 'error');
@@ -383,14 +386,28 @@ if (scanner) {
     };
 
     const loadHistory = async () => {
+        if (isScanning) {
+            return;
+        }
+
+        const requestId = ++historyRequestId;
+
         try {
             const response = await fetch(scanner.dataset.historyUrl, { headers: { Accept: 'application/json' } });
+            if (isScanning || requestId !== historyRequestId) {
+                return;
+            }
+
             if (!response.ok) {
                 setStatus('Could not load previous scans. You can still submit a new document.', 'error');
                 return;
             }
 
             const payload = await response.json();
+            if (isScanning || requestId !== historyRequestId) {
+                return;
+            }
+
             if (!Array.isArray(payload.documents)) {
                 setStatus('The scan history response was invalid. You can still submit a new document.', 'error');
                 return;
@@ -412,9 +429,17 @@ if (scanner) {
                 renderLatestAnalysis(latestCompleted);
             }
         } catch (error) {
-            setStatus('Could not load previous scans. Check your connection and try again.', 'error');
+            if (!isScanning) {
+                setStatus('Could not load previous scans. Check your connection and try again.', 'error');
+            }
         }
     };
+
+    window.addEventListener('tuklas:document-scans-sync', (event) => {
+        if (event.detail?.resource === 'document-scans') {
+            loadHistory();
+        }
+    });
 
     chooseButton.addEventListener('click', () => input.click());
     input.addEventListener('change', () => {

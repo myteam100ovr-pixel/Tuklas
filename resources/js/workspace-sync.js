@@ -1,6 +1,7 @@
 const notificationLink = document.querySelector('[data-notifications-url]');
 const jobsPage = document.querySelector('[data-live-jobs-url]');
 const jobApplicationsPage = document.querySelector('[data-live-job-applications-url]');
+const documentScannerPage = document.querySelector('[data-document-scanner]');
 let syncing = false;
 let pendingWorkspaceSync = false;
 let workspaceSyncTimer;
@@ -303,12 +304,19 @@ const refreshHeader = async () => {
 };
 
 const pageHasLiveData = Boolean(
-    jobsPage || jobApplicationsPage || document.querySelector('.notifications-list, [data-message-thread]'),
+    jobsPage || jobApplicationsPage || documentScannerPage || document.querySelector('.notifications-list, [data-message-thread]'),
 );
 
 const applyWorkspaceChange = (event) => {
     sync();
     if (event.detail?.resource === 'users') refreshHeader();
+    if (documentScannerPage) {
+        window.dispatchEvent(new CustomEvent('tuklas:document-scans-sync', {
+            detail: { resource: event.detail?.resource },
+        }));
+        return;
+    }
+
     if (pageHasLiveData) {
         return;
     }
@@ -336,6 +344,10 @@ const refreshCurrentPage = async () => {
         return;
     }
 
+    if (main.querySelector('[data-document-scanner]')) {
+        return;
+    }
+
     try {
         const response = await fetch(window.location.href, {
             cache: 'no-store',
@@ -347,7 +359,16 @@ const refreshCurrentPage = async () => {
         const page = new DOMParser().parseFromString(await response.text(), 'text/html');
         updateHeader(page);
         const nextMain = page.querySelector('#main-content');
-        if (!nextMain || nextMain.querySelector('[data-document-scanner], [data-career-chat]')) {
+        if (!nextMain) {
+            window.location.reload();
+            return;
+        }
+
+        if (nextMain.querySelector('[data-document-scanner]')) {
+            return;
+        }
+
+        if (nextMain.querySelector('[data-career-chat]')) {
             window.location.reload();
             return;
         }

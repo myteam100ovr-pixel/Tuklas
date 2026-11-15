@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Events\WorkspaceChanged;
 use App\Models\AssessmentRecord;
 use App\Models\CareerPath;
+use App\Models\DocumentScan;
 use App\Models\Employer;
 use App\Models\JobApplication;
 use App\Models\JobOpportunity;
@@ -44,6 +45,7 @@ class WorkspaceSyncObserver
         $resources = [
             AssessmentRecord::class => 'assessments',
             CareerPath::class => 'career-paths',
+            DocumentScan::class => 'document-scans',
             Employer::class => 'employers',
             JobApplication::class => 'job-applications',
             JobOpportunity::class => 'jobs',
