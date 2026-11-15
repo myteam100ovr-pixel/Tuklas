@@ -1,0 +1,65 @@
+name: Deploy Tuklas website to EC2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'bootstrap/**'
+      - 'config/**'
+      - 'database/migrations/**'
+      - 'resources/**'
+      - 'routes/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy-web.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-web
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Build website assets
+        run: |
+          npm ci
+          npm run build
+      - name: Prepare SSH
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for value in "$DEPLOY_HOST" "$DEPLOY_USER" "$DEPLOY_SSH_KEY" "$DEPLOY_KNOWN_HOSTS"; do
+            test -n "$value" || { echo 'Missing EC2 deployment configuration'; exit 1; }
+          done
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Deploy application, assets, and database migration
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          remote="${DEPLOY_USER}@${DEPLOY_HOST}"
+          build_dir="/tmp/tuklas-web-build-${GITHUB_RUN_ID}"
+          tar -C public -czf - build | ssh -o StrictHostKeyChecking=yes "$remote" "mkdir -p $build_dir && tar -xzf - -C $build_dir"
+          ssh -o StrictHostKeyChecking=yes "$remote" "set -e; cd /var/www/tuklas; git pull --ff-only origin main; sudo install -d -m 755 public/build; sudo cp -a $build_dir/build/. public/build/; sudo rm -rf $build_dir; php artisan migrate --force; php artisan optimize:clear"
