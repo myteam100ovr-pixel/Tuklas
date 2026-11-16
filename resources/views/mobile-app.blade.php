@@ -32,7 +32,7 @@
                 <span class="app-download-platform">ANDROID</span>
                 <h2>Install the Android app</h2>
                 <p>Get the latest Tuklas APK for Android. Current version: <strong id="android-app-version">Checking…</strong></p>
-                <a class="btn btn-violet" id="android-app-download" href="{{ url('/app-updates/latest.json') }}">Download Android app</a>
+                <a class="btn btn-violet" id="android-app-download" aria-disabled="true" tabindex="-1">Checking release…</a>
                 <p class="app-download-note" id="android-app-status" role="status">Loading the latest release information.</p>
                 <div class="app-download-notes" id="android-app-notes" hidden>
                     <h3>What’s new</h3>
@@ -56,13 +56,26 @@
                 if (!response.ok) throw new Error('Release information is unavailable.');
                 return response.json();
             })
-            .then(release => {
+            .then(async release => {
                 const link = new URL(release.apk_url, window.location.origin);
-                if (link.origin !== window.location.origin || !link.pathname.startsWith('/app-updates/')) {
+                if (
+                    link.origin !== window.location.origin ||
+                    !link.pathname.startsWith('/app-updates/') ||
+                    !link.pathname.endsWith('.apk')
+                ) {
                     throw new Error('The download link is invalid.');
                 }
+                const apk = await fetch(link.href, { method: 'HEAD', cache: 'no-store' });
+                if (!apk.ok || Number(apk.headers.get('content-length')) < 1000000) {
+                    throw new Error('The Android app file is not available.');
+                }
                 document.getElementById('android-app-version').textContent = release.version_name;
-                document.getElementById('android-app-download').href = link.href;
+                const download = document.getElementById('android-app-download');
+                download.href = link.href;
+                download.download = link.pathname.split('/').pop();
+                download.removeAttribute('aria-disabled');
+                download.removeAttribute('tabindex');
+                download.textContent = `Download Android app · v${release.version_name}`;
                 document.getElementById('android-app-status').textContent = 'Latest Android version is ready to download.';
                 if (release.patch_notes) {
                     document.getElementById('android-app-patch-notes').textContent = release.patch_notes;
