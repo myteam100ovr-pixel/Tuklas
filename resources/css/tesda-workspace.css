@@ -57,6 +57,26 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .trainer-courses__form input:focus,.trainer-courses__form select:focus,.trainer-courses__form textarea:focus { outline:2px solid var(--violet); outline-offset:1px; }
 .trainer-courses__form-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
 .trainer-courses__form-actions { justify-content:flex-start; }
+.users-form__password { display:grid; gap:.85rem; }
+.users-form__password-input { display:flex; min-width:0; gap:.5rem; }
+.users-form__password-input input { flex:1; }
+.users-form__password-toggle { padding:.55rem .75rem; border:1px solid var(--line); border-radius:.6rem; color:var(--violet); background:var(--surface-2); font:inherit; font-size:.75rem; font-weight:650; cursor:pointer; }
+.users-form__strength { display:grid; gap:.45rem; padding:.85rem 1rem; border:1px solid var(--line); border-radius:.7rem; background:var(--surface-2); }
+.users-form__strength-heading { display:flex; justify-content:space-between; gap:1rem; color:var(--ink); font-size:.78rem; }
+.users-form__strength-heading strong { color:var(--violet); }
+.users-form__strength-track { height:.35rem; overflow:hidden; border-radius:99px; background:var(--line); }
+.users-form__strength-track span { display:block; width:100%; height:100%; border-radius:inherit; background:#5b17ff; transition:width .18s ease,background-color .18s ease; }
+.users-form__strength p,.users-form__strength small { margin:0; color:var(--muted); font-size:.74rem; line-height:1.5; }
+.trainer-courses__form .users-form__strength small { color:var(--muted); }
+.trainer-courses__form .users-form__confirmation-error { color:#b42318; }
+.users-form__strength[data-strength="bad"] .users-form__strength-heading strong { color:#b42318; }
+.users-form__strength[data-strength="bad"] .users-form__strength-track span { width:25%; background:#b42318; }
+.users-form__strength[data-strength="moderate"] .users-form__strength-heading strong { color:#b54708; }
+.users-form__strength[data-strength="moderate"] .users-form__strength-track span { width:50%; background:#b54708; }
+.users-form__strength[data-strength="good"] .users-form__strength-heading strong { color:#15803d; }
+.users-form__strength[data-strength="good"] .users-form__strength-track span { width:75%; background:#15803d; }
+.users-form__strength[data-strength="secure"] .users-form__strength-track span { width:100%; background:#5b17ff; }
+.trainer-courses__form-actions [data-password-submit]:disabled { opacity:.55; cursor:not-allowed; }
 @media(max-width:600px) { .trainer-courses__toolbar,.trainer-courses__card { align-items:flex-start; flex-direction:column; } .trainer-courses__form-row { grid-template-columns:1fr; } }
 
 /* Shared layout for PESO, TESDA, center, and career seeker operations. */

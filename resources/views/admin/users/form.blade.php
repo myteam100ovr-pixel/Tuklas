@@ -1,7 +1,7 @@
 <x-app-layout>
     @php($editing = $account->exists)
     <div class="suite-page trainer-courses">
-        <x-workspace-heading eyebrow="COMMUNITY · PEOPLE" :title="$editing ? 'Edit user account' : 'Add a user'" description="Admin-created accounts are verified immediately. Share the sign-in password securely with the user." />
+        <x-workspace-heading eyebrow="COMMUNITY · PEOPLE" :title="$editing ? 'Edit user account' : 'Add a user'" :description="$editing ? 'Update this account’s details and access.' : 'A unique strong initial password is generated for each account. Share it with the user through a secure channel.'" />
         <form method="POST" action="{{ $editing ? route('admin.users.update', $account) : route('admin.users.store') }}" class="trainer-courses__form">
             @csrf
             @if ($editing)@method('PUT')@endif
@@ -21,9 +21,23 @@
                 <label>Barangay<input name="barangay" maxlength="100" value="{{ old('barangay', $account->youthProfile?->barangay) }}">@error('barangay')<small>{{ $message }}</small>@enderror</label>
             </fieldset>
             @unless ($editing)
-                <div class="trainer-courses__form-row"><label>Initial password<input name="password" type="password" required minlength="8" autocomplete="new-password">@error('password')<small>{{ $message }}</small>@enderror</label><label>Confirm password<input name="password_confirmation" type="password" required minlength="8" autocomplete="new-password"></label></div>
+                <div class="users-form__password" data-password-strength-form>
+                    <div class="trainer-courses__form-row">
+                        <label for="user-initial-password">Initial password
+                            <span class="users-form__password-input"><input id="user-initial-password" name="password" type="password" required minlength="12" maxlength="72" autocomplete="new-password" value="{{ $initialPassword }}" data-password-strength-input><button type="button" class="users-form__password-toggle" aria-controls="user-initial-password" aria-label="Show initial password" data-password-visibility>Show</button></span>
+                            @error('password')<small>{{ $message }}</small>@enderror
+                        </label>
+                        <label for="user-password-confirmation">Confirm password<input id="user-password-confirmation" name="password_confirmation" type="password" required minlength="12" maxlength="72" autocomplete="new-password" value="{{ $initialPassword }}" data-password-confirmation><small class="users-form__confirmation-error" data-password-confirmation-message hidden>Passwords do not match.</small></label>
+                    </div>
+                    <div class="users-form__strength" data-password-strength-meter data-strength="secure" aria-live="polite">
+                        <div class="users-form__strength-heading"><span>Password strength</span><strong data-password-strength-label>Secure</strong></div>
+                        <div class="users-form__strength-track" aria-hidden="true"><span data-password-strength-bar></span></div>
+                        <p data-password-strength-message>Strong enough to protect this account. You can change it before creating the account.</p>
+                        <small>Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.</small>
+                    </div>
+                </div>
             @endunless
-            <div class="trainer-courses__form-actions"><button class="trainer-courses__primary" type="submit">{{ $editing ? 'Save changes' : 'Create account' }}</button><a href="{{ route('admin.users.index') }}">Cancel</a></div>
+            <div class="trainer-courses__form-actions"><button class="trainer-courses__primary" type="submit" @unless ($editing) data-password-submit @endunless>{{ $editing ? 'Save changes' : 'Create account' }}</button><a href="{{ route('admin.users.index') }}">Cancel</a></div>
         </form>
     </div>
 </x-app-layout>

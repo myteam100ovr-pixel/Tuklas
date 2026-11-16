@@ -1,3 +1,4 @@
+import './admin-user-password.js';
 import './theme.js';
 import './tesda-catalog.js';
 import './career-chat.js';

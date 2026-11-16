@@ -13,7 +13,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
 use Throwable;
 
@@ -41,7 +43,11 @@ class UserController extends Controller
 
     public function create(): View
     {
-        return view('admin.users.form', ['account' => new User, 'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get()]);
+        return view('admin.users.form', [
+            'account' => new User,
+            'centers' => TrainingCenter::query()->where('is_active', true)->orderBy('name')->get(),
+            'initialPassword' => $this->generateInitialPassword(),
+        ]);
     }
 
     public function store(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
@@ -192,11 +198,32 @@ class UserController extends Controller
             'role' => ['required', Rule::enum(Role::class)],
             'training_center_id' => ['nullable', Rule::exists('training_centers', 'id')->where('is_active', true)],
             'is_active' => ['required', 'boolean'],
-            'password' => $account ? ['prohibited'] : ['required', 'string', 'min:8', 'confirmed'],
+            'password' => $account ? ['prohibited'] : [
+                'required',
+                'string',
+                PasswordRule::min(12)->max(72)->mixedCase()->numbers()->symbols(),
+                'confirmed',
+            ],
             'date_of_birth' => ['nullable', 'date'],
             'contact_number' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s()]*$/'],
             'barangay' => ['nullable', 'string', 'max:100'],
+        ], [
+            'password' => 'Use 12 to 72 characters, including uppercase and lowercase letters, a number, and a symbol.',
         ]);
+    }
+
+    private function generateInitialPassword(): string
+    {
+        do {
+            $password = Str::password(24);
+        } while (
+            ! preg_match('/[a-z]/', $password)
+            || ! preg_match('/[A-Z]/', $password)
+            || ! preg_match('/[0-9]/', $password)
+            || ! preg_match('/[^a-zA-Z0-9]/', $password)
+        );
+
+        return $password;
     }
 
     private function protectLastAdministrator(User $user, ?string $newRole, bool $isActive): void

@@ -563,6 +563,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
 
   Future<void> _editUser(Map<String, dynamic>? user) async {
     try {
+      final initialPassword = user == null
+          ? generateSecureInitialPassword()
+          : null;
       final response = user == null
           ? await ApiClient.instance.workspace('/training-centers')
           : await ApiClient.instance.workspace('/admin/users/${user['id']}');
@@ -606,13 +609,32 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           const WorkspaceField('date_of_birth', 'Birth date (YYYY-MM-DD)'),
           const WorkspaceField('contact_number', 'Contact number'),
           const WorkspaceField('barangay', 'Barangay'),
-          if (user == null) ..._passwordFields,
+          if (user == null) ...[
+            const WorkspaceField(
+              'password',
+              'Initial password',
+              secret: true,
+              required: true,
+              passwordStrength: true,
+            ),
+            const WorkspaceField(
+              'password_confirmation',
+              'Confirm password',
+              secret: true,
+              required: true,
+              passwordConfirmation: true,
+            ),
+          ],
         ],
         method: user == null ? 'POST' : 'PUT',
         initial: {
           ...details,
           ...profile,
           'date_of_birth': '${details['date_of_birth'] ?? ''}'.split('T').first,
+          if (initialPassword != null) ...{
+            'password': initialPassword,
+            'password_confirmation': initialPassword,
+          },
         },
       );
     } catch (e) {

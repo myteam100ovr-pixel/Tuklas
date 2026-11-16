@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../api.dart';
@@ -11,11 +13,40 @@ class WorkspaceField {
     this.secret = false,
     this.multiline = false,
     this.required = false,
+    this.passwordStrength = false,
+    this.passwordConfirmation = false,
   });
   final String name, label;
   final List<String>? options;
   final Map<String, String> optionLabels;
   final bool secret, multiline, required;
+  final bool passwordStrength, passwordConfirmation;
+}
+
+String generateSecureInitialPassword() {
+  final random = Random.secure();
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const symbols = '!@#%^*-_';
+  const allCharacters = '$lowercase$uppercase$numbers$symbols';
+  final characters = <String>[
+    lowercase[random.nextInt(lowercase.length)],
+    uppercase[random.nextInt(uppercase.length)],
+    numbers[random.nextInt(numbers.length)],
+    symbols[random.nextInt(symbols.length)],
+    for (var index = 0; index < 20; index++)
+      allCharacters[random.nextInt(allCharacters.length)],
+  ];
+
+  for (var index = characters.length - 1; index > 0; index--) {
+    final swapIndex = random.nextInt(index + 1);
+    final character = characters[index];
+    characters[index] = characters[swapIndex];
+    characters[swapIndex] = character;
+  }
+
+  return characters.join();
 }
 
 class WorkspaceForm extends StatefulWidget {
@@ -43,6 +74,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
       f.name: TextEditingController(text: '${widget.initial[f.name] ?? ''}'),
   };
   bool _saving = false;
+  final Set<String> _visibleSecrets = {};
   String? _error;
   Map<String, String> _errors = {};
   @override
@@ -103,17 +135,68 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
             Padding(
               padding: const EdgeInsets.only(bottom: 18),
               child: f.options == null
-                  ? TextFormField(
-                      controller: _inputs[f.name],
-                      obscureText: f.secret,
-                      maxLines: f.multiline ? 4 : 1,
-                      decoration: InputDecoration(
-                        labelText: f.label,
-                        errorText: _errors[f.name],
-                      ),
-                      validator: (v) => f.required && (v ?? '').trim().isEmpty
-                          ? 'Required'
-                          : null,
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _inputs[f.name],
+                          obscureText:
+                              f.secret && !_visibleSecrets.contains(f.name),
+                          maxLines: f.multiline ? 4 : 1,
+                          maxLength: f.passwordStrength || f.passwordConfirmation
+                              ? 72
+                              : null,
+                          decoration: InputDecoration(
+                            labelText: f.label,
+                            errorText: _errors[f.name],
+                            suffixIcon: f.secret && f.name.contains('password')
+                                ? IconButton(
+                                    tooltip: _visibleSecrets.contains(f.name)
+                                        ? 'Hide password'
+                                        : 'Show password',
+                                    onPressed: () => setState(() {
+                                      if (!_visibleSecrets.add(f.name)) {
+                                        _visibleSecrets.remove(f.name);
+                                      }
+                                    }),
+                                    icon: Icon(
+                                      _visibleSecrets.contains(f.name)
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          onChanged:
+                              f.passwordStrength || f.passwordConfirmation
+                              ? (_) => setState(() {})
+                              : null,
+                          validator: (value) {
+                            final currentValue = value ?? '';
+                            if (f.required && currentValue.trim().isEmpty) {
+                              return 'Required';
+                            }
+                            if (f.passwordStrength &&
+                                (_passwordStrength(currentValue) < 2 ||
+                                    currentValue.length > 72)) {
+                              return 'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.';
+                            }
+                            if (f.passwordConfirmation &&
+                                currentValue != _inputs['password']?.text) {
+                              return 'Passwords do not match.';
+                            }
+
+                            return null;
+                          },
+                        ),
+                        if (f.passwordStrength) ...[
+                          const SizedBox(height: 8),
+                          _passwordStrengthIndicator(
+                            context,
+                            _passwordStrength(_inputs[f.name]!.text),
+                          ),
+                        ],
+                      ],
                     )
                   : DropdownButtonFormField<String>(
                       initialValue: f.options!.contains(_inputs[f.name]!.text)
@@ -152,6 +235,80 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
       ),
     ),
   );
+
+  Widget _passwordStrengthIndicator(BuildContext context, int strength) {
+    const labels = ['Bad', 'Moderate', 'Good', 'Secure'];
+    const messages = [
+      'Too weak. Change it before creating the account.',
+      'Almost there. Meet all password requirements.',
+      'Good. It meets the account password requirements.',
+      'Secure. This password is ready to use.',
+    ];
+    final colors = [
+      Theme.of(context).colorScheme.error,
+      Colors.orange.shade800,
+      Colors.green.shade700,
+      Theme.of(context).colorScheme.primary,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Password strength'),
+            Text(
+              labels[strength],
+              style: TextStyle(
+                color: colors[strength],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        LinearProgressIndicator(
+          value: (strength + 1) / 4,
+          color: colors[strength],
+        ),
+        const SizedBox(height: 5),
+        Text(messages[strength]),
+        const Text(
+          'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
+        ),
+      ],
+    );
+  }
+
+  int _passwordStrength(String value) {
+    final hasLowercase = RegExp(r'[a-z]').hasMatch(value);
+    final hasUppercase = RegExp(r'[A-Z]').hasMatch(value);
+    final hasNumber = RegExp(r'[0-9]').hasMatch(value);
+    final hasSymbol = RegExp(r'[^a-zA-Z0-9]').hasMatch(value);
+    final characterTypes = [
+      hasLowercase,
+      hasUppercase,
+      hasNumber,
+      hasSymbol,
+    ].where((hasType) => hasType).length;
+
+    if (value.length < 8 ||
+        value.length > 72 ||
+        characterTypes < 2 ||
+        RegExp(r'^(.)\1+$').hasMatch(value)) {
+      return 0;
+    }
+    if (value.length < 12 ||
+        !hasLowercase ||
+        !hasUppercase ||
+        !hasNumber ||
+        !hasSymbol) {
+      return 1;
+    }
+
+    return value.length >= 16 ? 3 : 2;
+  }
 }
 
 Future<Map<String, dynamic>?> openWorkspaceForm(
