@@ -86,6 +86,59 @@ flowchart TD
 
 `routes/web.php` serves browser pages. `routes/api.php` serves mobile JSON endpoints. Controllers and models hold the shared application behavior; authorization and role middleware restrict what each account can see and change.
 
+### Whole-system fishbone
+
+This fishbone groups the real system areas that feed Tuklas's shared career, employment, training, and scholarship workflows. External services and live updates depend on valid server configuration; AI guidance and recommendations do not guarantee a job, training place, or scholarship award.
+
+```mermaid
+flowchart LR
+    PEOPLE["People and access"] --> CORE["Tuklas shared workflows"]
+    WEB["Website"] --> CORE
+    MOBILE["Flutter mobile app"] --> CORE
+    SERVER["Laravel application and APIs"] --> CORE
+    DATA["Shared records and files"] --> CORE
+    INTEGRATIONS["Connected services and source catalogs"] --> CORE
+    DELIVERY["Build and release"] --> CORE
+    CORE --> OUTCOME["Career guidance and managed job, training, scholarship workflows"]
+
+    PEOPLE --> ADMIN["PESO Admin: accounts, jobs, applications, hiring decisions, scholarships, monitoring"]
+    PEOPLE --> TESDA["TESDA: qualifications, centers, programs, staff assignments, schedules, requests, results"]
+    PEOPLE --> SEEKER["Career Seeker: profile, skills, jobs, applications, training and scholarship requests"]
+    PEOPLE --> GUARDS["Sign-in, verified and active account checks, role and center permissions"]
+
+    WEB --> WEBPAGES["Blade workspaces, role navigation, search, create and review forms"]
+    WEB --> BROWSERFLOWS["Jobs and PESO tabs; training, programs, inbox, profile and scanner pages"]
+    WEB --> REALTIMEWEB["Echo client listens for workspace, message and notification events"]
+
+    MOBILE --> MOBILEUI["Native Android and iOS screens; not a WebView"]
+    MOBILE --> MOBILEAPI["Authenticated mobile API for dashboard, catalog, training, jobs, scholarships and messages"]
+    MOBILE --> CAPTURE["Camera or file selection for resume, certificate and application documents"]
+    MOBILE --> UPDATES["Android APK update manifest and in-app update prompt"]
+
+    SERVER --> WEBROUTES["Browser routes and controllers"]
+    SERVER --> APIROUTES["/api/mobile routes and JSON controllers"]
+    SERVER --> AUTHZ["Sanctum, Fortify, validation, role middleware and center scoping"]
+    SERVER --> NOTICES["Notifications, activity notices and workflow status changes"]
+    SERVER --> BROADCAST["Broadcast events for messages, notifications and workspace changes"]
+
+    DATA --> ACCOUNTS["Users and career-seeker profiles"]
+    DATA --> JOBDATA["Employers, job opportunities, applications and recommendations"]
+    DATA --> TRAININGDATA["Centers, programs, sessions, training applications and assessment records"]
+    DATA --> SCHOLARSHIPDATA["Scholarships, requirements, applications, review notes and documents"]
+    DATA --> COMMSDATA["Direct messages, attachments, notifications, career chat and document scans"]
+    DATA --> DB["MySQL or SQLite schema maintained by Laravel migrations"]
+
+    INTEGRATIONS --> GEMINI["Gemini: document text extraction and career chat, server-side key"]
+    INTEGRATIONS --> EMAIL["Configured email transport: PHPMailer SMTP, Laravel SMTP or log"]
+    INTEGRATIONS --> REVERB["Reverb and Echo private channels when broadcasting is configured"]
+    INTEGRATIONS --> SOURCES["TESDA and PhilJobNet source-linked records; availability needs checking"]
+    INTEGRATIONS --> SEEDDATA["Seeders: source catalog records and clearly disclosed fictional workflow data"]
+
+    DELIVERY --> WEBDEPLOY["GitHub Actions web workflow builds assets and deploys to EC2 when configured"]
+    DELIVERY --> ANDROIDDEPLOY["Android workflow builds and publishes a signed APK when secrets and URL are configured"]
+    DELIVERY --> IOSDEPLOY["Manual signed iOS build; TestFlight upload requires Apple credentials and configuration"]
+```
+
 ## Database schema
 
 Laravel migrations in `database/migrations/` are the source of truth for database structure. `php artisan migrate` creates the schema for MySQL or SQLite. The diagram shows the primary application tables and foreign-key relationships; Laravel also creates infrastructure tables for sessions, cache, queues, tokens, password resets, and migration tracking.
