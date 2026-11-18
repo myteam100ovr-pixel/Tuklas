@@ -9,6 +9,8 @@ if (form) {
     const message = form.querySelector('[data-password-strength-message]');
     const submit = form.querySelector('[data-password-submit]');
     const visibility = form.querySelector('[data-password-visibility]');
+    const eyeOpen = visibility.querySelector('[data-password-eye-open]');
+    const eyeClosed = visibility.querySelector('[data-password-eye-closed]');
     const levels = ['bad', 'moderate', 'good', 'secure'];
 
     function getStrength(value) {
@@ -56,8 +58,11 @@ if (form) {
         const showing = password.type === 'password';
         password.type = showing ? 'text' : 'password';
         confirmation.type = showing ? 'text' : 'password';
-        visibility.textContent = showing ? 'Hide' : 'Show';
-        visibility.setAttribute('aria-label', `${showing ? 'Hide' : 'Show'} initial password`);
+        eyeOpen.hidden = showing;
+        eyeClosed.hidden = !showing;
+        visibility.setAttribute('aria-pressed', String(showing));
+        visibility.setAttribute('aria-label', `${showing ? 'Hide' : 'Show'} password`);
+        visibility.setAttribute('title', `${showing ? 'Hide' : 'Show'} password`);
     });
 
     updateStrength();

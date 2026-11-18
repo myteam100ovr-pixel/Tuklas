@@ -60,7 +60,8 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .users-form__password { display:grid; gap:.85rem; }
 .users-form__password-input { display:flex; min-width:0; gap:.5rem; }
 .users-form__password-input input { flex:1; }
-.users-form__password-toggle { padding:.55rem .75rem; border:1px solid var(--line); border-radius:.6rem; color:var(--violet); background:var(--surface-2); font:inherit; font-size:.75rem; font-weight:650; cursor:pointer; }
+.users-form__password-toggle { display:grid; width:2.75rem; flex:0 0 2.75rem; place-items:center; padding:.5rem; border:1px solid var(--line); border-radius:.6rem; color:var(--violet); background:var(--surface-2); cursor:pointer; }
+.users-form__password-toggle svg { width:1.15rem; height:1.15rem; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .users-form__strength { display:grid; gap:.45rem; padding:.85rem 1rem; border:1px solid var(--line); border-radius:.7rem; background:var(--surface-2); }
 .users-form__strength-heading { display:flex; justify-content:space-between; gap:1rem; color:var(--ink); font-size:.78rem; }
 .users-form__strength-heading strong { color:var(--violet); }
