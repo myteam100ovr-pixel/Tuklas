@@ -59,7 +59,7 @@ class _OperationsViewState extends State<OperationsView> {
   };
   String get _helpText => switch (widget.section) {
     'Jobs' => 'Browse openings. PESO staff enter the employer and listing together, verify current details, then publish and recommend the opening.',
-    'Scholarships' => 'Find support for training. Check the provider source, eligibility, required documents, assessment, and deadline before applying.',
+    'Scholarships' => 'PTC and PSAT courses can each have a scholarship listing. Places are first come, first served. A submitted application reserves one place while the center and a different TESDA trainer review it.',
     'Centers' => 'See the training centers that provide Tuklas programs.',
     'Trainers' =>
       'Assign TESDA staff to a published program at the same center.',
@@ -262,9 +262,16 @@ class _OperationsViewState extends State<OperationsView> {
         required: true,
       ),
     ],
-    'Scholarships' => const [
+    'Scholarships' => [
       WorkspaceField('title', 'Title', required: true),
       WorkspaceField('provider', 'Provider', required: true),
+      _centerChoice(),
+      _courseChoice(),
+      const WorkspaceField(
+        'slot_limit',
+        'Available scholarship slots',
+        required: true,
+      ),
       WorkspaceField(
         'description',
         'Description',
@@ -297,14 +304,20 @@ class _OperationsViewState extends State<OperationsView> {
       ),
       WorkspaceField(
         'source_url',
-        'Official information source (required to publish)',
+        'Official information source (required for TESDA approval)',
       ),
       WorkspaceField('application_url', 'Application URL'),
       WorkspaceField('deadline', 'Deadline (YYYY-MM-DD)'),
       WorkspaceField(
         'status',
-        'Status',
-        options: ['draft', 'published', 'closed'],
+        'Next step',
+        options: ['draft', 'review', 'published', 'closed'],
+        optionLabels: {
+          'draft': 'Save draft',
+          'review': 'Submit for TESDA center and trainer approval',
+          'published': 'Request approval before public listing',
+          'closed': 'Closed',
+        },
         required: true,
       ),
     ],
@@ -377,6 +390,40 @@ class _OperationsViewState extends State<OperationsView> {
     _ => [],
   };
 
+  WorkspaceField _centerChoice() {
+    final centers = _list('centers');
+    final labels = <String, String>{
+      '': 'Select a TESDA center',
+      for (final center in centers)
+        '${center['id']}': '${center['type'] ?? 'TESDA'} · ${center['name']}',
+    };
+
+    return WorkspaceField(
+      'training_center_id',
+      'TESDA training center',
+      options: labels.keys.toList(),
+      optionLabels: labels,
+    );
+  }
+
+  WorkspaceField _courseChoice() {
+    final programs = _list('programs');
+    final labels = <String, String>{
+      '': 'Select a PTC or PSAT course',
+      for (final program in programs)
+        '${program['id']}':
+            '${(program['center'] as Map?)?['type'] ?? 'TESDA'} · ${(program['center'] as Map?)?['name'] ?? 'Training center'} — ${program['title']}',
+    };
+
+    return WorkspaceField(
+      'training_program_id',
+      'Course receiving the scholarship',
+      options: labels.keys.toList(),
+      optionLabels: labels,
+      required: true,
+    );
+  }
+
   Future<void> _edit([Map<String, dynamic> item = const {}]) async {
     final id = item['id'];
     final path = id == null ? _path : '$_path/$id';
@@ -415,11 +462,60 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  Future<void> _reviewScholarshipApplication(
+    Map<String, dynamic> application,
+    String stage,
+    String label,
+  ) async {
+    final saved = await openWorkspaceForm(
+      context,
+      title: '$label approval',
+      path: '/scholarship-applications/${application['id']}',
+      method: 'PUT',
+      fields: [
+        WorkspaceField(
+          'stage',
+          'Approval stage',
+          options: [stage],
+          required: true,
+        ),
+        const WorkspaceField(
+          'decision',
+          'Decision',
+          options: ['approved', 'failed'],
+          optionLabels: {'approved': 'Approved', 'failed': 'Failed'},
+          required: true,
+        ),
+        const WorkspaceField(
+          'notes',
+          'Note for Career Seeker',
+          multiline: true,
+        ),
+      ],
+    );
+    if (saved != null) _load();
+  }
+
   bool _hasScholarshipApplication(int scholarshipId) => _list('myApplications')
       .any(
         (application) =>
             (application['scholarship'] as Map?)?['id'] == scholarshipId,
       );
+
+  String _scholarshipApplicationLabel(Object? status) => switch (status) {
+    'approved' => 'Approved',
+    'cancelled' => 'Canceled',
+    'rejected' => 'Failed',
+    _ => 'Pending',
+  };
+
+  String _approvalLabel(Object? status) => switch (status) {
+    'approved' => 'Approved',
+    'failed' => 'Failed',
+    'cancelled' => 'Canceled',
+    'pending' => 'Pending',
+    _ => 'Not recorded',
+  };
 
   Future<void> _applyForScholarship(Map<String, dynamic> scholarship) async {
     final messageController = TextEditingController();
@@ -546,6 +642,20 @@ class _OperationsViewState extends State<OperationsView> {
     'Scholarships' => [
       '${item['provider'] ?? ''}',
       '${item['description'] ?? ''}',
+      if ((item['center'] as Map?)?['name'] != null)
+        'TESDA center: ${(item['center'] as Map?)?['type'] ?? 'TESDA'} · ${(item['center'] as Map)['name']}',
+      if ((item['training_program'] as Map?)?['title'] != null)
+        'Course: ${(item['training_program'] as Map)['title']}',
+      if (item['slot_limit'] != null)
+        'Available slots: ${item['is_full'] == true ? 'Fully occupied' : '${item['available_slots'] ?? 0} of ${item['slot_limit']}'}',
+      if (item['slot_limit'] == null)
+        'Availability: Not confirmed by the provider.',
+      if (item['center_approval_status'] != null ||
+          item['trainer_approval_status'] != null) ...[
+        'Center approval: ${item['center_approval_status'] ?? 'pending'}${(item['center_approver'] as Map?)?['name'] == null ? '' : ' · ${(item['center_approver'] as Map)['name']}'}',
+        'Trainer approval: ${item['trainer_approval_status'] ?? 'pending'}${(item['trainer_approver'] as Map?)?['name'] == null ? '' : ' · ${(item['trainer_approver'] as Map)['name']}'}',
+      ] else if (item['status'] == 'published')
+        'TESDA approval history was not recorded for this existing listing.',
       'Who can apply: ${item['eligibility'] ?? 'Not specified by provider'}',
       'Requirements: ${item['requirements'] ?? 'Not specified by provider'}',
       'Assessment: ${item['assessment_type'] ?? 'Not specified by provider'}',
@@ -606,14 +716,41 @@ class _OperationsViewState extends State<OperationsView> {
                 ),
               for (final application in _list('myApplications'))
                 Card(
-                  child: ListTile(
-                    title: Text(
-                      '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'}',
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'} · ${_scholarshipApplicationLabel(application['status'])}',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        Text(
+                          'Training center approval: ${_approvalLabel(application['center_approval_status'])}${(application['center_approver'] as Map?)?['name'] == null ? '' : ' · ${(application['center_approver'] as Map)['name']}'}',
+                        ),
+                        if (application['center_approval_notes'] != null)
+                          Text('${application['center_approval_notes']}'),
+                        Text(
+                          'TESDA trainer approval: ${_approvalLabel(application['trainer_approval_status'])}${(application['trainer_approver'] as Map?)?['name'] == null ? '' : ' · ${(application['trainer_approver'] as Map)['name']}'}',
+                        ),
+                        if (application['trainer_approval_notes'] != null)
+                          Text('${application['trainer_approval_notes']}'),
+                        Text(
+                          '${application['review_notes'] ?? application['application_message'] ?? ''}',
+                        ),
+                        if (application['status'] == 'submitted' ||
+                            application['status'] == 'reviewing')
+                          TextButton(
+                            onPressed: _busy
+                                ? null
+                                : () => _action(
+                                    '/scholarship-applications/${application['id']}',
+                                    method: 'DELETE',
+                                  ),
+                            child: const Text('Cancel application'),
+                          ),
+                      ],
                     ),
-                    subtitle: Text(
-                      '${application['status']}\n${application['review_notes'] ?? application['application_message'] ?? ''}',
-                    ),
-                    isThreeLine: true,
                   ),
                 ),
             ],
@@ -631,47 +768,51 @@ class _OperationsViewState extends State<OperationsView> {
                 ),
               for (final application in _list('applications'))
                 Card(
-                  child: ListTile(
-                    title: Text(
-                      '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'}',
-                    ),
-                    subtitle: Text(
-                      '${(application['user'] as Map?)?['name'] ?? 'Applicant'} · ${application['status']}\n${application['application_message'] ?? ''}',
-                    ),
-                    isThreeLine: true,
-                    trailing: IconButton(
-                      tooltip: 'Review application',
-                      onPressed: _busy
-                          ? null
-                          : () async {
-                              final saved = await openWorkspaceForm(
-                                context,
-                                title: 'Review scholarship application',
-                                path:
-                                    '/scholarship-applications/${application['id']}',
-                                method: 'PUT',
-                                fields: const [
-                                  WorkspaceField(
-                                    'status',
-                                    'Decision',
-                                    options: [
-                                      'reviewing',
-                                      'approved',
-                                      'rejected',
-                                    ],
-                                    required: true,
-                                  ),
-                                  WorkspaceField(
-                                    'review_notes',
-                                    'Notes for applicant',
-                                    multiline: true,
-                                  ),
-                                ],
-                                initial: application,
-                              );
-                              if (saved != null) _load();
-                            },
-                      icon: const Icon(Icons.rate_review_outlined),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'} · ${_scholarshipApplicationLabel(application['status'])}',
+                          ),
+                          subtitle: Text(
+                            '${(application['user'] as Map?)?['name'] ?? 'Applicant'} · ${application['application_message'] ?? ''}\nCenter: ${_approvalLabel(application['center_approval_status'])} · Trainer: ${_approvalLabel(application['trainer_approval_status'])}',
+                          ),
+                          isThreeLine: true,
+                        ),
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            if (application['can_approve_center'] == true)
+                              TextButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _reviewScholarshipApplication(
+                                        application,
+                                        'center',
+                                        'Training center',
+                                      ),
+                                icon: const Icon(Icons.apartment_outlined),
+                                label: const Text('Center decision'),
+                              ),
+                            if (application['can_approve_trainer'] == true)
+                              TextButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _reviewScholarshipApplication(
+                                        application,
+                                        'trainer',
+                                        'TESDA trainer',
+                                      ),
+                                icon: const Icon(Icons.school_outlined),
+                                label: const Text('Trainer decision'),
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -768,6 +909,97 @@ class _OperationsViewState extends State<OperationsView> {
                       ),
                       const SizedBox(height: 8),
                       Text(_details(item)),
+                      if (widget.section == 'Scholarships' &&
+                          _role == 'youth' &&
+                          item['is_full'] == true) ...[
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Fully occupied. You may refer to these other private training centers:',
+                        ),
+                        for (final center in _list('privateCenters').take(5))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '${center['name']}${center['address'] == null ? '' : ' · ${center['address']}'}${(center['programs'] as List?)?.isNotEmpty == true ? '\nCourses: ${(center['programs'] as List).whereType<Map>().map((program) => program['title']).take(5).join(', ')}' : ''}',
+                            ),
+                          ),
+                        if (_list('privateCenters').isEmpty)
+                          TextButton(
+                            onPressed: () => launchUrl(
+                              Uri.parse('https://www.tesda.gov.ph/tvi'),
+                              mode: LaunchMode.externalApplication,
+                            ),
+                            child: const Text(
+                              'Open the TESDA directory of registered training centers',
+                            ),
+                          ),
+                      ],
+                      if (widget.section == 'Scholarships' &&
+                          _role == 'youth' &&
+                          item['slot_limit'] == null)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text(
+                            'Applications open after the provider confirms the course and slot count.',
+                          ),
+                        ),
+                      if (widget.section == 'Scholarships' &&
+                          item['status'] == 'review' &&
+                          (item['can_approve_center'] == true ||
+                              item['can_approve_trainer'] == true)) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            if (item['can_approve_center'] == true)
+                              FilledButton.tonal(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _action(
+                                        '/scholarships/${item['id']}/approval',
+                                        data: {
+                                          'stage': 'center',
+                                          'decision': 'approved',
+                                        },
+                                      ),
+                                child: const Text('Approve for center'),
+                              ),
+                            if (item['can_approve_trainer'] == true)
+                              FilledButton.tonal(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _action(
+                                        '/scholarships/${item['id']}/approval',
+                                        data: {
+                                          'stage': 'trainer',
+                                          'decision': 'approved',
+                                        },
+                                      ),
+                                child: const Text('Approve as trainer'),
+                              ),
+                            if (item['can_approve_center'] == true ||
+                                item['can_approve_trainer'] == true)
+                              TextButton(
+                                onPressed: _busy
+                                    ? null
+                                    : () {
+                                        final stage =
+                                            item['can_approve_center'] == true
+                                            ? 'center'
+                                            : 'trainer';
+                                        _action(
+                                          '/scholarships/${item['id']}/approval',
+                                          data: {
+                                            'stage': stage,
+                                            'decision': 'rejected',
+                                          },
+                                        );
+                                      },
+                                child: const Text('Return to draft'),
+                              ),
+                          ],
+                        ),
+                      ],
                       if (widget.section == 'Centers' &&
                           item['programs'] is List) ...[
                         const SizedBox(height: 10),
@@ -914,6 +1146,9 @@ class _OperationsViewState extends State<OperationsView> {
                       if (widget.section == 'Scholarships' &&
                           _role == 'youth' &&
                           item['id'] is int &&
+                          item['is_full'] != true &&
+                          item['slot_limit'] != null &&
+                          item['training_program_id'] != null &&
                           !_hasScholarshipApplication(item['id'] as int))
                         TextButton.icon(
                           onPressed: _busy

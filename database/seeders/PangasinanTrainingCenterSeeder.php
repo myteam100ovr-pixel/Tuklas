@@ -86,7 +86,7 @@ class PangasinanTrainingCenterSeeder extends Seeder
                 ],
             );
 
-            $missingCenterDetails = [];
+            $missingCenterDetails = ['type' => $centerData['type']];
             foreach (['address', 'contact_phone'] as $field) {
                 if (blank($center->{$field})) {
                     $missingCenterDetails[$field] = $centerData[$field];

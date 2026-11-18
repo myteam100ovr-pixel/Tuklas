@@ -100,6 +100,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::middleware('role:admin,tesda_admin')->group(function () {
                 Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
                 Route::put('/scholarships/{scholarship}', [ScholarshipController::class, 'update'])->name('scholarships.update');
+                Route::post('/scholarships/{scholarship}/approval', [ScholarshipController::class, 'approve'])->name('scholarships.approve');
                 Route::put('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'update'])->name('scholarship-applications.update');
                 Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
                 Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
@@ -113,6 +114,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             });
             Route::middleware('role:youth')->group(function () {
                 Route::post('/scholarships/{scholarship}/applications', [ScholarshipApplicationController::class, 'store'])->middleware('throttle:10,1')->name('scholarship-applications.store');
+                Route::delete('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'cancel'])->name('scholarship-applications.cancel');
                 Route::post('/training-sessions/{session}/apply', [TrainingApplicationController::class, 'store'])->name('applications.store');
                 Route::delete('/training-applications/{application}', [TrainingApplicationController::class, 'destroy'])->name('applications.destroy');
             });

@@ -114,6 +114,7 @@ class OperationsWorkflowTest extends TestCase
     public function test_scholarship_form_keeps_entered_values_after_validation_fails(): void
     {
         $admin = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
+        $center = TrainingCenter::factory()->create();
         $this->actingAs($admin);
 
         $this->from(route('scholarships.index'))->post(route('scholarships.store'), [
@@ -121,13 +122,15 @@ class OperationsWorkflowTest extends TestCase
             'title' => 'Local training grant',
             'provider' => 'Pangasinan Skills Office',
             'description' => '',
-            'status' => 'published',
+            'source_url' => 'https://example.org/scholarship',
+            'training_center_id' => $center->id,
+            'status' => 'review',
         ])->assertRedirect(route('scholarships.index'))->assertSessionHasErrors(['description']);
 
         $this->get(route('scholarships.index'))->assertOk()
             ->assertSee('value="Local training grant"', false)
             ->assertSee('value="Pangasinan Skills Office"', false)
-            ->assertSee('value="published" selected', false);
+            ->assertSee('value="review" selected', false);
     }
 
     public function test_peso_can_publish_a_verified_job_with_the_employer_entered_on_the_opening(): void
