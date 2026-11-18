@@ -39,7 +39,7 @@ class TesdaRegisteredTrainingProgramSeederTest extends TestCase
         $youth = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
         $this->actingAs($youth)->get(route('tesda.index'))
             ->assertSee('Bookkeeping NC III')
-            ->assertSee('Registered provider:')
-            ->assertSee('does not confirm current schedules or available slots');
+            ->assertSee('Other TESDA-registered providers')
+            ->assertSee('The registry lists provider qualifications, not current enrollment, schedules, or training duration');
     }
 }

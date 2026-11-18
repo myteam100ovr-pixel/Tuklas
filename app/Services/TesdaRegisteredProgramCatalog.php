@@ -40,6 +40,23 @@ class TesdaRegisteredProgramCatalog
         return json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
     }
 
+    /** @return array{fetched_at: ?string, source: string, pages: int, records: array<int, array{provider: string, program: string, trainer: string, address: string, phone: string}>} */
+    public function otherRegisteredProviders(): array
+    {
+        $catalog = $this->all();
+        $catalog['records'] = collect($catalog['records'])
+            ->reject(fn (array $record): bool => $this->isPublicPangasinanCenter($record['provider']))
+            ->sortBy(fn (array $record): array => [
+                $this->providerPriority($record['provider']),
+                mb_strtolower($record['provider']),
+                mb_strtolower($record['program']),
+            ])
+            ->values()
+            ->all();
+
+        return $catalog;
+    }
+
     /** @param array<int, array<string, mixed>> $qualifications
      * @return array<int, array<string, mixed>>
      */
@@ -250,6 +267,29 @@ class TesdaRegisteredProgramCatalog
         $program = preg_replace('/\s*\(Superseded\)$/iu', '', $program);
 
         return mb_strtolower(preg_replace('/[^\pL\pN]+/u', ' ', trim($program)));
+    }
+
+    private function isPublicPangasinanCenter(string $provider): bool
+    {
+        $provider = mb_strtolower($provider);
+
+        return str_contains($provider, 'provincial training center')
+            || str_contains($provider, 'pangasinan school of arts and trades');
+    }
+
+    private function providerPriority(string $provider): int
+    {
+        $provider = mb_strtolower($provider);
+
+        if (str_contains($provider, 'edson')) {
+            return 0;
+        }
+
+        if (str_contains($provider, 'ledesma')) {
+            return 1;
+        }
+
+        return 2;
     }
 
     private function locationProximityRank(string $address): int

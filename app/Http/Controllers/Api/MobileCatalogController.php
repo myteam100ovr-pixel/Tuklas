@@ -12,15 +12,26 @@ class MobileCatalogController extends Controller
 {
     public function index(Request $request, TesdaRegisteredProgramCatalog $registeredCatalog): JsonResponse
     {
-        $programs = TrainingProgram::published()
-            ->with('center:id,name')
-            ->orderBy('title')
-            ->paginate(12);
+        $careerSeekerCatalog = $request->boolean('career_seeker');
+        $programQuery = TrainingProgram::published()
+            ->with($careerSeekerCatalog ? 'center:id,name,type,is_active,is_demo' : 'center:id,name');
+
+        if ($careerSeekerCatalog) {
+            $programQuery
+                ->where('is_demo', false)
+                ->whereHas('center', fn ($query) => $query
+                    ->whereIn('type', ['PTC', 'PSAT'])
+                    ->where('is_active', true)
+                    ->where('is_demo', false));
+        }
+
+        $programs = $programQuery->orderBy('title')->paginate(12);
 
         $registeredDirectory = $registeredCatalog->all();
+        $providerDirectory = $careerSeekerCatalog ? $registeredCatalog->otherRegisteredProviders() : $registeredDirectory;
         $registeredPage = max(1, $request->integer('registered_page', 1));
         $registeredPerPage = min(100, max(1, $request->integer('registered_per_page', 25)));
-        $registeredRecords = collect($registeredDirectory['records']);
+        $registeredRecords = collect($providerDirectory['records']);
 
         return response()->json([
             'programs' => $programs->getCollection()->map(fn (TrainingProgram $program): array => [
@@ -47,8 +58,8 @@ class MobileCatalogController extends Controller
                 'last_page' => (int) ceil($registeredRecords->count() / $registeredPerPage),
                 'per_page' => $registeredPerPage,
                 'total' => $registeredRecords->count(),
-                'source' => $registeredDirectory['source'],
-                'fetched_at' => $registeredDirectory['fetched_at'],
+                'source' => $providerDirectory['source'],
+                'fetched_at' => $providerDirectory['fetched_at'],
             ],
             'resources' => [
                 ...collect(['NC I', 'NC II', 'NC III', 'NC IV'])
@@ -63,7 +74,9 @@ class MobileCatalogController extends Controller
                 ['title' => 'Assessment and certification', 'url' => 'https://tesda.gov.ph/about/tesda/25'],
                 ['title' => 'Training regulations', 'url' => 'https://tesda.gov.ph/Download/Training_Regulations'],
             ],
-            'notice' => 'Confirm schedules, slots, fees, and eligibility with TESDA or the training provider.',
+            'notice' => $careerSeekerCatalog
+                ? 'PTC and PSAT listings do not confirm current enrollment or open seats. Other providers are listed in the TESDA registry; contact each school to confirm schedules, duration, slots, fees, and eligibility.'
+                : 'Confirm schedules, slots, fees, and eligibility with TESDA or the training provider.',
         ]);
     }
 }

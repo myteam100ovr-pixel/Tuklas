@@ -2,11 +2,20 @@
     <section class="tesda-intro" aria-labelledby="tesda-title">
         <p class="tesda-eyebrow">LEARN. QUALIFY. MOVE FORWARD.</p>
         <h1 id="tesda-title">Build skills.<br>Open new possibilities.</h1>
-        <p>Explore the official NC I–IV qualification catalog, find registered providers, and browse locally published training programs.</p>
-        <div class="tesda-directory-actions"><a class="btn btn-violet" href="#nc-offerings">Find your qualification <span aria-hidden="true">↗</span></a><a href="#local-programs">Explore local training →</a></div>
-        <div class="tesda-directory-summary"><span><strong>NC I–IV</strong>National qualifications</span><span><strong>{{ $programCount }}</strong>Published local programs</span><span><strong>Your next step</strong>One training plan at a time</span></div>
+        @if (auth()->user()?->hasRole(\App\Enums\Role::Youth))
+            <p>Compare courses listed by PTC and PSAT, see the training duration, and find other registered providers if the public schools have no open intake.</p>
+            <div class="tesda-directory-actions"><a class="btn btn-violet" href="#career-seeker-ptc-psat">Browse PTC and PSAT courses <span aria-hidden="true">↗</span></a><a href="#career-seeker-other-providers">Other training providers →</a></div>
+            <div class="tesda-directory-summary"><span><strong>{{ $careerSeekerPrograms->count() }}</strong>PTC and PSAT course listings</span><span><strong>{{ $careerSeekerProviderCount }}</strong>Other registered providers</span><span><strong>Confirm first</strong>Ask about current dates and seats</span></div>
+        @else
+            <p>Explore the official NC I–IV qualification catalog, find registered providers, and browse locally published training programs.</p>
+            <div class="tesda-directory-actions"><a class="btn btn-violet" href="#nc-offerings">Find your qualification <span aria-hidden="true">↗</span></a><a href="#local-programs">Explore local training →</a></div>
+            <div class="tesda-directory-summary"><span><strong>NC I–IV</strong>National qualifications</span><span><strong>{{ $programCount }}</strong>Published local programs</span><span><strong>Your next step</strong>One training plan at a time</span></div>
+        @endif
     </section>
 
+    @if (auth()->user()?->hasRole(\App\Enums\Role::Youth))
+        @include('tesda.career-seeker')
+    @else
     <nav class="tesda-directory-nav" aria-label="Training directory sections"><a href="#nc-offerings"><span>01</span> Qualifications</a><a href="#provider-directory"><span>02</span> Pangasinan providers</a><a href="#local-programs"><span>03</span> Local training</a><a href="#tesda-resources"><span>04</span> Learning resources</a></nav>
     @include('tesda.qualifications')
 
@@ -152,6 +161,7 @@
             </article>
         </div>
     </section>
+    @endif
 </div>
 
 <footer class="tesda-footer">

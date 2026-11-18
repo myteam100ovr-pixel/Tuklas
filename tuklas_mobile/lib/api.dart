@@ -319,9 +319,10 @@ class ApiClient {
   Future<Map<String, dynamic>> tesdaCatalog({
     int page = 1,
     int registeredPage = 1,
+    bool careerSeeker = false,
   }) => _send(
     'GET',
-    '/tesda?page=$page&registered_page=$registeredPage',
+    '/tesda?page=$page&registered_page=$registeredPage&career_seeker=${careerSeeker ? 1 : 0}',
     auth: false,
   );
 

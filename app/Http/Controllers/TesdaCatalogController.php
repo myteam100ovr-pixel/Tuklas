@@ -30,7 +30,7 @@ class TesdaCatalogController extends Controller
 
         $programs = TrainingProgram::published()
             ->when($request->user()?->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $request->user()->training_center_id))
-            ->with(['teachingAssignments.trainer:id,name', 'center:id,name'])
+            ->with(['teachingAssignments.trainer:id,name', 'center:id,name,type,is_active,is_demo,address'])
             ->orderBy('title')
             ->get(['id', 'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'training_center_id', 'schedule_note', 'last_verified_at', 'is_demo']);
         $levelOrder = ['NC I' => 0, 'NC II' => 1, 'NC III' => 2, 'NC IV' => 3, 'Other / Not specified' => 4];
@@ -67,10 +67,43 @@ class TesdaCatalogController extends Controller
             ->sortBy(fn (array $provider): string => $provider['provider'])
             ->values();
 
+        $careerSeekerPrograms = collect();
+        $careerSeekerProgramGroups = collect();
+        $careerSeekerProviders = collect();
+        if ($request->user()?->hasRole(Role::Youth)) {
+            $careerSeekerPrograms = $programs
+                ->filter(fn (TrainingProgram $program): bool => $program->center
+                    && in_array($program->center->type, ['PTC', 'PSAT'], true)
+                    && $program->center->is_active
+                    && ! $program->center->is_demo
+                    && ! $program->is_demo)
+                ->values();
+            $careerSeekerProgramGroups = $careerSeekerPrograms->groupBy(fn (TrainingProgram $program): string => $program->center->name);
+
+            $otherRegisteredDirectory = $registeredCatalog->otherRegisteredProviders();
+            $careerSeekerProviders = collect($otherRegisteredDirectory['records'])
+                ->groupBy(fn (array $record): string => mb_strtolower($record['provider'].'|'.$record['address']))
+                ->map(fn ($records): array => [
+                    'provider' => $records->first()['provider'],
+                    'address' => $records->first()['address'] ?: 'Not available',
+                    'phones' => $records->pluck('phone')->filter()->unique()->values(),
+                    'programs' => $records->pluck('program')->filter()->unique()->sort()->values(),
+                ])
+                ->sortBy(fn (array $provider): array => [
+                    str_contains(mb_strtolower($provider['provider']), 'edson') ? 0 : (str_contains(mb_strtolower($provider['provider']), 'ledesma') ? 1 : 2),
+                    mb_strtolower($provider['provider']),
+                ])
+                ->values();
+        }
+
         $data = [
             'nationalCatalog' => $nationalCatalog,
             'providerGroups' => $providerGroups,
             'providerCount' => $providerGroups->count(),
+            'careerSeekerPrograms' => $careerSeekerPrograms,
+            'careerSeekerProgramGroups' => $careerSeekerProgramGroups,
+            'careerSeekerProviders' => $careerSeekerProviders,
+            'careerSeekerProviderCount' => $careerSeekerProviders->count(),
             'registeredProgramCount' => count($registeredDirectory['records']),
             'registeredProgramsFetchedAt' => $registeredDirectory['fetched_at'],
             'programCount' => $programs->count(),

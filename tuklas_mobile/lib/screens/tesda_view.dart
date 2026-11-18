@@ -18,10 +18,12 @@ class _TesdaViewState extends State<TesdaView> {
   int _registeredPage = 1;
   late Future<Map<String, dynamic>> _catalog;
 
+  bool get _isCareerSeeker => ApiClient.instance.user?['role'] == 'youth';
+
   @override
   void initState() {
     super.initState();
-    _catalog = ApiClient.instance.tesdaCatalog();
+    _catalog = ApiClient.instance.tesdaCatalog(careerSeeker: _isCareerSeeker);
   }
 
   void _loadPage(int page, {int? registeredPage}) {
@@ -31,6 +33,7 @@ class _TesdaViewState extends State<TesdaView> {
       _catalog = ApiClient.instance.tesdaCatalog(
         page: page,
         registeredPage: _registeredPage,
+        careerSeeker: _isCareerSeeker,
       );
     });
   }
@@ -100,6 +103,22 @@ class _TesdaViewState extends State<TesdaView> {
             (registeredPagination['last_page'] as num?)?.toInt() ?? 1;
         final registeredTotal =
             (registeredPagination['total'] as num?)?.toInt() ?? 0;
+
+        if (_isCareerSeeker) {
+          return _careerSeekerCatalog(
+            context,
+            programs: programs,
+            currentPage: currentPage,
+            lastPage: lastPage,
+            total: total,
+            registeredPrograms: registeredPrograms,
+            registeredCurrentPage: registeredCurrentPage,
+            registeredLastPage: registeredLastPage,
+            registeredTotal: registeredTotal,
+            notice: '${data['notice'] ?? ''}',
+            sourceFetchedAt: '${registeredPagination['fetched_at'] ?? ''}',
+          );
+        }
 
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
@@ -352,6 +371,231 @@ class _TesdaViewState extends State<TesdaView> {
     );
   }
 
+  Widget _careerSeekerCatalog(
+    BuildContext context, {
+    required List<dynamic> programs,
+    required int currentPage,
+    required int lastPage,
+    required int total,
+    required List<dynamic> registeredPrograms,
+    required int registeredCurrentPage,
+    required int registeredLastPage,
+    required int registeredTotal,
+    required String notice,
+    required String sourceFetchedAt,
+  }) {
+    final colors = TkColors.of(context);
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const TkPageHeading(
+                  eyebrow: 'TRAINING OPPORTUNITIES',
+                  title: 'PTC and PSAT courses',
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'See the courses and training days listed by each public school. Course listings do not confirm that enrollment is currently open.',
+                  style: tkText(
+                    context,
+                    size: 14,
+                    color: colors.muted,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TkCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Courses at PTC and PSAT',
+                              style: tkText(context, size: 17, weight: 500),
+                            ),
+                          ),
+                          TkChip(label: '$total listings'),
+                        ],
+                      ),
+                      if (programs.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(
+                            'No PTC or PSAT courses are currently published. Check the other registered providers below and contact them to confirm enrollment.',
+                            style: tkText(
+                              context,
+                              size: 13,
+                              color: colors.muted,
+                            ),
+                          ),
+                        )
+                      else
+                        for (final raw in programs)
+                          _careerSeekerCourseTile(context, asMap(raw)),
+                      if (lastPage > 1) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            OutlinedButton(
+                              onPressed: currentPage > 1
+                                  ? () => _loadPage(currentPage - 1)
+                                  : null,
+                              child: const Text('Previous'),
+                            ),
+                            Text(
+                              'Page $currentPage of $lastPage',
+                              style: tkText(
+                                context,
+                                size: 12,
+                                color: colors.muted,
+                              ),
+                            ),
+                            OutlinedButton(
+                              onPressed: currentPage < lastPage
+                                  ? () => _loadPage(currentPage + 1)
+                                  : null,
+                              child: const Text('More'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TkCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Other TESDA-registered providers',
+                        style: tkText(context, size: 17, weight: 500),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'If PTC or PSAT has no open intake for a course, check these other schools, including Edson and Ledesma. The registry does not show live schedules, duration, or available seats, so contact the provider first.',
+                        style: tkText(
+                          context,
+                          size: 12.5,
+                          color: colors.muted,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      if (registeredPrograms.isEmpty)
+                        Text(
+                          'No other provider listings were found.',
+                          style: tkText(context, size: 13, color: colors.muted),
+                        )
+                      else
+                        for (final raw in registeredPrograms)
+                          _registeredProgramCard(
+                            context,
+                            asMap(raw),
+                            showDurationDisclaimer: true,
+                          ),
+                      if (registeredLastPage > 1) ...[
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            OutlinedButton(
+                              onPressed: registeredCurrentPage > 1
+                                  ? () => _loadPage(
+                                      _page,
+                                      registeredPage: registeredCurrentPage - 1,
+                                    )
+                                  : null,
+                              child: const Text('Previous providers'),
+                            ),
+                            Text(
+                              'Page $registeredCurrentPage of $registeredLastPage · $registeredTotal',
+                              style: tkText(
+                                context,
+                                size: 12,
+                                color: colors.muted,
+                              ),
+                            ),
+                            OutlinedButton(
+                              onPressed:
+                                  registeredCurrentPage < registeredLastPage
+                                  ? () => _loadPage(
+                                      _page,
+                                      registeredPage: registeredCurrentPage + 1,
+                                    )
+                                  : null,
+                              child: const Text('More providers'),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (sourceFetchedAt.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'TESDA registry snapshot: ${formatTuklasDate(sourceFetchedAt)}',
+                          style: tkText(
+                            context,
+                            size: 11.5,
+                            color: colors.muted,
+                          ),
+                        ),
+                      ],
+                      if (notice.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          notice,
+                          style: tkText(
+                            context,
+                            size: 11.5,
+                            color: colors.muted,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _careerSeekerCourseTile(
+    BuildContext context,
+    Map<String, dynamic> program,
+  ) {
+    final colors = TkColors.of(context);
+    final duration = program['duration_days'] != null
+        ? '${program['duration_days']} training days'
+        : program['duration_hours'] != null
+        ? '${program['duration_hours']} training hours'
+        : 'Training duration not listed in the school schedule';
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: 2),
+      title: Text(
+        '${program['title'] ?? ''}',
+        style: tkText(context, size: 14, weight: 500),
+      ),
+      subtitle: Text(
+        '${program['training_center'] ?? 'PTC or PSAT'} · $duration',
+        style: tkText(context, size: 12, color: colors.muted, height: 1.4),
+      ),
+    );
+  }
+
   Widget _programCard(BuildContext context, Map<String, dynamic> program) {
     final colors = TkColors.of(context);
     final durationDays = program['duration_days'];
@@ -433,8 +677,9 @@ class _TesdaViewState extends State<TesdaView> {
 
   Widget _registeredProgramCard(
     BuildContext context,
-    Map<String, dynamic> program,
-  ) {
+    Map<String, dynamic> program, {
+    bool showDurationDisclaimer = false,
+  }) {
     final colors = TkColors.of(context);
 
     return Container(
@@ -478,6 +723,13 @@ class _TesdaViewState extends State<TesdaView> {
               '${program['phone']}',
               style: tkText(context, size: 11.5, color: colors.muted),
             ),
+          if (showDurationDisclaimer) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Training duration and current enrollment are not listed by TESDA.',
+              style: tkText(context, size: 11.5, color: colors.muted),
+            ),
+          ],
         ],
       ),
     );

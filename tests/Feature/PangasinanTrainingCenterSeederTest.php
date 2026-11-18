@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Models\TrainingCenter;
+use App\Models\TrainingProgram;
 use App\Models\User;
 use Database\Seeders\PangasinanTrainingCenterSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,9 +68,46 @@ class PangasinanTrainingCenterSeederTest extends TestCase
 
         $this->get(route('tesda.index'))
             ->assertSee('Organic Agriculture Production NC II')
-            ->assertSee('does not confirm a current intake');
+            ->assertSee('Courses listed by PTC and PSAT')
+            ->assertSee('does not confirm an open intake')
+            ->assertSee('Edson Technical Vocational Training and Assessment Center Inc.')
+            ->assertSee('Ledesma School of Skills Development Inc.');
 
         $this->getJson('/api/mobile/tesda')->assertOk()
             ->assertJsonPath('pagination.total', 44);
+    }
+
+    public function test_career_seeker_mobile_catalog_shows_ptc_psat_duration_and_other_provider_fallbacks(): void
+    {
+        $this->seed(PangasinanTrainingCenterSeeder::class);
+        $privateCenter = TrainingCenter::factory()->create(['type' => 'Private']);
+        TrainingProgram::factory()->for($privateCenter, 'center')->create(['title' => 'Private-only test course']);
+        $inactiveCenter = TrainingCenter::factory()->create(['type' => 'PSAT', 'is_active' => false]);
+        TrainingProgram::factory()->for($inactiveCenter, 'center')->create(['title' => 'Inactive test course']);
+        $demoCenter = TrainingCenter::factory()->create(['type' => 'PTC', 'is_demo' => true]);
+        TrainingProgram::factory()->for($demoCenter, 'center')->create(['title' => 'Demo test course']);
+
+        $response = $this->getJson('/api/mobile/tesda?career_seeker=1')->assertOk();
+        $programs = $response->json('programs');
+        $this->assertNotEmpty($programs);
+        $this->assertNotContains('Private-only test course', array_column($programs, 'title'));
+        $this->assertNotContains('Inactive test course', array_column($programs, 'title'));
+        $this->assertNotContains('Demo test course', array_column($programs, 'title'));
+
+        $response->assertJsonPath('pagination.total', 44)
+            ->assertJsonFragment(['duration_days' => 29])
+            ->assertJsonFragment(['provider' => 'Edson Technical Vocational Training and Assessment Center Inc.'])
+            ->assertJsonFragment(['provider' => 'Ledesma School of Skills Development Inc.']);
+    }
+
+    public function test_tesda_role_keeps_the_existing_full_catalog_view(): void
+    {
+        $this->seed(PangasinanTrainingCenterSeeder::class);
+        $tesda = User::factory()->create(['role' => Role::TesdaAdmin, 'is_active' => true]);
+
+        $this->actingAs($tesda)->get(route('tesda.index'))
+            ->assertSee('Training centers and registered programs')
+            ->assertSee('Find your qualification')
+            ->assertDontSee('Courses listed by PTC and PSAT');
     }
 }
