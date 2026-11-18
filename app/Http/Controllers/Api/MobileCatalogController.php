@@ -14,7 +14,7 @@ class MobileCatalogController extends Controller
     {
         $careerSeekerCatalog = $request->boolean('career_seeker');
         $programQuery = TrainingProgram::published()
-            ->with($careerSeekerCatalog ? 'center:id,name,type,is_active,is_demo' : 'center:id,name');
+            ->with($careerSeekerCatalog ? 'center:id,name,type,address,is_active,is_demo' : 'center:id,name');
 
         if ($careerSeekerCatalog) {
             $programQuery
@@ -25,7 +25,9 @@ class MobileCatalogController extends Controller
                     ->where('is_demo', false));
         }
 
-        $programs = $programQuery->orderBy('title')->paginate(12);
+        $programs = $programQuery
+            ->orderBy('title')
+            ->paginate($careerSeekerCatalog ? 100 : 12);
 
         $registeredDirectory = $registeredCatalog->all();
         $providerDirectory = $careerSeekerCatalog ? $registeredCatalog->otherRegisteredProviders() : $registeredDirectory;
@@ -42,6 +44,8 @@ class MobileCatalogController extends Controller
                 'duration_hours' => $program->duration_hours,
                 'duration_days' => $program->duration_days,
                 'training_center' => $program->center?->name,
+                ...($careerSeekerCatalog ? ['training_center_type' => $program->center?->type] : []),
+                ...($careerSeekerCatalog ? ['training_center_address' => $program->center?->address] : []),
                 'requirements' => $program->requirements,
                 'schedule_note' => $program->schedule_note,
                 'last_verified_at' => $program->last_verified_at?->toDateString(),

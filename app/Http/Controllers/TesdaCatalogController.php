@@ -78,7 +78,9 @@ class TesdaCatalogController extends Controller
                     && ! $program->center->is_demo
                     && ! $program->is_demo)
                 ->values();
-            $careerSeekerProgramGroups = $careerSeekerPrograms->groupBy(fn (TrainingProgram $program): string => $program->center->name);
+            $careerSeekerProgramGroups = $careerSeekerPrograms
+                ->groupBy(fn (TrainingProgram $program): string => $program->center->name)
+                ->sortBy(fn ($schoolPrograms): int => $schoolPrograms->first()->center->type === 'PTC' ? 0 : 1);
 
             $otherRegisteredDirectory = $registeredCatalog->otherRegisteredProviders();
             $careerSeekerProviders = collect($otherRegisteredDirectory['records'])

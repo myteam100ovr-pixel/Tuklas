@@ -385,6 +385,47 @@ class _TesdaViewState extends State<TesdaView> {
     required String sourceFetchedAt,
   }) {
     final colors = TkColors.of(context);
+    final schoolGroups = <String, List<Map<String, dynamic>>>{};
+    for (final rawProgram in programs) {
+      final program = asMap(rawProgram);
+      final school = '${program['training_center'] ?? 'PTC or PSAT'}';
+      schoolGroups.putIfAbsent(school, () => []).add(program);
+    }
+    final orderedSchools = schoolGroups.entries.toList()
+      ..sort((left, right) {
+        final leftType = left.value.first['training_center_type'] == 'PTC'
+            ? 0
+            : 1;
+        final rightType = right.value.first['training_center_type'] == 'PTC'
+            ? 0
+            : 1;
+        return leftType.compareTo(rightType);
+      });
+
+    final providerGroups = <String, List<Map<String, dynamic>>>{};
+    for (final rawProgram in registeredPrograms) {
+      final program = asMap(rawProgram);
+      final provider = '${program['provider'] ?? 'Training provider'}';
+      final address = '${program['address'] ?? 'Address not available'}';
+      providerGroups.putIfAbsent('$provider|$address', () => []).add(program);
+    }
+    final orderedProviders = providerGroups.entries.toList()
+      ..sort((left, right) {
+        int priority(String name) {
+          final normalized = name.toLowerCase();
+          if (normalized.contains('edson')) return 0;
+          if (normalized.contains('ledesma')) return 1;
+          return 2;
+        }
+
+        final priorityOrder = priority('${left.value.first['provider']}')
+            .compareTo(priority('${right.value.first['provider']}'));
+        return priorityOrder != 0
+            ? priorityOrder
+            : '${left.value.first['provider']}'.compareTo(
+                '${right.value.first['provider']}',
+              );
+      });
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
@@ -410,160 +451,183 @@ class _TesdaViewState extends State<TesdaView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                TkCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Courses at PTC and PSAT',
-                              style: tkText(context, size: 17, weight: 500),
-                            ),
-                          ),
-                          TkChip(label: '$total listings'),
-                        ],
-                      ),
-                      if (programs.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            'No PTC or PSAT courses are currently published. Check the other registered providers below and contact them to confirm enrollment.',
-                            style: tkText(
-                              context,
-                              size: 13,
-                              color: colors.muted,
-                            ),
-                          ),
-                        )
-                      else
-                        for (final raw in programs)
-                          _careerSeekerCourseTile(context, asMap(raw)),
-                      if (lastPage > 1) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            OutlinedButton(
-                              onPressed: currentPage > 1
-                                  ? () => _loadPage(currentPage - 1)
-                                  : null,
-                              child: const Text('Previous'),
-                            ),
-                            Text(
-                              'Page $currentPage of $lastPage',
-                              style: tkText(
-                                context,
-                                size: 12,
-                                color: colors.muted,
-                              ),
-                            ),
-                            OutlinedButton(
-                              onPressed: currentPage < lastPage
-                                  ? () => _loadPage(currentPage + 1)
-                                  : null,
-                              child: const Text('More'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TkCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Other TESDA-registered providers',
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Courses at PTC and PSAT',
                         style: tkText(context, size: 17, weight: 500),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'If PTC or PSAT has no open intake for a course, check these other schools, including Edson and Ledesma. The registry does not show live schedules, duration, or available seats, so contact the provider first.',
-                        style: tkText(
-                          context,
-                          size: 12.5,
-                          color: colors.muted,
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      if (registeredPrograms.isEmpty)
-                        Text(
-                          'No other provider listings were found.',
-                          style: tkText(context, size: 13, color: colors.muted),
-                        )
-                      else
-                        for (final raw in registeredPrograms)
-                          _registeredProgramCard(
-                            context,
-                            asMap(raw),
-                            showDurationDisclaimer: true,
-                          ),
-                      if (registeredLastPage > 1) ...[
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            OutlinedButton(
-                              onPressed: registeredCurrentPage > 1
-                                  ? () => _loadPage(
-                                      _page,
-                                      registeredPage: registeredCurrentPage - 1,
-                                    )
-                                  : null,
-                              child: const Text('Previous providers'),
-                            ),
-                            Text(
-                              'Page $registeredCurrentPage of $registeredLastPage · $registeredTotal',
-                              style: tkText(
-                                context,
-                                size: 12,
-                                color: colors.muted,
+                    ),
+                    TkChip(label: '$total listings'),
+                  ],
+                ),
+                if (programs.isEmpty)
+                  TkCard(
+                    child: Text(
+                      'No PTC or PSAT courses are currently published. Check the other registered providers below and contact them to confirm enrollment.',
+                      style: tkText(context, size: 13, color: colors.muted),
+                    ),
+                  )
+                else
+                  for (final school in orderedSchools)
+                    TkCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      school.key,
+                                      style: tkText(
+                                        context,
+                                        size: 16,
+                                        weight: 600,
+                                      ),
+                                    ),
+                                    if ('${school.value.first['training_center_address'] ?? ''}'
+                                        .trim()
+                                        .isNotEmpty) ...[
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        '${school.value.first['training_center_address']}',
+                                        style: tkText(
+                                          context,
+                                          size: 11.5,
+                                          color: colors.muted,
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            OutlinedButton(
-                              onPressed:
-                                  registeredCurrentPage < registeredLastPage
-                                  ? () => _loadPage(
-                                      _page,
-                                      registeredPage: registeredCurrentPage + 1,
-                                    )
-                                  : null,
-                              child: const Text('More providers'),
+                              TkChip(label: '${school.value.length} courses'),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          for (
+                            var index = 0;
+                            index < school.value.length;
+                            index++
+                          ) ...[
+                            if (index > 0)
+                              Divider(height: 1, color: colors.line),
+                            _careerSeekerCourseTile(
+                              context,
+                              school.value[index],
                             ),
                           ],
-                        ),
-                      ],
-                      if (sourceFetchedAt.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'TESDA registry snapshot: ${formatTuklasDate(sourceFetchedAt)}',
-                          style: tkText(
-                            context,
-                            size: 11.5,
-                            color: colors.muted,
-                          ),
-                        ),
-                      ],
-                      if (notice.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text(
-                          notice,
-                          style: tkText(
-                            context,
-                            size: 11.5,
-                            color: colors.muted,
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                if (lastPage > 1) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      OutlinedButton(
+                        onPressed: currentPage > 1
+                            ? () => _loadPage(currentPage - 1)
+                            : null,
+                        child: const Text('Previous'),
+                      ),
+                      Text(
+                        'Page $currentPage of $lastPage',
+                        style: tkText(context, size: 12, color: colors.muted),
+                      ),
+                      OutlinedButton(
+                        onPressed: currentPage < lastPage
+                            ? () => _loadPage(currentPage + 1)
+                            : null,
+                        child: const Text('More'),
+                      ),
                     ],
                   ),
+                ],
+                const SizedBox(height: 16),
+                Text(
+                  'Other TESDA-registered providers',
+                  style: tkText(context, size: 17, weight: 500),
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  'If PTC or PSAT has no open intake for a course, check these other schools, including Edson and Ledesma. The registry does not show live schedules, duration, or available seats, so contact the provider first.',
+                  style: tkText(
+                    context,
+                    size: 12.5,
+                    color: colors.muted,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (registeredPrograms.isEmpty)
+                  TkCard(
+                    child: Text(
+                      'No other provider listings were found.',
+                      style: tkText(context, size: 13, color: colors.muted),
+                    ),
+                  )
+                else
+                  for (final provider in orderedProviders)
+                    _careerSeekerProviderGroup(
+                      context,
+                      provider.value.first,
+                      provider.value,
+                    ),
+                if (registeredLastPage > 1) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      OutlinedButton(
+                        onPressed: registeredCurrentPage > 1
+                            ? () => _loadPage(
+                                _page,
+                                registeredPage: registeredCurrentPage - 1,
+                              )
+                            : null,
+                        child: const Text('Previous providers'),
+                      ),
+                      Text(
+                        'Page $registeredCurrentPage of $registeredLastPage · $registeredTotal',
+                        style: tkText(context, size: 12, color: colors.muted),
+                      ),
+                      OutlinedButton(
+                        onPressed: registeredCurrentPage < registeredLastPage
+                            ? () => _loadPage(
+                                _page,
+                                registeredPage: registeredCurrentPage + 1,
+                              )
+                            : null,
+                        child: const Text('More providers'),
+                      ),
+                    ],
+                  ),
+                ],
+                if (sourceFetchedAt.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'TESDA registry snapshot: ${formatTuklasDate(sourceFetchedAt)}',
+                    style: tkText(context, size: 11.5, color: colors.muted),
+                  ),
+                ],
+                if (notice.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    notice,
+                    style: tkText(
+                      context,
+                      size: 11.5,
+                      color: colors.muted,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -583,15 +647,74 @@ class _TesdaViewState extends State<TesdaView> {
         ? '${program['duration_hours']} training hours'
         : 'Training duration not listed in the school schedule';
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 2),
-      title: Text(
-        '${program['title'] ?? ''}',
-        style: tkText(context, size: 14, weight: 500),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${program['title'] ?? ''}',
+            style: tkText(context, size: 14, weight: 500),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            duration,
+            style: tkText(context, size: 12, color: colors.muted, height: 1.4),
+          ),
+        ],
       ),
-      subtitle: Text(
-        '${program['training_center'] ?? 'PTC or PSAT'} · $duration',
-        style: tkText(context, size: 12, color: colors.muted, height: 1.4),
+    );
+  }
+
+  Widget _careerSeekerProviderGroup(
+    BuildContext context,
+    Map<String, dynamic> provider,
+    List<Map<String, dynamic>> programs,
+  ) {
+    final colors = TkColors.of(context);
+    final courses =
+        programs
+            .map(
+              (program) =>
+                  '${program['program'] ?? 'Registered qualification'}',
+            )
+            .toSet()
+            .toList()
+          ..sort();
+    final phoneNumbers = programs
+        .map((program) => '${program['phone'] ?? ''}'.trim())
+        .where((phone) => phone.isNotEmpty)
+        .toSet()
+        .join(' · ');
+
+    return TkCard(
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: EdgeInsets.zero,
+        title: Text(
+          '${provider['provider'] ?? 'Training provider'}',
+          style: tkText(context, size: 14, weight: 600),
+        ),
+        subtitle: Text(
+          [
+            '${provider['address'] ?? 'Address not available'}',
+            if (phoneNumbers.isNotEmpty) phoneNumbers,
+            '${courses.length} registered courses',
+          ].join(' · '),
+          style: tkText(context, size: 11.5, color: colors.muted, height: 1.4),
+        ),
+        children: [
+          for (final course in courses)
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              title: Text(course, style: tkText(context, size: 12.5)),
+              subtitle: Text(
+                'Training duration and current enrollment are not listed by TESDA.',
+                style: tkText(context, size: 11, color: colors.muted),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -677,9 +800,8 @@ class _TesdaViewState extends State<TesdaView> {
 
   Widget _registeredProgramCard(
     BuildContext context,
-    Map<String, dynamic> program, {
-    bool showDurationDisclaimer = false,
-  }) {
+    Map<String, dynamic> program,
+  ) {
     final colors = TkColors.of(context);
 
     return Container(
@@ -723,13 +845,6 @@ class _TesdaViewState extends State<TesdaView> {
               '${program['phone']}',
               style: tkText(context, size: 11.5, color: colors.muted),
             ),
-          if (showDurationDisclaimer) ...[
-            const SizedBox(height: 4),
-            Text(
-              'Training duration and current enrollment are not listed by TESDA.',
-              style: tkText(context, size: 11.5, color: colors.muted),
-            ),
-          ],
         ],
       ),
     );
