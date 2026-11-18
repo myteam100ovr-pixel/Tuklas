@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _registering = false;
   bool _acceptedTerms = false;
   bool _showPassword = false;
+  bool _showPasswordConfirmation = false;
   String? _error;
   String? _notice;
 
@@ -319,7 +320,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               _label(context, 'Confirm password'),
                               TextField(
                                 controller: _passwordConfirmation,
-                                obscureText: true,
+                                obscureText: !_showPasswordConfirmation,
+                                decoration: InputDecoration(
+                                  suffixIcon: IconButton(
+                                    tooltip: _showPasswordConfirmation
+                                        ? 'Hide password'
+                                        : 'Show password',
+                                    onPressed: () => setState(
+                                      () => _showPasswordConfirmation =
+                                          !_showPasswordConfirmation,
+                                    ),
+                                    icon: Icon(
+                                      _showPasswordConfirmation
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                    ),
+                                  ),
+                                ),
                                 autofillHints: const [
                                   AutofillHints.newPassword,
                                 ],

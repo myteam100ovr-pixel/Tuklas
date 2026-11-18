@@ -8,6 +8,21 @@ import './auth-carousel.js';
 import './auth-legal-dialog.js';
 import './workspace-sync.js';
 
+document.addEventListener('click', (event) => {
+    const toggle = event.target.closest('[data-auth-password-toggle]');
+    if (!toggle) return;
+    const input = document.getElementById(toggle.getAttribute('aria-controls'));
+    if (!input) return;
+
+    const showing = input.type === 'password';
+    input.type = showing ? 'text' : 'password';
+    toggle.querySelector('[data-auth-password-hidden]').hidden = showing;
+    toggle.querySelector('[data-auth-password-visible]').hidden = !showing;
+    toggle.setAttribute('aria-pressed', String(showing));
+    toggle.setAttribute('aria-label', `${showing ? 'Hide' : 'Show'} password`);
+    toggle.setAttribute('title', `${showing ? 'Hide' : 'Show'} password`);
+});
+
 const showNavigationLoading = (message) => {
     document.body.dataset.navigationLoading = message;
     const status = document.getElementById('tk-navigation-status');

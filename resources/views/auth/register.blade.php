@@ -43,12 +43,24 @@
 
             <div class="auth-field">
                 <x-label for="password" value="{{ __('Password') }}" class="auth-label" />
-                <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="new-password" placeholder="Create a password" />
+                <div class="auth-password-field">
+                    <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="new-password" placeholder="Create a password" />
+                    <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password" aria-label="Show password" aria-pressed="false" title="Show password">
+                        <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
+                        <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
+                    </button>
+                </div>
             </div>
 
             <div class="auth-field">
                 <x-label for="password_confirmation" value="{{ __('Confirm password') }}" class="auth-label" />
-                <x-input id="password_confirmation" class="auth-input" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Enter it again" />
+                <div class="auth-password-field">
+                    <x-input id="password_confirmation" class="auth-input" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Enter it again" />
+                    <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password_confirmation" aria-label="Show password" aria-pressed="false" title="Show password">
+                        <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
+                        <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
+                    </button>
+                </div>
             </div>
 
             <div class="auth-terms">

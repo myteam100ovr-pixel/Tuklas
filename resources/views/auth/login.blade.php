@@ -21,7 +21,13 @@
                         <a class="auth-inline-link" href="{{ route('password.request') }}">{{ __('Forgot password?') }}</a>
                     @endif
                 </div>
-                <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password" />
+                <div class="auth-password-field">
+                    <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password" />
+                    <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password" aria-label="Show password" aria-pressed="false" title="Show password">
+                        <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
+                        <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
+                    </button>
+                </div>
             </div>
 
             <label for="remember_me" class="auth-remember">
