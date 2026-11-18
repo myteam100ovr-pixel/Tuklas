@@ -45,7 +45,8 @@ class TesdaRegisteredProgramCatalog
     {
         $catalog = $this->all();
         $catalog['records'] = collect($catalog['records'])
-            ->reject(fn (array $record): bool => $this->isPublicPangasinanCenter($record['provider']))
+            ->reject(fn (array $record): bool => $this->isPublicPangasinanCenter($record['provider'])
+                || ! $this->isBugallonOrLingayenLocation($record['address']))
             ->sortBy(fn (array $record): array => [
                 $this->providerPriority($record['provider']),
                 mb_strtolower($record['provider']),
@@ -275,6 +276,11 @@ class TesdaRegisteredProgramCatalog
 
         return str_contains($provider, 'provincial training center')
             || str_contains($provider, 'pangasinan school of arts and trades');
+    }
+
+    private function isBugallonOrLingayenLocation(string $address): bool
+    {
+        return preg_match('/\b(?:Bugallon|Lingayen)\b/iu', $address) === 1;
     }
 
     private function providerPriority(string $provider): int
