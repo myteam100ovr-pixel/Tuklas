@@ -15,12 +15,15 @@ class WorkspaceField {
     this.required = false,
     this.passwordStrength = false,
     this.passwordConfirmation = false,
+    this.minLength,
+    this.maxLength,
   });
   final String name, label;
   final List<String>? options;
   final Map<String, String> optionLabels;
   final bool secret, multiline, required;
   final bool passwordStrength, passwordConfirmation;
+  final int? minLength, maxLength;
 }
 
 String generateSecureInitialPassword() {
@@ -143,9 +146,11 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                           obscureText:
                               f.secret && !_visibleSecrets.contains(f.name),
                           maxLines: f.multiline ? 4 : 1,
-                          maxLength: f.passwordStrength || f.passwordConfirmation
-                              ? 72
-                              : null,
+                          maxLength:
+                              f.maxLength ??
+                              (f.passwordStrength || f.passwordConfirmation
+                                  ? 72
+                                  : null),
                           decoration: InputDecoration(
                             labelText: f.label,
                             errorText: _errors[f.name],
@@ -175,6 +180,10 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                             final currentValue = value ?? '';
                             if (f.required && currentValue.trim().isEmpty) {
                               return 'Required';
+                            }
+                            if (f.minLength != null &&
+                                currentValue.trim().length < f.minLength!) {
+                              return 'Enter at least ${f.minLength} characters.';
                             }
                             if (f.passwordStrength &&
                                 (_passwordStrength(currentValue) < 2 ||

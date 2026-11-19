@@ -396,6 +396,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   }
 
   List<Widget> _assessmentWidgets() {
+    final recommendations = asMap(_data!['starterRecommendations']);
     final options = <String, dynamic>{
       'skills': _data!['skills'],
       'interests': _data!['interests'],
@@ -403,7 +404,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     };
     return [
       const Text(
-        'Your answers guide your next scan and career chat. Existing documented skills are kept.',
+        'Save at least one interest to unlock AI guidance and see initial job, career, and training suggestions. You can start without a resume or NC certificate. Document scanning is optional, and any skills you have practiced can support your preferences.',
       ),
       for (final entry in options.entries)
         _card(entry.key.replaceAll('_', ' '), [
@@ -457,6 +458,26 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         onPressed: _busy ? null : () => _act('/assessment', data: _assessment),
         child: const Text('Save assessment'),
       ),
+      if (recommendations.isNotEmpty) ...[
+        for (final section in [
+          ('work', 'Work opportunities'),
+          ('careers', 'Career paths'),
+          ('training', 'Training programs'),
+        ])
+          _card(section.$2, [
+            if (asList(recommendations[section.$1]).isEmpty)
+              const Text(
+                'No matching published options are available yet. Check the full catalog for other choices.',
+              )
+            else
+              for (final recommendation in asList(recommendations[section.$1]))
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('${asMap(recommendation)['title'] ?? ''}'),
+                  subtitle: Text('${asMap(recommendation)['detail'] ?? ''}'),
+                ),
+          ]),
+      ],
     ];
   }
 

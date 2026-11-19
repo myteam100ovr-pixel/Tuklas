@@ -10,8 +10,10 @@ use App\Http\Controllers\AssessmentRecordController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DirectMessageController;
 use App\Http\Controllers\DocumentScanController;
+use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\PatchNotesController;
 use App\Http\Controllers\ScholarshipApplicationController;
 use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\SkillsAssessmentController;
@@ -25,6 +27,7 @@ use App\Http\Controllers\Trainer\TrainingProgramController;
 use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\TrainingSessionController;
 use App\Http\Controllers\YouthProfileController;
+use App\Http\Middleware\EnsureSkillsAssessmentCompleted;
 use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +53,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::post('/auth/reset-password', [MobileAuthController::class, 'resetPassword'])
         ->middleware('throttle:5,1')->name('auth.password.update');
     Route::get('/tesda', [MobileCatalogController::class, 'index'])->name('tesda.index');
+    Route::get('/patch-notes', [PatchNotesController::class, 'index'])->name('patch-notes.index');
 
     Route::middleware(['auth:sanctum', 'role:admin,tesda_admin,youth'])->group(function () {
         Route::get('/realtime', [DirectMessageController::class, 'mobileRealtime'])
@@ -91,6 +95,8 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::delete('/center-trainers/{assignment}', [CenterTrainerController::class, 'destroy'])->name('center-trainers.destroy');
             });
             Route::middleware('role:admin')->group(function () {
+                Route::get('/job-applications', [JobApplicationController::class, 'index'])->name('job-applications.index');
+                Route::put('/job-applications/{jobApplication}', [JobApplicationController::class, 'update'])->name('job-applications.update');
                 Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
                 Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
                 Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
@@ -113,6 +119,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::put('/assessment-records/{assessment}', [AssessmentRecordController::class, 'update'])->name('assessments.update');
             });
             Route::middleware('role:youth')->group(function () {
+                Route::post('/opportunities/{job}/applications', [JobApplicationController::class, 'store'])->middleware('throttle:10,1')->name('job-applications.store');
                 Route::post('/scholarships/{scholarship}/applications', [ScholarshipApplicationController::class, 'store'])->middleware('throttle:10,1')->name('scholarship-applications.store');
                 Route::delete('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'cancel'])->name('scholarship-applications.cancel');
                 Route::post('/training-sessions/{session}/apply', [TrainingApplicationController::class, 'store'])->name('applications.store');
@@ -146,14 +153,16 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::get('/assessment', [SkillsAssessmentController::class, 'index'])->middleware('role:youth')->name('assessment.index');
             Route::post('/assessment', [SkillsAssessmentController::class, 'store'])->middleware('role:youth')->name('assessment.store');
             Route::get('/dashboard', [MobileDashboardController::class, 'index'])->name('dashboard');
-            Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
+            Route::get('/career-chat', [CareerChatController::class, 'index'])->middleware(EnsureSkillsAssessmentCompleted::class)->name('career-chat.index');
             Route::post('/career-chat', CareerChatController::class)
-                ->middleware('throttle:10,1')->name('career-chat.store');
+                ->middleware([EnsureSkillsAssessmentCompleted::class, 'throttle:10,1'])->name('career-chat.store');
             Route::middleware('role:admin,youth')->group(function () {
-                Route::get('/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
-                Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
+                Route::get('/peso', [CareerRecommendationController::class, 'index'])->middleware(EnsureSkillsAssessmentCompleted::class)->name('peso.index');
+                Route::get('/document-scans', [DocumentScanController::class, 'index'])->middleware(EnsureSkillsAssessmentCompleted::class)->name('document-scans.index');
                 Route::post('/document-scans', [DocumentScanController::class, 'store'])
-                    ->middleware('throttle:5,1')->name('document-scans.store');
+                    ->middleware([EnsureSkillsAssessmentCompleted::class, 'throttle:5,1'])->name('document-scans.store');
+                Route::post('/document-scans/outcomes', [DocumentScanController::class, 'reportOutcome'])
+                    ->middleware('throttle:30,1')->name('document-scans.outcomes');
             });
         });
 

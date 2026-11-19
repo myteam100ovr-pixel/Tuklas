@@ -28,6 +28,7 @@
                             <a href="{{ route('messages.index') }}">Messages <span>↗</span></a>
                             @break
                         @default
+                            <a href="{{ route('youth.assessment.index') }}">Take the skills assessment <span>↗</span></a>
                             <a href="{{ route('profile.show') }}">Complete my profile <span>↗</span></a>
                             <a href="{{ route('sessions.index') }}">Find training dates <span>↗</span></a>
                             <a href="{{ route('opportunities.index') }}">See jobs <span>↗</span></a>
@@ -41,8 +42,8 @@
             </section>
             <section class="workspace-focus">
                 <div class="workspace-focus-icon"><svg class="ic" aria-hidden="true"><use href="#{{ $isYouth ? 'i-scan' : 'i-cap' }}"/></svg></div>
-                <div><span class="workspace-eyebrow">{{ $isYouth ? 'BUILD YOUR NEXT STEP' : 'CONNECT PEOPLE TO OPPORTUNITY' }}</span><h2>{{ $isYouth ? 'Put your experience to work.' : 'Make room for new possibilities.' }}</h2><p>{{ $isYouth ? 'Scan a resume or certificate to explore skills and career recommendations.' : 'Explore qualifications and help your community find a training path.' }}</p></div>
-                <a class="workspace-primary" href="{{ $isYouth ? route('scanner.index') : route('tesda.index') }}">{{ $isYouth ? 'Start a scan' : 'Explore training' }} <span aria-hidden="true">↗</span></a>
+                <div><span class="workspace-eyebrow">{{ $isYouth ? 'BUILD YOUR NEXT STEP' : 'CONNECT PEOPLE TO OPPORTUNITY' }}</span><h2>{{ $isYouth ? 'Start with what interests you.' : 'Make room for new possibilities.' }}</h2><p>{{ $isYouth ? 'Save a short skills and interests assessment to see initial job, career, and training suggestions. No resume or NC certificate is required; scanning is optional.' : 'Explore qualifications and help your community find a training path.' }}</p></div>
+                <a class="workspace-primary" href="{{ $isYouth ? route('youth.assessment.index') : route('tesda.index') }}">{{ $isYouth ? 'Take assessment' : 'Explore training' }} <span aria-hidden="true">↗</span></a>
             </section>
             <nav class="workspace-sections" aria-label="Dashboard sections">
                 <a href="#progress">Progress</a><a href="#next-steps">Next steps</a>

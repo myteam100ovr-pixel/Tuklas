@@ -16,6 +16,7 @@ import 'workspace_view.dart';
 import 'chat_view.dart';
 import 'messages_view.dart';
 import 'operations_view.dart';
+import 'patch_notes_view.dart';
 
 /// Branded header and bottom navigation around the selected app section.
 class HomeShell extends StatefulWidget {
@@ -108,6 +109,11 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     }
   }
 
+  void _handleScanComplete() {
+    if (mounted) setState(() => _version++);
+    unawaited(_loadUnreadNotifications());
+  }
+
   String get _role => '${ApiClient.instance.user?['role']}';
 
   List<String> get _groupItems => switch ((_role, _tab)) {
@@ -122,6 +128,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'TuklasBot',
       'Profile',
       'Account & security',
+      'Patch Notes',
     ],
     ('youth', 1) => ['Find jobs', 'PESO AI', 'Document Scanner'],
     ('youth', 2) => [
@@ -135,7 +142,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'Training plans',
     ],
     ('youth', 3) => ['Messages', 'Notifications'],
-    ('youth', 4) => ['Profile', 'TuklasBot', 'Account & security'],
+    ('youth', 4) => [
+      'Profile',
+      'TuklasBot',
+      'Account & security',
+      'Patch Notes',
+    ],
     ('tesda_admin', 1) => [
       'Centers',
       'My courses',
@@ -146,7 +158,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     ],
     ('tesda_admin', 2) => ['Course catalog', 'Scholarships'],
     ('tesda_admin', 3) => ['Messages', 'Notifications'],
-    ('tesda_admin', 4) => ['Profile', 'TuklasBot', 'Account & security'],
+    ('tesda_admin', 4) => [
+      'Profile',
+      'TuklasBot',
+      'Account & security',
+      'Patch Notes',
+    ],
     _ => const [],
   };
 
@@ -191,8 +208,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'Courses' || 'Course catalog' => const TesdaView(),
       'My courses' => const WorkspaceView(section: 'My programs'),
       'Document Scanner' => ScannerView(
-        key: ValueKey('scanner-$_version'),
-        onScanComplete: () => setState(() => _version++),
+        key: const ValueKey('scanner'),
+        onScanComplete: _handleScanComplete,
       ),
       'Messages' => const MessagesView(),
       'Notifications' => const WorkspaceView(section: 'Notifications'),
@@ -206,7 +223,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'Account & security' => const WorkspaceView(
         section: 'Account & security',
       ),
+      'Patch Notes' => const PatchNotesView(),
       'Dates' => const OperationsView(section: 'Sessions'),
+      'Applications' => const OperationsView(section: 'Job applications'),
       'Requests' ||
       'My requests' => const OperationsView(section: 'Applications'),
       'Results' || 'My results' => const OperationsView(section: 'Assessments'),
@@ -276,14 +295,16 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         builder: (_) => WorkspaceRefreshScope(
           child: switch (section) {
             'TuklasBot' => const ChatView(),
+            'Patch Notes' => const PatchNotesView(),
             'Messages' => const MessagesView(),
             'PESO' || 'PESO AI' => const PesoView(),
             'Course catalog' || 'Courses' => const TesdaView(),
             'Document Scanner' => ScannerView(
-              onScanComplete: () => setState(() => _version++),
+              onScanComplete: _handleScanComplete,
             ),
             'Openings' || 'Find jobs' => const OperationsView(section: 'Jobs'),
             'Dates' => const OperationsView(section: 'Sessions'),
+            'Applications' => const OperationsView(section: 'Job applications'),
             'Requests' ||
             'My requests' => const OperationsView(section: 'Applications'),
             'Results' ||

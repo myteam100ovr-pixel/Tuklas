@@ -27,6 +27,7 @@ class NavComposer
             ]],
             ['Account', 'tesda_account', 'i-user', [
                 ['Profile', 'profile.show', ['profile.*']],
+                ['Patch Notes', 'patch-notes.index', ['patch-notes.index']],
             ]],
         ],
         'youth' => [
@@ -51,6 +52,7 @@ class NavComposer
             ]],
             ['Account', 'youth_account', 'i-user', [
                 ['Profile', 'profile.show', ['profile.*']],
+                ['Patch Notes', 'patch-notes.index', ['patch-notes.index']],
             ]],
         ],
     ];
@@ -63,6 +65,7 @@ class NavComposer
         ['Programs', 'scholarships.index', 'i-cap', 'Training', ['scholarships.*', 'tesda.index', 'tesda.choices.*'], 'programs'],
         ['Inbox', 'messages.index', 'i-chat', 'Communication', ['messages.*', 'notifications.*'], 'inbox'],
         ['Document Scanner', 'scanner.index', 'i-scan', 'Tools', ['scanner.*', 'document-scans.*'], null],
+        ['Patch Notes', 'patch-notes.index', 'i-list', 'Workspace', ['patch-notes.index'], null],
     ];
 
     private const ADMIN_PAGE_TABS = [

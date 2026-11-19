@@ -34,6 +34,7 @@ class _OperationsViewState extends State<OperationsView> {
   String get _role => '${ApiClient.instance.user?['role']}';
   String get _path => switch (widget.section) {
     'Jobs' => '/opportunities',
+    'Job applications' => '/job-applications',
     'Scholarships' => '/scholarships',
     'Centers' => '/training-centers',
     'Trainers' => '/center-trainers',
@@ -43,6 +44,7 @@ class _OperationsViewState extends State<OperationsView> {
   };
   String get _key => switch (widget.section) {
     'Jobs' => 'jobs',
+    'Job applications' => 'applications',
     'Scholarships' => 'scholarships',
     'Centers' => 'centers',
     'Trainers' => 'assignments',
@@ -51,7 +53,7 @@ class _OperationsViewState extends State<OperationsView> {
     _ => 'records',
   };
   bool get _canManage => switch (widget.section) {
-    'Jobs' => _role == 'admin',
+    'Jobs' || 'Job applications' => _role == 'admin',
     'Scholarships' || 'Centers' => _role == 'admin' || _role == 'tesda_admin',
     'Sessions' || 'Assessments' => _role == 'admin' || _role == 'tesda_admin',
     'Trainers' => _role == 'admin' || _role == 'tesda_admin',
@@ -59,6 +61,7 @@ class _OperationsViewState extends State<OperationsView> {
   };
   String get _helpText => switch (widget.section) {
     'Jobs' => 'Browse openings. PESO staff enter the employer and listing together, verify current details, then publish and recommend the opening.',
+    'Job applications' => 'Review Career Seeker applications, move them under review, record hiring decisions, and give a reason when someone is not selected.',
     'Scholarships' => 'PTC and PSAT courses can each have a scholarship listing. Places are first come, first served. A submitted application reserves one place while the center and a different TESDA trainer review it.',
     'Centers' => 'See the training centers that provide Tuklas programs.',
     'Trainers' =>
@@ -625,7 +628,71 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  Future<void> _applyForJob(Map<String, dynamic> job) async {
+    final saved = await openWorkspaceForm(
+      context,
+      title: 'Apply for ${job['title'] ?? 'this job'}',
+      path: '/opportunities/${job['id']}/applications',
+      fields: const [
+        WorkspaceField(
+          'qualification_summary',
+          'Your qualifications for this job',
+          required: true,
+          multiline: true,
+          minLength: 20,
+          maxLength: 3000,
+        ),
+        WorkspaceField(
+          'application_message',
+          'Message to PESO (optional)',
+          multiline: true,
+          maxLength: 3000,
+        ),
+      ],
+    );
+    if (saved != null) await _load();
+  }
+
+  Future<void> _reviewJobApplication(
+    Map<String, dynamic> application,
+    String status,
+  ) async {
+    final fields = <WorkspaceField>[
+      WorkspaceField(
+        'status',
+        'Decision',
+        options: [status],
+        optionLabels: {
+          'reviewing': 'Under review',
+          'hired': 'Mark hired',
+          'not_selected': 'Not selected',
+        },
+        required: true,
+      ),
+      if (status == 'not_selected')
+        const WorkspaceField(
+          'decision_reason',
+          'Reason for not selecting',
+          required: true,
+          multiline: true,
+          minLength: 5,
+          maxLength: 3000,
+        ),
+    ];
+    final saved = await openWorkspaceForm(
+      context,
+      title: 'Update job application',
+      path: '/job-applications/${application['id']}',
+      method: 'PUT',
+      fields: fields,
+      initial: {'status': status},
+    );
+    if (saved != null) await _load();
+  }
+
   String _title(Map<String, dynamic> item) => switch (widget.section) {
+    'Job applications' =>
+      '${(item['job'] as Map?)?['title'] ?? 'Job application'}',
     'Applications' =>
       '${(item['program'] as Map?)?['title'] ?? 'Training application'}',
     'Assessments' =>
@@ -637,6 +704,17 @@ class _OperationsViewState extends State<OperationsView> {
   };
 
   String _details(Map<String, dynamic> item) => switch (widget.section) {
+    'Job applications' => [
+      'Applicant: ${(item['user'] as Map?)?['name'] ?? 'Career Seeker'}',
+      'Status: ${item['status'] ?? 'submitted'}',
+      'Qualifications: ${item['qualification_summary'] ?? 'Not provided'}',
+      if (item['application_message'] != null &&
+          '${item['application_message']}'.isNotEmpty)
+        'Message: ${item['application_message']}',
+      if (item['decision_reason'] != null &&
+          '${item['decision_reason']}'.isNotEmpty)
+        'PESO feedback: ${item['decision_reason']}',
+    ].join('\n'),
     'Jobs' =>
       '${item['employer_name'] ?? (item['employer'] as Map?)?['name'] ?? ''} · ${item['location'] ?? ''}\n${item['description'] ?? ''}',
     'Scholarships' => [
@@ -685,7 +763,10 @@ class _OperationsViewState extends State<OperationsView> {
     final items = _list(_key);
     return Scaffold(
       appBar: AppBar(title: Text(widget.section)),
-      floatingActionButton: _canManage && widget.section != 'Applications'
+      floatingActionButton:
+          _canManage &&
+              widget.section != 'Applications' &&
+              widget.section != 'Job applications'
           ? FloatingActionButton.extended(
               onPressed: _busy ? null : () => _edit(),
               icon: const Icon(Icons.add),
@@ -909,6 +990,90 @@ class _OperationsViewState extends State<OperationsView> {
                       ),
                       const SizedBox(height: 8),
                       Text(_details(item)),
+                      if (widget.section == 'Job applications' &&
+                          _role == 'admin' &&
+                          [
+                            'submitted',
+                            'reviewing',
+                          ].contains(item['status'])) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: [
+                            TextButton(
+                              onPressed: _busy
+                                  ? null
+                                  : () => _reviewJobApplication(
+                                      item,
+                                      'reviewing',
+                                    ),
+                              child: const Text('Under review'),
+                            ),
+                            TextButton(
+                              onPressed: _busy
+                                  ? null
+                                  : () => _reviewJobApplication(item, 'hired'),
+                              child: const Text('Mark hired'),
+                            ),
+                            TextButton(
+                              onPressed: _busy
+                                  ? null
+                                  : () => _reviewJobApplication(
+                                      item,
+                                      'not_selected',
+                                    ),
+                              child: const Text('Not selected'),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (widget.section == 'Jobs' && _role == 'youth')
+                        Builder(
+                          builder: (context) {
+                            final applications = item['applications'];
+                            final application =
+                                applications is List && applications.isNotEmpty
+                                ? applications.first as Map?
+                                : null;
+                            if (application != null) {
+                              final status =
+                                  '${application['status'] ?? 'submitted'}';
+                              final label = switch (status) {
+                                'reviewing' => 'Under review by PESO',
+                                'hired' => 'Hired',
+                                'not_selected' => 'Not selected',
+                                _ => 'Application submitted',
+                              };
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  application['decision_reason'] == null
+                                      ? label
+                                      : '$label · ${application['decision_reason']}',
+                                ),
+                              );
+                            }
+                            final employer = item['employer'] as Map?;
+                            final isVerified =
+                                item['is_demo'] == true ||
+                                item['employer_verified'] == true ||
+                                employer?['is_verified'] == true;
+                            if (item['status'] != 'published' || !isVerified) {
+                              return const SizedBox.shrink();
+                            }
+                            return Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _applyForJob(item),
+                                icon: const Icon(Icons.send_outlined),
+                                label: const Text('Apply for this job'),
+                              ),
+                            );
+                          },
+                        ),
                       if (widget.section == 'Scholarships' &&
                           _role == 'youth' &&
                           item['is_full'] == true) ...[

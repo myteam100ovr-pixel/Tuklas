@@ -1,25 +1,50 @@
 <x-guest-layout>
-    <x-auth-shell mode="register" title="Create your account" description="Create your Career Seeker account to explore career guidance, skills, and TESDA training.">
+    <x-auth-shell mode="register" title="Create your account" description="Create your Career Seeker account, then complete a short skills and interests assessment to unlock AI guidance. You can start without a resume or NC certificate.">
         <x-validation-errors class="auth-errors" />
 
         <form method="POST" action="{{ route('register') }}" class="auth-form auth-form--register">
             @csrf
 
-            <div class="auth-name-row">
+            <div class="auth-name-row auth-name-row--names">
+                <div class="auth-field">
+                    <x-label for="last_name" value="{{ __('Last Name') }}" class="auth-label" />
+                    <x-input id="last_name" class="auth-input" type="text" name="last_name" :value="old('last_name')" required autocomplete="family-name" maxlength="127" placeholder="Your last name" />
+                </div>
+
                 <div class="auth-field">
                     <x-label for="first_name" value="{{ __('First Name') }}" class="auth-label" />
                     <x-input id="first_name" class="auth-input" type="text" name="first_name" :value="old('first_name')" required autofocus autocomplete="given-name" maxlength="127" placeholder="Your first name" />
                 </div>
 
                 <div class="auth-field">
-                    <x-label for="last_name" value="{{ __('Last Name') }}" class="auth-label" />
-                    <x-input id="last_name" class="auth-input" type="text" name="last_name" :value="old('last_name')" required autocomplete="family-name" maxlength="127" placeholder="Your last name" />
+                    <x-label for="middle_initial" value="{{ __('Middle Initial') }}" class="auth-label" />
+                    <x-input id="middle_initial" class="auth-input" type="text" name="middle_initial" :value="old('middle_initial')" autocomplete="additional-name" maxlength="10" placeholder="Optional" />
                 </div>
             </div>
 
             <div class="auth-field">
                 <x-label for="email" value="{{ __('Email address') }}" class="auth-label" />
                 <x-input id="email" class="auth-input" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="you@example.com" />
+            </div>
+
+            <div class="auth-name-row" data-registration-location
+                data-stored-location="{{ old('barangay') }}">
+                <div class="auth-field">
+                    <x-label for="municipality" value="{{ __('Municipality') }}" class="auth-label" />
+                    <select id="municipality" class="auth-input auth-select" required autocomplete="address-level2">
+                        <option value="" selected disabled>Choose municipality</option>
+                        <option value="Bugallon" data-barangays="Angarian|Asinan|Banaga|Bacabac|Bolaoen|Buenlag|Cabayaoasan|Cayanga|Gueset|Hacienda|Laguit Centro|Laguit Padilla|Magtaking|Pangascasan|Pantal|Poblacion|Polong|Portic|Salasa|Salomague Norte|Salomague Sur|Samat|San Francisco|Umanday">Bugallon</option>
+                        <option value="Lingayen" data-barangays="Aliwekwek|Baay|Balangobong|Balococ|Bantayan|Basing|Capandanan|Domalandan Center|Domalandan East|Domalandan West|Dorongan|Dulag|Estanza|Lasip|Libsong East|Libsong West|Malawa|Malimpuec|Maniboc|Matalava|Naguelguel|Namolan|Pangapisan North|Pangapisan Sur|Poblacion|Quibaol|Rosario|Sabangan|Talogtog|Tonton|Tumbar|Wawa">Lingayen</option>
+                    </select>
+                </div>
+
+                <div class="auth-field">
+                    <x-label for="barangay_selection" value="{{ __('Barangay') }}" class="auth-label" />
+                    <select id="barangay_selection" class="auth-input auth-select" required autocomplete="address-level3" disabled>
+                        <option value="" selected disabled>Choose town first</option>
+                    </select>
+                    <input id="barangay" type="hidden" name="barangay" value="{{ old('barangay') }}" />
+                </div>
             </div>
 
             <div class="auth-name-row">
@@ -29,27 +54,23 @@
                 </div>
 
                 <div class="auth-field">
-                    <x-label for="barangay" value="{{ __('Barangay') }}" class="auth-label" />
-                    <x-input id="barangay" class="auth-input" type="text" name="barangay" :value="old('barangay')" required autocomplete="address-level3" maxlength="100" placeholder="Barangay in Bugallon" />
+                    <x-label for="date_of_birth" value="{{ __('Date of birth') }}" class="auth-label" />
+                    <x-input id="date_of_birth" class="auth-input" type="date" name="date_of_birth" :value="old('date_of_birth')" required autocomplete="bday" aria-describedby="birth-date-help" />
+                    <p id="birth-date-help" class="auth-field-help">Tuklas is for youth aged 15 to 30.</p>
+                    <output class="auth-field-help" for="date_of_birth" data-calculated-age aria-live="polite"></output>
                 </div>
-            </div>
-
-            <div class="auth-field">
-                <x-label for="date_of_birth" value="{{ __('Date of birth') }}" class="auth-label" />
-                <x-input id="date_of_birth" class="auth-input" type="date" name="date_of_birth" :value="old('date_of_birth')" required autocomplete="bday" aria-describedby="birth-date-help" />
-                <p id="birth-date-help" class="auth-field-help">Tuklas is for youth aged 15 to 30.</p>
-                <output class="auth-field-help" for="date_of_birth" data-calculated-age aria-live="polite"></output>
             </div>
 
             <div class="auth-field">
                 <x-label for="password" value="{{ __('Password') }}" class="auth-label" />
                 <div class="auth-password-field">
-                    <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="new-password" placeholder="Create a password" />
+                    <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="new-password" aria-describedby="password-policy" placeholder="Use 1 special character, e.g. @" />
                     <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password" aria-label="Show password" aria-pressed="false" title="Show password">
                         <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
                         <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
                     </button>
                 </div>
+                <p id="password-policy" class="auth-field-help">Use at least 1 special character, such as @, !, or #.</p>
             </div>
 
             <div class="auth-field">
@@ -70,8 +91,6 @@
 
             <button class="auth-submit" type="submit">{{ __('Create account') }} <span aria-hidden="true">→</span></button>
         </form>
-
-        <p class="auth-field-help">Previously used Google or Facebook? Use <a class="auth-inline-link" href="{{ route('password.request') }}">Forgot password</a> with the same email to set a password.</p>
 
     </x-auth-shell>
 </x-guest-layout>

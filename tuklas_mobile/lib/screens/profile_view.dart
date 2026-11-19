@@ -31,12 +31,17 @@ class _ProfileViewState extends State<ProfileView> {
   final _guardianName = TextEditingController();
   final _guardianRelationship = TextEditingController();
   final _guardianContact = TextEditingController();
+  final _accountLastName = TextEditingController();
+  final _accountFirstName = TextEditingController();
+  final _accountMiddleInitial = TextEditingController();
+  final _accountEmail = TextEditingController();
 
   String? _dob;
   String? _education;
   String? _employment;
 
   bool _filled = false;
+  bool _accountFilled = false;
   bool _saving = false;
   String? _flash;
   String? _formError;
@@ -56,6 +61,10 @@ class _ProfileViewState extends State<ProfileView> {
     _guardianName.dispose();
     _guardianRelationship.dispose();
     _guardianContact.dispose();
+    _accountLastName.dispose();
+    _accountFirstName.dispose();
+    _accountMiddleInitial.dispose();
+    _accountEmail.dispose();
     super.dispose();
   }
 
@@ -70,6 +79,98 @@ class _ProfileViewState extends State<ProfileView> {
     _guardianRelationship.text = '${youth['guardian_relationship'] ?? ''}';
     _guardianContact.text = '${youth['guardian_contact'] ?? ''}';
     _filled = true;
+  }
+
+  void _fillAccount(Map<String, dynamic> account) {
+    final storedName = '${account['name'] ?? ''}'.trim();
+    final nameParts = storedName.split(RegExp(r'\s+'));
+    _accountLastName.text =
+        '${account['last_name'] ?? (nameParts.length > 1 ? nameParts.skip(1).join(' ') : '')}';
+    _accountFirstName.text =
+        '${account['first_name'] ?? (nameParts.isEmpty ? '' : nameParts.first)}';
+    _accountMiddleInitial.text = '${account['middle_initial'] ?? ''}';
+    _accountEmail.text = '${account['email'] ?? ''}';
+    _accountFilled = true;
+  }
+
+  Future<void> _editAccount(Map<String, dynamic> account) async {
+    _fillAccount(account);
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Edit account profile'),
+        scrollable: true,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final field in [
+              ('Last name', _accountLastName),
+              ('First name', _accountFirstName),
+              ('Middle initial (optional)', _accountMiddleInitial),
+              ('Email', _accountEmail),
+            ]) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(field.$1, style: tkText(dialogContext, size: 12.5)),
+              ),
+              const SizedBox(height: 5),
+              TextField(
+                controller: field.$2,
+                keyboardType: field.$1 == 'Email'
+                    ? TextInputType.emailAddress
+                    : TextInputType.name,
+                textCapitalization: field.$1 == 'Email'
+                    ? TextCapitalization.none
+                    : TextCapitalization.words,
+                decoration: const InputDecoration(isDense: true),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (accepted != true || !mounted) return;
+
+    try {
+      final response = await ApiClient.instance.updateAccount({
+        'last_name': _accountLastName.text.trim(),
+        'first_name': _accountFirstName.text.trim(),
+        'middle_initial': _accountMiddleInitial.text.trim(),
+        'email': _accountEmail.text.trim(),
+      });
+      ApiClient.instance.user = Map<String, dynamic>.from(
+        response['user'] as Map,
+      );
+      setState(() {
+        _future = (widget.loadProfile ?? ApiClient.instance.profile)();
+        _accountFilled = false;
+      });
+      widget.onSaved();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error.message)));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not reach the server. Check your connection and try again.',
+          ),
+        ),
+      );
+    }
   }
 
   int? _age() {
@@ -219,6 +320,8 @@ class _ProfileViewState extends State<ProfileView> {
 
         final data = snapshot.data!;
         final youth = data['youth'];
+        final account = asMap(data['account']);
+        if (!_accountFilled) _fillAccount(account);
         if (youth is Map && !_filled) _fill(Map<String, dynamic>.from(youth));
 
         return ListView(
@@ -235,7 +338,7 @@ class _ProfileViewState extends State<ProfileView> {
                       title: 'A profile that grows with you',
                     ),
                     const SizedBox(height: 12),
-                    _accountCard(context, asMap(data['account'])),
+                    _accountCard(context, account),
                     const SizedBox(height: 16),
                     if (youth is Map)
                       _youthCard(context, asMap(data['options'])),
@@ -291,6 +394,11 @@ class _ProfileViewState extends State<ProfileView> {
                 TkChip(label: '${account['role_label'] ?? ''}'),
               ],
             ),
+          ),
+          IconButton(
+            tooltip: 'Edit profile',
+            onPressed: _saving ? null : () => _editAccount(account),
+            icon: const Icon(Icons.edit_outlined),
           ),
         ],
       ),

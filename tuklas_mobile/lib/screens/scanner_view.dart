@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,6 +28,7 @@ class _ScannerViewState extends State<ScannerView> {
   late Future<List<dynamic>> _history;
   bool _consent = false;
   bool _scanning = false;
+  bool _cancelRequested = false;
   String? _error;
 
   @override
@@ -50,13 +54,25 @@ class _ScannerViewState extends State<ScannerView> {
         allowMultiple: true,
         withData: true,
       );
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not open your files. Please try again.');
+        final denied = _isPermissionDenied(error);
+        setState(
+          () => _error = denied
+              ? 'File access was denied. Allow access and try again.'
+              : 'Could not open your files. Please try again.',
+        );
+        await _recordOutcome(denied ? 'denied' : 'error', 'File picker');
+        _showToast(_error!, isError: true);
       }
       return;
     }
-    if (!mounted || result == null || result.files.isEmpty) return;
+    if (!mounted) return;
+    if (result == null || result.files.isEmpty) {
+      await _recordOutcome('canceled', 'File selection');
+      _showToast('File selection canceled.');
+      return;
+    }
 
     final invalidFiles = result.files
         .where((file) => file.size > 10 * 1024 * 1024 || file.bytes == null)
@@ -74,7 +90,10 @@ class _ScannerViewState extends State<ScannerView> {
       for (final file in result!.files) {
         final duplicate = _selectedFiles.any(
           (selected) =>
-              selected.name == file.name && selected.size == file.size,
+              (selected.name == file.name && selected.size == file.size) ||
+              (selected.bytes != null &&
+                  file.bytes != null &&
+                  listEquals(selected.bytes, file.bytes)),
         );
         if (!duplicate && _selectedFiles.length < 5) {
           _selectedFiles.add(file);
@@ -105,6 +124,13 @@ class _ScannerViewState extends State<ScannerView> {
           _error = 'Up to five files can be scanned at a time.';
           return;
         }
+        if (_selectedFiles.any(
+          (selected) =>
+              selected.bytes != null && listEquals(selected.bytes, bytes),
+        )) {
+          _error = 'This exact photo is already in your scan list.';
+          return;
+        }
         _selectedFiles.add(
           PlatformFile(
             name:
@@ -117,10 +143,12 @@ class _ScannerViewState extends State<ScannerView> {
       });
     } catch (_) {
       if (mounted) {
+        await _recordOutcome('error', photo.name);
         setState(
           () => _error =
               'The captured photo could not be read. Please try again.',
         );
+        _showToast(_error!, isError: true);
       }
     }
   }
@@ -137,12 +165,51 @@ class _ScannerViewState extends State<ScannerView> {
       );
       if (photo != null) {
         await _useCapturedPhoto(photo);
+      } else {
+        await _recordOutcome('canceled', 'Camera capture');
+        _showToast('Camera capture canceled.');
       }
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not open the camera. Please try again.');
+        final denied = _isPermissionDenied(error);
+        setState(
+          () => _error = denied
+              ? 'Camera access was denied. Allow camera access in Settings and try again.'
+              : 'Could not open the camera. Please try again.',
+        );
+        await _recordOutcome(denied ? 'denied' : 'error', 'Camera');
+        _showToast(_error!, isError: true);
       }
     }
+  }
+
+  bool _isPermissionDenied(Object error) =>
+      error.toString().toLowerCase().contains('denied') ||
+      (error is PlatformException &&
+          error.code.toLowerCase().contains('permission'));
+
+  Future<void> _recordOutcome(String status, String fileName) async {
+    try {
+      await ApiClient.instance.reportDocumentScanOutcome(
+        status: status,
+        fileName: fileName,
+      );
+    } catch (_) {
+      // Keep local feedback visible if notification sync is offline.
+    }
+  }
+
+  void _showToast(String message, {bool isError = false}) {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 5),
+        backgroundColor: isError ? TkColors.of(context).bad : null,
+      ),
+    );
   }
 
   Future<void> _recoverCameraCapture() async {
@@ -167,6 +234,7 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   Future<void> _scan() async {
+    if (_scanning) return;
     if (_selectedFiles.isEmpty) {
       setState(() => _error = 'Choose a document first.');
       return;
@@ -181,14 +249,20 @@ class _ScannerViewState extends State<ScannerView> {
 
     setState(() {
       _scanning = true;
+      _cancelRequested = false;
       _error = null;
       _latestDocument = null;
     });
     final filesToScan = List<PlatformFile>.from(_selectedFiles);
     var scanned = 0;
+    var reusedRecentScan = false;
     final failedFiles = <PlatformFile>[];
     String? firstFailure;
     for (var index = 0; index < filesToScan.length; index++) {
+      if (_cancelRequested) {
+        failedFiles.addAll(filesToScan.skip(index));
+        break;
+      }
       final file = filesToScan[index];
       try {
         final document = await ApiClient.instance.uploadDocument(
@@ -201,9 +275,14 @@ class _ScannerViewState extends State<ScannerView> {
           _latestDocument = document;
           _selectedFiles.remove(file);
         });
+        reusedRecentScan = reusedRecentScan || document['_duplicate'] == true;
         scanned += 1;
       } catch (error) {
         failedFiles.add(file);
+        final denied =
+            error is ApiException &&
+            (error.statusCode == 403 || error.statusCode == 422);
+        await _recordOutcome(denied ? 'denied' : 'error', file.name);
         firstFailure ??= error is ApiException
             ? '${file.name}: ${error.message}'
             : '${file.name}: Could not connect to Tuklas. Check your internet connection and try again.';
@@ -230,6 +309,24 @@ class _ScannerViewState extends State<ScannerView> {
       }
       _history = ApiClient.instance.documentScans();
     });
+    if (_cancelRequested && failedFiles.isNotEmpty) {
+      await _recordOutcome(
+        'canceled',
+        '${failedFiles.length} remaining document${failedFiles.length == 1 ? '' : 's'}',
+      );
+      _showToast('Document scan canceled. Remaining files are ready to retry.');
+    } else if (failedFiles.isNotEmpty) {
+      _showToast(
+        'Some scans failed. Check Notifications for details.',
+        isError: true,
+      );
+    } else if (scanned > 0) {
+      _showToast(
+        reusedRecentScan
+            ? 'This exact file was scanned recently; its saved result was reused without creating a duplicate.'
+            : '$scanned document${scanned == 1 ? '' : 's'} scanned successfully.',
+      );
+    }
     if (scanned > 0) widget.onScanComplete();
     if (mounted) setState(() => _scanning = false);
   }
@@ -424,6 +521,25 @@ class _ScannerViewState extends State<ScannerView> {
                           ),
                         ),
                       ),
+                      if (_scanning) ...[
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: _cancelRequested
+                                ? null
+                                : () => setState(() {
+                                    _cancelRequested = true;
+                                    _error = 'Canceling after the current document finishes…';
+                                  }),
+                            child: Text(
+                              _cancelRequested
+                                  ? 'Canceling…'
+                                  : 'Cancel remaining scans',
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

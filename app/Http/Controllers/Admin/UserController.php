@@ -57,8 +57,9 @@ class UserController extends Controller
 
         $account = DB::transaction(function () use ($data): User {
             $account = User::forceCreate([
-                'name' => trim($data['first_name']).' '.trim($data['last_name']),
+                'name' => $this->displayName($data),
                 'first_name' => trim($data['first_name']),
+                'middle_initial' => filled($data['middle_initial'] ?? null) ? trim($data['middle_initial']) : null,
                 'last_name' => trim($data['last_name']),
                 'email' => $data['email'],
                 'password' => $data['password'],
@@ -107,8 +108,9 @@ class UserController extends Controller
         DB::transaction(function () use ($user, $data): void {
             $emailChanged = $user->email !== $data['email'];
             $user->forceFill([
-                'name' => trim($data['first_name']).' '.trim($data['last_name']),
+                'name' => $this->displayName($data),
                 'first_name' => trim($data['first_name']),
+                'middle_initial' => filled($data['middle_initial'] ?? null) ? trim($data['middle_initial']) : null,
                 'last_name' => trim($data['last_name']),
                 'email' => $data['email'],
                 'role' => $data['role'],
@@ -193,6 +195,7 @@ class UserController extends Controller
     {
         return $request->validate([
             'first_name' => ['required', 'string', 'max:127'],
+            'middle_initial' => ['nullable', 'string', 'max:10'],
             'last_name' => ['required', 'string', 'max:127'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($account?->id)],
             'role' => ['required', Rule::enum(Role::class)],
@@ -224,6 +227,16 @@ class UserController extends Controller
         );
 
         return $password;
+    }
+
+    /** @param array<string, mixed> $data */
+    private function displayName(array $data): string
+    {
+        return collect([
+            trim($data['first_name']),
+            trim((string) ($data['middle_initial'] ?? '')),
+            trim($data['last_name']),
+        ])->filter()->implode(' ');
     }
 
     private function protectLastAdministrator(User $user, ?string $newRole, bool $isActive): void

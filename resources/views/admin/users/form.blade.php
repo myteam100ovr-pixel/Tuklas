@@ -7,8 +7,9 @@
             @if ($editing)@method('PUT')@endif
             @if ($errors->any())<p class="trainer-courses__error" role="alert">Please review the highlighted fields.</p>@endif
             <div class="trainer-courses__form-row">
-                <label>First name<input name="first_name" required maxlength="127" value="{{ old('first_name', $account->first_name ?? explode(' ', $account->name ?? '')[0]) }}">@error('first_name')<small>{{ $message }}</small>@enderror</label>
                 <label>Last name<input name="last_name" required maxlength="127" value="{{ old('last_name', $account->last_name ?? trim(substr($account->name ?? '', strlen(explode(' ', $account->name ?? '')[0])))) }}">@error('last_name')<small>{{ $message }}</small>@enderror</label>
+                <label>First name<input name="first_name" required maxlength="127" value="{{ old('first_name', $account->first_name ?? explode(' ', $account->name ?? '')[0]) }}">@error('first_name')<small>{{ $message }}</small>@enderror</label>
+                <label>Middle initial<input name="middle_initial" maxlength="10" value="{{ old('middle_initial', $account->middle_initial) }}">@error('middle_initial')<small>{{ $message }}</small>@enderror</label>
             </div>
             <label>Email<input name="email" type="email" required maxlength="255" value="{{ old('email', $account->email) }}">@error('email')<small>{{ $message }}</small>@enderror</label>
             <div class="trainer-courses__form-row">

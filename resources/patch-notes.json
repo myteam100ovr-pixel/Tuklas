@@ -1,0 +1,51 @@
+[
+    {
+        "date": "2026-11-19",
+        "version": "Current update",
+        "title": "Career guidance and easier updates",
+        "items": [
+            "Complete a skills assessment and save interests to receive initial career, job, and training suggestions, including paths for people without a resume or NC certificate.",
+            "Browse the full patch history from the website or mobile app, newest updates first.",
+            "Career Seekers can apply for verified job openings in the mobile app and follow their application status and PESO feedback.",
+            "PESO administrators can review job applications in the mobile app, update their status, and provide a reason when an applicant is not selected."
+        ]
+    },
+    {
+        "date": "2026-11-16",
+        "version": "1.0.8+9",
+        "title": "Workspace and account improvements",
+        "items": [
+            "Admin user management can create accounts with secure initial passwords, and mobile account forms show password strength.",
+            "Messages update in real time across the website and mobile app while connected, with automatic catch-up if the connection drops.",
+            "Use grouped role navigation, clearly labeled mobile tabs, and next-step workflows.",
+            "Career Seekers and PESO administrators can use PESO AI and document scanning; training staff see role-specific tools.",
+            "Scholarship listings show eligibility, application requirements, provider assessments, and source links.",
+            "Browse DOLE PhilJobNet vacancies and TESDA training catalog information.",
+            "Workspace forms preserve entered details when validation needs correction.",
+            "The mobile app retries saved sign-in when the server becomes reachable or the app resumes, and reports clearer connection errors.",
+            "Retry scan history and keep selected files available after a failed scan."
+        ]
+    },
+    {
+        "date": "2026-11-11",
+        "version": "1.0.5+6",
+        "title": "Mobile connection recovery",
+        "items": [
+            "The app waits longer for a slow server before reporting a connection problem.",
+            "Retry a saved sign-in when the server becomes reachable again or the app resumes.",
+            "See clearer messages for slow responses and secure connection problems.",
+            "Browse jobs, scholarships, training centers, and training sessions; apply for training and track requests and assessment records."
+        ]
+    },
+    {
+        "date": "2026-11-11",
+        "version": "1.0.4+5",
+        "title": "Training and opportunity workflows on mobile",
+        "items": [
+            "Browse jobs, scholarships, training centers, and training sessions.",
+            "Apply for training and track applications and assessment records.",
+            "Staff can manage centers, trainers, schedules, and opportunities according to their role.",
+            "See release notes after installing an app update."
+        ]
+    }
+]

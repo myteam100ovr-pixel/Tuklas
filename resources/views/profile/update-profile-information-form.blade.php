@@ -52,19 +52,24 @@
             </div>
         @endif
 
-        <div class="field-row">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <x-label for="last_name" value="{{ __('Last Name') }}" />
+                <x-input id="last_name" type="text" class="mt-1 block w-full" wire:model="state.last_name" required maxlength="127" autocomplete="family-name" />
+                <x-input-error for="last_name" class="mt-2" />
+            </div>
             <div>
                 <x-label for="first_name" value="{{ __('First Name') }}" />
                 <x-input id="first_name" type="text" class="mt-1 block w-full" wire:model="state.first_name" required maxlength="127" autocomplete="given-name" />
                 <x-input-error for="first_name" class="mt-2" />
             </div>
             <div>
-                <x-label for="last_name" value="{{ __('Last Name') }}" />
-                <x-input id="last_name" type="text" class="mt-1 block w-full" wire:model="state.last_name" required maxlength="127" autocomplete="family-name" />
-                <x-input-error for="last_name" class="mt-2" />
+                <x-label for="middle_initial" value="{{ __('Middle Initial') }}" />
+                <x-input id="middle_initial" type="text" class="mt-1 block w-full" wire:model="state.middle_initial" maxlength="10" autocomplete="additional-name" placeholder="Optional" />
+                <x-input-error for="middle_initial" class="mt-2" />
             </div>
         </div>
-        <p class="hint">Include all your given names in First Name and your complete family name in Last Name. Please check these fields if your account previously used a full name.</p>
+        <p class="hint">Enter your family name first, then your first name and optional middle initial. Your profile name will display in First Middle Last order.</p>
 
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">

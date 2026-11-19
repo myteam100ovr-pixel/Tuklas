@@ -288,6 +288,89 @@ html:not([data-theme="dark"]) body.tk-workspace {
 .tk-workspace .workspace .skill-match-item > strong { font-size:.9rem; font-weight:600; }
 .tk-workspace .workspace .skill-match-item small { font-size:.8rem; line-height:1.65; }
 .tk-workspace .workspace .skill-match-score { font-size:.8rem; line-height:1.6; }
+
+/* Shared dashboard refinements across administrator, TESDA, and Career Seeker roles. */
+.tk-workspace .workspace-heading { align-items:flex-end; gap:1.25rem; }
+.tk-workspace .workspace-heading h1 { letter-spacing:-.045em; }
+.tk-workspace .workspace-date {
+    padding:.55rem .85rem;
+    border-radius:999px;
+    background:var(--surface);
+    font-size:.76rem;
+    font-variant-numeric:tabular-nums;
+}
+.tk-workspace .workspace-get-started {
+    border-color:color-mix(in srgb, var(--violet) 16%, var(--line));
+    background:linear-gradient(115deg, color-mix(in srgb, var(--violet) 5%, var(--surface)), var(--surface));
+    box-shadow:0 8px 24px rgb(38 20 83 / .035);
+}
+.tk-workspace .workspace-get-started h2 { font-size:1.3rem; font-weight:600; letter-spacing:-.025em; }
+.tk-workspace .workspace-get-started__links a {
+    min-height:3.75rem;
+    border-radius:.8rem;
+    background:var(--surface);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease;
+}
+.tk-workspace .workspace-stats { gap:.85rem; }
+.tk-workspace .workspace-stats article {
+    padding:1.15rem 1.25rem;
+    border-color:color-mix(in srgb, var(--violet) 10%, var(--line));
+    background:linear-gradient(150deg, var(--surface), color-mix(in srgb, var(--violet) 2.5%, var(--surface)));
+}
+.tk-workspace .workspace-stats article > div { font-size:.82rem; }
+.tk-workspace .workspace-stat-number { border-radius:50%; font-family:'DM Sans',var(--font); font-size:.65rem; }
+.tk-workspace .workspace-stats strong { margin-block:.8rem .45rem; font-size:clamp(1.8rem, 2.5vw, 2.25rem); }
+.tk-workspace .workspace-focus { min-height:8rem; }
+.tk-workspace .workspace-focus h2 { font-weight:600; }
+.tk-workspace .workspace-primary { min-height:2.8rem; border-radius:.75rem; box-shadow:0 7px 16px rgb(91 23 255 / .16); }
+.tk-workspace .workspace-panel { border-radius:1rem; }
+.tk-workspace .workspace-sections { overflow-x:auto; scrollbar-width:thin; }
+.tk-workspace .workspace-sections a { flex:0 0 auto; color:var(--ink-2); transition:background-color .18s ease, color .18s ease; }
+.tk-workspace .workspace-sections a:hover { color:var(--violet); }
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+    .tk-workspace .workspace-get-started__links a:hover {
+        transform:translateY(-2px);
+        border-color:color-mix(in srgb, var(--violet) 38%, var(--line));
+        box-shadow:0 8px 18px rgb(38 20 83 / .07);
+    }
+}
+@media (max-width:760px) {
+    .tk-workspace .workspace-heading { align-items:flex-start; }
+    .tk-workspace .workspace-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .tk-workspace .workspace-stats article { min-height:8.25rem; padding:.9rem; }
+    .tk-workspace .workspace-stats article > div { min-width:0; overflow-wrap:anywhere; font-size:.76rem; }
+    .tk-workspace .workspace-stats strong { max-width:none; margin-block:.45rem .25rem; font-size:1.65rem; }
+    .tk-workspace .workspace-stats p { font-size:.72rem; }
+    .tk-workspace .workspace-stats article:last-child:nth-child(odd) {
+        display:grid;
+        grid-column:1 / -1;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:center;
+        gap:.25rem .85rem;
+    }
+    .tk-workspace .workspace-stats article:last-child:nth-child(odd) strong { grid-column:2; grid-row:1 / 3; margin:0; }
+    .tk-workspace .workspace-stats article:last-child:nth-child(odd) p { grid-column:1; }
+}
+@media (min-width:761px) and (max-width:900px) {
+    .tk-workspace .workspace-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .tk-workspace .workspace-stats article:last-child:nth-child(odd) {
+        display:grid;
+        grid-column:1 / -1;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:center;
+        gap:.25rem .85rem;
+    }
+    .tk-workspace .workspace-stats article:last-child:nth-child(odd) strong { grid-column:2; grid-row:1 / 3; margin:0; }
+    .tk-workspace .workspace-stats article:last-child:nth-child(odd) p { grid-column:1; }
+    .tk-workspace .workspace-heading { align-items:flex-start; flex-wrap:wrap; }
+}
+@media (max-width:380px) {
+    .tk-workspace .workspace-stats { grid-template-columns:minmax(0,1fr); }
+    .tk-workspace .workspace-stats article:last-child:nth-child(odd) { grid-column:auto; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .tk-workspace .workspace-get-started__links a { transition:none; }
+}
 .tk-workspace .workspace .profile-insights__skill-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
 .tk-workspace .workspace .profile-insights__skill-heading h3 { margin-top:6px; }
 .tk-workspace .workspace .profile-insights__skill-count { padding:6px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--muted); font-size:.75rem; }

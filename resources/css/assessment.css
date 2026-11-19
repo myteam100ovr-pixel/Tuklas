@@ -51,5 +51,16 @@
 .assessment-notice,.assessment-errors { padding:1rem 1.25rem; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); color:var(--ink); font-size:.86rem; line-height:1.6; }
 .assessment-errors { border-color:#c34248; }
 .assessment-errors ul { margin:.5rem 0 0; padding-left:1.25rem; }
+.assessment-recommendations { margin-top:2rem; padding:clamp(1.25rem,2.4vw,2rem); border:1px solid var(--line); border-radius:18px; background:var(--surface); box-shadow:var(--shadow); }
+.assessment-recommendations > h2 { margin:.4rem 0; color:var(--ink); font-family:'DM Sans',sans-serif; font-size:clamp(1.35rem,2vw,1.8rem); font-weight:500; letter-spacing:-.03em; }
+.assessment-recommendations > p { max-width:850px; color:var(--ink-2); font-size:.85rem; line-height:1.6; }
+.assessment-recommendation-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-top:1.25rem; }
+.assessment-recommendation-card { min-width:0; padding:1rem; border:1px solid var(--line); border-radius:14px; background:var(--surface-2); }
+.assessment-recommendation-card h3 { margin:0 0 .8rem; color:var(--ink); font-size:.95rem; font-weight:600; }
+.assessment-recommendation-item { padding:.75rem 0; border-top:1px solid var(--line); }
+.assessment-recommendation-item strong { display:block; color:var(--ink); font-size:.86rem; line-height:1.45; }
+.assessment-recommendation-item p,.assessment-recommendation-empty { margin:.35rem 0; color:var(--muted); font-size:.75rem; line-height:1.55; }
+.assessment-recommendation-card a { color:var(--violet); font-size:.76rem; font-weight:500; text-underline-offset:2px; }
+@media(max-width:850px) { .assessment-recommendation-grid { grid-template-columns:1fr; } }
 @media(max-width:1050px) { .assessment-layout { grid-template-columns:1fr; } .assessment-guide { position:static; } .assessment-guide nav { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .assessment-intro,.assessment-submit { flex-direction:column; align-items:stretch; } .assessment-intro { gap:1.25rem; } .assessment-intro-meta { padding:1rem; } .assessment-options { grid-template-columns:1fr; } .assessment-section { padding:1.1rem; } .assessment-page .assessment-section-heading h2 { font-size:1.05rem; } .assessment-section-tag { display:none; } .assessment-step { flex-basis:38px; height:38px; } }

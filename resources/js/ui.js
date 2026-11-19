@@ -8,6 +8,61 @@ import './auth-carousel.js';
 import './auth-legal-dialog.js';
 import './workspace-sync.js';
 
+const initializeRegistrationLocation = (root = document) => {
+    const locationFields = root.querySelector('[data-registration-location]');
+    if (!locationFields || locationFields.dataset.initialized === 'true') return;
+
+    const municipalitySelect = locationFields.querySelector('#municipality');
+    const barangaySelect = locationFields.querySelector('#barangay_selection');
+    const savedLocation = locationFields.querySelector('#barangay');
+
+    const populateBarangays = (municipality, selectedBarangay = '') => {
+        const selectedMunicipality = Array.from(municipalitySelect.options)
+            .find((option) => option.value === municipality);
+        const barangays = selectedMunicipality?.dataset.barangays.split('|').filter(Boolean) || [];
+        const prompt = new Option(
+            municipality ? 'Choose a barangay' : 'Choose municipality first',
+            '',
+            true,
+            true,
+        );
+        prompt.disabled = true;
+        barangaySelect.replaceChildren(prompt);
+        barangaySelect.disabled = barangays.length === 0;
+
+        barangays.forEach((barangay) => {
+            barangaySelect.add(new Option(barangay, barangay));
+        });
+
+        barangaySelect.value = barangays.includes(selectedBarangay) ? selectedBarangay : '';
+        savedLocation.value = barangaySelect.value ? `${barangaySelect.value}, ${municipality}` : '';
+    };
+
+    municipalitySelect.addEventListener('change', () => {
+        populateBarangays(municipalitySelect.value);
+    });
+
+    barangaySelect.addEventListener('change', () => {
+        savedLocation.value = barangaySelect.value
+            ? `${barangaySelect.value}, ${municipalitySelect.value}`
+            : '';
+    });
+
+    const previousLocation = savedLocation.value.match(/^(.+),\s*(Bugallon|Lingayen)$/);
+    const previousMunicipality = previousLocation && Array.from(municipalitySelect.options)
+        .find((option) => option.value === previousLocation[2]);
+    const previousBarangays = previousMunicipality?.dataset.barangays.split('|').filter(Boolean) || [];
+
+    if (previousLocation && previousBarangays.includes(previousLocation[1])) {
+        municipalitySelect.value = previousLocation[2];
+        populateBarangays(previousLocation[2], previousLocation[1]);
+    } else {
+        populateBarangays('');
+    }
+
+    locationFields.dataset.initialized = 'true';
+};
+
 document.addEventListener('click', (event) => {
     const toggle = event.target.closest('[data-auth-password-toggle]');
     if (!toggle) return;
@@ -122,8 +177,10 @@ if (workspaceTabs) {
 };
 
 initializeWorkspaceContent();
+initializeRegistrationLocation();
 window.addEventListener('tuklas:content-refreshed', (event) => {
     initializeWorkspaceContent(event.detail?.main || document);
+    initializeRegistrationLocation(event.detail?.main || document);
 });
 
 let userSearchTimer;

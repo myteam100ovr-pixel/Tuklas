@@ -273,9 +273,9 @@ class MobileDashboardController extends Controller
                 'title' => 'Next steps',
                 'items' => [
                     $this->task('Complete your profile', $completion['percent'].'% done', 'Schooling, skills, and interests shape your guidance.', $completion['percent'] >= 100, 'profile'),
-                    $this->task('Scan a resume or certificate', $scanned.' scanned', 'Let Google Gemini suggest skills and credentials.', $scanned > 0, 'scanner'),
-                    $this->task('Take the skills assessment', $user->youthProfile?->assessment_preferences !== null ? 'Saved on your account' : 'Ready to complete', 'Reflect on your skills and training interests.', $user->youthProfile?->assessment_preferences !== null, 'assessment'),
-                    $this->task('See PESO job matches', $scanned > 0 ? 'View your career matches' : 'Scan a resume to get matches', 'Explore roles suggested from your scanned resume and certificates.', $scanned > 0, 'peso'),
+                    $this->task('Take the skills assessment', $user->youthProfile?->hasCompletedSkillsAssessment() ? 'Saved on your account' : 'Ready to complete', 'This unlocks AI guidance and first job, career, and training suggestions. No resume or NC certificate is required.', $user->youthProfile?->hasCompletedSkillsAssessment() ?? false, 'assessment'),
+                    $this->task('Explore your first matches', $user->youthProfile?->hasCompletedSkillsAssessment() ? 'Interest-based suggestions ready' : 'Complete the skills assessment first', 'Your interests and practiced skills can suggest options before you have a resume. Document scanning is optional and can add supporting evidence later.', $user->youthProfile?->hasCompletedSkillsAssessment() ?? false, 'assessment'),
+                    $this->task('Scan a resume or certificate', $scanned.' scanned', 'Optional: let Google Gemini suggest skills and credentials from a document.', $scanned > 0, 'scanner'),
                 ],
             ],
             'actions' => $this->actions([

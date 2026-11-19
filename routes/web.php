@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Role;
 use App\Http\Controllers\AccountPasswordResetController;
 use App\Http\Controllers\Admin\CareerPathController;
 use App\Http\Controllers\Admin\CareerRecommendationController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\DocumentScanController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobOpportunityController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\PatchNotesController;
 use App\Http\Controllers\ScholarshipApplicationController;
 use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\SkillsAssessmentController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\Trainer\TrainingProgramController;
 use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\TrainingSessionController;
 use App\Http\Controllers\YouthProfileController;
+use App\Http\Middleware\EnsureSkillsAssessmentCompleted;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,22 +49,34 @@ Route::middleware([
     'verified',
     'role:admin,tesda_admin,youth',
 ])->group(function () {
-    Route::get('/dashboard', fn () => redirect()->route(auth()->user()->role->homeRoute()))
+    Route::get('/dashboard', function (Request $request): RedirectResponse {
+        $user = $request->user();
+
+        if ($user->hasRole(Role::Youth) && ! $user->youthProfile?->hasCompletedSkillsAssessment()) {
+            return redirect()->route('youth.assessment.index');
+        }
+
+        return redirect()->route($user->role->homeRoute());
+    })
         ->name('dashboard');
 
+    Route::get('/patch-notes', [PatchNotesController::class, 'index'])->name('patch-notes.index');
+
     Route::middleware('role:admin,youth')->group(function () {
-        Route::view('/scanner', 'scanner.index')->name('scanner.index');
-        Route::get('/admin/jobs/peso', [CareerRecommendationController::class, 'index'])->name('peso.index');
+        Route::view('/scanner', 'scanner.index')->middleware(EnsureSkillsAssessmentCompleted::class)->name('scanner.index');
+        Route::get('/admin/jobs/peso', [CareerRecommendationController::class, 'index'])->middleware(EnsureSkillsAssessmentCompleted::class)->name('peso.index');
         Route::get('/peso', fn (Request $request): RedirectResponse => redirect()->route('peso.index', $request->query()));
-        Route::get('/document-scans', [DocumentScanController::class, 'index'])->name('document-scans.index');
+        Route::get('/document-scans', [DocumentScanController::class, 'index'])->middleware(EnsureSkillsAssessmentCompleted::class)->name('document-scans.index');
         Route::post('/document-scans', [DocumentScanController::class, 'store'])
-            ->middleware('throttle:5,1')->name('document-scans.store');
+            ->middleware([EnsureSkillsAssessmentCompleted::class, 'throttle:5,1'])->name('document-scans.store');
+        Route::post('/document-scans/outcomes', [DocumentScanController::class, 'reportOutcome'])
+            ->middleware('throttle:30,1')->name('document-scans.outcomes');
     });
     Route::get('/careers', CareerPathCatalogController::class)->name('careers.index');
-    Route::view('/tuklasbot', 'chat.index')->name('tuklasbot.index');
-    Route::get('/career-chat', [CareerChatController::class, 'index'])->name('career-chat.index');
+    Route::view('/tuklasbot', 'chat.index')->middleware(EnsureSkillsAssessmentCompleted::class)->name('tuklasbot.index');
+    Route::get('/career-chat', [CareerChatController::class, 'index'])->middleware(EnsureSkillsAssessmentCompleted::class)->name('career-chat.index');
     Route::post('/career-chat', CareerChatController::class)
-        ->middleware('throttle:10,1')->name('career-chat.store');
+        ->middleware([EnsureSkillsAssessmentCompleted::class, 'throttle:10,1'])->name('career-chat.store');
     Route::get('/admin/jobs', fn (Request $request): RedirectResponse => redirect()->route('opportunities.index', $request->query()));
     Route::get('/admin/jobs/openings', [JobOpportunityController::class, 'index'])->name('opportunities.index');
     Route::get('/opportunities', fn (Request $request): RedirectResponse => redirect()->route('opportunities.index', $request->query()));

@@ -335,6 +335,19 @@ class ApiClient {
     return documents;
   }
 
+  Future<void> reportDocumentScanOutcome({
+    required String status,
+    required String fileName,
+  }) async {
+    final eventId =
+        '${DateTime.now().microsecondsSinceEpoch}-${fileName.hashCode}';
+    await _send(
+      'POST',
+      '/document-scans/outcomes',
+      body: {'event_id': eventId, 'status': status, 'file_name': fileName},
+    );
+  }
+
   Future<List<dynamic>> pesoMatches() async {
     final response = await _send('GET', '/peso');
     final matches = response['matches'];
@@ -368,7 +381,9 @@ class ApiClient {
       return http.Response.fromStream(streamedResponse);
     }, timeout: const Duration(seconds: 260));
     final body = await _decode(response);
-    return Map<String, dynamic>.from(body['document'] as Map);
+    final document = Map<String, dynamic>.from(body['document'] as Map);
+    document['_duplicate'] = body['duplicate'] == true;
+    return document;
   }
 
   Future<Map<String, dynamic>> submitScholarshipApplication({
@@ -457,6 +472,9 @@ class ApiClient {
 
   Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) =>
       _send('PUT', '/profile', body: data);
+
+  Future<Map<String, dynamic>> updateAccount(Map<String, dynamic> data) =>
+      _send('PUT', '/account', body: data);
 
   Future<void> logout() async {
     final saved = await token;

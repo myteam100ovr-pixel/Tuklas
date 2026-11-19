@@ -20,6 +20,9 @@ class YouthProfileController extends Controller
         return response()->json([
             'user' => [
                 'name' => $user->name,
+                'first_name' => $user->first_name,
+                'middle_initial' => $user->middle_initial,
+                'last_name' => $user->last_name,
                 'email' => $user->email,
                 'date_of_birth' => $user->date_of_birth?->toDateString(),
             ],

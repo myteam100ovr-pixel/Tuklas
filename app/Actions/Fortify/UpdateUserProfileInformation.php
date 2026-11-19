@@ -18,18 +18,31 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      */
     public function update(User $user, array $input): void
     {
-        $names = ['first_name' => null, 'last_name' => null];
+        $names = ['first_name' => null, 'middle_initial' => null, 'last_name' => null];
 
-        if (array_key_exists('first_name', $input) || array_key_exists('last_name', $input)) {
+        if (array_key_exists('first_name', $input) || array_key_exists('last_name', $input) || array_key_exists('middle_initial', $input)) {
             $names = Validator::make($input, [
                 'first_name' => ['required', 'string', 'max:127'],
+                'middle_initial' => ['nullable', 'string', 'max:10'],
                 'last_name' => ['required', 'string', 'max:127'],
             ])->validateWithBag('updateProfileInformation');
 
-            $names = array_map(trim(...), $names);
-            $input['name'] = $names['first_name'].' '.$names['last_name'];
+            $names = array_map(fn (mixed $part): ?string => is_string($part) ? trim($part) : null, $names);
+            $input['name'] = collect([$names['first_name'], $names['middle_initial'], $names['last_name']])
+                ->filter(fn (?string $part): bool => filled($part))->implode(' ');
         } elseif (($input['name'] ?? null) === $user->name) {
-            $names = ['first_name' => $user->first_name, 'last_name' => $user->last_name];
+            $names = [
+                'first_name' => $user->first_name,
+                'middle_initial' => $user->middle_initial,
+                'last_name' => $user->last_name,
+            ];
+        } elseif (isset($input['name'])) {
+            $parts = preg_split('/\s+/', trim($input['name']), 2);
+            $names = [
+                'first_name' => $parts[0] ?? null,
+                'middle_initial' => null,
+                'last_name' => $parts[1] ?? null,
+            ];
         }
 
         $input = array_merge($input, $names);
@@ -51,6 +64,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             $user->forceFill([
                 'name' => $input['name'],
                 'first_name' => $input['first_name'],
+                'middle_initial' => $input['middle_initial'] ?? null,
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
             ])->save();
@@ -69,6 +83,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         $user->forceFill([
             'name' => $input['name'],
             'first_name' => $input['first_name'],
+            'middle_initial' => $input['middle_initial'] ?? null,
             'last_name' => $input['last_name'],
             'email' => $input['email'],
             'email_verified_at' => null,

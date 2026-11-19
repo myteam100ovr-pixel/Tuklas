@@ -79,3 +79,9 @@
 }
 
 .scanner-studio .scan-panel-heading > span { display:none; }
+.document-scanner__cancel { min-height:42px; border:1px solid var(--line); border-radius:10px; color:var(--ink-2); background:var(--surface-2); font:inherit; font-size:.85rem; cursor:pointer; }
+.document-scanner__cancel[hidden] { display:none; }
+.document-scanner-toast { position:fixed; z-index:1000; right:20px; bottom:20px; width:min(420px,calc(100vw - 32px)); padding:14px 18px; border:1px solid var(--line); border-left:4px solid var(--violet); border-radius:12px; color:var(--ink); background:var(--surface); box-shadow:var(--shadow); font-size:.9rem; line-height:1.5; }
+.document-scanner-toast[data-kind='error'],.document-scanner-toast[data-kind='canceled'] { border-left-color:#d79a28; }
+.document-scanner-toast[data-kind='success'] { border-left-color:#27824d; }
+.document-scanner-toast[hidden] { display:none; }

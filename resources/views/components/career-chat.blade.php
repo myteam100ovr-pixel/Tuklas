@@ -1,4 +1,9 @@
 <section class="career-chat" data-career-chat data-chat-url="{{ route('career-chat.store') }}" data-history-url="{{ route('career-chat.index') }}" data-gemini-ready="{{ filled(config('services.google.gemini_api_key')) ? 'true' : 'false' }}" aria-labelledby="career-chat-title">
+    @if (auth()->user()?->hasRole(\App\Enums\Role::Youth) && ! auth()->user()?->youthProfile?->hasCompletedSkillsAssessment())
+        <header class="career-chat__heading"><div><p>YOUR NEXT STEP</p><h2 id="career-chat-title">Personalized AI guidance</h2><small>Tell Tuklas what you enjoy and what skills you have practiced first.</small></div></header>
+        <p class="career-chat__privacy">Complete your skills assessment to unlock AI career guidance. You can start without a resume or certificate.</p>
+        <a class="career-chat__assessment-link" href="{{ route('youth.assessment.index') }}">Take the assessment ↗</a>
+    @else
     <header class="career-chat__heading">
         <div><p>TUKLASBOT · POWERED BY GEMINI</p><h2 id="career-chat-title">Ask TuklasBot</h2><small>Talk things through, explore ideas, or find useful sources.</small></div>
         <button class="career-chat__expand" type="button" data-chat-expand aria-label="Expand chat" aria-expanded="false" title="Expand chat">⤢</button>
@@ -21,4 +26,5 @@
     </form>
     <p class="career-chat__status" data-chat-status role="status" aria-live="polite"></p>
     <p class="career-chat__privacy">Chat history is saved to your account. Messages are sent to Google Gemini. For career questions, limited skills and job matches from your latest resume or certificate scan may also be shared to personalize suggestions. Search links appear when live sources are available.</p>
+    @endif
 </section>

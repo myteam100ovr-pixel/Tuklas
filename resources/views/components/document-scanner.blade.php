@@ -1,4 +1,4 @@
-<section class="document-scanner" id="ai-scanner" data-document-scanner data-profile-sync="{{ auth()->user()->hasRole(\App\Enums\Role::Youth) ? 'true' : 'false' }}" data-upload-url="{{ route('document-scans.store') }}" data-history-url="{{ route('document-scans.index') }}" data-gemini-ready="{{ filled(config('services.google.gemini_api_key')) ? 'true' : 'false' }}" aria-labelledby="document-scanner-title">
+<section class="document-scanner" id="ai-scanner" data-document-scanner data-profile-sync="{{ auth()->user()->hasRole(\App\Enums\Role::Youth) ? 'true' : 'false' }}" data-upload-url="{{ route('document-scans.store') }}" data-history-url="{{ route('document-scans.index') }}" data-outcome-url="{{ route('document-scans.outcomes') }}" data-gemini-ready="{{ filled(config('services.google.gemini_api_key')) ? 'true' : 'false' }}" aria-labelledby="document-scanner-title">
     <div class="document-scanner__workspace">
         <div class="document-scanner__controls">
             <header class="scan-panel-heading"><span>01 / INPUT</span><h3>Upload documents</h3><p>Choose up to five resumes or certificates to scan one by one.</p></header>
@@ -15,6 +15,7 @@
                 <span>I agree to send the selected files to Google Gemini to scan them.</span>
             </label>
             <button class="document-scanner__submit" data-document-submit type="button" disabled>Discover my next steps <span aria-hidden="true">↗</span></button>
+            <button class="document-scanner__cancel" data-document-cancel type="button" hidden>Cancel scan</button>
             <div class="document-scanner__progress" data-document-progress hidden>
                 <div class="document-scanner__progress-copy"><span data-progress-label>Waiting for upload</span><strong data-progress-value>0%</strong></div>
                 <div class="document-scanner__progress-track" role="progressbar" aria-label="Document processing progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress-bar><span></span></div>

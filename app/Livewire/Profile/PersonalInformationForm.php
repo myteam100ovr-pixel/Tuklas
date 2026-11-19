@@ -23,10 +23,14 @@ class PersonalInformationForm extends UpdateProfileInformationForm
         $parts = preg_split('/\s+/', trim($this->state['name']), 2);
         $storedFirstName = $this->state['first_name'] ?? null;
         $storedLastName = $this->state['last_name'] ?? null;
+        $middleInitial = $this->user->middle_initial ?? null;
+        $storedDisplayName = collect([$storedFirstName, $middleInitial, $storedLastName])
+            ->filter(fn (?string $part): bool => filled($part))->implode(' ');
         $hasStoredNames = $storedFirstName !== null && $storedLastName !== null
-            && $storedFirstName.' '.$storedLastName === $this->state['name'];
+            && $storedDisplayName === $this->state['name'];
 
         $this->state['first_name'] = $hasStoredNames ? $storedFirstName : ($parts[0] ?? '');
         $this->state['last_name'] = $hasStoredNames ? $storedLastName : ($parts[1] ?? '');
+        $this->state['middle_initial'] = $middleInitial ?? '';
     }
 }

@@ -5,6 +5,7 @@ if (scanner) {
     const chooseButton = scanner.querySelector('[data-document-choose]');
     const consent = scanner.querySelector('[data-document-consent]');
     const submitButton = scanner.querySelector('[data-document-submit]');
+    const cancelButton = scanner.querySelector('[data-document-cancel]');
     const selectedList = scanner.querySelector('[data-document-selected]');
     const progress = scanner.querySelector('[data-document-progress]');
     const progressLabel = scanner.querySelector('[data-progress-label]');
@@ -20,6 +21,9 @@ if (scanner) {
     const maxFiles = 5;
     let selectedFiles = [];
     let isScanning = false;
+    let cancelRequested = false;
+    let activeRequest = null;
+    let reusedRecentScan = false;
     let historyRequestId = 0;
 
     const formatSize = (bytes) => {
@@ -33,6 +37,40 @@ if (scanner) {
     const setStatus = (message, kind = '') => {
         status.textContent = message;
         status.dataset.kind = kind;
+    };
+
+    const showToast = (message, kind) => {
+        let toast = document.querySelector('[data-scanner-toast]');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.dataset.scannerToast = '';
+            toast.className = 'document-scanner-toast';
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            document.body.append(toast);
+        }
+        toast.textContent = message;
+        toast.dataset.kind = kind;
+        toast.hidden = false;
+        clearTimeout(toast.dismissTimer);
+        toast.dismissTimer = setTimeout(() => {
+            toast.hidden = true;
+        }, 5000);
+    };
+
+    const reportOutcome = (outcome, fileName) => {
+        const eventId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        fetch(scanner.dataset.outcomeUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({ event_id: eventId, status: outcome, file_name: fileName }),
+        }).catch(() => {});
     };
 
     const updateSubmitState = () => {
@@ -274,6 +312,15 @@ if (scanner) {
 
     const uploadFile = (file) => new Promise((resolve) => {
         const request = new XMLHttpRequest();
+        activeRequest = request;
+        let settled = false;
+        const finish = (succeeded, outcome = null) => {
+            if (settled) return;
+            settled = true;
+            if (activeRequest === request) activeRequest = null;
+            if (outcome) reportOutcome(outcome, file.name);
+            resolve(succeeded);
+        };
         const formData = new FormData();
         formData.append('file', file, file.name);
         formData.append('goal', scanner.querySelector('[data-document-goal]')?.value.trim() ?? '');
@@ -305,14 +352,15 @@ if (scanner) {
                 response = JSON.parse(request.responseText);
             } catch (error) {
                 setStatus('The server returned an unreadable response. Please try scanning again.', 'error');
-                resolve(false);
+                finish(false, 'error');
                 return;
             }
 
             if (request.status >= 200 && request.status < 300 && response.document) {
+                reusedRecentScan = reusedRecentScan || response.duplicate === true;
                 renderDocument(response.document);
                 renderLatestAnalysis(response.document);
-                resolve(true);
+                finish(true);
                 return;
             }
 
@@ -321,22 +369,22 @@ if (scanner) {
             }
 
             setStatus(response.message ?? `Could not scan ${file.name}.`, 'error');
-            resolve(false);
+            finish(false, [403, 422].includes(request.status) ? 'denied' : 'error');
         });
 
         request.addEventListener('error', () => {
             setStatus(`The upload for ${file.name} was interrupted. Check your connection and try again.`, 'error');
-            resolve(false);
+            finish(false, 'error');
         });
 
         request.addEventListener('abort', () => {
             setStatus(`The upload for ${file.name} was cancelled.`, 'error');
-            resolve(false);
+            finish(false);
         });
 
         request.addEventListener('timeout', () => {
             setStatus(`AI scanning ${file.name} took too long. Please try again.`, 'error');
-            resolve(false);
+            finish(false, 'error');
         });
 
         request.send(formData);
@@ -348,22 +396,33 @@ if (scanner) {
         }
 
         isScanning = true;
+        cancelRequested = false;
         historyRequestId += 1;
         updateSubmitState();
         input.disabled = true;
         chooseButton.disabled = true;
         consent.disabled = true;
+        cancelButton.hidden = false;
         progress.hidden = false;
         const filesToScan = [...selectedFiles];
+        reusedRecentScan = false;
         const failedFiles = [];
         let completed = 0;
         for (const file of filesToScan) {
+            if (cancelRequested) {
+                failedFiles.push(...filesToScan.slice(completed + failedFiles.length));
+                break;
+            }
             setProgress(Math.round((completed / filesToScan.length) * 100), `Scanning ${completed + 1} of ${filesToScan.length}: ${file.name}`, true);
             const succeeded = await uploadFile(file);
             if (succeeded) {
                 completed += 1;
             } else {
                 failedFiles.push(file);
+                if (cancelRequested) {
+                    failedFiles.push(...filesToScan.slice(completed + failedFiles.length));
+                    break;
+                }
             }
         }
         selectedFiles = failedFiles;
@@ -373,15 +432,30 @@ if (scanner) {
         chooseButton.disabled = false;
         consent.checked = false;
         consent.disabled = false;
+        cancelButton.hidden = true;
         isScanning = false;
         updateSubmitState();
         await loadHistory();
-        if (failedFiles.length > 0) {
+        if (cancelRequested && failedFiles.length > 0) {
             progress.hidden = true;
-            setStatus(`${completed} of ${filesToScan.length} files scanned. ${failedFiles.length} failed; keep them selected and try again.`, 'error');
+            const message = `${completed} completed. The remaining scan was canceled; selected files are still available to retry.`;
+            setStatus(message, 'error');
+            reportOutcome('canceled', `${filesToScan.length} selected documents`);
+            showToast('Document scan canceled.', 'canceled');
+        } else if (failedFiles.length > 0) {
+            progress.hidden = true;
+            const message = `${completed} of ${filesToScan.length} files scanned. ${failedFiles.length} failed; keep them selected and try again.`;
+            setStatus(message, 'error');
+            showToast(`${failedFiles.length} scan${failedFiles.length === 1 ? '' : 's'} failed. Check Notifications for details.`, 'error');
         } else {
             setProgress(100, `${completed} ${completed === 1 ? 'document' : 'documents'} scanned`);
             setStatus(`${completed} ${completed === 1 ? 'document' : 'documents'} scanned. Review your insights.`, 'success');
+            showToast(
+                reusedRecentScan
+                    ? 'This exact file was scanned recently; its saved result was reused without creating a duplicate.'
+                    : `${completed} document${completed === 1 ? '' : 's'} scanned successfully.`,
+                'success',
+            );
         }
     };
 
@@ -448,6 +522,11 @@ if (scanner) {
     });
     consent.addEventListener('change', updateSubmitState);
     submitButton.addEventListener('click', scanDocuments);
+    cancelButton.addEventListener('click', () => {
+        if (!isScanning || cancelRequested) return;
+        cancelRequested = true;
+        activeRequest?.abort();
+    });
 
     chooseButton.addEventListener('dragover', (event) => {
         event.preventDefault();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
+use App\Events\WorkspaceChanged;
 use App\Models\JobApplication;
 use App\Models\JobOpportunity;
 use App\Models\User;
@@ -34,7 +35,7 @@ class JobApplicationController extends Controller
         return view('operations.job-applications', compact('applications'));
     }
 
-    public function store(Request $request, JobOpportunity $job): RedirectResponse
+    public function store(Request $request, JobOpportunity $job): RedirectResponse|JsonResponse
     {
         abort_unless($request->user()->hasRole(Role::Youth), 403);
         abort_unless(
@@ -53,12 +54,13 @@ class JobApplicationController extends Controller
             'application_message' => ['nullable', 'string', 'max:3000'],
         ]);
 
-        $job->applications()->create([
+        $application = $job->applications()->create([
             'user_id' => $request->user()->id,
             'qualification_summary' => $data['qualification_summary'],
             'application_message' => $data['application_message'] ?? null,
             'status' => 'submitted',
         ]);
+        WorkspaceChanged::dispatch('job-applications');
 
         User::query()->where('role', Role::Admin->value)->where('is_active', true)->each(
             fn (User $admin) => $admin->notify(new WorkspaceNotice(
@@ -70,10 +72,17 @@ class JobApplicationController extends Controller
             )),
         );
 
+        if ($request->routeIs('mobile.*') || $request->expectsJson()) {
+            return response()->json([
+                'message' => 'Your job application was submitted to PESO.',
+                'application' => $application->load('job:id,title'),
+            ], 201);
+        }
+
         return back()->with('status', 'Your job application was submitted to PESO.');
     }
 
-    public function update(Request $request, JobApplication $jobApplication): RedirectResponse
+    public function update(Request $request, JobApplication $jobApplication): RedirectResponse|JsonResponse
     {
         abort_unless($request->user()->hasRole(Role::Admin), 403);
         abort_unless(in_array($jobApplication->status, ['submitted', 'reviewing'], true), 422, 'A final decision has already been recorded for this application.');
@@ -88,6 +97,7 @@ class JobApplicationController extends Controller
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+        WorkspaceChanged::dispatch('job-applications');
 
         $applicationStatus = match ($data['status']) {
             'hired' => 'hired',
@@ -120,6 +130,13 @@ class JobApplicationController extends Controller
                     'exception' => $exception,
                 ]);
             }
+        }
+
+        if ($request->routeIs('mobile.*') || $request->expectsJson()) {
+            return response()->json([
+                'message' => 'Job application updated.',
+                'application' => $jobApplication->fresh()->load(['job:id,title', 'user:id,name,email']),
+            ]);
         }
 
         return back()->with('status', 'Job application updated.');

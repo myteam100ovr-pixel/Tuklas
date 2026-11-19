@@ -38,7 +38,5 @@
             <button class="auth-submit" type="submit">{{ __('Log in') }} <span aria-hidden="true">→</span></button>
         </form>
 
-        <p class="auth-field-help">Previously used Google or Facebook? Use <a class="auth-inline-link" href="{{ route('password.request') }}">Forgot password</a> with the same email to set a password.</p>
-
     </x-auth-shell>
 </x-guest-layout>

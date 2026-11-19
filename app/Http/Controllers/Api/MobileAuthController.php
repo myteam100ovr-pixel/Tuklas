@@ -36,7 +36,7 @@ class MobileAuthController extends Controller
         ]);
 
         $user = $createUser->create($request->only([
-            'name', 'first_name', 'last_name', 'contact_number', 'barangay', 'date_of_birth', 'email', 'password', 'password_confirmation', 'terms',
+            'name', 'first_name', 'middle_initial', 'last_name', 'contact_number', 'barangay', 'date_of_birth', 'email', 'password', 'password_confirmation', 'terms',
         ]));
 
         event(new Registered($user));
@@ -77,7 +77,10 @@ class MobileAuthController extends Controller
     public function updateAccount(Request $request, UpdateUserProfileInformation $updateProfile): JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'first_name' => ['sometimes', 'required', 'string', 'max:127'],
+            'middle_initial' => ['nullable', 'string', 'max:10'],
+            'last_name' => ['sometimes', 'required', 'string', 'max:127'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($request->user()->id)],
         ]);
 
@@ -301,6 +304,9 @@ class MobileAuthController extends Controller
         return [
             'id' => $user->id,
             'name' => $user->name,
+            'first_name' => $user->first_name,
+            'middle_initial' => $user->middle_initial,
+            'last_name' => $user->last_name,
             'email' => $user->email,
             'email_verified' => $user->hasVerifiedEmail(),
             'role' => $user->role->value,

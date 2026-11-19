@@ -7,6 +7,7 @@ use App\Http\Requests\SendCareerChatRequest;
 use App\Models\User;
 use App\Services\DocumentScanHistory;
 use App\Services\GeminiCareerAssistant;
+use App\Services\StarterCareerRecommendations;
 use App\Support\ActivityNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,8 +28,13 @@ class CareerChatController
         return response()->json(['messages' => $messages]);
     }
 
-    public function __invoke(SendCareerChatRequest $request, GeminiCareerAssistant $assistant, DocumentScanHistory $scanHistory, ActivityNotifier $activity): JsonResponse
-    {
+    public function __invoke(
+        SendCareerChatRequest $request,
+        GeminiCareerAssistant $assistant,
+        DocumentScanHistory $scanHistory,
+        StarterCareerRecommendations $recommendations,
+        ActivityNotifier $activity,
+    ): JsonResponse {
         if (! $assistant->isConfigured()) {
             return response()->json([
                 'message' => 'AI chat is not configured yet. Add GOOGLE_AI_API_KEY to the server environment.',
@@ -48,7 +54,7 @@ class CareerChatController
                 ->all();
             $result = $assistant->reply(
                 [...$history, $message],
-                $this->careerContext($user, $scanHistory),
+                $this->careerContext($user, $scanHistory, $recommendations),
             );
 
             DB::transaction(function () use ($user, $message, $result): void {
@@ -89,7 +95,7 @@ class CareerChatController
     }
 
     /** @return array<string, mixed> */
-    private function careerContext(?User $user, DocumentScanHistory $scanHistory): array
+    private function careerContext(?User $user, DocumentScanHistory $scanHistory, StarterCareerRecommendations $recommendations): array
     {
         if (! $user instanceof User || ! $user->hasRole(Role::Youth)) {
             return [];
@@ -104,6 +110,7 @@ class CareerChatController
             ...$preferences,
             'user_profile_skills' => $user->youthProfile?->skills ?? [],
             'user_profile_credentials' => $user->youthProfile?->credentials ?? [],
+            'published_initial_recommendations' => $recommendations->for($user),
             'recent_scan_results' => $scanResults,
         ], fn (mixed $value): bool => is_array($value) && $value !== []);
     }

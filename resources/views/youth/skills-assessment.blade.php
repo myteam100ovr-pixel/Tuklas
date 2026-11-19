@@ -8,13 +8,13 @@
     <div class="assessment-page">
         <x-workspace-heading eyebrow="YOUR DIRECTION · YOUR CHOICE" title="Skills self-assessment" description="Start with what you enjoy, what you have tried, and where you want to go. Build a learning plan that fits your life." />
         <div class="assessment-intro">
-            <div><span class="assessment-kicker">A LITTLE REFLECTION. A CLEARER NEXT STEP.</span><h2>Your experience is only the starting point.</h2><p>Your goals matter too. These answers help Tuklas personalize future career conversations and resume or certificate scans.</p></div>
+            <div><span class="assessment-kicker">A LITTLE REFLECTION. A CLEARER NEXT STEP.</span><h2>Your experience is only the starting point.</h2><p>You can begin without a resume or NC certificate. Your interests help choose a direction, and skills you have practiced can support those preferences.</p></div>
             <div class="assessment-intro-meta"><strong>5 areas to explore</strong><span>About 5–8 minutes</span><span>Update your answers anytime</span></div>
         </div>
+        @if (session('status'))<p class="assessment-notice" role="status">{{ session('status') }}</p>@endif
         <div class="assessment-layout">
             <form method="POST" action="{{ route('youth.assessment.store') }}" class="assessment-form">
                 @csrf
-                @if (session('status'))<p class="assessment-notice" role="status">{{ session('status') }}</p>@endif
                 @if ($errors->any())<div class="assessment-errors" role="alert"><strong>Check your answers below.</strong><ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
                 <section class="assessment-section" id="assessment-skills" aria-labelledby="assessment-skills-title">
                     <header class="assessment-section-heading"><span class="assessment-step">01</span><div><p>WHAT YOU BRING</p><h2 id="assessment-skills-title">Recognize your strengths</h2></div><span class="assessment-section-tag">Select any</span></header>
@@ -60,10 +60,34 @@
             <aside class="assessment-guide">
                 <span class="assessment-kicker">YOUR NEXT CHAPTER</span><h2>A plan built around you.</h2>
                 <nav aria-label="Assessment sections"><a href="#assessment-skills">01 · Your strengths</a><a href="#assessment-interests">02 · Your interests</a><a href="#assessment-goals">03 · Your direction</a><a href="#assessment-learning">04 · Your availability</a><a href="#assessment-support">05 · Your support needs</a></nav>
-                <div class="assessment-guide-note"><strong>How your answers are used</strong><p>Your next AI scan and career chat can consider these preferences alongside your resume or certificate. Previously saved scan results stay as they are.</p><p>For those features, your preferences may be sent to Google Gemini. Avoid adding sensitive personal details.</p></div>
+                <div class="assessment-guide-note"><strong>How your answers are used</strong><p>Saving at least one interest unlocks AI guidance and immediately shows initial job, career, and training suggestions. A resume or NC certificate is not required. Optional document scans can add supporting evidence later, and existing scan results stay unchanged.</p><p>For AI features, your answers may be sent to Google Gemini. Avoid adding sensitive personal details.</p></div>
                 <div class="assessment-guide-note"><strong>Reflection, not a score</strong><p>This is a self-assessment, not a competency test or TESDA certification. Existing profile skills and credentials are kept.</p></div>
                 <a class="assessment-next" href="{{ route('scanner.index') }}">Scan your experience ↗</a><a class="assessment-next" href="{{ route('tesda.index') }}">Explore TESDA training ↗</a>
             </aside>
         </div>
+        @if ($assessmentComplete)
+            <section class="assessment-recommendations" aria-labelledby="starter-recommendations-title">
+                <span class="assessment-kicker">YOUR FIRST MATCHES</span>
+                <h2 id="starter-recommendations-title">Start with what interests you.</h2>
+                <p>These suggestions use published Tuklas listings and your self-reported interests. Your selected skills help prioritize matches; they are not treated as verified qualifications.</p>
+                <div class="assessment-recommendation-grid">
+                    @foreach (['work' => ['Work opportunities', 'No current verified job matches yet.'], 'careers' => ['Career paths', 'No published career paths match yet.'], 'training' => ['Training programs', 'No published training programs match yet.']] as $key => [$title, $empty])
+                        <section class="assessment-recommendation-card" aria-labelledby="recommendation-{{ $key }}-title">
+                            <h3 id="recommendation-{{ $key }}-title">{{ $title }}</h3>
+                            @forelse ($starterRecommendations[$key] ?? [] as $recommendation)
+                                <article class="assessment-recommendation-item">
+                                    <strong>{{ $recommendation['title'] }}</strong>
+                                    @if ($recommendation['detail'] !== '')<p>{{ $recommendation['detail'] }}</p>@endif
+                                    <a href="{{ $recommendation['url'] }}">Explore this option ↗</a>
+                                </article>
+                            @empty
+                                <p class="assessment-recommendation-empty">{{ $empty }} Explore the full catalog for other options.</p>
+                                @if ($key === 'work')<a href="{{ route('opportunities.index') }}">Browse job opportunities ↗</a>@elseif ($key === 'careers')<a href="{{ route('careers.index') }}">Browse career paths ↗</a>@else<a href="{{ route('tesda.index') }}">Browse TESDA programs ↗</a>@endif
+                            @endforelse
+                        </section>
+                    @endforeach
+                </div>
+            </section>
+        @endif
     </div>
 </x-app-layout>

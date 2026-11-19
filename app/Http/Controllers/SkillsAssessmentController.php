@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\StarterCareerRecommendations;
 use App\Support\ActivityNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +14,7 @@ class SkillsAssessmentController extends Controller
 {
     private const SKILLS = ['Communication', 'Customer service', 'Computer literacy', 'Food preparation', 'Basic electronics', 'Sewing', 'Gardening', 'Bookkeeping', 'Teamwork', 'Problem solving', 'Writing', 'Design and creativity', 'Sales', 'Repair and maintenance', 'Caregiving', 'Planning and organization'];
 
-    private const INTERESTS = ['Information technology', 'Hospitality and tourism', 'Food and beverage', 'Electronics', 'Agriculture', 'Entrepreneurship', 'Construction', 'Health and caregiving', 'Arts and design', 'Automotive', 'Business and finance', 'Logistics'];
+    private const INTERESTS = ['Information technology', 'Hospitality and tourism', 'Food and beverage', 'Cooking and baking', 'Electronics', 'Agriculture', 'Entrepreneurship', 'Construction', 'Health and caregiving', 'Arts and design', 'Automotive', 'Business and finance', 'Logistics'];
 
     private const PREFERENCES = [
         'priority' => ['Find my first job', 'Improve my current skills', 'Change career direction', 'Start a small business', 'Prepare for TESDA assessment', 'Explore my options'],
@@ -24,19 +25,23 @@ class SkillsAssessmentController extends Controller
         'support_needs' => ['Free or low-cost training', 'Scholarship information', 'Nearby training providers', 'Flexible schedule', 'Access to a device or internet', 'Help preparing requirements'],
     ];
 
-    public function index(Request $request): View|JsonResponse
+    public function index(Request $request, StarterCareerRecommendations $recommendations): View|JsonResponse
     {
+        $profile = $request->user()->youthProfile;
+        $assessmentComplete = $profile?->hasCompletedSkillsAssessment() ?? false;
         $data = [
             'skills' => self::SKILLS,
             'interests' => self::INTERESTS,
-            'profile' => $request->user()->youthProfile,
+            'profile' => $profile,
             'preferenceOptions' => self::PREFERENCES,
+            'assessmentComplete' => $assessmentComplete,
+            'starterRecommendations' => $assessmentComplete ? $recommendations->for($request->user()) : [],
         ];
 
         return $request->routeIs('mobile.*') ? response()->json($data) : view('youth.skills-assessment', $data);
     }
 
-    public function store(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
+    public function store(Request $request, ActivityNotifier $activity, StarterCareerRecommendations $recommendations): RedirectResponse|JsonResponse
     {
         $rules = [
             'skills' => ['sometimes', 'array', 'max:16'],
@@ -63,11 +68,15 @@ class SkillsAssessmentController extends Controller
         $profile->assessment_preferences = collect($validated)->except(['skills', 'interests'])->all();
         $profile->save();
         $activity->record($request->user(), 'updated their skills assessment.');
+        $starterRecommendations = $recommendations->for($request->user()->fresh());
 
         if ($request->routeIs('mobile.*')) {
-            return response()->json(['message' => 'Your skills and preferences are saved. Your next AI scan and career chat will consider your goals, interests, and training preferences.']);
+            return response()->json([
+                'message' => 'Your assessment is saved. Here are your first job, career, and training suggestions based on your interests and existing skills.',
+                'starter_recommendations' => $starterRecommendations,
+            ]);
         }
 
-        return redirect()->route('youth.assessment.index')->with('status', 'Your skills and preferences are saved. Your next AI scan and career chat will consider your goals, interests, and training preferences.');
+        return redirect()->route('youth.assessment.index')->with('status', 'Your assessment is saved. Your first job, career, and training suggestions are ready below.');
     }
 }

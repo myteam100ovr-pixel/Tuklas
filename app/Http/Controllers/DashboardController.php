@@ -262,12 +262,11 @@ class DashboardController extends Controller
             'tasks' => [
                 'title' => 'Next steps',
                 'items' => array_values(array_filter([
-                    $this->task('Complete your profile', $completion['percent'].'% done', 'Schooling, skills, and interests shape your guidance.', $completion['percent'] >= 100, route('profile.show')),
+                    $this->task('Take the skills assessment', $user->youthProfile?->hasCompletedSkillsAssessment() ? 'Saved · Update anytime' : 'Your first step', 'Unlock AI guidance and initial job, career, and training suggestions. You can start without a resume or NC certificate.', $user->youthProfile?->hasCompletedSkillsAssessment() ?? false, route('youth.assessment.index')),
                     Route::has('scanner.index')
-                        ? $this->task('Scan a resume or certificate', $scanned.' scanned', 'Let Google Gemini suggest skills and credentials.', $scanned > 0, route('scanner.index'))
+                        ? $this->task('Scan a resume or certificate', $scanned.' scanned', 'Optional: add document-based skills and credentials to support your guidance.', $scanned > 0, route('scanner.index'))
                         : null,
-                    $this->task('Take the skills assessment', $user->youthProfile?->assessment_preferences !== null ? 'Saved · Update anytime' : 'Not saved yet', 'Reflect on your skills and training interests.', $user->youthProfile?->assessment_preferences !== null, route('youth.assessment.index')),
-                    $this->task('See PESO job matches', $scanned.' documents scanned', 'View job suggestions based on your completed resume and certificate scans.', $scanned > 0, route('peso.index')),
+                    $this->task('Explore your first matches', $user->youthProfile?->hasCompletedSkillsAssessment() ? 'Interest-based suggestions ready' : 'Complete the assessment first', 'Your interests and practiced skills can suggest options before you have a resume.', $user->youthProfile?->hasCompletedSkillsAssessment() ?? false, route('youth.assessment.index')),
                 ])),
             ],
             'actions' => $this->actions([

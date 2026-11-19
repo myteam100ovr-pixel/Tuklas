@@ -43,6 +43,11 @@ class YouthProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function hasCompletedSkillsAssessment(): bool
+    {
+        return is_array($this->interests) && $this->interests !== [] && is_array($this->assessment_preferences);
+    }
+
     /** @return array<string, array<int, string>> */
     public function careerPreferences(): array
     {

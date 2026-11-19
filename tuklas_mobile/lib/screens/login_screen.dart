@@ -18,9 +18,73 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  static const _barangaysByMunicipality = <String, List<String>>{
+    'Bugallon': [
+      'Angarian',
+      'Asinan',
+      'Banaga',
+      'Bacabac',
+      'Bolaoen',
+      'Buenlag',
+      'Cabayaoasan',
+      'Cayanga',
+      'Gueset',
+      'Hacienda',
+      'Laguit Centro',
+      'Laguit Padilla',
+      'Magtaking',
+      'Pangascasan',
+      'Pantal',
+      'Poblacion',
+      'Polong',
+      'Portic',
+      'Salasa',
+      'Salomague Norte',
+      'Salomague Sur',
+      'Samat',
+      'San Francisco',
+      'Umanday',
+    ],
+    'Lingayen': [
+      'Aliwekwek',
+      'Baay',
+      'Balangobong',
+      'Balococ',
+      'Bantayan',
+      'Basing',
+      'Capandanan',
+      'Domalandan Center',
+      'Domalandan East',
+      'Domalandan West',
+      'Dorongan',
+      'Dulag',
+      'Estanza',
+      'Lasip',
+      'Libsong East',
+      'Libsong West',
+      'Malawa',
+      'Malimpuec',
+      'Maniboc',
+      'Matalava',
+      'Naguelguel',
+      'Namolan',
+      'Pangapisan North',
+      'Pangapisan Sur',
+      'Poblacion',
+      'Quibaol',
+      'Rosario',
+      'Sabangan',
+      'Talogtog',
+      'Tonton',
+      'Tumbar',
+      'Wawa',
+    ],
+  };
+
   final _email = TextEditingController();
   final _name = TextEditingController();
   final _lastName = TextEditingController();
+  final _middleInitial = TextEditingController();
   final _birthDate = TextEditingController();
   final _contact = TextEditingController();
   final _barangay = TextEditingController();
@@ -35,12 +99,15 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _showPasswordConfirmation = false;
   String? _error;
   String? _notice;
+  String? _registrationMunicipality;
+  String? _registrationBarangay;
 
   @override
   void dispose() {
     _email.dispose();
     _name.dispose();
     _lastName.dispose();
+    _middleInitial.dispose();
     _birthDate.dispose();
     _contact.dispose();
     _barangay.dispose();
@@ -62,6 +129,11 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _error = 'Select your date of birth.');
       return;
     }
+    if (_registering &&
+        (_registrationMunicipality == null || _registrationBarangay == null)) {
+      setState(() => _error = 'Choose your municipality and barangay.');
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -74,10 +146,12 @@ class _LoginScreenState extends State<LoginScreen> {
           auth: false,
           data: {
             'first_name': _name.text.trim(),
+            'middle_initial': _middleInitial.text.trim(),
             'last_name': _lastName.text.trim(),
             'date_of_birth': _birthDate.text.trim(),
             'contact_number': _contact.text.trim(),
-            'barangay': _barangay.text.trim(),
+            'barangay':
+                '${_registrationBarangay!}, ${_registrationMunicipality!}',
             'email': _email.text.trim(),
             'password': _password.text,
             'password_confirmation': _passwordConfirmation.text,
@@ -239,23 +313,86 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 16),
                             ],
                             if (_registering) ...[
+                              _label(context, 'Last name'),
+                              TextField(
+                                controller: _lastName,
+                                textCapitalization: TextCapitalization.words,
+                                autofillHints: const [AutofillHints.familyName],
+                                style: tkText(context, size: 14.5),
+                              ),
+                              const SizedBox(height: 16),
                               _label(context, 'First name'),
                               TextField(
                                 controller: _name,
                                 textCapitalization: TextCapitalization.words,
-                                autofillHints: const [AutofillHints.name],
+                                autofillHints: const [AutofillHints.givenName],
                                 style: tkText(context, size: 14.5),
                               ),
                               const SizedBox(height: 16),
-                              for (final field in [
-                                ('Last name', _lastName),
-                                ('Contact number', _contact),
-                                ('Barangay', _barangay),
-                              ]) ...[
-                                _label(context, field.$1),
-                                TextField(controller: field.$2),
-                                const SizedBox(height: 16),
-                              ],
+                              _label(context, 'Middle initial (optional)'),
+                              TextField(
+                                controller: _middleInitial,
+                                textCapitalization:
+                                    TextCapitalization.characters,
+                                autofillHints: const [AutofillHints.middleName],
+                                style: tkText(context, size: 14.5),
+                              ),
+                              const SizedBox(height: 16),
+                              _label(context, 'Contact number'),
+                              TextField(
+                                controller: _contact,
+                                keyboardType: TextInputType.phone,
+                              ),
+                              const SizedBox(height: 16),
+                              _label(context, 'Municipality'),
+                              DropdownButtonFormField<String>(
+                                initialValue: _registrationMunicipality,
+                                isExpanded: true,
+                                hint: const Text('Choose municipality'),
+                                items: [
+                                  for (final municipality
+                                      in _barangaysByMunicipality.keys)
+                                    DropdownMenuItem(
+                                      value: municipality,
+                                      child: Text(municipality),
+                                    ),
+                                ],
+                                onChanged: (municipality) => setState(() {
+                                  _registrationMunicipality = municipality;
+                                  _registrationBarangay = null;
+                                  _barangay.clear();
+                                }),
+                              ),
+                              const SizedBox(height: 16),
+                              _label(context, 'Barangay'),
+                              DropdownButtonFormField<String>(
+                                key: ValueKey(_registrationMunicipality),
+                                initialValue: _registrationBarangay,
+                                isExpanded: true,
+                                hint: Text(
+                                  _registrationMunicipality == null
+                                      ? 'Choose municipality first'
+                                      : 'Choose barangay',
+                                ),
+                                items: [
+                                  for (final barangay
+                                      in _barangaysByMunicipality[_registrationMunicipality] ??
+                                          const <String>[])
+                                    DropdownMenuItem(
+                                      value: barangay,
+                                      child: Text(barangay),
+                                    ),
+                                ],
+                                onChanged: _registrationMunicipality == null
+                                    ? null
+                                    : (barangay) => setState(() {
+                                        _registrationBarangay = barangay;
+                                        _barangay.text = barangay == null
+                                            ? ''
+                                            : '$barangay, $_registrationMunicipality';
+                                      }),
+                              ),
+                              const SizedBox(height: 16),
                               _label(context, 'Date of birth'),
                               InkWell(
                                 onTap: _pickBirthDate,
@@ -298,6 +435,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               enableSuggestions: false,
                               autocorrect: false,
                               decoration: InputDecoration(
+                                hintText: _registering
+                                    ? 'Use 1 special character, e.g. @'
+                                    : null,
                                 suffixIcon: IconButton(
                                   tooltip: _showPassword
                                       ? 'Hide password'
@@ -441,18 +581,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                               ),
                             ),
-                            if (!_registering)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 16),
-                                child: Text(
-                                  'Previously used Google or Facebook? Reset your password using the same email.',
-                                  style: tkText(
-                                    context,
-                                    size: 13,
-                                    color: c.muted,
-                                  ),
-                                ),
-                              ),
                             if (!_registering)
                               TextButton(
                                 onPressed: _loading
