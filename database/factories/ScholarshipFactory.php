@@ -20,7 +20,7 @@ class ScholarshipFactory extends Factory
     public function definition(): array
     {
         $center = TrainingCenter::factory()->create(['type' => fake()->randomElement(['PTC', 'PSAT'])]);
-        $program = TrainingProgram::factory()->for($center)->create();
+        $program = TrainingProgram::factory()->for($center, 'center')->create();
 
         return [
             'title' => fake()->sentence(4),

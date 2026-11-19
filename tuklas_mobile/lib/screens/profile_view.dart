@@ -346,16 +346,19 @@ class _ProfileViewState extends State<ProfileView> {
                     _securityNote(context),
                     const SizedBox(height: 16),
                     TkCard(
-                      child: ListenableBuilder(
-                        listenable: motionController,
-                        builder: (context, _) => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text('Reduce motion'),
-                          subtitle: const Text(
-                            'Turn off transitions for smoother use on budget devices.',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: ListenableBuilder(
+                          listenable: motionController,
+                          builder: (context, _) => SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: const Text('Reduce motion'),
+                            subtitle: const Text(
+                              'Turn off transitions for smoother use on budget devices.',
+                            ),
+                            value: motionController.enabled,
+                            onChanged: motionController.setEnabled,
                           ),
-                          value: motionController.enabled,
-                          onChanged: motionController.setEnabled,
                         ),
                       ),
                     ),

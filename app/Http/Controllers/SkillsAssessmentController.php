@@ -38,7 +38,12 @@ class SkillsAssessmentController extends Controller
             'starterRecommendations' => $assessmentComplete ? $recommendations->for($request->user()) : [],
         ];
 
-        return $request->routeIs('mobile.*') ? response()->json($data) : view('youth.skills-assessment', $data);
+        return $request->routeIs('mobile.*')
+            ? response()->json($data)
+            : view('youth.skills-assessment', [
+                ...$data,
+                'assessmentRequired' => ! $assessmentComplete,
+            ]);
     }
 
     public function store(Request $request, ActivityNotifier $activity, StarterCareerRecommendations $recommendations): RedirectResponse|JsonResponse

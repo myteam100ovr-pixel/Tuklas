@@ -13,12 +13,14 @@ class SkillsAssessmentTest extends TestCase
 
     public function test_youth_can_open_assessment_and_save_without_losing_existing_skills(): void
     {
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
         $user->youthProfile()->create(['skills' => ['HTML'], 'credentials' => ['Existing certificate']]);
 
-        $this->actingAs($user)->get(route('youth.dashboard'))->assertOk()
-            ->assertSee(route('youth.assessment.index'))->assertDontSee('Coming soon');
-        $this->get(route('youth.assessment.index'))->assertOk()->assertSee('Skills self-assessment');
+        $this->actingAs($user)->get(route('youth.dashboard'))
+            ->assertRedirectToRoute('youth.assessment.index');
+        $this->get(route('youth.assessment.index'))->assertOk()
+            ->assertSee('Skills self-assessment')
+            ->assertSee('This is your first step. Save the assessment');
 
         $this->post(route('youth.assessment.store'), [
             'skills' => ['Communication'],
@@ -29,11 +31,13 @@ class SkillsAssessmentTest extends TestCase
         $this->assertSame(['HTML', 'Communication'], $profile->skills);
         $this->assertSame(['Information technology'], $profile->interests);
         $this->assertSame(['Existing certificate'], $profile->credentials);
+        $this->actingAs($user->fresh())->get(route('youth.assessment.index'))->assertOk()
+            ->assertDontSee('This is your first step. Save the assessment');
     }
 
     public function test_beginner_can_submit_interests_without_claiming_skills(): void
     {
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
         $this->actingAs($user)->post(route('youth.assessment.store'), [
             'interests' => ['Agriculture'],
         ])->assertRedirectToRoute('youth.assessment.index');
@@ -42,7 +46,7 @@ class SkillsAssessmentTest extends TestCase
 
     public function test_invalid_assessment_does_not_update_profile(): void
     {
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
         $this->actingAs($user)->postJson(route('youth.assessment.store'), [
             'skills' => ['Invented competency'],
             'interests' => [],
@@ -60,7 +64,7 @@ class SkillsAssessmentTest extends TestCase
 
     public function test_updated_goals_replace_old_preferences_and_are_restored_in_the_form(): void
     {
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
         $user->youthProfile()->create([
             'interests' => ['Agriculture'],
             'assessment_preferences' => ['career_goal' => 'Old goal', 'support_needs' => ['Scholarship information']],
@@ -78,12 +82,12 @@ class SkillsAssessmentTest extends TestCase
         $this->assertSame(['Food and beverage'], $profile->interests);
         $this->assertSame('I want to open a bakery', $profile->assessment_preferences['career_goal']);
         $this->assertArrayNotHasKey('support_needs', $profile->assessment_preferences);
-        $this->get(route('youth.assessment.index'))->assertOk()->assertSee('I want to open a bakery');
+        $this->actingAs($user->fresh())->get(route('youth.assessment.index'))->assertOk()->assertSee('I want to open a bakery');
     }
 
     public function test_invalid_preferences_are_rejected_without_saving(): void
     {
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'email_verified_at' => now()]);
         $this->actingAs($user)->postJson(route('youth.assessment.store'), [
             'interests' => ['Agriculture'],
             'learning_mode' => 'Unknown format',

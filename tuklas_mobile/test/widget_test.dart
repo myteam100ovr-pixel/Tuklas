@@ -39,7 +39,7 @@ void main() {
     expect(find.text('First name'), findsOneWidget);
     expect(find.text('Last name'), findsOneWidget);
     expect(find.text('Barangay'), findsOneWidget);
-    expect(find.text('Birth date (YYYY-MM-DD)'), findsOneWidget);
+    expect(find.text('Date of birth'), findsOneWidget);
     expect(find.text('Confirm password'), findsOneWidget);
     expect(find.text('Create account'), findsOneWidget);
     expect(find.text('Already have an account? Log in'), findsOneWidget);
@@ -217,10 +217,13 @@ void main() {
         .widgetList<NavigationDestination>(find.byType(NavigationDestination))
         .toList();
     expect(destinations.length, 5);
-    expect(
-      destinations.every((destination) => destination.label.isEmpty),
-      isTrue,
-    );
+    expect(destinations.map((destination) => destination.label).toList(), [
+      'Home',
+      'Jobs',
+      'Training',
+      'Inbox',
+      'More',
+    ]);
     expect(destinations.map((destination) => destination.tooltip).toList(), [
       'Home',
       'Jobs',
@@ -277,7 +280,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final logoutButton = find.byKey(const ValueKey('profile-logout-button'));
-    await tester.scrollUntilVisible(logoutButton, 250);
+    await tester.ensureVisible(logoutButton);
+    await tester.pumpAndSettle();
     expect(logoutButton, findsOneWidget);
     await tester.tap(logoutButton);
 

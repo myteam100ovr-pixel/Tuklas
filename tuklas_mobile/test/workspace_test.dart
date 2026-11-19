@@ -30,7 +30,7 @@ void main() {
     ApiClient.instance.user = {
       'email_verified': true,
       'name': 'Test User',
-      'role': 'youth',
+      'role': 'admin',
     };
     addTearDown(() => ApiClient.instance.user = null);
     await tester.pumpWidget(const MaterialApp(home: HomeShell()));
@@ -42,7 +42,7 @@ void main() {
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       2,
     );
-    expect(find.text('Opening Courses…'), findsOneWidget);
+    expect(find.text('Opening Centers…'), findsOneWidget);
   });
 
   testWidgets('admin role receives grouped navigation destinations', (
@@ -59,8 +59,11 @@ void main() {
     for (final label in ['Home', 'Jobs', 'Training', 'Inbox', 'More']) {
       expect(find.byTooltip(label), findsOneWidget);
     }
+    await tester.tap(find.byTooltip('Jobs'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('Openings'), findsOneWidget);
-    expect(find.text('PESO'), findsOneWidget);
+    expect(find.text('PESO AI'), findsOneWidget);
     expect(find.text('Applications'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Training'));

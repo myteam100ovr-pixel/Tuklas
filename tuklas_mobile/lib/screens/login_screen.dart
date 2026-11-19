@@ -119,6 +119,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (_loading) return;
+    if (_registering && !_acceptedTerms) {
+      setState(
+        () => _error = 'Please accept the Terms of use and Privacy notice.',
+      );
+      return;
+    }
     if (_registering && _passwordStrength(_password.text) == 0) {
       setState(
         () => _error = 'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
@@ -127,12 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     if (_registering && _password.text != _passwordConfirmation.text) {
       setState(() => _error = 'Passwords do not match.');
-      return;
-    }
-    if (_registering && !_acceptedTerms) {
-      setState(
-        () => _error = 'Please accept the Terms of use and Privacy notice.',
-      );
       return;
     }
     if (_registering && _birthDate.text.trim().isEmpty) {
