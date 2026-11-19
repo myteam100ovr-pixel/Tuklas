@@ -46,17 +46,15 @@ class DashboardMetricsTest extends TestCase
         $this->getJson(route('mobile.dashboard'))->assertOk()->assertJsonPath('stats.0.value', '36%');
     }
 
-    public function test_complete_profile_does_not_require_credentials_and_minor_guardian_fields_count(): void
+    public function test_complete_profile_does_not_require_credentials_or_guardian_fields(): void
     {
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'date_of_birth' => now()->subYears(16)]);
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true, 'date_of_birth' => now()->subYears(20)]);
         $user->youthProfile()->create([
             'barangay' => 'Sample', 'contact_number' => '09000000000',
             'educational_attainment' => 'Senior high school undergraduate', 'employment_status' => 'Student',
             'interests' => ['Agriculture'],
             'assessment_preferences' => ['priority' => 'Explore my options', 'career_goal' => 'Learn farming', 'learning_mode' => 'Online at my own pace', 'schedule' => 'Weekends', 'weekly_hours' => '5–10 hours'],
         ]);
-        $this->assertSame(79, ProfileCompletion::for($user->fresh())['percent']);
-        $user->youthProfile()->update(['guardian_name' => 'Guardian', 'guardian_relationship' => 'Parent', 'guardian_contact' => '09000000001']);
         $this->assertSame(100, ProfileCompletion::for($user->fresh())['percent']);
         $this->actingAs($user)->get(route('youth.dashboard'))->assertViewHas('tasks', fn (array $tasks): bool => $tasks['items'][2]['state'] === 'done');
     }

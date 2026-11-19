@@ -62,6 +62,40 @@ class RegistrationTest extends TestCase
         Event::assertDispatched(Registered::class);
     }
 
+    public function test_registration_accepts_the_minimum_and_maximum_eligible_ages(): void
+    {
+        foreach ([now()->subYears(18)->toDateString(), now()->subYears(31)->addDay()->toDateString()] as $index => $birthDate) {
+            $this->postJson(route('register.store'), [
+                'name' => 'Eligible Career Seeker '.$index,
+                'email' => 'eligible'.$index.'@example.com',
+                'date_of_birth' => $birthDate,
+                'password' => 'StrongPassword123!',
+                'password_confirmation' => 'StrongPassword123!',
+                'terms' => true,
+            ])->assertRedirect();
+
+            auth()->logout();
+        }
+
+        $this->assertDatabaseCount('users', 2);
+    }
+
+    public function test_registration_rejects_people_outside_the_18_to_30_age_range(): void
+    {
+        foreach ([now()->subYears(17)->toDateString(), now()->subYears(31)->toDateString()] as $index => $birthDate) {
+            $this->postJson(route('register.store'), [
+                'name' => 'Ineligible Career Seeker '.$index,
+                'email' => 'ineligible'.$index.'@example.com',
+                'date_of_birth' => $birthDate,
+                'password' => 'StrongPassword123!',
+                'password_confirmation' => 'StrongPassword123!',
+                'terms' => true,
+            ])->assertUnprocessable()->assertJsonValidationErrors('date_of_birth');
+        }
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
     #[TestWith(['first_name', ''])]
     #[TestWith(['last_name', ''])]
     public function test_registration_requires_both_names(string $field, string $value): void

@@ -19,9 +19,6 @@ class ProfileCompletion
             'Career direction' => [filled($profile?->livelihood_interests) || $hasValues($profile?->interests), filled($preferences['priority'] ?? null), filled($preferences['career_goal'] ?? null)],
             'Learning preferences' => [filled($preferences['learning_mode'] ?? null), filled($preferences['schedule'] ?? null), filled($preferences['weekly_hours'] ?? null)],
         ];
-        if ($user->date_of_birth && $user->date_of_birth->age < 18) {
-            $groups['Guardian details'] = [filled($profile?->guardian_name), filled($profile?->guardian_relationship), filled($profile?->guardian_contact)];
-        }
         $items = [];
         $completed = 0;
         $total = 0;

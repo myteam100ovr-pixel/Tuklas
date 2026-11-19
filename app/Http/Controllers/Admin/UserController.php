@@ -11,6 +11,7 @@ use App\Support\ActivityNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -207,7 +208,29 @@ class UserController extends Controller
                 PasswordRule::min(12)->max(72)->mixedCase()->numbers()->symbols(),
                 'confirmed',
             ],
-            'date_of_birth' => ['nullable', 'date'],
+            'date_of_birth' => [
+                'bail',
+                Rule::requiredIf(
+                    $request->input('role') === Role::Youth->value && (bool) $request->input('is_active'),
+                ),
+                'nullable',
+                'date',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+                    if (
+                        $request->input('role') !== Role::Youth->value
+                        || ! (bool) $request->input('is_active')
+                        || ! is_string($value)
+                    ) {
+                        return;
+                    }
+
+                    $age = Carbon::parse($value)->age;
+
+                    if ($age < 18 || $age > 30) {
+                        $fail('Career Seeker accounts must be for people aged 18 to 30.');
+                    }
+                },
+            ],
             'contact_number' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s()]*$/'],
             'barangay' => ['nullable', 'string', 'max:100'],
         ], [

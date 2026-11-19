@@ -1,6 +1,6 @@
 # Tuklas Terms of Use
 
-Updated 5 November 2026 · Project draft pending final operator and public contact details.
+Updated 20 November 2026 · Project draft pending final operator and public contact details.
 
 ## Scope and operator
 
@@ -8,7 +8,7 @@ These terms describe responsible use of Tuklas by visitors, youth, trainers, and
 
 ## Accounts and age
 
-Provide accurate details and keep your password, authentication token, and recovery codes private. Use only accounts and roles assigned to you. Youth services are intended for ages 15–30; users under 18 should review this notice and the privacy notice with a parent or guardian. The current system does not independently verify age or guardian consent. Administrators must obtain any required permissions before enrolling minors or processing their information.
+Provide accurate details and keep your password, authentication token, and recovery codes private. Use only accounts and roles assigned to you. Career Seeker registration is for people aged 18 through 30, inclusive. Tuklas checks the birth date supplied during registration and profile updates; do not create or use a Career Seeker account if you are outside this range.
 
 ## Respect other users' data
 

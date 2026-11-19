@@ -315,8 +315,8 @@
 <section class="stats" aria-label="Tuklas at a glance">
     <article class="row">
         <div class="tileimg"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#4510b9"/><path d="M-10 84 C 30 50, 60 90, 110 40 L110 110 L-10 110Z" fill="#3a14b0"/><circle cx="66" cy="36" r="14" fill="#8f96ea"/><rect x="30" y="46" width="28" height="30" rx="6" fill="#f47c33"/><path d="M36 60 l6 6 l10 -12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg></div>
-        <div class="numwrap"><span class="tag t-o">Ages</span><div class="num" data-to="15,30" data-sep="–">15–30</div></div>
-        <p class="desc">Tuklas is for Filipino youth aged 15 to 30 in Bugallon, Pangasinan. Guardian consent is part of sign-up for users aged 15 to 17.</p>
+        <div class="numwrap"><span class="tag t-o">Ages</span><div class="num" data-to="18,30" data-sep="–">18–30</div></div>
+        <p class="desc">Tuklas is for Career Seekers aged 18 to 30 in Bugallon, Pangasinan. A birth date is used to check eligibility.</p>
     </article>
     <article class="row">
         <div class="tileimg"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#6f84e8"/><path d="M50 14 C 20 26, 24 62, 50 86 C 76 62, 80 26, 50 14Z" fill="none" stroke="#3a14b0" stroke-width="9"/><circle cx="50" cy="48" r="10" fill="#ffd92e"/></svg></div>
@@ -383,7 +383,7 @@
         </div>
         <div class="col c-c" data-speed="95">
             <article class="qc"><i class="qm">&#10022;</i><p>Suggestions are guidance to help you decide. They are not guarantees of a job, admission, or a training slot.</p><footer><b>Every user</b><span>Guidance only</span></footer></article>
-            <article class="qc"><i class="qm">&#10022;</i><p>Personal information is protected, and users aged 15 to 17 have guardian consent built into sign-up.</p><footer><b>Data privacy</b><span>Built in</span></footer></article>
+            <article class="qc"><i class="qm">&#10022;</i><p>Career Seeker accounts are for people aged 18 to 30. Tuklas asks for a birth date to check eligibility.</p><footer><b>Data privacy</b><span>Built in</span></footer></article>
         </div>
     </div>
 </section>
@@ -392,7 +392,7 @@
 <section class="faq-s" id="faq">
     <h2 class="title">Frequently Asked<br>Questions</h2>
     <div class="faq">
-        <div class="q"><button type="button" aria-expanded="false"><span>Who can use Tuklas?</span><i></i></button><div class="a"><p>Filipino youth aged 15 to 30 in the Municipality of Bugallon, Pangasinan. If you are 15 to 17, a guardian's consent is required.</p></div></div>
+        <div class="q"><button type="button" aria-expanded="false"><span>Who can use Tuklas?</span><i></i></button><div class="a"><p>Career Seekers aged 18 to 30 can register. Tuklas asks for a birth date to check eligibility.</p></div></div>
         <div class="q"><button type="button" aria-expanded="false"><span>Which trainings does Tuklas show?</span><i></i></button><div class="a"><p>Only TVET programs offered by TESDA Lingayen, entered and maintained by authorized staff. If a program is not listed, it is not in the system.</p></div></div>
         <div class="q"><button type="button" aria-expanded="false"><span>Does Tuklas guarantee a job or a training slot?</span><i></i></button><div class="a"><p>No. Suggestions are guidance to help you decide. Employment, admission, and slot availability are decided by employers and TESDA Lingayen.</p></div></div>
         <div class="q"><button type="button" aria-expanded="false"><span>How does the resume and certificate scan work?</span><i></i></button><div class="a"><p>You can upload a resume or certificate for Google Gemini to summarize supported skills and qualifications and suggest job roles and published TESDA training to explore. The uploaded file is deleted after processing. Your result appears in scan history and does not change your profile automatically. Uploading is optional.</p></div></div>

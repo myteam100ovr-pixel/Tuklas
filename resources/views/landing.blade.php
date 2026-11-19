@@ -173,8 +173,8 @@
     <h2 class="rows-title reveal">Tuklas Reads the Interests and Skills You Share <span aria-hidden="true">♥</span> to Offer Career and Training Guidance Made for Bugallon Youth</h2>
     <div class="row reveal">
         <svg class="art" viewBox="0 0 138 138" aria-hidden="true"><rect width="138" height="138" rx="12" fill="#fbe132"/><circle cx="69" cy="69" r="42" fill="#4300b9"/><path d="M69 43v29l19 13" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div class="big age" data-range-counter="5,11,15,30">5–11</div>
-        <p>Tuklas is designed for youth in Bugallon, Pangasinan, with guardian consent built into sign-up for users aged 15 to 17.</p>
+        <div class="big age" data-range-counter="18,30">18–30</div>
+        <p>Tuklas Career Seeker accounts are for people aged 18 to 30. A birth date is collected to check eligibility.</p>
         <span class="tag vi">Youth</span>
     </div>
     <div class="row reveal">
@@ -234,7 +234,7 @@
         </div>
         <div class="col">
             <div class="mcard reveal"><span class="star">&#10022;</span><p>Suggestions are guidance to help you decide. They are not guarantees of a job, admission, or a training slot.</p><div class="who">Every user<small>Guidance only</small></div></div>
-            <div class="mcard reveal"><span class="star">&#10022;</span><p>Personal information is protected, and users aged 15 to 17 have guardian consent built into sign-up.</p><div class="who">Data privacy<small>Built in</small></div></div>
+            <div class="mcard reveal"><span class="star">&#10022;</span><p>Career Seeker accounts are for people aged 18 to 30. A birth date is used to check eligibility.</p><div class="who">Data privacy<small>Built in</small></div></div>
         </div>
     </div>
 </section>
@@ -249,7 +249,7 @@
             ['Does Tuklas guarantee a job or a training slot?', 'No. Tuklas offers guidance to help you decide. A suggestion is not a guarantee of a job, admission, or a training slot.'],
             ['How does the resume and certificate scan work?', 'Uploading is optional. Google Gemini reads a resume or certificate and suggests profile details for you to review and confirm before they are saved.'],
             ['Is there a mobile app available?', 'Tuklas is available through its website. A dedicated mobile app is not yet available.'],
-            ['How does Tuklas protect my personal information?', 'Personal information is protected. Users aged 15 to 17 have guardian consent built into sign-up.'],
+            ['How does Tuklas protect my personal information?', 'Personal information is protected. Career Seeker accounts are for people aged 18 to 30, and a birth date is used to check eligibility.'],
         ] as [$q, $a])
             <div class="faq-item reveal">
                 <button type="button" class="faq-q" aria-expanded="false">

@@ -23,6 +23,16 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        $dateOfBirth = Validator::make($input, [
+            'date_of_birth' => ['bail', 'required', 'date', function (string $attribute, mixed $value, \Closure $fail): void {
+                $age = Carbon::parse($value)->age;
+
+                if ($age < 18 || $age > 30) {
+                    $fail('Tuklas is for Career Seekers aged 18 to 30.');
+                }
+            }],
+        ])->validate()['date_of_birth'];
+
         $registrationDetails = null;
 
         if (array_key_exists('first_name', $input) || array_key_exists('last_name', $input) || array_key_exists('middle_initial', $input) || ! array_key_exists('name', $input)) {
@@ -32,13 +42,6 @@ class CreateNewUser implements CreatesNewUsers
                 'middle_initial' => ['nullable', 'string', 'max:10'],
                 'contact_number' => ['required', 'string', 'max:30', 'regex:/^[0-9+\-\s()]*$/'],
                 'barangay' => ['required', 'string', 'max:100'],
-                'date_of_birth' => ['bail', 'required', 'date', function (string $attribute, mixed $value, \Closure $fail): void {
-                    $age = Carbon::parse($value)->age;
-
-                    if ($age < 15 || $age > 30) {
-                        $fail('Tuklas is for youth aged 15 to 30.');
-                    }
-                }],
             ])->validate();
 
             $input['name'] = collect([
@@ -55,7 +58,7 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => request()->routeIs('register.store') || Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        $user = DB::transaction(function () use ($input, $registrationDetails): User {
+        $user = DB::transaction(function () use ($input, $registrationDetails, $dateOfBirth): User {
             $user = User::forceCreate([
                 'name' => $input['name'],
                 'first_name' => isset($registrationDetails) ? trim($registrationDetails['first_name']) : null,
@@ -64,7 +67,7 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'password' => Hash::make($input['password']),
                 'role' => Role::Youth->value,
-                'date_of_birth' => $registrationDetails['date_of_birth'] ?? null,
+                'date_of_birth' => $dateOfBirth,
             ]);
 
             if (isset($registrationDetails)) {

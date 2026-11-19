@@ -28,9 +28,6 @@ class _ProfileViewState extends State<ProfileView> {
   final _barangay = TextEditingController();
   final _contact = TextEditingController();
   final _interests = TextEditingController();
-  final _guardianName = TextEditingController();
-  final _guardianRelationship = TextEditingController();
-  final _guardianContact = TextEditingController();
   final _accountLastName = TextEditingController();
   final _accountFirstName = TextEditingController();
   final _accountMiddleInitial = TextEditingController();
@@ -58,9 +55,6 @@ class _ProfileViewState extends State<ProfileView> {
     _barangay.dispose();
     _contact.dispose();
     _interests.dispose();
-    _guardianName.dispose();
-    _guardianRelationship.dispose();
-    _guardianContact.dispose();
     _accountLastName.dispose();
     _accountFirstName.dispose();
     _accountMiddleInitial.dispose();
@@ -75,9 +69,6 @@ class _ProfileViewState extends State<ProfileView> {
     _education = youth['educational_attainment'] as String?;
     _employment = youth['employment_status'] as String?;
     _interests.text = '${youth['livelihood_interests'] ?? ''}';
-    _guardianName.text = '${youth['guardian_name'] ?? ''}';
-    _guardianRelationship.text = '${youth['guardian_relationship'] ?? ''}';
-    _guardianContact.text = '${youth['guardian_contact'] ?? ''}';
     _filled = true;
   }
 
@@ -173,20 +164,6 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  int? _age() {
-    final born = _dob == null ? null : DateTime.tryParse(_dob!);
-    if (born == null) return null;
-    final now = DateTime.now();
-    var age = now.year - born.year;
-    if (now.month < born.month ||
-        (now.month == born.month && now.day < born.day)) {
-      age--;
-    }
-    return age;
-  }
-
-  bool get _minor => (_age() ?? 99) < 18;
-
   Future<void> _pickDob() async {
     final now = DateTime.now();
     final first = DateTime(
@@ -194,7 +171,7 @@ class _ProfileViewState extends State<ProfileView> {
       now.month,
       now.day,
     ).add(const Duration(days: 1));
-    final last = DateTime(now.year - 15, now.month, now.day);
+    final last = DateTime(now.year - 18, now.month, now.day);
     var initial =
         DateTime.tryParse(_dob ?? '') ??
         DateTime(now.year - 20, now.month, now.day);
@@ -206,6 +183,7 @@ class _ProfileViewState extends State<ProfileView> {
       initialDate: initial,
       firstDate: first,
       lastDate: last,
+      helpText: 'Choose a date between ages 18 and 30',
     );
     if (picked == null) return;
     setState(() => _dob = formatDateForApi(picked));
@@ -258,9 +236,6 @@ class _ProfileViewState extends State<ProfileView> {
         'educational_attainment': _education,
         'employment_status': _employment,
         'livelihood_interests': _interests.text.trim(),
-        'guardian_name': _guardianName.text.trim(),
-        'guardian_relationship': _guardianRelationship.text.trim(),
-        'guardian_contact': _guardianContact.text.trim(),
       });
       if (!mounted) return;
       setState(() => _flash = 'Your details were saved.');
@@ -625,7 +600,7 @@ class _ProfileViewState extends State<ProfileView> {
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Text(
-              'Tuklas is for youth aged 15 to 30.',
+              'Career Seeker accounts are for people aged 18 to 30.',
               style: tkText(context, size: 12.5, color: c.muted),
             ),
           ),
@@ -686,48 +661,6 @@ class _ProfileViewState extends State<ProfileView> {
             hint: 'For example: cooking, farming, electronics, selling online',
             lines: 3,
           ),
-          if (_minor) ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: c.line),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Guardian (required under 18)',
-                    style: tkText(context, size: 13.5, weight: 500),
-                  ),
-                  const SizedBox(height: 14),
-                  _text(
-                    context,
-                    'Guardian name',
-                    'guardian_name',
-                    _guardianName,
-                  ),
-                  const SizedBox(height: 14),
-                  _text(
-                    context,
-                    'Relationship',
-                    'guardian_relationship',
-                    _guardianRelationship,
-                  ),
-                  const SizedBox(height: 14),
-                  _text(
-                    context,
-                    'Guardian contact number',
-                    'guardian_contact',
-                    _guardianContact,
-                    type: TextInputType.phone,
-                  ),
-                ],
-              ),
-            ),
-          ],
           const SizedBox(height: 22),
           Align(
             alignment: Alignment.centerRight,

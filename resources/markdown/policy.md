@@ -1,13 +1,13 @@
 # Tuklas Privacy Notice
 
-Updated 11 November 2026 · Applies to youth, trainers, administrators, and visitors using the Tuklas website and mobile API.
+Updated 20 November 2026 · Applies to Career Seekers, TESDA staff, administrators, and visitors using the Tuklas website and mobile API.
 
 **Project notice — operator details and retention schedule pending.** Tuklas is operated by the Tour de Force project team, Universidad de Dagupan. The team must publish its legal operator name, public privacy contact, and approved retention schedule before collecting real users' data in production. This notice describes the current implementation; it is not a certification of legal compliance.
 
 ## What Tuklas collects and why
 
-- **Accounts:** name, email, password hash, role, active status, verification status, and account timestamps support registration, sign-in, administration, and account recovery. Where supplied, first and last names and birth date are stored separately.
-- **Youth profiles:** barangay, contact number, education, employment status, livelihood interests, skills, credentials, interests, and assessment preferences support career and training guidance. Profile completion for ages 15–17 requests guardian name, relationship, and contact number. Tell your guardian before providing their details. Recording these fields does not verify guardian consent.
+- **Accounts:** name, email, password hash, role, active status, verification status, and account timestamps support registration, sign-in, administration, and account recovery. Career Seeker birth dates are stored to check the 18–30 age requirement.
+- **Career Seeker profiles:** barangay, contact number, education, employment status, livelihood interests, skills, credentials, interests, and assessment preferences support career and training guidance. Older accounts may still contain guardian details collected under an earlier registration flow; profile updates clear those legacy fields.
 - **Trainer records:** qualifications, teaching assignments, and authored training program information support training management. Published catalog entries can show trainer names.
 - **Documents and AI:** uploaded resumes or certificates, filenames, file type and size, analysis results, detected skills, credentials, recommendations, and processing dates support scanning. Skills and credentials from a scan may be added to your youth profile.
 - **Scholarship applications:** your application message, scholarship selection, uploaded supporting documents, submission status, and staff review notes support scholarship processing. Documents are stored privately and accessible to you and authorized PESO/TESDA staff; they are not sent to the AI scanner.

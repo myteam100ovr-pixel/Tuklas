@@ -1,5 +1,5 @@
 .tesda-body { min-height: 100vh; background: #fff; }
-.tesda-main { width: min(100% - (var(--pad) * 2), 1180px); margin: 0 auto; padding: 9rem 0 4rem; }
+.tesda-main { width: min(100% - (var(--pad) * 2), 1440px); margin: 0 auto; padding: 9rem 0 4rem; }
 body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .tesda-intro { max-width: 760px; padding: clamp(1.5rem, 4vw, 3rem) 0 2rem; }
 .tesda-eyebrow { color: var(--deep); font-size: .72rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
@@ -81,7 +81,7 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 @media(max-width:600px) { .trainer-courses__toolbar,.trainer-courses__card { align-items:flex-start; flex-direction:column; } .trainer-courses__form-row { grid-template-columns:1fr; } }
 
 /* Shared layout for PESO, TESDA, center, and career seeker operations. */
-.operations-page { width:100%; max-width:68rem; gap:1.15rem; container-name:operations-page; container-type:inline-size; }
+.operations-page { width:100%; max-width:none; gap:1.15rem; container-name:operations-page; container-type:inline-size; }
 .scholarships-page { width:100%; max-width:none; grid-template-columns:minmax(0,1fr); gap:1rem; }
 .scholarship-applications { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.85rem; }
 .scholarship-applications > h2,.scholarship-applications > .operations-empty { grid-column:1/-1; }

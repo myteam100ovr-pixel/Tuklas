@@ -21,6 +21,7 @@ class PangasinanTrainingCenterSeederTest extends TestCase
 
         $this->assertDatabaseCount('training_centers', 2);
         $this->assertDatabaseCount('training_programs', 44);
+        $this->assertSame(44, TrainingProgram::query()->where('status', 'published')->count());
 
         $provincialCenter = TrainingCenter::query()->where('type', 'PTC')->sole();
         $this->assertSame('Provincial Capitol Compound, Lingayen, Pangasinan', $provincialCenter->address);
@@ -75,6 +76,18 @@ class PangasinanTrainingCenterSeederTest extends TestCase
 
         $this->getJson('/api/mobile/tesda')->assertOk()
             ->assertJsonPath('pagination.total', 44);
+    }
+
+    public function test_source_listed_courses_are_republished_when_the_seed_is_rerun(): void
+    {
+        $this->seed(PangasinanTrainingCenterSeeder::class);
+        $program = TrainingProgram::query()->firstOrFail();
+        $program->update(['status' => 'archived']);
+
+        $this->seed(PangasinanTrainingCenterSeeder::class);
+
+        $this->assertSame('published', $program->fresh()->status);
+        $this->assertSame(44, TrainingProgram::query()->where('status', 'published')->count());
     }
 
     public function test_career_seeker_mobile_catalog_shows_ptc_psat_duration_and_other_provider_fallbacks(): void

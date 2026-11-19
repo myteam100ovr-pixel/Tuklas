@@ -55,8 +55,8 @@
 
                 <div class="auth-field">
                     <x-label for="date_of_birth" value="{{ __('Date of birth') }}" class="auth-label" />
-                    <x-input id="date_of_birth" class="auth-input" type="date" name="date_of_birth" :value="old('date_of_birth')" required autocomplete="bday" aria-describedby="birth-date-help" />
-                    <p id="birth-date-help" class="auth-field-help">Tuklas is for youth aged 15 to 30.</p>
+                    <x-input id="date_of_birth" class="auth-input" type="date" name="date_of_birth" :value="old('date_of_birth')" min="{{ now()->subYears(31)->addDay()->toDateString() }}" max="{{ now()->subYears(18)->toDateString() }}" required autocomplete="bday" aria-describedby="birth-date-help" />
+                    <p id="birth-date-help" class="auth-field-help">Career Seekers must be 18 to 30 years old.</p>
                     <output class="auth-field-help" for="date_of_birth" data-calculated-age aria-live="polite"></output>
                 </div>
             </div>

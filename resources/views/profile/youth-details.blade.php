@@ -1,7 +1,6 @@
 @php
     $u = auth()->user();
     $yp = $u->youthProfile;
-    $isMinor = $u->date_of_birth && $u->date_of_birth->age < 18;
 @endphp
 
 <section class="card tk-sec">
@@ -16,8 +15,8 @@
 
         <div class="field">
             <label class="label" for="date_of_birth">Date of birth</label>
-            <input class="input" id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth', $u->date_of_birth?->toDateString()) }}" required>
-            <span class="hint">Tuklas is for youth aged 15 to 30.</span>
+            <input class="input" id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth', $u->date_of_birth?->toDateString()) }}" min="{{ now()->subYears(31)->addDay()->toDateString() }}" max="{{ now()->subYears(18)->toDateString() }}" required>
+            <span class="hint">Career Seekers must be 18 to 30 years old.</span>
             @error('date_of_birth')<p class="field-error">{{ $message }}</p>@enderror
         </div>
 
@@ -62,27 +61,6 @@
             <textarea class="input" id="livelihood_interests" name="livelihood_interests" rows="3" maxlength="1000" placeholder="For example: cooking, farming, electronics, selling online">{{ old('livelihood_interests', $yp?->livelihood_interests) }}</textarea>
             @error('livelihood_interests')<p class="field-error">{{ $message }}</p>@enderror
         </div>
-
-        <fieldset class="guardian" data-guardian @if (! $isMinor) hidden @endif>
-            <legend>Guardian (required under 18)</legend>
-            <div class="field-row">
-                <div class="field">
-                    <label class="label" for="guardian_name">Guardian name</label>
-                    <input class="input" id="guardian_name" name="guardian_name" type="text" maxlength="120" value="{{ old('guardian_name', $yp?->guardian_name) }}">
-                    @error('guardian_name')<p class="field-error">{{ $message }}</p>@enderror
-                </div>
-                <div class="field">
-                    <label class="label" for="guardian_relationship">Relationship</label>
-                    <input class="input" id="guardian_relationship" name="guardian_relationship" type="text" maxlength="60" value="{{ old('guardian_relationship', $yp?->guardian_relationship) }}">
-                    @error('guardian_relationship')<p class="field-error">{{ $message }}</p>@enderror
-                </div>
-            </div>
-            <div class="field">
-                <label class="label" for="guardian_contact">Guardian contact number</label>
-                <input class="input" id="guardian_contact" name="guardian_contact" type="tel" maxlength="30" value="{{ old('guardian_contact', $yp?->guardian_contact) }}">
-                @error('guardian_contact')<p class="field-error">{{ $message }}</p>@enderror
-            </div>
-        </fieldset>
 
         <div class="tk-sec-actions">
             <button type="submit" class="btn btn-primary">Save details</button>

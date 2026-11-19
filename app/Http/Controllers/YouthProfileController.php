@@ -45,13 +45,12 @@ class YouthProfileController extends Controller
     public function update(Request $request, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
         $user = $request->user();
-        $minor = $this->isMinor($request->input('date_of_birth'));
 
         $data = $request->validate([
-            'date_of_birth' => ['required', 'date', function ($attribute, $value, $fail) {
+            'date_of_birth' => ['bail', 'required', 'date', function ($attribute, $value, $fail) {
                 $age = Carbon::parse($value)->age;
-                if ($age < 15 || $age > 30) {
-                    $fail('Tuklas is for youth aged 15 to 30.');
+                if ($age < 18 || $age > 30) {
+                    $fail('Tuklas is for Career Seekers aged 18 to 30.');
                 }
             }],
             'barangay' => ['nullable', 'string', 'max:100'],
@@ -59,21 +58,12 @@ class YouthProfileController extends Controller
             'educational_attainment' => ['nullable', Rule::in(YouthProfile::EDUCATION)],
             'employment_status' => ['nullable', Rule::in(YouthProfile::EMPLOYMENT)],
             'livelihood_interests' => ['nullable', 'string', 'max:1000'],
-            'guardian_name' => [Rule::requiredIf($minor), 'nullable', 'string', 'max:120'],
-            'guardian_relationship' => [Rule::requiredIf($minor), 'nullable', 'string', 'max:60'],
-            'guardian_contact' => [Rule::requiredIf($minor), 'nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s()]*$/'],
-        ], [
-            'guardian_name.required' => 'A guardian is needed for users under 18.',
-            'guardian_relationship.required' => 'Tell us how your guardian is related to you.',
-            'guardian_contact.required' => 'Add a contact number for your guardian.',
         ]);
 
         $user->forceFill(['date_of_birth' => $data['date_of_birth']])->save();
         unset($data['date_of_birth']);
 
-        if (! $minor) {
-            $data['guardian_name'] = $data['guardian_relationship'] = $data['guardian_contact'] = null;
-        }
+        $data['guardian_name'] = $data['guardian_relationship'] = $data['guardian_contact'] = null;
 
         $user->youthProfile()->updateOrCreate([], $data);
         $activity->record($user, 'updated their youth profile.');
@@ -83,14 +73,5 @@ class YouthProfileController extends Controller
         }
 
         return redirect()->route('profile.show')->with('status', 'youth-details-saved');
-    }
-
-    private function isMinor(?string $dob): bool
-    {
-        try {
-            return $dob !== null && Carbon::parse($dob)->age < 18;
-        } catch (\Throwable) {
-            return false;
-        }
     }
 }

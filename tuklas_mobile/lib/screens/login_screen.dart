@@ -283,14 +283,14 @@ class _LoginScreenState extends State<LoginScreen> {
       now.month,
       now.day,
     ).add(const Duration(days: 1));
-    final lastDate = DateTime(now.year - 15, now.month, now.day);
+    final lastDate = DateTime(now.year - 18, now.month, now.day);
     final initialDate = DateTime(now.year - 20, now.month, now.day);
     final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: firstDate,
       lastDate: lastDate,
-      helpText: 'Choose a date between ages 15 and 30',
+      helpText: 'Choose a date between ages 18 and 30',
     );
 
     if (picked != null) {

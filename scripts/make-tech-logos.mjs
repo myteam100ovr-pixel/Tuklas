@@ -62,7 +62,7 @@ const fns = [
     ['Links to TESDA NC I–IV provider search', 'briefcase', 'or'],
     ['PESO and TESDA trainer dashboards', 'users', 'vi'],
     ['Role-based account access', 'shield', 'pk'],
-    ['Youth registration and guardian consent', 'heart', 'yl'],
+    ['Career Seeker registration for ages 18 to 30', 'heart', 'yl'],
     ['Google and Facebook sign-in', 'user', 'or'],
     ['Email verification and password recovery', 'mail', 'pk'],
     ['Two-factor authentication', 'lock', 'vi'],

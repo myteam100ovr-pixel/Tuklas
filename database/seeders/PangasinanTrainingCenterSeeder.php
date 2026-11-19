@@ -118,6 +118,8 @@ class PangasinanTrainingCenterSeeder extends Seeder
                         'status' => 'published',
                         'last_verified_at' => null,
                     ])->save();
+                } elseif ($program->status !== 'published') {
+                    $program->update(['status' => 'published']);
                 }
 
                 if ($program->wasRecentlyCreated) {
