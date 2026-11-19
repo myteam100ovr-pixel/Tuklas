@@ -3,7 +3,7 @@ const jobsPage = document.querySelector('[data-live-jobs-url]');
 const jobApplicationsPage = document.querySelector('[data-live-job-applications-url]');
 const documentScannerPage = document.querySelector('[data-document-scanner]');
 let syncing = false;
-let pendingWorkspaceSync = false;
+let pendingWorkspaceResource = null;
 let workspaceSyncTimer;
 
 const updateNotifications = async () => {
@@ -307,6 +307,29 @@ const pageHasLiveData = Boolean(
     jobsPage || jobApplicationsPage || documentScannerPage || document.querySelector('.notifications-list, [data-message-thread]'),
 );
 
+const resourcesForCurrentPage = () => {
+    const path = window.location.pathname.replace(/\/$/, '');
+    const pages = {
+        '/admin/users': ['users', 'profiles'],
+        '/admin/jobs/openings': ['jobs', 'employers', 'job-recommendations', 'job-applications'],
+        '/admin/jobs/applications': ['job-applications'],
+        '/admin/jobs/peso': ['job-recommendations', 'document-scans', 'profiles'],
+        '/admin/training/centers': ['training-centers', 'training-programs'],
+        '/admin/training/trainers': ['training-assignments', 'trainer-qualifications', 'users'],
+        '/admin/training/dates': ['training-sessions', 'training-centers', 'training-applications'],
+        '/admin/training/requests': ['training-applications', 'training-sessions', 'users'],
+        '/admin/training/results': ['assessments', 'training-applications'],
+        '/admin/programs/scholarships': ['scholarships', 'scholarship-applications', 'training-programs'],
+        '/admin/programs/tesda': ['tesda-choices', 'training-programs'],
+        '/admin/inbox/messages': ['messages'],
+        '/admin/inbox/notifications': ['notifications'],
+        '/profile': ['profiles', 'users'],
+        '/user/profile': ['profiles', 'users'],
+    };
+
+    return new Set(pages[path] || []);
+};
+
 const applyWorkspaceChange = (event) => {
     sync();
     if (event.detail?.resource === 'users') refreshHeader();
@@ -321,30 +344,42 @@ const applyWorkspaceChange = (event) => {
         return;
     }
 
+    const resource = event.detail?.resource;
+    if (!resource || !resourcesForCurrentPage().has(resource)) {
+        return;
+    }
+
     if (document.hidden) {
-        pendingWorkspaceSync = true;
+        pendingWorkspaceResource = resource;
         return;
     }
 
     if (document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) {
-        pendingWorkspaceSync = true;
+        pendingWorkspaceResource = resource;
         return;
     }
 
     clearTimeout(workspaceSyncTimer);
     workspaceSyncTimer = setTimeout(() => {
-        refreshCurrentPage();
+        refreshCurrentPage(resource);
     }, 350);
 };
 
-const refreshCurrentPage = async () => {
+const refreshCurrentPage = async (resource) => {
     const main = document.querySelector('#main-content');
-    if (!main) {
-        window.location.reload();
+    if (!main || !resource || !resourcesForCurrentPage().has(resource)) {
         return;
     }
 
-    if (main.querySelector('[data-document-scanner]')) {
+    if (document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) {
+        return;
+    }
+
+    if (main.querySelector('[data-document-scanner], [data-career-chat]')) {
+        return;
+    }
+
+    if ([...main.querySelectorAll('input[type="file"]')].some((input) => input.files?.length)) {
         return;
     }
 
@@ -359,17 +394,9 @@ const refreshCurrentPage = async () => {
         const page = new DOMParser().parseFromString(await response.text(), 'text/html');
         updateHeader(page);
         const nextMain = page.querySelector('#main-content');
-        if (!nextMain) {
-            window.location.reload();
-            return;
-        }
+        if (!nextMain) return;
 
-        if (nextMain.querySelector('[data-document-scanner]')) {
-            return;
-        }
-
-        if (nextMain.querySelector('[data-career-chat]')) {
-            window.location.reload();
+        if (nextMain.querySelector('[data-document-scanner], [data-career-chat]')) {
             return;
         }
 
@@ -414,15 +441,23 @@ document.addEventListener('submit', (event) => {
     }
 }, true);
 document.addEventListener('focusout', () => {
-    if (pendingWorkspaceSync) {
-        pendingWorkspaceSync = false;
-        applyWorkspaceChange();
+    if (pendingWorkspaceResource) {
+        if (document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) {
+            return;
+        }
+
+        const resource = pendingWorkspaceResource;
+        pendingWorkspaceResource = null;
+        clearTimeout(workspaceSyncTimer);
+        workspaceSyncTimer = setTimeout(() => refreshCurrentPage(resource), 350);
     }
 });
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && pendingWorkspaceSync) {
-        pendingWorkspaceSync = false;
-        applyWorkspaceChange();
+    if (!document.hidden && pendingWorkspaceResource) {
+        const resource = pendingWorkspaceResource;
+        pendingWorkspaceResource = null;
+        clearTimeout(workspaceSyncTimer);
+        workspaceSyncTimer = setTimeout(() => refreshCurrentPage(resource), 350);
     }
 });
 
