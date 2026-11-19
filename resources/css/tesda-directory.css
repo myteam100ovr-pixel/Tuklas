@@ -20,7 +20,9 @@
 .tesda-provider-tools input { min-height:48px; width:100%; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); color:var(--ink); font:inherit; }
 .tesda-provider-tools p { color:var(--muted); font-size:.8rem; white-space:nowrap; }
 .tesda-provider-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.tesda-provider-grid--public-courses { grid-template-columns:minmax(0,1fr); gap:18px; }
 .tesda-provider-card { min-width:0; padding:20px; border:1px solid var(--line); border-radius:16px; background:var(--surface-2); }
+.tesda-provider-card--course-list { padding:clamp(16px,2.4vw,26px); }
 .tesda-provider-card[hidden] { display:none; }
 .tesda-provider-card header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
 .tesda-provider-card h3 { margin:0; color:var(--ink); font-size:1rem; line-height:1.45; font-weight:600; }
@@ -29,12 +31,21 @@
 .tesda-provider-card details { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
 .tesda-provider-card summary { color:var(--violet); cursor:pointer; font-size:.82rem; font-weight:600; }
 .tesda-provider-card ul { display:grid; gap:7px; margin:12px 0 0; padding-left:20px; color:var(--ink); font-size:.8rem; line-height:1.55; }
-.tesda-course-choice { padding:8px 0; }
-.tesda-course-session { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 14px; margin:10px 0 0; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--muted); font-size:.76rem; }
+.tesda-provider-card .tesda-course-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; gap:10px; margin:18px 0 0; padding:0; list-style:none; }
+.tesda-course-choice { display:flex; min-width:0; flex-direction:column; gap:10px; padding:13px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
+.tesda-course-overview { display:grid; gap:4px; }
+.tesda-course-overview strong { color:var(--ink); font-size:.83rem; line-height:1.45; }
+.tesda-course-overview > span { color:var(--muted); font-size:.74rem; line-height:1.45; }
+.tesda-course-session { display:flex; min-width:0; flex:1; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 12px; margin-top:auto; padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); color:var(--muted); font-size:.73rem; }
+.tesda-course-session__details { display:grid; min-width:0; gap:4px; }
+.tesda-course-session__details time { color:var(--ink); font-size:.75rem; font-weight:600; }
+.tesda-course-session__details > span { color:var(--muted); font-size:.7rem; }
+.tesda-course-session__details > span.is-full,.tesda-session-status.is-full { color:var(--bad); }
 .tesda-course-session form { margin:0; }
-.tesda-course-session button { min-height:38px; padding:8px 13px; border:0; border-radius:9px; background:var(--violet); color:#fff; font:inherit; font-weight:600; cursor:pointer; }
+.tesda-course-session button { min-height:38px; padding:8px 13px; border:0; border-radius:9px; background:var(--violet); color:#fff; font:inherit; font-size:.74rem; font-weight:600; cursor:pointer; }
 .tesda-course-session button:hover { filter:brightness(1.08); }
-.tesda-session-status { color:var(--violet); font-weight:600; }
+.tesda-course-session--empty { justify-content:flex-start; color:var(--muted); }
+.tesda-session-status { padding:5px 8px; border-radius:999px; background:var(--surface); color:var(--violet); font-size:.68rem; font-weight:600; white-space:nowrap; }
 .tesda-provider-source { margin-top:24px; color:var(--muted); font-size:.75rem; }
 .tesda-directory .qualification-catalog { margin:0; padding:40px 0; border:0; border-radius:0; background:transparent; }
 .tesda-directory .qualification-heading h2 { font-size:clamp(1.8rem,3vw,2.6rem); }
@@ -83,6 +94,8 @@
     .tesda-provider-tools label { grid-column:1; }
     .tesda-provider-tools p { white-space:normal; }
     .tesda-provider-grid { grid-template-columns:1fr; }
+    .tesda-provider-card .tesda-course-list { grid-template-columns:1fr; }
+    .tesda-course-session form,.tesda-course-session button { width:100%; }
     .tesda-directory .qualification-filters { grid-template-columns:1fr; padding:20px; }
     .tesda-directory .qualification-card { grid-template-columns:minmax(0,1fr); padding:24px 12px; }
     .tesda-directory .qualification-card > * { grid-column:1; grid-row:auto; }

@@ -14,9 +14,9 @@
             <p>Check the other registered providers below and contact them to confirm current course availability.</p>
         </div>
     @else
-        <div class="tesda-provider-grid">
+        <div class="tesda-provider-grid tesda-provider-grid--public-courses">
             @foreach ($careerSeekerProgramGroups as $schoolName => $schoolPrograms)
-                <article class="tesda-provider-card">
+                <article class="tesda-provider-card tesda-provider-card--course-list">
                     <header>
                         <div>
                             <h3>{{ $schoolName }}</h3>
@@ -26,20 +26,26 @@
                         </div>
                         <span>{{ $schoolPrograms->count() }} {{ \Illuminate\Support\Str::plural('course', $schoolPrograms->count()) }}</span>
                     </header>
-                    <ul>
+                    <ul class="tesda-course-list">
                         @foreach ($schoolPrograms as $program)
                             <li class="tesda-course-choice">
-                                <strong>{{ $program->title }}</strong><br>
-                                <span>{{ $program->duration_days ? $program->duration_days.' training days' : ($program->duration_hours ? $program->duration_hours.' training hours' : 'Training duration not listed in the schedule') }}</span>
+                                <div class="tesda-course-overview">
+                                    <strong>{{ $program->title }}</strong>
+                                    <span>{{ $program->duration_days ? $program->duration_days.' training days' : ($program->duration_hours ? $program->duration_hours.' training hours' : 'Training duration not listed in the schedule') }}</span>
+                                </div>
                                 @php($openSessions = $program->sessions)
                                 @forelse ($openSessions as $session)
                                     @php($application = $session->applications->first())
+                                    @php($placesLeft = max(0, $session->capacity - $session->accepted_count))
                                     <div class="tesda-course-session">
-                                        <span>{{ $session->starts_at->timezone(config('app.timezone'))->format('M j, Y g:i A') }} · {{ max(0, $session->capacity - $session->accepted_count) }} of {{ $session->capacity }} places available</span>
+                                        <div class="tesda-course-session__details">
+                                            <time datetime="{{ $session->starts_at->toIso8601String() }}">{{ $session->starts_at->timezone(config('app.timezone'))->format('M j, Y · g:i A') }}</time>
+                                            <span class="{{ $placesLeft === 0 ? 'is-full' : '' }}">{{ $placesLeft }} of {{ $session->capacity }} places available</span>
+                                        </div>
                                         @if ($application && in_array($application->status, ['pending', 'accepted'], true))
-                                            <span class="tesda-session-status">Request {{ ucfirst($application->status) }}</span>
-                                        @elseif ($session->accepted_count >= $session->capacity)
-                                            <span class="tesda-session-status">Fully occupied · Check private providers below</span>
+                                            <span class="tesda-session-status">{{ ucfirst($application->status) }}</span>
+                                        @elseif ($placesLeft === 0)
+                                            <span class="tesda-session-status is-full">Fully occupied</span>
                                         @else
                                             <form method="POST" action="{{ route('applications.store', $session) }}">
                                                 @csrf
@@ -48,7 +54,7 @@
                                         @endif
                                     </div>
                                 @empty
-                                    <div class="tesda-course-session"><span>No upcoming intake is listed. Check private providers below.</span></div>
+                                    <div class="tesda-course-session tesda-course-session--empty">No upcoming intake listed</div>
                                 @endforelse
                             </li>
                         @endforeach
