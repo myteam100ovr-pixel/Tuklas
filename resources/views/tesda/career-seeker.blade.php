@@ -1,27 +1,43 @@
 <section class="tesda-section" id="career-seeker-ptc-psat" aria-labelledby="career-seeker-ptc-psat-title">
     <div class="tesda-section-heading">
         <div>
-            <p class="tesda-eyebrow">Public training centers · Pangasinan</p>
-            <h2 id="career-seeker-ptc-psat-title">Courses listed by PTC and PSAT</h2>
+            <p class="tesda-eyebrow">Training centers · Pangasinan</p>
+            <h2 id="career-seeker-ptc-psat-title">Courses by training center</h2>
         </div>
         <span class="tesda-count">{{ $careerSeekerPrograms->count() }} listings</span>
     </div>
-    <p class="tesda-note">Choose a course with an upcoming schedule and request a place. PESO and TESDA manage each session’s place limit; pending requests still need the school’s review. When every place is accepted, check the TESDA-registered private providers below.</p>
+    <p class="tesda-note">Filter by PTC, PSAT, or private training center. Choose a course with an upcoming schedule to request a place. PESO and TESDA manage each session’s place limit; pending requests still need the school’s review.</p>
+
+    <form class="tesda-center-filter" method="GET" action="{{ route('tesda.index') }}">
+        <label for="training-center-type">Training center type</label>
+        <select id="training-center-type" name="center_type">
+            <option value="" @selected($careerSeekerCenterType === null)>All training centers</option>
+            <option value="PTC" @selected($careerSeekerCenterType === 'PTC')>PTC · Provincial Training Center</option>
+            <option value="PSAT" @selected($careerSeekerCenterType === 'PSAT')>PSAT · Pangasinan School of Arts and Trades</option>
+            <option value="PRIVATE" @selected($careerSeekerCenterType === 'PRIVATE')>Private training centers</option>
+        </select>
+        <button type="submit">Apply filter</button>
+        @if ($careerSeekerCenterType !== null)
+            <a href="{{ route('tesda.index') }}">Clear</a>
+        @endif
+    </form>
 
     @if ($careerSeekerProgramGroups->isEmpty())
         <div class="tesda-empty">
-            <h3>No PTC or PSAT course listings are currently published.</h3>
-            <p>Check the other registered providers below and contact them to confirm current course availability.</p>
+            <h3>No published courses are available for this filter yet.</h3>
+            <p>Try another center type or contact a listed provider to confirm its current courses and schedules.</p>
         </div>
     @else
         <div class="tesda-provider-grid tesda-provider-grid--public-courses">
-            @foreach ($careerSeekerProgramGroups as $schoolName => $schoolPrograms)
+            @foreach ($careerSeekerProgramGroups as $schoolPrograms)
+                @php($center = $schoolPrograms->first()->center)
                 <article class="tesda-provider-card tesda-provider-card--course-list">
                     <header>
                         <div>
-                            <h3>{{ $schoolName }}</h3>
-                            @if ($schoolPrograms->first()->center->address)
-                                <p>{{ $schoolPrograms->first()->center->address }}</p>
+                            <h3>{{ $center->name }}</h3>
+                            <span class="tesda-center-type">{{ ['PTC' => 'PTC · Provincial Training Center', 'PSAT' => 'PSAT · Pangasinan School of Arts and Trades', 'PRIVATE' => 'Private training center'][$center->type] ?? $center->type }}</span>
+                            @if ($center->address)
+                                <p>{{ $center->address }}</p>
                             @endif
                         </div>
                         <span>{{ $schoolPrograms->count() }} {{ \Illuminate\Support\Str::plural('course', $schoolPrograms->count()) }}</span>
@@ -54,7 +70,7 @@
                                         @endif
                                     </div>
                                 @empty
-                                    <div class="tesda-course-session tesda-course-session--empty">No upcoming intake listed</div>
+                                    <div class="tesda-course-session tesda-course-session--empty">No upcoming intake is listed by this center.</div>
                                 @endforelse
                             </li>
                         @endforeach
@@ -65,11 +81,12 @@
     @endif
 </section>
 
+@if ($careerSeekerCenterType === null || $careerSeekerCenterType === 'PRIVATE')
 <section class="tesda-section tesda-provider-directory" id="career-seeker-other-providers" aria-labelledby="career-seeker-other-providers-title">
     <div class="tesda-section-heading">
         <div>
             <p class="tesda-eyebrow">If no public-school intake is open</p>
-            <h2 id="career-seeker-other-providers-title">Other TESDA-registered providers</h2>
+            <h2 id="career-seeker-other-providers-title">Private TESDA-registered training centers</h2>
         </div>
         <a class="tesda-provider-directory__link" href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse=&SearchIns=&SearchLoc=pangasinan" target="_blank" rel="noopener noreferrer">Open official TESDA directory ↗</a>
     </div>
@@ -91,3 +108,4 @@
     <p class="tesda-note" data-provider-empty hidden>No registered provider entries match that search.</p>
     <p class="tesda-provider-source">Source: <a href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse=&SearchIns=&SearchLoc=pangasinan" target="_blank" rel="noopener noreferrer">TESDA TVI Pangasinan registry</a> · Snapshot fetched {{ $registeredProgramsFetchedAt ? \Carbon\Carbon::parse($registeredProgramsFetchedAt)->timezone('Asia/Manila')->format('M j, Y') : 'date unavailable' }}.</p>
 </section>
+@endif

@@ -222,6 +222,10 @@ class _OperationsViewState extends State<OperationsView> {
       for (final item in entries)
         '${item['id']}': source == 'eligibleApplications'
             ? '${(item['user'] as Map?)?['name'] ?? 'Trainee'} · ${(item['program'] as Map?)?['title'] ?? 'Program'}'
+            : source == 'programs' && item['center'] is Map
+            ? '${(item['center'] as Map)['type'] ?? 'Center'} · ${(item['center'] as Map)['name'] ?? 'Training center'} — ${item[textKey] ?? item['id']}'
+            : source == 'centers' && item['type'] != null
+            ? '${item['type']} · ${item[textKey] ?? item['id']}'
             : '${item[textKey] ?? item['id']}',
     };
     return WorkspaceField(
@@ -326,7 +330,17 @@ class _OperationsViewState extends State<OperationsView> {
     ],
     'Centers' => const [
       WorkspaceField('name', 'Center name', required: true),
-      WorkspaceField('type', 'Type', options: ['PTC', 'PSAT'], required: true),
+      WorkspaceField(
+        'type',
+        'Type',
+        options: ['PTC', 'PSAT', 'PRIVATE'],
+        optionLabels: {
+          'PTC': 'PTC · Provincial Training Center',
+          'PSAT': 'PSAT · Pangasinan School of Arts and Trades',
+          'PRIVATE': 'Private training center',
+        },
+        required: true,
+      ),
       WorkspaceField('address', 'Address'),
       WorkspaceField('contact_email', 'Contact email'),
       WorkspaceField('contact_phone', 'Phone'),

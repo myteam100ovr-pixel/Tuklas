@@ -23,10 +23,10 @@ class TrainingSessionController extends Controller
             ->when($search !== '', fn ($query) => $query->where(fn ($sessions) => $sessions->whereHas('program', fn ($program) => $program->where('title', 'like', '%'.$search.'%'))->orWhereHas('center', fn ($center) => $center->where('name', 'like', '%'.$search.'%'))))
             ->withCount(['applications as accepted_count' => fn ($query) => $query->where('status', 'accepted')])
             ->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $user->training_center_id))
-            ->when(! $canManage, fn ($query) => $query->where('status', 'open')->where('starts_at', '>', now())->whereHas('program', fn ($program) => $program->published())->whereHas('center', fn ($center) => $center->where('is_active', true)))
+            ->when(! $canManage, fn ($query) => $query->where('status', 'open')->where('is_demo', false)->where('starts_at', '>', now())->whereHas('program', fn ($program) => $program->published()->where('is_demo', false))->whereHas('center', fn ($center) => $center->where('is_active', true)->where('is_demo', false)))
             ->orderBy('starts_at')->paginate(50)->withQueryString();
-        $centers = $canManage ? TrainingCenter::query()->where('is_active', true)->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get() : collect();
-        $programs = $canManage ? TrainingProgram::published()->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $user->training_center_id))->orderBy('title')->get(['id', 'title']) : collect();
+        $centers = $canManage ? TrainingCenter::query()->where('is_active', true)->where('is_demo', false)->when($user->isCenterScopedTesda(), fn ($query) => $query->whereKey($user->training_center_id))->orderBy('name')->get() : collect();
+        $programs = $canManage ? TrainingProgram::published()->where('is_demo', false)->with('center:id,name,type')->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $user->training_center_id))->orderBy('title')->get(['id', 'title', 'training_center_id']) : collect();
 
         return $request->routeIs('mobile.*') ? response()->json(compact('sessions', 'centers', 'programs', 'canManage')) : view('operations.sessions', compact('sessions', 'centers', 'programs', 'canManage'));
     }
@@ -65,14 +65,14 @@ class TrainingSessionController extends Controller
     {
         $this->authorizeManager($request);
         $data = $request->validate([
-            'training_program_id' => ['required', Rule::exists('training_programs', 'id')->where('status', 'published')],
-            'training_center_id' => ['required', Rule::exists('training_centers', 'id')->where('is_active', true)],
+            'training_program_id' => ['required', Rule::exists('training_programs', 'id')->where('status', 'published')->where('is_demo', false)],
+            'training_center_id' => ['required', Rule::exists('training_centers', 'id')->where('is_active', true)->where('is_demo', false)],
             'starts_at' => ['required', 'date'],
             'ends_at' => ['required', 'date', 'after:starts_at'],
             'capacity' => ['required', 'integer', 'min:1', 'max:65535'],
             'status' => ['required', Rule::in(['open', 'closed'])],
         ]);
-        $program = TrainingProgram::findOrFail($data['training_program_id']);
+        $program = TrainingProgram::query()->where('is_demo', false)->findOrFail($data['training_program_id']);
         abort_if($program->training_center_id && $program->training_center_id !== (int) $data['training_center_id'], 422, 'This program belongs to another training center.');
         if ($request->user()->isCenterScopedTesda()) {
             abort_unless((int) $data['training_center_id'] === $request->user()->training_center_id, 403);

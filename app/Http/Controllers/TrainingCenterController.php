@@ -64,7 +64,7 @@ class TrainingCenterController extends Controller
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'type' => ['required', Rule::in(['PTC', 'PSAT'])],
+            'type' => ['required', Rule::in(['PTC', 'PSAT', 'PRIVATE'])],
             'address' => ['nullable', 'string', 'max:255'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:30'],

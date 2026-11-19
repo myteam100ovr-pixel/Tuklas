@@ -8,6 +8,7 @@ use App\Services\TesdaRegisteredProgramCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class MobileCatalogController extends Controller
 {
@@ -15,6 +16,9 @@ class MobileCatalogController extends Controller
     {
         $careerSeekerCatalog = $request->boolean('career_seeker');
         $catalogUser = $request->user() ?? Auth::guard('sanctum')->user();
+        $centerType = $careerSeekerCatalog
+            ? ($request->validate(['center_type' => ['nullable', Rule::in(['PTC', 'PSAT', 'PRIVATE'])]])['center_type'] ?? null)
+            : null;
         $programQuery = TrainingProgram::published()
             ->with($careerSeekerCatalog ? 'center:id,name,type,address,is_active,is_demo' : 'center:id,name');
 
@@ -30,9 +34,10 @@ class MobileCatalogController extends Controller
                         ->where('user_id', $catalogUser?->id ?? 0)
                         ->latest('id')])])
                 ->whereHas('center', fn ($query) => $query
-                    ->whereIn('type', ['PTC', 'PSAT'])
+                    ->whereIn('type', ['PTC', 'PSAT', 'PRIVATE'])
                     ->where('is_active', true)
-                    ->where('is_demo', false));
+                    ->where('is_demo', false)
+                    ->when($centerType !== null, fn ($query) => $query->where('type', $centerType)));
         }
 
         $programs = $programQuery
@@ -40,7 +45,12 @@ class MobileCatalogController extends Controller
             ->paginate($careerSeekerCatalog ? 100 : 12);
 
         $registeredDirectory = $registeredCatalog->all();
-        $providerDirectory = $careerSeekerCatalog ? $registeredCatalog->otherRegisteredProviders() : $registeredDirectory;
+        $providerDirectory = $careerSeekerCatalog
+            ? $registeredCatalog->otherRegisteredProviders()
+            : $registeredDirectory;
+        if ($careerSeekerCatalog && in_array($centerType, ['PTC', 'PSAT'], true)) {
+            $providerDirectory['records'] = [];
+        }
         $registeredPage = max(1, $request->integer('registered_page', 1));
         $registeredPerPage = min(100, max(1, $request->integer('registered_per_page', 25)));
         $registeredRecords = collect($providerDirectory['records']);
@@ -98,7 +108,7 @@ class MobileCatalogController extends Controller
                 ['title' => 'Training regulations', 'url' => 'https://tesda.gov.ph/Download/Training_Regulations'],
             ],
             'notice' => $careerSeekerCatalog
-                ? 'PTC and PSAT listings do not confirm current enrollment or open seats. Other providers are listed in the TESDA registry; contact each school to confirm schedules, duration, slots, fees, and eligibility.'
+                ? 'PTC, PSAT, and private-center course listings show only schedules published in Tuklas. Registry-only providers do not confirm current enrollment, schedules, duration, open seats, fees, or eligibility; contact the school first.'
                 : 'Confirm schedules, slots, fees, and eligibility with TESDA or the training provider.',
         ]);
     }

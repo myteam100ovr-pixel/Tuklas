@@ -16,6 +16,7 @@ class TesdaView extends StatefulWidget {
 class _TesdaViewState extends State<TesdaView> {
   int _page = 1;
   int _registeredPage = 1;
+  String? _centerType;
   final Set<int> _applyingSessionIds = {};
   late Future<Map<String, dynamic>> _catalog;
 
@@ -24,7 +25,10 @@ class _TesdaViewState extends State<TesdaView> {
   @override
   void initState() {
     super.initState();
-    _catalog = ApiClient.instance.tesdaCatalog(careerSeeker: _isCareerSeeker);
+    _catalog = ApiClient.instance.tesdaCatalog(
+      careerSeeker: _isCareerSeeker,
+      centerType: _centerType,
+    );
   }
 
   void _loadPage(int page, {int? registeredPage}) {
@@ -35,6 +39,19 @@ class _TesdaViewState extends State<TesdaView> {
         page: page,
         registeredPage: _registeredPage,
         careerSeeker: _isCareerSeeker,
+        centerType: _centerType,
+      );
+    });
+  }
+
+  void _filterByCenterType(String? centerType) {
+    setState(() {
+      _centerType = centerType;
+      _page = 1;
+      _registeredPage = 1;
+      _catalog = ApiClient.instance.tesdaCatalog(
+        careerSeeker: _isCareerSeeker,
+        centerType: centerType,
       );
     });
   }
@@ -411,18 +428,23 @@ class _TesdaViewState extends State<TesdaView> {
     final schoolGroups = <String, List<Map<String, dynamic>>>{};
     for (final rawProgram in programs) {
       final program = asMap(rawProgram);
-      final school = '${program['training_center'] ?? 'PTC or PSAT'}';
-      schoolGroups.putIfAbsent(school, () => []).add(program);
+      final school = '${program['training_center'] ?? 'Training center'}';
+      final type = '${program['training_center_type'] ?? ''}';
+      schoolGroups.putIfAbsent('$type|$school', () => []).add(program);
     }
     final orderedSchools = schoolGroups.entries.toList()
       ..sort((left, right) {
-        final leftType = left.value.first['training_center_type'] == 'PTC'
-            ? 0
-            : 1;
-        final rightType = right.value.first['training_center_type'] == 'PTC'
-            ? 0
-            : 1;
-        return leftType.compareTo(rightType);
+        int centerRank(String type) => switch (type) {
+          'PTC' => 0,
+          'PSAT' => 1,
+          'PRIVATE' => 2,
+          _ => 3,
+        };
+
+        final rank = centerRank(
+          '${left.value.first['training_center_type']}',
+        ).compareTo(centerRank('${right.value.first['training_center_type']}'));
+        return rank != 0 ? rank : left.key.compareTo(right.key);
       });
 
     final providerGroups = <String, List<Map<String, dynamic>>>{};
@@ -461,11 +483,11 @@ class _TesdaViewState extends State<TesdaView> {
               children: [
                 const TkPageHeading(
                   eyebrow: 'TRAINING OPPORTUNITIES',
-                  title: 'PTC and PSAT courses',
+                  title: 'Training courses',
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Choose a course with an upcoming schedule and request a place. PESO and TESDA set the maximum places; accepted requests use those places.',
+                  'Filter by PTC, PSAT, or private training center. Review published courses and upcoming schedules before requesting a place.',
                   style: tkText(
                     context,
                     size: 14,
@@ -474,11 +496,22 @@ class _TesdaViewState extends State<TesdaView> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _centerTypeChip(context, 'All', null),
+                    _centerTypeChip(context, 'PTC', 'PTC'),
+                    _centerTypeChip(context, 'PSAT', 'PSAT'),
+                    _centerTypeChip(context, 'Private', 'PRIVATE'),
+                  ],
+                ),
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
                       child: Text(
-                        'Courses at PTC and PSAT',
+                        'Courses by training center',
                         style: tkText(context, size: 17, weight: 500),
                       ),
                     ),
@@ -488,7 +521,7 @@ class _TesdaViewState extends State<TesdaView> {
                 if (programs.isEmpty)
                   TkCard(
                     child: Text(
-                      'No PTC or PSAT courses are currently published. Check the other registered providers below and contact them to confirm enrollment.',
+                      'No published courses are available for this filter yet. Try another center type or contact a listed provider to confirm current courses and schedules.',
                       style: tkText(context, size: 13, color: colors.muted),
                     ),
                   )
@@ -505,7 +538,7 @@ class _TesdaViewState extends State<TesdaView> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      school.key,
+                                      school.key.split('|').last,
                                       style: tkText(
                                         context,
                                         size: 16,
@@ -529,7 +562,28 @@ class _TesdaViewState extends State<TesdaView> {
                                   ],
                                 ),
                               ),
-                              TkChip(label: '${school.value.length} courses'),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  TkChip(
+                                    label: '${school.value.length} courses',
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    switch ('${school.value.first['training_center_type']}') {
+                                      'PTC' => 'PTC',
+                                      'PSAT' => 'PSAT',
+                                      'PRIVATE' => 'Private',
+                                      _ => 'Center',
+                                    },
+                                    style: tkText(
+                                      context,
+                                      size: 10.5,
+                                      color: colors.muted,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -572,84 +626,86 @@ class _TesdaViewState extends State<TesdaView> {
                     ],
                   ),
                 ],
-                const SizedBox(height: 16),
-                Text(
-                  'Other TESDA-registered providers',
-                  style: tkText(context, size: 17, weight: 500),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'If PTC or PSAT has no open intake for a course, check these other schools, including Edson and Ledesma. The registry does not show live schedules, duration, or available seats, so contact the provider first.',
-                  style: tkText(
-                    context,
-                    size: 12.5,
-                    color: colors.muted,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (registeredPrograms.isEmpty)
-                  TkCard(
-                    child: Text(
-                      'No other provider listings were found.',
-                      style: tkText(context, size: 13, color: colors.muted),
-                    ),
-                  )
-                else
-                  for (final provider in orderedProviders)
-                    _careerSeekerProviderGroup(
-                      context,
-                      provider.value.first,
-                      provider.value,
-                    ),
-                if (registeredLastPage > 1) ...[
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      OutlinedButton(
-                        onPressed: registeredCurrentPage > 1
-                            ? () => _loadPage(
-                                _page,
-                                registeredPage: registeredCurrentPage - 1,
-                              )
-                            : null,
-                        child: const Text('Previous providers'),
-                      ),
-                      Text(
-                        'Page $registeredCurrentPage of $registeredLastPage · $registeredTotal',
-                        style: tkText(context, size: 12, color: colors.muted),
-                      ),
-                      OutlinedButton(
-                        onPressed: registeredCurrentPage < registeredLastPage
-                            ? () => _loadPage(
-                                _page,
-                                registeredPage: registeredCurrentPage + 1,
-                              )
-                            : null,
-                        child: const Text('More providers'),
-                      ),
-                    ],
-                  ),
-                ],
-                if (sourceFetchedAt.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                if (_centerType == null || _centerType == 'PRIVATE') ...[
+                  const SizedBox(height: 16),
                   Text(
-                    'TESDA registry snapshot: ${formatTuklasDate(sourceFetchedAt)}',
-                    style: tkText(context, size: 11.5, color: colors.muted),
+                    'Private TESDA-registered providers',
+                    style: tkText(context, size: 17, weight: 500),
                   ),
-                ],
-                if (notice.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(
-                    notice,
+                    'Use this directory to contact private providers when a public center has no suitable intake. Registry records do not confirm live schedules, duration, or available seats.',
                     style: tkText(
                       context,
-                      size: 11.5,
+                      size: 12.5,
                       color: colors.muted,
-                      height: 1.35,
+                      height: 1.4,
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  if (registeredPrograms.isEmpty)
+                    TkCard(
+                      child: Text(
+                        'No other provider listings were found.',
+                        style: tkText(context, size: 13, color: colors.muted),
+                      ),
+                    )
+                  else
+                    for (final provider in orderedProviders)
+                      _careerSeekerProviderGroup(
+                        context,
+                        provider.value.first,
+                        provider.value,
+                      ),
+                  if (registeredLastPage > 1) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        OutlinedButton(
+                          onPressed: registeredCurrentPage > 1
+                              ? () => _loadPage(
+                                  _page,
+                                  registeredPage: registeredCurrentPage - 1,
+                                )
+                              : null,
+                          child: const Text('Previous providers'),
+                        ),
+                        Text(
+                          'Page $registeredCurrentPage of $registeredLastPage · $registeredTotal',
+                          style: tkText(context, size: 12, color: colors.muted),
+                        ),
+                        OutlinedButton(
+                          onPressed: registeredCurrentPage < registeredLastPage
+                              ? () => _loadPage(
+                                  _page,
+                                  registeredPage: registeredCurrentPage + 1,
+                                )
+                              : null,
+                          child: const Text('More providers'),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (sourceFetchedAt.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'TESDA registry snapshot: ${formatTuklasDate(sourceFetchedAt)}',
+                      style: tkText(context, size: 11.5, color: colors.muted),
+                    ),
+                  ],
+                  if (notice.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      notice,
+                      style: tkText(
+                        context,
+                        size: 11.5,
+                        color: colors.muted,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
                 ],
               ],
             ),
@@ -658,6 +714,13 @@ class _TesdaViewState extends State<TesdaView> {
       ],
     );
   }
+
+  Widget _centerTypeChip(BuildContext context, String label, String? value) =>
+      ChoiceChip(
+        label: Text(label),
+        selected: _centerType == value,
+        onSelected: (_) => _filterByCenterType(value),
+      );
 
   Widget _careerSeekerCourseTile(
     BuildContext context,
@@ -688,7 +751,7 @@ class _TesdaViewState extends State<TesdaView> {
           const SizedBox(height: 8),
           if (sessions.isEmpty)
             Text(
-              'No upcoming intake is listed. Check the other TESDA-registered providers below.',
+              'No upcoming intake is listed by this center. Try another filter or contact the center directly.',
               style: tkText(
                 context,
                 size: 12,

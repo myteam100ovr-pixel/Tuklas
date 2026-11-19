@@ -10,12 +10,16 @@ use App\Services\TesdaQualificationCatalog;
 use App\Services\TesdaRegisteredProgramCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TesdaCatalogController extends Controller
 {
     public function index(Request $request, TesdaQualificationCatalog $catalog, TesdaRegisteredProgramCatalog $registeredCatalog): View|JsonResponse
     {
+        $centerType = $request->user()?->hasRole(Role::Youth)
+            ? ($request->validate(['center_type' => ['nullable', Rule::in(['PTC', 'PSAT', 'PRIVATE'])]])['center_type'] ?? null)
+            : null;
         $choiceUser = null;
         if ($request->user()?->hasRole(Role::Youth)) {
             $choiceUser = $request->user();
@@ -29,6 +33,13 @@ class TesdaCatalogController extends Controller
         $choiceUser?->load('tesdaChoice.selector');
 
         $programs = TrainingProgram::published()
+            ->when($request->user()?->hasRole(Role::Youth), fn ($query) => $query
+                ->where('is_demo', false)
+                ->whereHas('center', fn ($center) => $center
+                    ->whereIn('type', ['PTC', 'PSAT', 'PRIVATE'])
+                    ->where('is_active', true)
+                    ->where('is_demo', false)
+                    ->when($centerType !== null, fn ($center) => $center->where('type', $centerType))))
             ->when($request->user()?->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $request->user()->training_center_id))
             ->with(['teachingAssignments.trainer:id,name', 'center:id,name,type,is_active,is_demo,address'])
             ->when($request->user()?->hasRole(Role::Youth), fn ($query) => $query->with(['sessions' => fn ($sessions) => $sessions
@@ -80,30 +91,31 @@ class TesdaCatalogController extends Controller
         $careerSeekerProviders = collect();
         if ($request->user()?->hasRole(Role::Youth)) {
             $careerSeekerPrograms = $programs
-                ->filter(fn (TrainingProgram $program): bool => $program->center
-                    && in_array($program->center->type, ['PTC', 'PSAT'], true)
-                    && $program->center->is_active
-                    && ! $program->center->is_demo
-                    && ! $program->is_demo)
+                ->filter(fn (TrainingProgram $program): bool => $program->center !== null)
                 ->values();
             $careerSeekerProgramGroups = $careerSeekerPrograms
-                ->groupBy(fn (TrainingProgram $program): string => $program->center->name)
-                ->sortBy(fn ($schoolPrograms): int => $schoolPrograms->first()->center->type === 'PTC' ? 0 : 1);
+                ->groupBy(fn (TrainingProgram $program): int => $program->center->id)
+                ->sortBy(fn ($schoolPrograms): array => [
+                    ['PTC' => 0, 'PSAT' => 1, 'PRIVATE' => 2][$schoolPrograms->first()->center->type] ?? 3,
+                    mb_strtolower($schoolPrograms->first()->center->name),
+                ]);
 
-            $otherRegisteredDirectory = $registeredCatalog->otherRegisteredProviders();
-            $careerSeekerProviders = collect($otherRegisteredDirectory['records'])
-                ->groupBy(fn (array $record): string => mb_strtolower($record['provider'].'|'.$record['address']))
-                ->map(fn ($records): array => [
-                    'provider' => $records->first()['provider'],
-                    'address' => $records->first()['address'] ?: 'Not available',
-                    'phones' => $records->pluck('phone')->filter()->unique()->values(),
-                    'programs' => $records->pluck('program')->filter()->unique()->sort()->values(),
-                ])
-                ->sortBy(fn (array $provider): array => [
-                    str_contains(mb_strtolower($provider['provider']), 'edson') ? 0 : (str_contains(mb_strtolower($provider['provider']), 'ledesma') ? 1 : 2),
-                    mb_strtolower($provider['provider']),
-                ])
-                ->values();
+            if ($centerType === null || $centerType === 'PRIVATE') {
+                $otherRegisteredDirectory = $registeredCatalog->otherRegisteredProviders();
+                $careerSeekerProviders = collect($otherRegisteredDirectory['records'])
+                    ->groupBy(fn (array $record): string => mb_strtolower($record['provider'].'|'.$record['address']))
+                    ->map(fn ($records): array => [
+                        'provider' => $records->first()['provider'],
+                        'address' => $records->first()['address'] ?: 'Not available',
+                        'phones' => $records->pluck('phone')->filter()->unique()->values(),
+                        'programs' => $records->pluck('program')->filter()->unique()->sort()->values(),
+                    ])
+                    ->sortBy(fn (array $provider): array => [
+                        str_contains(mb_strtolower($provider['provider']), 'edson') ? 0 : (str_contains(mb_strtolower($provider['provider']), 'ledesma') ? 1 : 2),
+                        mb_strtolower($provider['provider']),
+                    ])
+                    ->values();
+            }
         }
 
         $data = [
@@ -112,6 +124,7 @@ class TesdaCatalogController extends Controller
             'providerCount' => $providerGroups->count(),
             'careerSeekerPrograms' => $careerSeekerPrograms,
             'careerSeekerProgramGroups' => $careerSeekerProgramGroups,
+            'careerSeekerCenterType' => $centerType,
             'careerSeekerProviders' => $careerSeekerProviders,
             'careerSeekerProviderCount' => $careerSeekerProviders->count(),
             'registeredProgramCount' => count($registeredDirectory['records']),

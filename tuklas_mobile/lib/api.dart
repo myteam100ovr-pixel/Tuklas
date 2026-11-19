@@ -321,9 +321,10 @@ class ApiClient {
     int page = 1,
     int registeredPage = 1,
     bool careerSeeker = false,
+    String? centerType,
   }) => _send(
     'GET',
-    '/tesda?page=$page&registered_page=$registeredPage&career_seeker=${careerSeeker ? 1 : 0}',
+    '/tesda?page=$page&registered_page=$registeredPage&career_seeker=${careerSeeker ? 1 : 0}${centerType == null ? '' : '&center_type=${Uri.encodeQueryComponent(centerType)}'}',
     auth: false,
     optionalAuth: true,
   );

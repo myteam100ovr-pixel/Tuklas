@@ -3,9 +3,9 @@
         <p class="tesda-eyebrow">LEARN. QUALIFY. MOVE FORWARD.</p>
         <h1 id="tesda-title">Build skills.<br>Open new possibilities.</h1>
         @if (auth()->user()?->hasRole(\App\Enums\Role::Youth))
-            <p>Compare courses listed by PTC and PSAT, see the training duration, and find other registered providers if the public schools have no open intake.</p>
-            <div class="tesda-directory-actions"><a class="btn btn-violet" href="#career-seeker-ptc-psat">Browse PTC and PSAT courses <span aria-hidden="true">↗</span></a><a href="#career-seeker-other-providers">Other training providers →</a></div>
-            <div class="tesda-directory-summary"><span><strong>{{ $careerSeekerPrograms->count() }}</strong>PTC and PSAT course listings</span><span><strong>{{ $careerSeekerProviderCount }}</strong>Other registered providers</span><span><strong>Confirm first</strong>Ask about current dates and seats</span></div>
+            <p>Compare courses from PTC, PSAT, and private training centers, review listed training durations, and check upcoming schedules before requesting a place.</p>
+            <div class="tesda-directory-actions"><a class="btn btn-violet" href="#career-seeker-ptc-psat">Browse training courses <span aria-hidden="true">↗</span></a>@if ($careerSeekerCenterType === null || $careerSeekerCenterType === 'PRIVATE')<a href="#career-seeker-other-providers">Private training providers →</a>@endif</div>
+            <div class="tesda-directory-summary"><span><strong>{{ $careerSeekerPrograms->count() }}</strong>Published course listings</span><span><strong>{{ $careerSeekerProviderCount }}</strong>Registered private providers</span><span><strong>Check schedules</strong>Ask about current dates and seats</span></div>
         @else
             <p>Explore the official NC I–IV qualification catalog, find registered providers, and browse locally published training programs.</p>
             <div class="tesda-directory-actions"><a class="btn btn-violet" href="#nc-offerings">Find your qualification <span aria-hidden="true">↗</span></a><a href="#local-programs">Explore local training →</a></div>
