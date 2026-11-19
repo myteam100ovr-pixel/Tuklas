@@ -48,6 +48,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
     'role:admin,tesda_admin,youth',
+    EnsureSkillsAssessmentCompleted::class,
 ])->group(function () {
     Route::get('/dashboard', function (Request $request): RedirectResponse {
         $user = $request->user();

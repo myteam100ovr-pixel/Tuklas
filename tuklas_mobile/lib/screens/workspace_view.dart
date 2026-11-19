@@ -11,8 +11,15 @@ import 'operations_view.dart';
 
 /// Role-specific workspace backed by the same actions as the website.
 class WorkspaceView extends StatefulWidget {
-  const WorkspaceView({super.key, required this.section});
+  const WorkspaceView({
+    super.key,
+    required this.section,
+    this.onAssessmentCompleted,
+    this.onLogout,
+  });
   final String section;
+  final VoidCallback? onAssessmentCompleted;
+  final VoidCallback? onLogout;
   @override
   State<WorkspaceView> createState() => _WorkspaceViewState();
 }
@@ -146,6 +153,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         SnackBar(content: Text('${result['message'] ?? 'Saved.'}')),
       );
       await _load();
+      if (path == '/assessment' && result['starter_recommendations'] is Map) {
+        widget.onAssessmentCompleted?.call();
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -834,6 +844,12 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           icon: const Icon(Icons.refresh),
           tooltip: 'Refresh',
         ),
+        if (widget.onLogout != null)
+          IconButton(
+            onPressed: widget.onLogout,
+            icon: const Icon(Icons.logout_outlined),
+            tooltip: 'Log out',
+          ),
       ],
     ),
     body: _data == null && _busy

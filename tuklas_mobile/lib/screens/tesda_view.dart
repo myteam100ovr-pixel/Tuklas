@@ -16,6 +16,7 @@ class TesdaView extends StatefulWidget {
 class _TesdaViewState extends State<TesdaView> {
   int _page = 1;
   int _registeredPage = 1;
+  final Set<int> _applyingSessionIds = {};
   late Future<Map<String, dynamic>> _catalog;
 
   bool get _isCareerSeeker => ApiClient.instance.user?['role'] == 'youth';
@@ -36,6 +37,28 @@ class _TesdaViewState extends State<TesdaView> {
         careerSeeker: _isCareerSeeker,
       );
     });
+  }
+
+  Future<void> _requestTrainingPlace(int sessionId) async {
+    if (_applyingSessionIds.contains(sessionId)) return;
+    setState(() => _applyingSessionIds.add(sessionId));
+    try {
+      final result = await ApiClient.instance.workspace(
+        '/training-sessions/$sessionId/apply',
+        method: 'POST',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${result['message'] ?? 'Request submitted.'}')),
+      );
+      _loadPage(_page);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _applyingSessionIds.remove(sessionId));
+    }
   }
 
   Future<void> _openResource(String rawUrl) async {
@@ -442,7 +465,7 @@ class _TesdaViewState extends State<TesdaView> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'See the courses and training days listed by each public school. Course listings do not confirm that enrollment is currently open.',
+                  'Choose a course with an upcoming schedule and request a place. PESO and TESDA set the maximum places; accepted requests use those places.',
                   style: tkText(
                     context,
                     size: 14,
@@ -646,6 +669,7 @@ class _TesdaViewState extends State<TesdaView> {
         : program['duration_hours'] != null
         ? '${program['duration_hours']} training hours'
         : 'Training duration not listed in the school schedule';
+    final sessions = asList(program['sessions']).map(asMap).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9),
@@ -661,6 +685,96 @@ class _TesdaViewState extends State<TesdaView> {
             duration,
             style: tkText(context, size: 12, color: colors.muted, height: 1.4),
           ),
+          const SizedBox(height: 8),
+          if (sessions.isEmpty)
+            Text(
+              'No upcoming intake is listed. Check the other TESDA-registered providers below.',
+              style: tkText(
+                context,
+                size: 12,
+                color: colors.muted,
+                height: 1.4,
+              ),
+            )
+          else
+            for (final session in sessions) ...[
+              const SizedBox(height: 6),
+              _careerSeekerSessionOption(context, session),
+            ],
+        ],
+      ),
+    );
+  }
+
+  Widget _careerSeekerSessionOption(
+    BuildContext context,
+    Map<String, dynamic> session,
+  ) {
+    final colors = TkColors.of(context);
+    final sessionId = int.tryParse('${session['id']}');
+    final capacity = int.tryParse('${session['capacity']}') ?? 0;
+    final accepted = int.tryParse('${session['accepted_count']}') ?? 0;
+    final placesLeft = (capacity - accepted).clamp(0, capacity);
+    final applicationStatus = '${session['application_status'] ?? ''}';
+    final isAlreadyApplied =
+        applicationStatus == 'pending' || applicationStatus == 'accepted';
+    final isApplying =
+        sessionId != null && _applyingSessionIds.contains(sessionId);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: colors.surface2,
+        border: Border.all(color: colors.line),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${formatTuklasDate(session['starts_at'], includeTime: true)} · $placesLeft of $capacity places available',
+            style: tkText(
+              context,
+              size: 11.5,
+              color: colors.muted,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 6),
+          if (isAlreadyApplied)
+            Text(
+              'Request ${applicationStatus[0].toUpperCase()}${applicationStatus.substring(1)}',
+              style: tkText(
+                context,
+                size: 12,
+                weight: 600,
+                color: TkColors.violet,
+              ),
+            )
+          else if (placesLeft == 0)
+            Text(
+              'Fully occupied · Check the other providers below.',
+              style: tkText(
+                context,
+                size: 12,
+                weight: 600,
+                color: colors.muted,
+              ),
+            )
+          else
+            OutlinedButton.icon(
+              onPressed: sessionId == null || isApplying
+                  ? null
+                  : () => _requestTrainingPlace(sessionId),
+              icon: isApplying
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.send_outlined, size: 16),
+              label: Text(isApplying ? 'Sending request…' : 'Request a place'),
+            ),
         ],
       ),
     );

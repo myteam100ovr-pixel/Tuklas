@@ -31,6 +31,14 @@ class TesdaCatalogController extends Controller
         $programs = TrainingProgram::published()
             ->when($request->user()?->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $request->user()->training_center_id))
             ->with(['teachingAssignments.trainer:id,name', 'center:id,name,type,is_active,is_demo,address'])
+            ->when($request->user()?->hasRole(Role::Youth), fn ($query) => $query->with(['sessions' => fn ($sessions) => $sessions
+                ->where('status', 'open')
+                ->where('starts_at', '>', now())
+                ->where('is_demo', false)
+                ->withCount(['applications as accepted_count' => fn ($applications) => $applications->where('status', 'accepted')])
+                ->with(['applications' => fn ($applications) => $applications
+                    ->where('user_id', $request->user()->id)
+                    ->latest('id')])]))
             ->orderBy('title')
             ->get(['id', 'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'training_center_id', 'schedule_note', 'last_verified_at', 'is_demo']);
         $levelOrder = ['NC I' => 0, 'NC II' => 1, 'NC III' => 2, 'NC IV' => 3, 'Other / Not specified' => 4];

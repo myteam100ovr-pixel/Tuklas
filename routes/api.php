@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware(['auth:sanctum', 'role:admin,tesda_admin,youth']);
+})->middleware(['auth:sanctum', 'role:admin,tesda_admin,youth', EnsureSkillsAssessmentCompleted::class]);
 
 Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/legal/{document}', function (string $document) {
@@ -55,7 +55,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/tesda', [MobileCatalogController::class, 'index'])->name('tesda.index');
     Route::get('/patch-notes', [PatchNotesController::class, 'index'])->name('patch-notes.index');
 
-    Route::middleware(['auth:sanctum', 'role:admin,tesda_admin,youth'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin,tesda_admin,youth', EnsureSkillsAssessmentCompleted::class])->group(function () {
         Route::get('/realtime', [DirectMessageController::class, 'mobileRealtime'])
             ->middleware('verified')->name('realtime.config');
         Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])->name('broadcasting.mobile-auth');

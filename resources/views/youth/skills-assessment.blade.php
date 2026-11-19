@@ -7,6 +7,7 @@
     @endphp
     <div class="assessment-page">
         <x-workspace-heading eyebrow="YOUR DIRECTION · YOUR CHOICE" title="Skills self-assessment" description="Start with what you enjoy, what you have tried, and where you want to go. Build a learning plan that fits your life." />
+        @if ($assessmentRequired)<p class="assessment-required-banner" role="status">This is your first step. Save the assessment to unlock your Career Seeker workspace, including jobs, courses, messages, and personalized recommendations.</p>@endif
         <div class="assessment-intro">
             <div><span class="assessment-kicker">A LITTLE REFLECTION. A CLEARER NEXT STEP.</span><h2>Your experience is only the starting point.</h2><p>You can begin without a resume or NC certificate. Your interests help choose a direction, and skills you have practiced can support those preferences.</p></div>
             <div class="assessment-intro-meta"><strong>5 areas to explore</strong><span>About 5–8 minutes</span><span>Update your answers anytime</span></div>

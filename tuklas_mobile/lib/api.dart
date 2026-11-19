@@ -136,14 +136,15 @@ class ApiClient {
     String path, {
     Map<String, dynamic>? body,
     bool auth = true,
+    bool optionalAuth = false,
   }) async {
     if (method.toUpperCase() != 'GET') {
       lastWriteAt = DateTime.now();
     }
     String? bearer;
-    if (auth) {
+    if (auth || optionalAuth) {
       bearer = await token;
-      if (bearer == null) throw ApiException('Please sign in.');
+      if (auth && bearer == null) throw ApiException('Please sign in.');
     }
 
     final uri = _apiUri(path);
@@ -324,6 +325,7 @@ class ApiClient {
     'GET',
     '/tesda?page=$page&registered_page=$registeredPage&career_seeker=${careerSeeker ? 1 : 0}',
     auth: false,
+    optionalAuth: true,
   );
 
   Future<List<dynamic>> documentScans() async {

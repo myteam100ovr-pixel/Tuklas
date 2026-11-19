@@ -186,7 +186,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                               return 'Enter at least ${f.minLength} characters.';
                             }
                             if (f.passwordStrength &&
-                                (_passwordStrength(currentValue) < 2 ||
+                                (_passwordStrength(currentValue) < 1 ||
                                     currentValue.length > 72)) {
                               return 'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.';
                             }
@@ -203,6 +203,22 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                           _passwordStrengthIndicator(
                             context,
                             _passwordStrength(_inputs[f.name]!.text),
+                          ),
+                        ],
+                        if (f.passwordConfirmation &&
+                            _inputs[f.name]!.text.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            _inputs[f.name]!.text == _inputs['password']?.text
+                                ? 'Passwords match.'
+                                : 'Passwords do not match.',
+                            style: TextStyle(
+                              color:
+                                  _inputs[f.name]!.text ==
+                                      _inputs['password']?.text
+                                  ? Colors.green.shade700
+                                  : Theme.of(context).colorScheme.error,
+                            ),
                           ),
                         ],
                       ],
@@ -246,18 +262,16 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
   );
 
   Widget _passwordStrengthIndicator(BuildContext context, int strength) {
-    const labels = ['Bad', 'Moderate', 'Good', 'Secure'];
+    const labels = ['Weak', 'Okay', 'Strong'];
     const messages = [
-      'Too weak. Change it before creating the account.',
-      'Almost there. Meet all password requirements.',
-      'Good. It meets the account password requirements.',
-      'Secure. This password is ready to use.',
+      'Weak. Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
+      'Okay. It meets the password requirements.',
+      'Strong. This password meets the requirements with extra length.',
     ];
     final colors = [
       Theme.of(context).colorScheme.error,
       Colors.orange.shade800,
       Colors.green.shade700,
-      Theme.of(context).colorScheme.primary,
     ];
 
     return Column(
@@ -278,7 +292,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
         ),
         const SizedBox(height: 5),
         LinearProgressIndicator(
-          value: (strength + 1) / 4,
+          value: (strength + 1) / 3,
           color: colors[strength],
         ),
         const SizedBox(height: 5),
@@ -295,28 +309,16 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
     final hasUppercase = RegExp(r'[A-Z]').hasMatch(value);
     final hasNumber = RegExp(r'[0-9]').hasMatch(value);
     final hasSymbol = RegExp(r'[^a-zA-Z0-9]').hasMatch(value);
-    final characterTypes = [
-      hasLowercase,
-      hasUppercase,
-      hasNumber,
-      hasSymbol,
-    ].where((hasType) => hasType).length;
-
-    if (value.length < 8 ||
-        value.length > 72 ||
-        characterTypes < 2 ||
-        RegExp(r'^(.)\1+$').hasMatch(value)) {
-      return 0;
-    }
     if (value.length < 12 ||
+        value.length > 72 ||
         !hasLowercase ||
         !hasUppercase ||
         !hasNumber ||
         !hasSymbol) {
-      return 1;
+      return 0;
     }
 
-    return value.length >= 16 ? 3 : 2;
+    return value.length >= 16 ? 2 : 1;
   }
 }
 

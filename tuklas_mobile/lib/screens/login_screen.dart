@@ -119,6 +119,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (_loading) return;
+    if (_registering && _passwordStrength(_password.text) == 0) {
+      setState(
+        () => _error = 'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
+      );
+      return;
+    }
+    if (_registering && _password.text != _passwordConfirmation.text) {
+      setState(() => _error = 'Passwords do not match.');
+      return;
+    }
     if (_registering && !_acceptedTerms) {
       setState(
         () => _error = 'Please accept the Terms of use and Privacy notice.',
@@ -194,6 +204,63 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  int _passwordStrength(String value) {
+    if (value.length < 12 ||
+        value.length > 72 ||
+        !RegExp(r'[a-z]').hasMatch(value) ||
+        !RegExp(r'[A-Z]').hasMatch(value) ||
+        !RegExp(r'[0-9]').hasMatch(value) ||
+        !RegExp(r'[^a-zA-Z0-9]').hasMatch(value)) {
+      return 0;
+    }
+
+    return value.length >= 16 ? 2 : 1;
+  }
+
+  Widget _passwordStrengthFeedback(BuildContext context) {
+    final strength = _passwordStrength(_password.text);
+    const labels = ['Weak', 'Okay', 'Strong'];
+    const messages = [
+      'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
+      'Okay. It meets the password requirements.',
+      'Strong. This password meets the requirements with extra length.',
+    ];
+    final colors = [
+      Theme.of(context).colorScheme.error,
+      Colors.orange.shade800,
+      Colors.green.shade700,
+    ];
+
+    return Semantics(
+      liveRegion: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Password strength'),
+              Text(
+                labels[strength],
+                style: TextStyle(
+                  color: colors[strength],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          LinearProgressIndicator(
+            value: (strength + 1) / 3,
+            color: colors[strength],
+          ),
+          const SizedBox(height: 5),
+          Text(messages[strength]),
+        ],
+      ),
+    );
   }
 
   void _setRegistering(bool registering) {
@@ -434,6 +501,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               obscureText: !_showPassword,
                               enableSuggestions: false,
                               autocorrect: false,
+                              onChanged: _registering
+                                  ? (_) => setState(() {})
+                                  : null,
                               decoration: InputDecoration(
                                 hintText: _registering
                                     ? 'Use 1 special character, e.g. @'
@@ -456,11 +526,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: tkText(context, size: 14.5),
                             ),
                             if (_registering) ...[
+                              const SizedBox(height: 8),
+                              _passwordStrengthFeedback(context),
+                            ],
+                            if (_registering) ...[
                               const SizedBox(height: 16),
                               _label(context, 'Confirm password'),
                               TextField(
                                 controller: _passwordConfirmation,
                                 obscureText: !_showPasswordConfirmation,
+                                onChanged: (_) => setState(() {}),
                                 decoration: InputDecoration(
                                   suffixIcon: IconButton(
                                     tooltip: _showPasswordConfirmation
@@ -482,6 +557,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                                 style: tkText(context, size: 14.5),
                               ),
+                              if (_passwordConfirmation.text.isNotEmpty) ...[
+                                const SizedBox(height: 6),
+                                Text(
+                                  _passwordConfirmation.text == _password.text
+                                      ? 'Passwords match.'
+                                      : 'Passwords do not match.',
+                                  style: TextStyle(
+                                    color:
+                                        _passwordConfirmation.text ==
+                                            _password.text
+                                        ? Colors.green.shade700
+                                        : Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                              ],
                             ],
                             if (_needsCode) ...[
                               const SizedBox(height: 16),

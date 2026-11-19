@@ -101,6 +101,8 @@ class NavComposer
             return;
         }
 
+        $assessmentRequired = $user->role->value === 'youth'
+            && ! $user->youthProfile?->hasCompletedSkillsAssessment();
         $isAdmin = $user->role->value === 'admin';
         $roleGroups = self::ROLE_GROUPS[$user->role->value] ?? null;
         $isGroupedWorkspace = $isAdmin || $roleGroups !== null;
@@ -148,7 +150,8 @@ class NavComposer
             'adminPageTabs' => $adminPageTabs,
             'isAdminWorkspace' => $isAdmin,
             'isGroupedWorkspace' => $isGroupedWorkspace,
-            'showFloatingChatButton' => in_array($user->role->value, ['tesda_admin', 'youth'], true),
+            'showFloatingChatButton' => ! $assessmentRequired && in_array($user->role->value, ['tesda_admin', 'youth'], true),
+            'assessmentRequired' => $assessmentRequired,
             'navCurrentLabel' => $currentTab['label'] ?? (request()->routeIs('tuklasbot.index') ? 'TuklasBot' : null),
             'unreadNotificationCount' => $user->unreadNotifications()->count(),
             'navUser' => [

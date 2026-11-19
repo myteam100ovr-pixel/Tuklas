@@ -28,6 +28,8 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   bool _checkingVerification = false;
+  bool _checkingAssessment = false;
+  bool _assessmentRequired = false;
   String? _verificationMessage;
   int _tab = 0;
   String? _activeGroupItem;
@@ -44,6 +46,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     WorkspaceRealtime.instance.revision.addListener(_onWorkspaceChanged);
     if (ApiClient.instance.user?['email_verified'] != false) {
       unawaited(WorkspaceRealtime.instance.connect());
+    }
+    if (_role == 'youth' &&
+        ApiClient.instance.user?['email_verified'] != false) {
+      _checkingAssessment = true;
+      _assessmentRequired = true;
+      unawaited(_checkSkillsAssessment());
     }
     _loadUnreadNotifications();
     _notificationTimer = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -106,6 +114,20 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       // Keep the latest known count until the connection recovers.
     } finally {
       _checkingNotifications = false;
+    }
+  }
+
+  Future<void> _checkSkillsAssessment() async {
+    try {
+      final result = await ApiClient.instance.workspace('/assessment');
+      if (mounted) {
+        setState(() {
+          _assessmentRequired = result['assessmentComplete'] != true;
+          _checkingAssessment = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _checkingAssessment = false);
     }
   }
 
@@ -414,6 +436,20 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
               ),
             ),
           ),
+        ),
+      );
+    }
+    if (_checkingAssessment) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_assessmentRequired) {
+      return WorkspaceRefreshScope(
+        child: WorkspaceView(
+          section: 'Skills assessment',
+          onAssessmentCompleted: () {
+            if (mounted) setState(() => _assessmentRequired = false);
+          },
+          onLogout: _logout,
         ),
       );
     }

@@ -12,6 +12,20 @@
 @import '@fontsource/dm-sans/600.css';
 @import './tesda-directory.css';
 
+.users-form__strength[data-strength="empty"] .users-form__strength-heading strong { color:var(--muted); }
+.users-form__strength[data-strength="empty"] .users-form__strength-track span { width:0; }
+.users-form__strength[data-strength="weak"] .users-form__strength-heading strong { color:#b42318; }
+.users-form__strength[data-strength="weak"] .users-form__strength-track span { width:25%; background:#b42318; }
+.users-form__strength[data-strength="okay"] .users-form__strength-heading strong { color:#b54708; }
+.users-form__strength[data-strength="okay"] .users-form__strength-track span { width:66%; background:#b54708; }
+.users-form__strength[data-strength="strong"] .users-form__strength-heading strong { color:#15803d; }
+.users-form__strength[data-strength="strong"] .users-form__strength-track span { width:100%; background:#15803d; }
+.users-form__confirmation-error { display:block; margin-top:.35rem; color:#b42318; font-size:.74rem; }
+.users-form__confirmation-match { display:block; margin-top:.35rem; color:#15803d; font-size:.74rem; }
+.auth-password-group { display:grid; gap:.65rem; min-width:0; }
+body.tk-workspace--assessment { padding-left:0 !important; }
+.assessment-required-banner { margin:0 0 1rem; padding:.85rem 1rem; border:1px solid color-mix(in srgb,var(--violet) 28%,var(--line)); border-radius:.85rem; color:var(--ink); background:color-mix(in srgb,var(--violet) 7%,var(--surface)); font-size:.88rem; line-height:1.55; }
+
 body[data-navigation-loading]::before { content:''; position:fixed; inset:0; z-index:10000; background:var(--surface, #fff); opacity:.96; }
 body[data-navigation-loading]::after { content:attr(data-navigation-loading); position:fixed; top:50%; left:50%; z-index:10001; transform:translate(-50%,-50%); padding:1rem 1.25rem; border:1px solid var(--line, #ddd); border-radius:.75rem; color:var(--ink, #111); background:var(--surface-2, #fff); font:600 1rem/1.4 system-ui,sans-serif; text-align:center; }
 

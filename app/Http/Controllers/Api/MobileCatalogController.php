@@ -7,18 +7,28 @@ use App\Models\TrainingProgram;
 use App\Services\TesdaRegisteredProgramCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MobileCatalogController extends Controller
 {
     public function index(Request $request, TesdaRegisteredProgramCatalog $registeredCatalog): JsonResponse
     {
         $careerSeekerCatalog = $request->boolean('career_seeker');
+        $catalogUser = $request->user() ?? Auth::guard('sanctum')->user();
         $programQuery = TrainingProgram::published()
             ->with($careerSeekerCatalog ? 'center:id,name,type,address,is_active,is_demo' : 'center:id,name');
 
         if ($careerSeekerCatalog) {
             $programQuery
                 ->where('is_demo', false)
+                ->with(['sessions' => fn ($sessions) => $sessions
+                    ->where('status', 'open')
+                    ->where('starts_at', '>', now())
+                    ->where('is_demo', false)
+                    ->withCount(['applications as accepted_count' => fn ($applications) => $applications->where('status', 'accepted')])
+                    ->with(['applications' => fn ($applications) => $applications
+                        ->where('user_id', $catalogUser?->id ?? 0)
+                        ->latest('id')])])
                 ->whereHas('center', fn ($query) => $query
                     ->whereIn('type', ['PTC', 'PSAT'])
                     ->where('is_active', true)
@@ -50,6 +60,15 @@ class MobileCatalogController extends Controller
                 'schedule_note' => $program->schedule_note,
                 'last_verified_at' => $program->last_verified_at?->toDateString(),
                 'is_demo' => $program->is_demo,
+                ...($careerSeekerCatalog ? ['sessions' => $program->sessions->map(fn ($session): array => [
+                    'id' => $session->id,
+                    'starts_at' => $session->starts_at?->toIso8601String(),
+                    'ends_at' => $session->ends_at?->toIso8601String(),
+                    'capacity' => $session->capacity,
+                    'accepted_count' => $session->accepted_count,
+                    'available_places' => max(0, $session->capacity - $session->accepted_count),
+                    'application_status' => $session->applications->first()?->status,
+                ])->values()->all()] : []),
             ])->all(),
             'pagination' => [
                 'current_page' => $programs->currentPage(),

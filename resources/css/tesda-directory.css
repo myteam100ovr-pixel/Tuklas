@@ -29,6 +29,12 @@
 .tesda-provider-card details { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
 .tesda-provider-card summary { color:var(--violet); cursor:pointer; font-size:.82rem; font-weight:600; }
 .tesda-provider-card ul { display:grid; gap:7px; margin:12px 0 0; padding-left:20px; color:var(--ink); font-size:.8rem; line-height:1.55; }
+.tesda-course-choice { padding:8px 0; }
+.tesda-course-session { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 14px; margin:10px 0 0; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--muted); font-size:.76rem; }
+.tesda-course-session form { margin:0; }
+.tesda-course-session button { min-height:38px; padding:8px 13px; border:0; border-radius:9px; background:var(--violet); color:#fff; font:inherit; font-weight:600; cursor:pointer; }
+.tesda-course-session button:hover { filter:brightness(1.08); }
+.tesda-session-status { color:var(--violet); font-weight:600; }
 .tesda-provider-source { margin-top:24px; color:var(--muted); font-size:.75rem; }
 .tesda-directory .qualification-catalog { margin:0; padding:40px 0; border:0; border-radius:0; background:transparent; }
 .tesda-directory .qualification-heading h2 { font-size:clamp(1.8rem,3vw,2.6rem); }

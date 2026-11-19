@@ -61,26 +61,35 @@
                 </div>
             </div>
 
-            <div class="auth-field">
-                <x-label for="password" value="{{ __('Password') }}" class="auth-label" />
-                <div class="auth-password-field">
-                    <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="new-password" aria-describedby="password-policy" placeholder="Use 1 special character, e.g. @" />
-                    <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password" aria-label="Show password" aria-pressed="false" title="Show password">
-                        <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
-                        <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
-                    </button>
+            <div class="auth-password-group" data-password-strength-form>
+                <div class="auth-field">
+                    <x-label for="password" value="{{ __('Password') }}" class="auth-label" />
+                    <div class="auth-password-field">
+                        <x-input id="password" class="auth-input" type="password" name="password" required maxlength="72" autocomplete="new-password" aria-describedby="password-policy" placeholder="Use 12+ characters and 1 special character" data-password-strength-input />
+                        <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password" aria-label="Show password" aria-pressed="false" title="Show password">
+                            <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
+                            <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
+                        </button>
+                    </div>
+                    <p id="password-policy" class="auth-field-help">Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.</p>
                 </div>
-                <p id="password-policy" class="auth-field-help">Use at least 1 special character, such as @, !, or #.</p>
-            </div>
 
-            <div class="auth-field">
-                <x-label for="password_confirmation" value="{{ __('Confirm password') }}" class="auth-label" />
-                <div class="auth-password-field">
-                    <x-input id="password_confirmation" class="auth-input" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Enter it again" />
-                    <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password_confirmation" aria-label="Show password" aria-pressed="false" title="Show password">
-                        <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
-                        <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
-                    </button>
+                <div class="auth-field">
+                    <x-label for="password_confirmation" value="{{ __('Confirm password') }}" class="auth-label" />
+                    <div class="auth-password-field">
+                        <x-input id="password_confirmation" class="auth-input" type="password" name="password_confirmation" required maxlength="72" autocomplete="new-password" placeholder="Enter it again" data-password-confirmation />
+                        <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password_confirmation" aria-label="Show password" aria-pressed="false" title="Show password">
+                            <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
+                            <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
+                        </button>
+                    </div>
+                    <small class="users-form__confirmation-error" data-password-confirmation-message hidden>Passwords do not match.</small>
+                </div>
+
+                <div class="users-form__strength" data-password-strength-meter data-strength="weak" aria-live="polite">
+                    <div class="users-form__strength-heading"><span>Password strength</span><strong data-password-strength-label>Weak</strong></div>
+                    <div class="users-form__strength-track" aria-hidden="true"><span></span></div>
+                    <p data-password-strength-message>Enter a password to check its strength.</p>
                 </div>
             </div>
 
@@ -89,7 +98,7 @@
                 <label for="terms">I agree to the <a href="{{ route('terms.show') }}" data-legal-open="terms">Terms of use</a> and acknowledge the <a href="{{ route('policy.show') }}" data-legal-open="privacy">Privacy notice</a>.</label>
             </div>
 
-            <button class="auth-submit" type="submit">{{ __('Create account') }} <span aria-hidden="true">→</span></button>
+            <button class="auth-submit" type="submit" data-password-submit>{{ __('Create account') }} <span aria-hidden="true">→</span></button>
         </form>
 
     </x-auth-shell>

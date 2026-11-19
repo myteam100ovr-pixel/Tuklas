@@ -12,11 +12,12 @@
     @endif
     @livewireStyles
 </head>
-<body class="tk-body tk-workspace" data-workspace-user="{{ auth()->id() }}">
+<body class="tk-body tk-workspace {{ $assessmentRequired ? 'tk-workspace--assessment' : '' }}" data-workspace-user="{{ auth()->id() }}">
     @include('partials.sprite')
     <div class="sr-only" id="tk-navigation-status" role="status" aria-live="polite" hidden></div>
 
     <a class="tk-skip" href="#main-content">Skip to content</a>
+    @unless ($assessmentRequired)
     <aside class="tk-sidebar {{ $isGroupedWorkspace ? 'tk-sidebar--admin' : '' }}">
         <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home"><span class="tk-brand-symbol" aria-hidden="true">t</span>tuklas<span class="tk-brand-dot">.</span></a>
         <p class="tk-nav-caption">WORKSPACE</p>
@@ -42,6 +43,7 @@
             <div class="tk-sidebar-role"><span class="tk-status-dot" aria-hidden="true"></span>{{ $navUser['role'] }}</div>
         @endunless
     </aside>
+    @endunless
 
     <header class="tk-head">
         <div class="tk-context"><span>Workspace</span><span aria-hidden="true">/</span><strong>{{ $navCurrentLabel ?? 'Workspace' }}</strong></div>
@@ -51,6 +53,15 @@
                 <span class="tk-account-name">{{ $navUser['name'] }}</span>
                 <span class="tk-account-role">{{ $navUser['role'] }}</span>
             </div>
+            @if ($assessmentRequired)
+                <button type="button" class="tk-ibtn" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
+                    <svg class="ic ic-sun"><use href="#i-sun"/></svg><svg class="ic ic-moon"><use href="#i-moon"/></svg>
+                </button>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="tk-ibtn" type="submit" aria-label="Log out" title="Log out"><svg class="ic"><use href="#i-logout"/></svg></button>
+                </form>
+            @else
             <a class="tk-ibtn tk-notification-link" href="{{ route('notifications.index') }}" data-notifications-url="{{ route('notifications.index') }}" aria-label="Notifications{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.' unread)' : '' }}" title="Notifications">
                 <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>
                 @if ($unreadNotificationCount)<span class="tk-notification-count">{{ $unreadNotificationCount }}</span>@endif
@@ -96,11 +107,12 @@
                     </div>
                 </div>
             @endif
+            @endif
         </div>
     </header>
 
     <main class="tk-main" id="main-content" tabindex="-1">
-        @if ($isGroupedWorkspace && $adminPageTabs)
+        @if (!$assessmentRequired && $isGroupedWorkspace && $adminPageTabs)
             <nav class="tk-admin-page-tabs" aria-label="{{ $navCurrentLabel }} pages">
                 @foreach ($adminPageTabs as $tab)
                     <a class="tk-admin-page-tab {{ $tab['active'] ? 'is-active' : '' }}" href="{{ $tab['href'] }}" @if ($tab['active']) aria-current="page" @endif>{{ $tab['label'] }}</a>
@@ -110,7 +122,7 @@
         {{ $slot }}
     </main>
 
-    @if ($isAdminWorkspace || $showFloatingChatButton)
+    @if (!$assessmentRequired && ($isAdminWorkspace || $showFloatingChatButton))
         <a class="tk-admin-chat-button" href="{{ route('tuklasbot.index') }}" aria-label="Open TuklasBot chat">
             <svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Ask TuklasBot</span>
         </a>

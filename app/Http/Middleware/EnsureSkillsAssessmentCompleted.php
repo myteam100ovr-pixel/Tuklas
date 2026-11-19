@@ -17,18 +17,28 @@ class EnsureSkillsAssessmentCompleted
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
+        $assessmentRoutes = [
+            'youth.assessment.index',
+            'youth.assessment.store',
+            'mobile.assessment.index',
+            'mobile.assessment.store',
+            'mobile.me',
+            'mobile.auth.token.destroy',
+        ];
 
-        if ($user?->hasRole(Role::Youth) && ! $user->youthProfile?->hasCompletedSkillsAssessment()) {
+        if ($user?->hasRole(Role::Youth)
+            && ! $user->youthProfile?->hasCompletedSkillsAssessment()
+            && ! $request->routeIs(...$assessmentRoutes)) {
             if ($request->expectsJson() || $request->routeIs('mobile.*')) {
                 return response()->json([
                     'code' => 'skills_assessment_required',
-                    'message' => 'Complete your skills assessment to unlock personalized AI guidance.',
+                    'message' => 'Complete your skills assessment before using the workspace. Your answers unlock jobs, training, and personalized guidance.',
                     'assessment_url' => route('mobile.assessment.index'),
                 ], 403);
             }
 
             return redirect()->route('youth.assessment.index')
-                ->with('status', 'Complete your skills assessment to unlock personalized AI guidance.');
+                ->with('status', 'Complete your skills assessment first. Your answers unlock the workspace, jobs, training, and personalized guidance.');
         }
 
         return $next($request);

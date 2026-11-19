@@ -6,7 +6,7 @@
         </div>
         <span class="tesda-count">{{ $careerSeekerPrograms->count() }} listings</span>
     </div>
-    <p class="tesda-note">Course titles and training days below come from the schedule provided for these schools. A listing does not confirm an open intake or available seats. Contact the school to confirm current dates and enrollment.</p>
+    <p class="tesda-note">Choose a course with an upcoming schedule and request a place. PESO and TESDA manage each session’s place limit; pending requests still need the school’s review. When every place is accepted, check the TESDA-registered private providers below.</p>
 
     @if ($careerSeekerProgramGroups->isEmpty())
         <div class="tesda-empty">
@@ -28,7 +28,29 @@
                     </header>
                     <ul>
                         @foreach ($schoolPrograms as $program)
-                            <li><strong>{{ $program->title }}</strong><br>{{ $program->duration_days ? $program->duration_days.' training days' : ($program->duration_hours ? $program->duration_hours.' training hours' : 'Training duration not listed in the schedule') }}</li>
+                            <li class="tesda-course-choice">
+                                <strong>{{ $program->title }}</strong><br>
+                                <span>{{ $program->duration_days ? $program->duration_days.' training days' : ($program->duration_hours ? $program->duration_hours.' training hours' : 'Training duration not listed in the schedule') }}</span>
+                                @php($openSessions = $program->sessions)
+                                @forelse ($openSessions as $session)
+                                    @php($application = $session->applications->first())
+                                    <div class="tesda-course-session">
+                                        <span>{{ $session->starts_at->timezone(config('app.timezone'))->format('M j, Y g:i A') }} · {{ max(0, $session->capacity - $session->accepted_count) }} of {{ $session->capacity }} places available</span>
+                                        @if ($application && in_array($application->status, ['pending', 'accepted'], true))
+                                            <span class="tesda-session-status">Request {{ ucfirst($application->status) }}</span>
+                                        @elseif ($session->accepted_count >= $session->capacity)
+                                            <span class="tesda-session-status">Fully occupied · Check private providers below</span>
+                                        @else
+                                            <form method="POST" action="{{ route('applications.store', $session) }}">
+                                                @csrf
+                                                <button type="submit">Request a place</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="tesda-course-session"><span>No upcoming intake is listed. Check private providers below.</span></div>
+                                @endforelse
+                            </li>
                         @endforeach
                     </ul>
                 </article>
