@@ -39,7 +39,8 @@ class _PatchNotesViewState extends State<PatchNotesView> {
                 .toList()
           : <Map<String, dynamic>>[];
       releases.sort(
-        (left, right) => '${right['date']}'.compareTo('${left['date']}'),
+        (left, right) =>
+            '${right['published_at']}'.compareTo('${left['published_at']}'),
       );
       if (mounted) setState(() => _releases = releases);
     } catch (error) {

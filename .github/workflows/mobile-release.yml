@@ -100,7 +100,7 @@ jobs:
           url = os.environ["PUBLIC_APP_URL"].rstrip("/")
           assert urlparse(url).scheme == "https"
           releases = json.loads(Path("resources/patch-notes.json").read_text())
-          latest = max(releases, key=lambda release: release["date"])
+          latest = max(releases, key=lambda release: release["published_at"])
           notes = latest["title"] + "\n\n" + "\n".join("- " + item for item in latest["items"])
           manifest = {
               "version_code": int(os.environ["BUILD_NUMBER"]),

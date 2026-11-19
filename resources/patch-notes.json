@@ -1,7 +1,8 @@
 [
     {
         "date": "2026-11-19",
-        "version": "Current update",
+        "published_at": "2026-11-19T00:00:00+08:00",
+        "version": "Current source update",
         "title": "Career guidance and easier updates",
         "items": [
             "Complete a skills assessment and save interests to receive initial career, job, and training suggestions, including paths for people without a resume or NC certificate.",
@@ -12,6 +13,7 @@
     },
     {
         "date": "2026-11-16",
+        "published_at": "2026-11-16T14:00:00+08:00",
         "version": "1.0.8+9",
         "title": "Workspace and account improvements",
         "items": [
@@ -27,7 +29,69 @@
         ]
     },
     {
+        "date": "2026-11-13",
+        "published_at": "2026-11-13T16:26:30+08:00",
+        "version": "Mobile messaging update",
+        "title": "Live message updates",
+        "items": [
+            "Messages sync between the website and mobile app in real time while connected, then catch up automatically after a connection drop."
+        ]
+    },
+    {
         "date": "2026-11-11",
+        "published_at": "2026-11-11T22:42:53+08:00",
+        "version": "Catalog update",
+        "title": "Clearer catalog and workflow records",
+        "items": [
+            "Training, job, scholarship, and activity records are visible for workflow practice, with their descriptions identifying fictional records where applicable."
+        ]
+    },
+    {
+        "date": "2026-11-11",
+        "published_at": "2026-11-11T22:30:35+08:00",
+        "version": "Scanner update",
+        "title": "More reliable document scanning",
+        "items": [
+            "Scanner uploads use the same API address and connection handling as other mobile requests.",
+            "Retry scan history, and keep selected files available after an upload or scan fails.",
+            "Android and iOS builds normalize the website URL before configuring the API address."
+        ]
+    },
+    {
+        "date": "2026-11-11",
+        "published_at": "2026-11-11T18:15:52+08:00",
+        "version": "Training and scholarship update",
+        "title": "More complete training and scholarship details",
+        "items": [
+            "Scholarship listings show eligibility, application requirements, provider assessments, and source links.",
+            "Browse job vacancies from DOLE PhilJobNet and updated TESDA catalog records.",
+            "Career Seekers and PESO staff can use career guidance and document scanning; training staff see the tools for their role."
+        ]
+    },
+    {
+        "date": "2026-11-11",
+        "published_at": "2026-11-11T17:44:22+08:00",
+        "version": "Dashboard update",
+        "title": "Role-based next steps",
+        "items": [
+            "Dashboards show role-specific next actions on the website and mobile app.",
+            "Use the Career Seeker, TESDA, and document-scanner labels consistently across the app."
+        ]
+    },
+    {
+        "date": "2026-11-11",
+        "published_at": "2026-11-11T10:06:44+08:00",
+        "version": "Navigation and form update",
+        "title": "Clearer loading and form recovery",
+        "items": [
+            "Mobile navigation responds immediately when changing sections, and the website shows a loading state while new pages open.",
+            "Web management forms keep entered details when validation needs correction.",
+            "The app waits for slow server responses and distinguishes connection timeouts from secure connection errors."
+        ]
+    },
+    {
+        "date": "2026-11-11",
+        "published_at": "2026-11-11T09:51:46+08:00",
         "version": "1.0.5+6",
         "title": "Mobile connection recovery",
         "items": [
@@ -39,6 +103,7 @@
     },
     {
         "date": "2026-11-11",
+        "published_at": "2026-11-11T08:56:53+08:00",
         "version": "1.0.4+5",
         "title": "Training and opportunity workflows on mobile",
         "items": [
