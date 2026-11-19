@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Role;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -18,30 +16,17 @@ class DemoAccountsSeeder extends Seeder
             throw new RuntimeException('Demo accounts can only be created outside production.');
         }
 
-        $password = config('tuklas.demo_password');
-
-        if (blank($password)) {
+        if (blank(config('tuklas.demo_password'))) {
             throw new RuntimeException('Set TUKLAS_DEMO_PASSWORD before creating demo accounts.');
         }
 
-        $accounts = [
-            ['role' => Role::Youth, 'name' => 'Demo Career Seeker', 'email' => 'demo-youth@tuklas.test', 'date_of_birth' => '2003-01-01'],
-            ['role' => Role::TesdaAdmin, 'name' => 'Demo TESDA', 'email' => config('tuklas.demo_accounts.tesda_email')],
-            ['role' => Role::Admin, 'name' => 'Demo Admin', 'email' => 'admin@tuklas.test'],
-        ];
+        $sharedLocalPassword = config('tuklas.demo_password');
+        config()->set('tuklas.demo_accounts.career_seeker_password', $sharedLocalPassword);
+        config()->set('tuklas.demo_accounts.admin_password', $sharedLocalPassword);
+        config()->set('tuklas.demo_accounts.tesda_password', $sharedLocalPassword);
 
-        foreach ($accounts as $account) {
-            $user = User::query()->firstOrNew(['email' => $account['email']]);
-            $user->forceFill([
-                'name' => $account['name'],
-                'password' => $password,
-                'role' => $account['role'],
-                'email_verified_at' => $user->email_verified_at ?? now(),
-                'is_active' => true,
-                'date_of_birth' => $account['date_of_birth'] ?? null,
-            ])->save();
-        }
+        $this->call(PresentationAccountsSeeder::class);
 
-        $this->command->info('Three local demo accounts are ready for email and password sign-in.');
+        $this->command?->info('Three local demo accounts are ready for email and password sign-in.');
     }
 }

@@ -89,4 +89,29 @@ class PresentationAccountsSeederTest extends TestCase
 
         $this->seed(PresentationAccountsSeeder::class);
     }
+
+    public function test_seeded_presentation_accounts_can_sign_in_with_their_configured_passwords(): void
+    {
+        $accounts = [
+            'career_seeker' => ['email' => 'demo-youth@example.test', 'password' => 'Career-Seeker-Only-123!'],
+            'admin' => ['email' => 'demo-admin@example.test', 'password' => 'Admin-Only-Password-123!'],
+            'tesda' => ['email' => 'demo-tesda@example.test', 'password' => 'TESDA-Only-Password-123!'],
+        ];
+        config()->set('tuklas.demo_accounts', [
+            'career_seeker_email' => $accounts['career_seeker']['email'],
+            'career_seeker_password' => $accounts['career_seeker']['password'],
+            'admin_email' => $accounts['admin']['email'],
+            'admin_password' => $accounts['admin']['password'],
+            'tesda_email' => $accounts['tesda']['email'],
+            'tesda_password' => $accounts['tesda']['password'],
+        ]);
+
+        $this->seed(PresentationAccountsSeeder::class);
+
+        foreach ($accounts as $account) {
+            $this->post(route('login'), $account)->assertRedirect();
+            $this->assertAuthenticatedAs(User::query()->where('email', $account['email'])->sole());
+            $this->post(route('logout'))->assertRedirect();
+        }
+    }
 }
