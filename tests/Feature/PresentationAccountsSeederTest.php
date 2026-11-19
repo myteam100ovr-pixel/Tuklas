@@ -105,6 +105,17 @@ class PresentationAccountsSeederTest extends TestCase
             'tesda_email' => $accounts['tesda']['email'],
             'tesda_password' => $accounts['tesda']['password'],
         ]);
+        foreach ([
+            'career_seeker' => ['name' => 'Career Seeker', 'role' => Role::Youth],
+            'admin' => ['name' => 'PESO Admin', 'role' => Role::Admin],
+            'tesda' => ['name' => 'Tesda Trainer', 'role' => Role::TesdaAdmin],
+        ] as $key => $legacyAccount) {
+            User::factory()->create([
+                'name' => $legacyAccount['name'],
+                'email' => $accounts[$key]['email'],
+                'role' => $legacyAccount['role'],
+            ]);
+        }
 
         $this->seed(PresentationAccountsSeeder::class);
 

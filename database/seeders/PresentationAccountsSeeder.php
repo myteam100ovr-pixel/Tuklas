@@ -18,6 +18,7 @@ class PresentationAccountsSeeder extends Seeder
                 'password' => config('tuklas.demo_accounts.career_seeker_password'),
                 'name' => 'Demo Career Seeker',
                 'role' => Role::Youth,
+                'legacy_names' => ['Career Seeker'],
                 'password_env' => 'TUKLAS_DEMO_CAREER_SEEKER_PASSWORD or TUKLAS_DEMO_PASSWORD',
             ],
             [
@@ -25,6 +26,7 @@ class PresentationAccountsSeeder extends Seeder
                 'password' => config('tuklas.demo_accounts.admin_password'),
                 'name' => 'Demo PESO Admin',
                 'role' => Role::Admin,
+                'legacy_names' => ['PESO Admin'],
                 'password_env' => 'TUKLAS_DEMO_ADMIN_PASSWORD',
             ],
             [
@@ -32,6 +34,7 @@ class PresentationAccountsSeeder extends Seeder
                 'password' => config('tuklas.demo_accounts.tesda_password'),
                 'name' => 'Demo TESDA Admin',
                 'role' => Role::TesdaAdmin,
+                'legacy_names' => ['Tesda Trainer'],
                 'password_env' => 'TUKLAS_DEMO_TESDA_PASSWORD',
             ],
         ];
@@ -54,7 +57,7 @@ class PresentationAccountsSeeder extends Seeder
                     throw new RuntimeException("The presentation email {$account['email']} belongs to a deleted user. Choose another demo email or restore that account intentionally.");
                 }
 
-                if ($user !== null && ($user->role !== $account['role'] || ! str_starts_with($user->name, 'Demo '))) {
+                if ($user !== null && ($user->role !== $account['role'] || (! str_starts_with($user->name, 'Demo ') && ! in_array($user->name, $account['legacy_names'], true)))) {
                     throw new RuntimeException("The presentation email {$account['email']} already belongs to a non-demo user. Choose another demo email.");
                 }
 
