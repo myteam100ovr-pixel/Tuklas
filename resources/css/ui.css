@@ -169,7 +169,7 @@ a.qa:hover { border-color: var(--violet); transform: translateY(-2px); }
 .btn-ghost:hover { border-color: var(--muted); }
 .btn-danger { background: #dc2626; color: #fff; }
 .field { display: grid; gap: .4rem; min-width: 0; }
-.field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
 .label { font-size: .82rem; font-weight: 500; }
 .input { width: 100%; padding: .72rem .9rem; border: 1px solid var(--line); border-radius: .8rem; background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; transition: border-color .2s, box-shadow .2s; }
 .input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 25%, transparent); }
@@ -316,7 +316,6 @@ textarea.input { resize: vertical; }
 @media (max-width: 700px) {
     .stats { grid-template-columns: minmax(0, 1fr); }
     .chart-body { grid-template-columns: minmax(0, 1fr); }
-    .field-row { grid-template-columns: minmax(0, 1fr); }
     .tk-pop { position: fixed; left: 1rem; right: 1rem; top: 4.6rem; width: auto; }
     .career-chat { min-height: auto; }
     .career-chat__messages { max-height: 14rem; }
@@ -350,6 +349,8 @@ textarea.input { resize: vertical; }
 }
 .tk-workspace :where(input, textarea)::placeholder { color: var(--muted); }
 .tk-workspace :where(th, td) { overflow-wrap: anywhere; }
+.tk-workspace :where(input, select, textarea, button) { max-width: 100%; }
+.tk-workspace .tk-main > * { min-width: 0; }
 @media (max-width: 640px) {
     .tk-workspace :where(input, select, textarea) { font-size: 16px; }
 }

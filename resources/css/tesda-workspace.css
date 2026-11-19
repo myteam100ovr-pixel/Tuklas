@@ -55,7 +55,7 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .trainer-courses__form label { display:grid; gap:.4rem; color:var(--ink); font-size:.8rem; font-weight:600; }
 .trainer-courses__form input,.trainer-courses__form select,.trainer-courses__form textarea { width:100%; min-width:0; padding:.7rem .8rem; border:1px solid var(--line); border-radius:.6rem; color:var(--ink); background:var(--surface-2); font:inherit; font-weight:400; }
 .trainer-courses__form input:focus,.trainer-courses__form select:focus,.trainer-courses__form textarea:focus { outline:2px solid var(--violet); outline-offset:1px; }
-.trainer-courses__form-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.trainer-courses__form-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr)); gap:1rem; }
 .trainer-courses__form-actions { justify-content:flex-start; }
 .users-form__password { display:grid; gap:.85rem; }
 .users-form__password-input { display:flex; min-width:0; gap:.5rem; }
@@ -81,7 +81,7 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 @media(max-width:600px) { .trainer-courses__toolbar,.trainer-courses__card { align-items:flex-start; flex-direction:column; } .trainer-courses__form-row { grid-template-columns:1fr; } }
 
 /* Shared layout for PESO, TESDA, center, and career seeker operations. */
-.operations-page { width:100%; max-width:68rem; gap:1.15rem; }
+.operations-page { width:100%; max-width:68rem; gap:1.15rem; container-name:operations-page; container-type:inline-size; }
 .scholarships-page { width:100%; max-width:none; grid-template-columns:minmax(0,1fr); gap:1rem; }
 .scholarship-applications { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.85rem; }
 .scholarship-applications > h2,.scholarship-applications > .operations-empty { grid-column:1/-1; }
@@ -233,3 +233,23 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .tk-workspace .scholarships-page { width:100%; max-width:none; gap:1rem; }
 .tk-workspace .scholarships-page > article.operations-card { display:flex; min-width:0; flex-direction:column; }
 .tk-workspace .scholarships-page > article.operations-card details { margin-top:auto; padding-top:1rem; }
+@container operations-page (max-width: 48rem) {
+    .operations-page > .operations-card form,
+    .scholarship-applications > article.operations-card form,
+    .job-opportunities__list > .operations-card details form,
+    .job-applications-list > .job-application-card form.job-application-card__review,
+    .operations-page .operations-editor__form { grid-template-columns:minmax(0,1fr); }
+    .operations-page > .operations-card form label:has(textarea),
+    .scholarship-applications > article.operations-card form label:has(textarea),
+    .job-opportunities__list > .operations-card details form label:has(textarea),
+    .job-application-card__review label:has(textarea) { grid-column:auto; }
+    .operations-page > .operations-card form:has(label) > button:last-child,
+    .scholarship-applications > article.operations-card form > button,
+    .job-opportunities__list > .operations-card details form > button,
+    .job-applications-list > .job-application-card form.job-application-card__review > button { width:100%; grid-column:auto; justify-self:stretch; }
+    .scholarship-applications,
+    .job-candidate-workflow,
+    .job-candidate-workflow__decisions,
+    .tk-workspace .scholarships-page,
+    .job-opportunities__list { grid-template-columns:minmax(0,1fr); }
+}

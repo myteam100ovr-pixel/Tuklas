@@ -20,9 +20,9 @@
 body { margin: 0; }
 .auth-page *, .auth-page *::before, .auth-page *::after { box-sizing: border-box; }
 .auth-page a { text-decoration: none; }
-.tk-body:has(.auth-page) { height: 100vh; height: 100svh; min-height: 0; overflow: hidden; }
-.tk-guest-main:has(.auth-page) { display: block; height: 100%; min-height: 0; padding: 0; }
-.auth-layout { display: grid; width: 100%; height: 100vh; height: 100svh; min-height: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); overflow: hidden; }
+.tk-body:has(.auth-page) { min-height: 100vh; min-height: 100svh; overflow-x: hidden; }
+.tk-guest-main:has(.auth-page) { display: block; min-height: 100vh; min-height: 100svh; padding: 0; }
+.auth-layout { display: grid; width: 100%; min-height: 100vh; min-height: 100svh; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .auth-story { position: relative; isolation: isolate; display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: clamp(1.5rem, 4vw, 3.75rem); color: #fff; background: radial-gradient(ellipse at 0 0, #6426df 0, transparent 48%), linear-gradient(145deg, #5118c8 0%, #3d0ba8 100%); }
 .auth-story::before, .auth-story::after { position: absolute; z-index: -1; content: ''; border: 1px solid rgb(255 255 255 / .12); border-radius: 50%; pointer-events: none; }
 .auth-story::before { width: 35rem; height: 35rem; top: -20rem; right: -15rem; }
@@ -55,7 +55,7 @@ body { margin: 0; }
 .auth-story-foot { display: flex; align-items: center; gap: .7rem; margin-top: 1rem; color: rgb(255 255 255 / .72); font-size: .78rem; }
 .auth-foot-dot { width: .38rem; height: .38rem; background: var(--auth-pink); box-shadow: none; }
 
-.auth-form-panel { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; min-height: 0; overflow-y: auto; padding: 4.5rem clamp(1.5rem, 5vw, 5rem) 5.25rem; background: #fff; scrollbar-width: thin; }
+.auth-form-panel { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; min-height: 0; overflow: visible; padding: 4.5rem clamp(1.5rem, 5vw, 5rem) 5.25rem; background: #fff; }
 .auth-form-wrap { width: min(100%, 28rem); margin: auto; }
 .auth-back { display: inline-flex; align-items: center; gap: .5rem; margin-bottom: 2.6rem; color: #696574; font-size: .82rem; transition: color .2s ease; }
 .auth-back:hover, .auth-inline-link:hover { color: var(--auth-purple); }
@@ -102,7 +102,7 @@ body { margin: 0; }
 .auth-status { margin-bottom: 1rem; padding: .8rem 1rem; border: 1px solid #cde9d7; border-radius: .7rem; color: #236b3d; background: #f3fbf5; font-size: .8rem; }
 .auth-mobile-brand { display: none; }
 
-.auth-name-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.auth-name-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .9rem; }
 .auth-name-row .auth-field { min-width: 0; }
 .auth-select { padding-right: 2.5rem !important; cursor: pointer; }
 .auth-select:invalid { color: #aaa6b2 !important; }
@@ -632,12 +632,9 @@ html[data-theme='dark'] .auth-page.auth-page--security .auth-mobile-brand { colo
     .auth-page.auth-page--security .auth-heading h2 { font-size: 1.7rem; }
 }
 
-/* Keep the full registration form inside ordinary laptop-height viewports. */
+/* Compact registration spacing on common laptop heights while preserving page scroll. */
 @media (min-width: 681px) and (min-height: 801px) and (max-height: 1100px) {
-    .tk-body:has(.auth-page--register) { height: 100svh; min-height: 0; overflow: hidden; }
-    .tk-guest-main:has(.auth-page--register) { height: 100svh; min-height: 0; overflow: hidden; }
-    .auth-page.auth-page--register .auth-layout { height: 100svh; min-height: 0; overflow: hidden; }
-    .auth-page.auth-page--register .auth-form-panel { min-height: 0; overflow: hidden; padding-block: .65rem; }
+    .auth-page.auth-page--register .auth-form-panel { padding-block: .65rem; }
     .auth-page.auth-page--register .auth-form-wrap {
         width: min(100%, 31rem);
         margin: auto;
