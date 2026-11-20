@@ -89,7 +89,7 @@ const renderHiringList = (container, job, token) => {
             decisions.append(form);
             const decline = document.createElement('form');
             decline.method = 'POST';
-            decline.action = `${container.closest('[data-job-id]').dataset.hireUrl}/not-selected`;
+            decline.action = container.closest('[data-job-id]').dataset.notSelectedUrl;
             decline.dataset.hiringDecision = 'not-selected';
             const declineCsrf = csrf.cloneNode();
             decline.append(declineCsrf, email.cloneNode());
@@ -478,7 +478,8 @@ jobsPage?.addEventListener('submit', async (event) => {
     if (!article) return;
     const formPath = new URL(form.action, window.location.href).pathname.replace(/\/+$/, '');
     const hirePath = new URL(article.dataset.hireUrl, window.location.href).pathname.replace(/\/+$/, '');
-    if (!hirePath || (formPath !== hirePath && formPath !== `${hirePath}/not-selected`)) return;
+    const notSelectedPath = new URL(article.dataset.notSelectedUrl, window.location.href).pathname.replace(/\/+$/, '');
+    if (!hirePath || (formPath !== hirePath && formPath !== notSelectedPath)) return;
     event.preventDefault();
     const button = form.querySelector('button[type="submit"]');
     const status = jobsPage.querySelector('[data-live-status]');
