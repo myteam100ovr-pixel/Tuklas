@@ -475,7 +475,10 @@ if (notificationLink || jobsPage || jobApplicationsPage) {
 jobsPage?.addEventListener('submit', async (event) => {
     const form = event.target;
     const article = form.closest('[data-job-id]');
-    if (!article || (form.action !== article.dataset.hireUrl && form.action !== `${article.dataset.hireUrl}/not-selected`)) return;
+    if (!article) return;
+    const formPath = new URL(form.action, window.location.href).pathname.replace(/\/+$/, '');
+    const hirePath = new URL(article.dataset.hireUrl, window.location.href).pathname.replace(/\/+$/, '');
+    if (!hirePath || (formPath !== hirePath && formPath !== `${hirePath}/not-selected`)) return;
     event.preventDefault();
     const button = form.querySelector('button[type="submit"]');
     const status = jobsPage.querySelector('[data-live-status]');
