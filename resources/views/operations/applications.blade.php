@@ -9,12 +9,12 @@
                 @if ($application->session)
                     <input type="hidden" name="training_session_id" value="{{ $application->session->id }}">
                 @elseif ($availableSessions->isNotEmpty())
-                    <label>Open intake to accept<select name="training_session_id" required><option value="">Choose a date and available intake</option>@foreach ($availableSessions as $session)<option value="{{ $session->id }}">{{ $session->starts_at->timezone(config('app.timezone'))->format('M j, Y · g:i A') }} · {{ $session->center->name }} · {{ $session->capacity - $session->accepted_count }} places left</option>@endforeach</select></label>
+                    <label>Choose an intake and training center<select name="training_session_id" required><option value="">Choose a date and available intake</option>@foreach ($availableSessions as $session)<option value="{{ $session->id }}">{{ $session->starts_at->timezone(config('app.timezone'))->format('M j, Y · g:i A') }} · {{ $session->center->name }} · {{ $session->capacity - $session->accepted_count }} places left</option>@endforeach</select></label>
                 @else
                     <p>No open future intake has seats available. Add a real training date and capacity before accepting this request.</p>
                 @endif
                 <button name="status" value="accepted" type="submit" @disabled(! $application->session && $availableSessions->isEmpty())>Accept</button>
-                <button class="operations-secondary" name="status" value="declined" type="submit">Decline</button>
+                <button class="operations-secondary" name="status" value="declined" type="submit" formnovalidate>Decline</button>
             </form>
         @endif
     </article>@empty <p class="operations-empty">No applications yet.</p> @endforelse

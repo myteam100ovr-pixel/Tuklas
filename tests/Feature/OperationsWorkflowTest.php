@@ -287,4 +287,5 @@ class OperationsWorkflowTest extends TestCase
         $this->deleteJson('/api/mobile/center-trainers/'.$tesdaAssignment->id)->assertOk();
         $this->assertDatabaseCount('training_assignments', 0);
     }
+
 }

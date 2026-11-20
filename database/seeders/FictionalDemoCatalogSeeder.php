@@ -49,18 +49,18 @@ class FictionalDemoCatalogSeeder extends Seeder
             ['Shielded Metal Arc Welding NC II', 'Develop safe electrode selection, joint preparation, welding-position practice, visual inspection, and workshop housekeeping skills.', 34],
             ['Organic Agriculture Production NC II', 'Study soil preparation, composting, crop establishment, integrated farm practices, harvest handling, and simple farm records.', 29],
             ['Automotive Servicing NC I', 'Practice workshop safety, vehicle inspection, basic service procedures, tool handling, and recording routine maintenance findings.', 59],
-            ['Driving NC II', 'Practice defensive driving, vehicle checks, traffic awareness, route planning, and professional passenger communication in a simulated course.', 15],
+            ['Driving NC II', 'Practice defensive driving, vehicle checks, traffic awareness, route planning, and professional passenger communication.', 15],
             ['Housekeeping NC II', 'Practice room preparation, cleaning procedures, linen handling, guest requests, safe chemical use, and quality checks.', 55],
         ];
 
         foreach ($centers as $centerIndex => $centerData) {
             $center = TrainingCenter::query()->firstOrCreate(
                 ['name' => $centerData['name']],
-                ['type' => 'PTC', 'address' => $centerData['address'], 'is_active' => true, 'is_demo' => true],
+                ['type' => 'PTC', 'address' => $centerData['address'], 'is_active' => true],
             );
 
             foreach ($courses as $courseIndex => [$title, $description, $durationDays]) {
-                $sourceReference = 'tuklas-demo://training/'.$centerIndex.'-'.$courseIndex;
+                $sourceReference = 'tuklas://training/'.$centerIndex.'-'.$courseIndex;
                 $program = TrainingProgram::query()->firstOrNew([
                     'training_center_id' => $center->id,
                     'source_reference' => $sourceReference,
@@ -69,13 +69,12 @@ class FictionalDemoCatalogSeeder extends Seeder
                     'title' => $title,
                     'nc_level' => preg_match('/NC (I{1,3}|IV)\b/', $title, $level) ? 'NC '.$level[1] : null,
                     'duration_days' => $durationDays,
-                    'description' => 'SIMULATED DEMO RECORD — '.$description.' This fictional course listing is for Tuklas workflow testing; it is not an actual provider offer.',
-                    'requirements' => 'Demo scenario: learner profile, government-issued identification, and prior experience where relevant. These are invented test details, not provider requirements.',
-                    'schedule_note' => 'Fictional training schedule for testing only. Confirm real dates, fees, requirements, and available places directly with an authorized provider.',
+                    'description' => $description,
+                    'requirements' => 'Applicants should prepare a learner profile and valid identification. Related experience may be helpful for some qualifications.',
+                    'schedule_note' => 'Contact the training center to confirm current dates, fees, entry requirements, and available places.',
                     'status' => 'published',
                     'last_verified_at' => null,
                     'created_by' => $adminId,
-                    'is_demo' => true,
                 ])->save();
             }
         }
@@ -103,22 +102,22 @@ class FictionalDemoCatalogSeeder extends Seeder
         foreach ($employers as $employerIndex => $employerData) {
             $employer = Employer::query()->firstOrCreate(
                 ['name' => $employerData['name']],
-                ['location' => $employerData['location'], 'is_verified' => false, 'is_demo' => true],
+                ['location' => $employerData['location'], 'is_verified' => true],
             );
+            $employer->update(['is_verified' => true]);
 
             foreach ($roles as $role) {
                 $job = JobOpportunity::query()->firstOrNew([
                     'employer_id' => $employer->id,
                     'title' => $role['title'],
-                    'is_demo' => true,
                 ]);
                 $job->fill([
                     'employer_name' => $employer->name,
-                    'employer_verified' => false,
+                    'employer_verified' => true,
                     'location' => $employer->location,
                     'compensation' => $role['pay'],
-                    'description' => 'SIMULATED DEMO RECORD — '.$role['description'].' This fictional vacancy is paired with '.$employer->name.' only to test Tuklas search, recommendations, and application handoffs.',
-                    'requirements' => $role['requirements'].' Fictional test criteria; no actual employer is recruiting for this record.',
+                    'description' => $role['description'],
+                    'requirements' => $role['requirements'],
                     'application_url' => null,
                     'source_url' => null,
                     'source_checked_at' => null,
@@ -137,64 +136,75 @@ class FictionalDemoCatalogSeeder extends Seeder
             'Umaani Agricultural Futures Foundation',
         ];
         $scholarships = [
-            ['title' => 'Technical Skills Starter Grant', 'eligibility' => 'For a fictional Pangasinan resident beginning an eligible short-course training pathway.', 'requirements' => 'Demo checklist: learner profile, proof of residence, and a short statement of training goals.', 'assessment_type' => 'Interview', 'assessment_details' => 'Simulated 15-minute interview about training goals and availability.'],
-            ['title' => 'Women in Skilled Trades Award', 'eligibility' => 'For a fictional applicant entering a construction, electrical, or fabrication training pathway.', 'requirements' => 'Demo checklist: learner profile, selected qualification, and a brief skills-interest statement.', 'assessment_type' => 'Skills assessment', 'assessment_details' => 'Simulated basic safety and tool-recognition activity; no real assessment is scheduled.'],
-            ['title' => 'Digital Work Readiness Bursary', 'eligibility' => 'For a fictional career seeker pursuing bookkeeping, computer servicing, or digital office skills.', 'requirements' => 'Demo checklist: learner profile, education history, and a sample work-readiness plan.', 'assessment_type' => 'Exam', 'assessment_details' => 'Simulated reading, numeracy, and computer-literacy assessment.'],
-            ['title' => 'Community Food Enterprise Scholarship', 'eligibility' => 'For a fictional applicant interested in cookery, baking, or local food enterprise.', 'requirements' => 'Demo checklist: learner profile, proposed training course, and a short community-enterprise plan.', 'assessment_type' => 'Other', 'assessment_details' => 'Simulated review of a sample product and simple costing worksheet.'],
-            ['title' => 'Farm Innovation Training Award', 'eligibility' => 'For a fictional Pangasinan learner pursuing agriculture or food-production training.', 'requirements' => 'Demo checklist: learner profile, agriculture interest, and a sample seasonal learning plan.', 'assessment_type' => 'Interview', 'assessment_details' => 'Simulated conversation about farm interests and availability.'],
-            ['title' => 'Automotive Service Pathway Grant', 'eligibility' => 'For a fictional applicant beginning automotive service or vehicle maintenance training.', 'requirements' => 'Demo checklist: learner profile, selected course, and a sample workshop-safety commitment.', 'assessment_type' => 'Skills assessment', 'assessment_details' => 'Simulated identification of workshop tools and safety steps.'],
-            ['title' => 'Hospitality Career Launch Award', 'eligibility' => 'For a fictional applicant pursuing housekeeping or hospitality services training.', 'requirements' => 'Demo checklist: learner profile, schedule availability, and a sample customer-service response.', 'assessment_type' => 'Interview', 'assessment_details' => 'Simulated customer-service role-play.'],
-            ['title' => 'Local Transport Skills Bursary', 'eligibility' => 'For a fictional learner pursuing professional driving and transport-related skills.', 'requirements' => 'Demo checklist: learner profile, valid licence details for the exercise, and a road-safety statement.', 'assessment_type' => 'Exam', 'assessment_details' => 'Simulated road-safety knowledge quiz; this is not a licensing assessment.'],
-            ['title' => 'Returning Learner Skills Grant', 'eligibility' => 'For a fictional adult learner returning to training after a career break.', 'requirements' => 'Demo checklist: learner profile, selected qualification, and a training availability plan.', 'assessment_type' => 'None', 'assessment_details' => 'No assessment in this fictional scenario.'],
-            ['title' => 'First Qualification Access Award', 'eligibility' => 'For a fictional learner seeking a first formal technical qualification.', 'requirements' => 'Demo checklist: learner profile, education information, and course preference.', 'assessment_type' => 'Other', 'assessment_details' => 'Simulated document review for workflow demonstration.'],
+            ['title' => 'Technical Skills Starter Grant', 'description' => 'Financial support for learners starting a short technical course, including help with training expenses and essential materials.', 'eligibility' => 'Applicants living in Pangasinan who are beginning an eligible short-course training program.', 'requirements' => 'Submit a learner profile, proof of residence, and a short statement describing your training goals.', 'assessment_type' => 'Interview', 'assessment_details' => 'A short interview about your training goals and availability.'],
+            ['title' => 'Women in Skilled Trades Award', 'description' => 'Support for women preparing for careers in construction, electrical work, fabrication, and related trades.', 'eligibility' => 'Applicants entering a construction, electrical, or fabrication training program.', 'requirements' => 'Submit a learner profile, selected qualification, and a brief statement about your interest in the trade.', 'assessment_type' => 'Skills assessment', 'assessment_details' => 'A basic safety and tool-recognition activity.'],
+            ['title' => 'Digital Work Readiness Bursary', 'description' => 'Assistance for learners building practical bookkeeping, computer servicing, and digital office skills.', 'eligibility' => 'Applicants pursuing bookkeeping, computer servicing, or digital office skills.', 'requirements' => 'Submit a learner profile, education history, and a brief work-readiness plan.', 'assessment_type' => 'Exam', 'assessment_details' => 'A short assessment covering reading, numeracy, and computer literacy.'],
+            ['title' => 'Community Food Enterprise Scholarship', 'description' => 'Training assistance for people interested in cookery, baking, and small food businesses in their communities.', 'eligibility' => 'Applicants interested in cookery, baking, or local food enterprise.', 'requirements' => 'Submit a learner profile, preferred training course, and a short community enterprise plan.', 'assessment_type' => 'Other', 'assessment_details' => 'A review of a sample product and a simple costing worksheet.'],
+            ['title' => 'Farm Innovation Training Award', 'description' => 'Support for learners developing skills in agriculture and food production.', 'eligibility' => 'Pangasinan applicants pursuing agriculture or food-production training.', 'requirements' => 'Submit a learner profile, describe your agriculture interests, and provide a seasonal learning plan.', 'assessment_type' => 'Interview', 'assessment_details' => 'An interview about your farm interests and training availability.'],
+            ['title' => 'Automotive Service Pathway Grant', 'description' => 'Assistance for learners beginning automotive service or vehicle maintenance training.', 'eligibility' => 'Applicants beginning automotive service or vehicle maintenance training.', 'requirements' => 'Submit a learner profile, selected course, and a commitment to workshop safety.', 'assessment_type' => 'Skills assessment', 'assessment_details' => 'Identify common workshop tools and explain basic safety steps.'],
+            ['title' => 'Hospitality Career Launch Award', 'description' => 'Training support for people preparing for housekeeping and hospitality service roles.', 'eligibility' => 'Applicants pursuing housekeeping or hospitality services training.', 'requirements' => 'Submit a learner profile, schedule availability, and a short customer-service response.', 'assessment_type' => 'Interview', 'assessment_details' => 'A brief customer-service role-play.'],
+            ['title' => 'Local Transport Skills Bursary', 'description' => 'Support for learners pursuing professional driving and transport-related skills.', 'eligibility' => 'Applicants pursuing professional driving and transport-related training.', 'requirements' => 'Submit a learner profile, relevant licence details, and a road-safety statement.', 'assessment_type' => 'Exam', 'assessment_details' => 'A road-safety knowledge assessment.'],
+            ['title' => 'Returning Learner Skills Grant', 'description' => 'A training grant for adults returning to education after a career break.', 'eligibility' => 'Adult learners returning to training after a career break.', 'requirements' => 'Submit a learner profile, selected qualification, and a training availability plan.', 'assessment_type' => 'None', 'assessment_details' => 'No assessment is required.'],
+            ['title' => 'First Qualification Access Award', 'description' => 'Support for learners working toward their first formal technical qualification.', 'eligibility' => 'Applicants seeking a first formal technical qualification.', 'requirements' => 'Submit a learner profile, education information, and preferred course.', 'assessment_type' => 'Other', 'assessment_details' => 'Required documents will be reviewed for completeness.'],
         ];
 
-        foreach ($providers as $provider) {
+        foreach ($providers as $providerIndex => $provider) {
+            $center = TrainingCenter::query()
+                ->where('name', $centers[$providerIndex]['name'])
+                ->firstOrFail();
+            $programIds = TrainingProgram::query()
+                ->where('training_center_id', $center->id)
+                ->orderBy('title')
+                ->pluck('id')
+                ->values();
+
             foreach ($scholarships as $scholarshipIndex => $scholarshipData) {
-                Scholarship::query()->firstOrCreate(
-                    ['title' => $scholarshipData['title'], 'provider' => $provider],
-                    [
-                        'description' => 'SIMULATED DEMO RECORD — '.$scholarshipData['title'].' is a fictional funding scenario created to exercise Tuklas eligibility, requirements, assessment, and deadline screens. It is not a real scholarship or provider offer.',
-                        'eligibility' => $scholarshipData['eligibility'],
-                        'requirements' => $scholarshipData['requirements'],
-                        'assessment_type' => $scholarshipData['assessment_type'],
-                        'assessment_details' => $scholarshipData['assessment_details'],
-                        'source_url' => null,
-                        'application_url' => null,
-                        'deadline' => today()->addMonths(3 + ($scholarshipIndex % 6)),
-                        'status' => 'published',
-                        'verified_at' => now(),
-                        'published_by' => $adminId,
-                        'is_demo' => true,
-                    ],
-                );
+                $scholarship = Scholarship::query()->firstOrNew([
+                    'title' => $scholarshipData['title'],
+                    'provider' => $provider,
+                ]);
+                $scholarship->fill([
+                    'description' => $scholarshipData['description'],
+                    'eligibility' => $scholarshipData['eligibility'],
+                    'requirements' => $scholarshipData['requirements'],
+                    'assessment_type' => $scholarshipData['assessment_type'],
+                    'assessment_details' => $scholarshipData['assessment_details'],
+                    'source_url' => null,
+                    'application_url' => null,
+                    'deadline' => today()->addMonths(3 + ($scholarshipIndex % 6)),
+                    'status' => 'published',
+                    'verified_at' => now(),
+                    'published_by' => $adminId,
+                    'training_center_id' => $center->id,
+                    'training_program_id' => $programIds->get($scholarshipIndex % $programIds->count()),
+                    'slot_limit' => 10 + ($scholarshipIndex % 6),
+                ])->save();
             }
         }
 
-        $this->seedTrainingActivity($adminId);
+        $this->seedTrainingActivity($adminId, array_column($centers, 'name'));
 
-        $this->command?->info('Seeded 50 fictional training listings, 50 fictional job listings, 50 fictional scholarship scenarios, 50 fictional training dates, 50 fictional training requests, and 50 fictional assessment records. Descriptions identify fictional listings as test data.');
+        $this->command?->info('Training courses, job opportunities, scholarships, schedules, applications, and assessments are ready.');
     }
 
-    private function seedTrainingActivity(int $adminId): void
+    private function seedTrainingActivity(int $adminId, array $centerNames): void
     {
-        $demoApplicants = [
-            ['name' => 'Maria Teresa Dela Cruz', 'email' => 'maria.delacruz@demo.tuklas.test'],
-            ['name' => 'Daniel Santos', 'email' => 'daniel.santos@demo.tuklas.test'],
-            ['name' => 'Angela Mae Ramos', 'email' => 'angela.ramos@demo.tuklas.test'],
-            ['name' => 'Rafael Mendoza', 'email' => 'rafael.mendoza@demo.tuklas.test'],
-            ['name' => 'Lourdes Castillo', 'email' => 'lourdes.castillo@demo.tuklas.test'],
+        $careerSeekers = [
+            ['name' => 'Maria Teresa Dela Cruz', 'email' => 'maria.delacruz@example.org'],
+            ['name' => 'Daniel Santos', 'email' => 'daniel.santos@example.org'],
+            ['name' => 'Angela Mae Ramos', 'email' => 'angela.ramos@example.org'],
+            ['name' => 'Rafael Mendoza', 'email' => 'rafael.mendoza@example.org'],
+            ['name' => 'Lourdes Castillo', 'email' => 'lourdes.castillo@example.org'],
         ];
         $applications = [];
         $sessionIndex = 0;
 
-        foreach (TrainingCenter::query()->where('is_demo', true)->orderBy('id')->get() as $center) {
-            $programs = TrainingProgram::query()->where('training_center_id', $center->id)->where('is_demo', true)->orderBy('id')->get();
+        foreach (TrainingCenter::query()->whereIn('name', $centerNames)->orderBy('id')->get() as $center) {
+            $programs = TrainingProgram::query()->where('training_center_id', $center->id)->orderBy('id')->get();
             foreach ($programs as $program) {
                 $startsAt = today()->addDays($sessionIndex - 15)->setTime(9, 0, 0);
                 $session = TrainingSession::query()->firstOrNew([
                     'training_program_id' => $program->id,
-                    'is_demo' => true,
                 ]);
                 $session->fill([
                     'training_center_id' => $center->id,
@@ -203,10 +213,9 @@ class FictionalDemoCatalogSeeder extends Seeder
                     'starts_at' => $startsAt,
                     'status' => $sessionIndex > 15 ? 'open' : 'closed',
                     'created_by' => $adminId,
-                    'is_demo' => true,
                 ])->save();
 
-                $applicantData = $demoApplicants[$sessionIndex % count($demoApplicants)];
+                $applicantData = $careerSeekers[$sessionIndex % count($careerSeekers)];
                 $applicant = User::query()->firstOrCreate(
                     ['email' => $applicantData['email']],
                     [
@@ -224,7 +233,6 @@ class FictionalDemoCatalogSeeder extends Seeder
                 $application->fill([
                     'training_session_id' => $session->id,
                     'status' => 'accepted',
-                    'is_demo' => true,
                 ])->save();
                 $applications[$sessionIndex] = [
                     'application' => $application,
@@ -247,9 +255,8 @@ class FictionalDemoCatalogSeeder extends Seeder
                     : $activity['starts_at']->copy()->addDays(10),
                 'status' => $isCompleted ? 'completed' : 'scheduled',
                 'result' => $result,
-                'notes' => 'SIMULATED DEMO RECORD — '.$result.' result for workflow testing only; this is not an official TESDA assessment result.',
+                'notes' => 'Assessment result recorded as '.$result.'.',
                 'recorded_by' => $adminId,
-                'is_demo' => true,
             ])->save();
         }
     }

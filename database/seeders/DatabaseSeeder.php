@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             PangasinanTrainingCenterSeeder::class,
             PhilJobNetPangasinanSeeder::class,
             TesdaScholarshipInfoSeeder::class,
+            FictionalDemoCatalogSeeder::class,
         ]);
     }
 }

@@ -32,16 +32,16 @@ class FictionalDemoCatalogSeederTest extends TestCase
         $this->assertDatabaseCount('employers', 5);
         $this->assertDatabaseCount('job_opportunities', 50);
         $this->assertDatabaseCount('scholarships', 50);
-        $this->assertSame(50, TrainingProgram::query()->where('is_demo', true)->count());
-        $this->assertSame(50, JobOpportunity::query()->where('is_demo', true)->where('employer_verified', false)->count());
-        $this->assertSame(50, Scholarship::query()->where('is_demo', true)->count());
-        $this->assertSame(5, TrainingCenter::query()->where('is_demo', true)->count());
-        $this->assertSame(50, TrainingSession::query()->where('is_demo', true)->count());
-        $this->assertSame(50, TrainingApplication::query()->where('is_demo', true)->count());
-        $this->assertSame(50, AssessmentRecord::query()->where('is_demo', true)->count());
+        $this->assertSame(50, TrainingProgram::query()->where('is_demo', false)->count());
+        $this->assertSame(50, JobOpportunity::query()->where('is_demo', false)->where('employer_verified', true)->count());
+        $this->assertSame(50, Scholarship::query()->where('is_demo', false)->count());
+        $this->assertSame(5, TrainingCenter::query()->where('is_demo', false)->count());
+        $this->assertSame(50, TrainingSession::query()->where('is_demo', false)->count());
+        $this->assertSame(50, TrainingApplication::query()->where('is_demo', false)->count());
+        $this->assertSame(50, AssessmentRecord::query()->where('is_demo', false)->count());
     }
 
-    public function test_career_seekers_see_fictional_records_without_demo_badges(): void
+    public function test_career_seekers_see_seeded_records_without_simulation_markers(): void
     {
         User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
@@ -50,12 +50,12 @@ class FictionalDemoCatalogSeederTest extends TestCase
         $jobs = $this->actingAs($careerSeeker)->get(route('opportunities.index'))
             ->assertSee('Accounts Assistant')
             ->assertDontSee('Simulated demo data')
-            ->assertSee('no actual employer is recruiting');
+            ->assertSee('Maintain orderly transaction records');
         $this->assertCount(50, $jobs->viewData('jobs'));
         $scholarships = $this->get(route('scholarships.index'))
             ->assertSee('Technical Skills Starter Grant')
             ->assertDontSee('Simulated demo data')
-            ->assertSee('not a real scholarship');
+            ->assertSee('Financial support for learners starting a short technical course');
         $this->assertCount(50, $scholarships->viewData('scholarships'));
         $this->get(route('centers.index'))
             ->assertSee('Baybay Norte Skills Institute')
@@ -65,21 +65,21 @@ class FictionalDemoCatalogSeederTest extends TestCase
             ->assertDontSee('Simulated demo data');
 
         $this->getJson('/api/mobile/opportunities')->assertOk()
-            ->assertJsonFragment(['is_demo' => true]);
+            ->assertJsonFragment(['is_demo' => false]);
         $this->getJson('/api/mobile/scholarships')->assertOk()
-            ->assertJsonFragment(['is_demo' => true])
+            ->assertJsonFragment(['is_demo' => false])
             ->assertJsonStructure(['myApplications', 'applications']);
         $this->getJson('/api/mobile/training-centers')->assertOk()
-            ->assertJsonFragment(['is_demo' => true]);
+            ->assertJsonFragment(['is_demo' => false]);
         $this->getJson('/api/mobile/tesda')->assertOk()
-            ->assertJsonFragment(['is_demo' => true]);
+            ->assertJsonFragment(['is_demo' => false]);
     }
 
     public function test_all_mobile_roles_can_browse_seeded_public_catalogs_and_upcoming_sessions(): void
     {
         User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
-        $centerId = TrainingCenter::query()->where('is_demo', true)->orderByDesc('id')->value('id');
+        $centerId = TrainingCenter::query()->orderByDesc('id')->value('id');
 
         foreach ([Role::Admin, Role::TesdaAdmin, Role::Youth] as $role) {
             $user = User::factory()->create([
@@ -102,7 +102,7 @@ class FictionalDemoCatalogSeederTest extends TestCase
         }
     }
 
-    public function test_staff_can_review_simulated_training_dates_requests_and_results(): void
+    public function test_staff_can_review_training_dates_requests_and_results(): void
     {
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
@@ -128,7 +128,7 @@ class FictionalDemoCatalogSeederTest extends TestCase
     {
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $this->seed(FictionalDemoCatalogSeeder::class);
-        $center = TrainingCenter::query()->where('is_demo', true)->oldest('id')->firstOrFail();
+        $center = TrainingCenter::query()->oldest('id')->firstOrFail();
         $careerSeeker = User::factory()->create([
             'email' => config('tuklas.demo_accounts.career_seeker_email'),
             'role' => Role::Youth,

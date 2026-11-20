@@ -442,6 +442,36 @@ class _OperationsViewState extends State<OperationsView> {
   }
 
   Future<void> _edit([Map<String, dynamic> item = const {}]) async {
+    if (widget.section == 'Trainers' && item.isEmpty) {
+      final pairs = _list('assignment_pairs');
+      final labels = <String, String>{
+        for (final pair in pairs)
+          '${pair['user_id']}:${pair['training_program_id']}':
+              '${pair['trainer_name']} · ${pair['center_name']} · ${pair['program_title']}',
+      };
+      if (labels.isEmpty) {
+        setState(
+          () => _error = 'No valid staff and published program combinations are available.',
+        );
+        return;
+      }
+      final saved = await openWorkspaceForm(
+        context,
+        title: 'Assign TESDA staff',
+        path: _path,
+        fields: [
+          WorkspaceField(
+            'assignment_pair',
+            'Staff, center, and program',
+            options: labels.keys.toList(),
+            optionLabels: labels,
+            required: true,
+          ),
+        ],
+      );
+      if (saved != null) await _load();
+      return;
+    }
     final id = item['id'];
     final path = id == null ? _path : '$_path/$id';
     final saved = await openWorkspaceForm(
@@ -477,6 +507,79 @@ class _OperationsViewState extends State<OperationsView> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _acceptTrainingApplication(
+    Map<String, dynamic> application,
+  ) async {
+    final applicationId = application['id'];
+    final existingSession = application['session'] as Map?;
+    if (existingSession != null && existingSession['id'] != null) {
+      await _action(
+        '/training-applications/$applicationId',
+        method: 'PUT',
+        data: {
+          'status': 'accepted',
+          'training_session_id': existingSession['id'],
+        },
+      );
+      return;
+    }
+
+    final program = application['program'] as Map?;
+    final sessions = (program?['sessions'] as List? ?? const [])
+        .whereType<Map>()
+        .map((session) => Map<String, dynamic>.from(session))
+        .where((session) {
+          final capacity = int.tryParse('${session['capacity']}') ?? 0;
+          final accepted = int.tryParse('${session['accepted_count']}') ?? 0;
+          return capacity > accepted && session['id'] != null;
+        })
+        .toList();
+    if (sessions.isEmpty) {
+      setState(() {
+        _error = 'There are no open intakes with places available. Add an open training date and center before accepting this request.';
+      });
+      return;
+    }
+
+    final sessionOptions = <String>[];
+    final sessionLabels = <String, String>{};
+    for (final session in sessions) {
+      final id = '${session['id']}';
+      final center = (session['center'] as Map?)?['name'] ?? 'Training center';
+      final date = formatTuklasDate(session['starts_at'], includeTime: true);
+      final capacity = int.tryParse('${session['capacity']}') ?? 0;
+      final accepted = int.tryParse('${session['accepted_count']}') ?? 0;
+      sessionOptions.add(id);
+      sessionLabels[id] =
+          '$center · $date · ${capacity - accepted} places left';
+    }
+
+    final saved = await openWorkspaceForm(
+      context,
+      title: 'Accept training request',
+      path: '/training-applications/$applicationId',
+      method: 'PUT',
+      initial: const {'status': 'accepted'},
+      fields: [
+        WorkspaceField(
+          'status',
+          'Decision',
+          options: const ['accepted'],
+          optionLabels: const {'accepted': 'Accept'},
+          required: true,
+        ),
+        WorkspaceField(
+          'training_session_id',
+          'Intake and training center',
+          options: sessionOptions,
+          optionLabels: sessionLabels,
+          required: true,
+        ),
+      ],
+    );
+    if (saved != null) await _load();
   }
 
   Future<void> _deleteScholarship(Map<String, dynamic> scholarship) async {
@@ -1526,11 +1629,7 @@ class _OperationsViewState extends State<OperationsView> {
                             TextButton(
                               onPressed: _busy
                                   ? null
-                                  : () => _action(
-                                      '/training-applications/${item['id']}',
-                                      method: 'PUT',
-                                      data: {'status': 'accepted'},
-                                    ),
+                                  : () => _acceptTrainingApplication(item),
                               child: const Text('Accept'),
                             ),
                             TextButton(

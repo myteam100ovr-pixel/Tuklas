@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="trainer-courses suite-page operations-page job-opportunities" data-live-jobs-url="{{ route('opportunities.index', request()->only('q', 'page')) }}" data-hire-csrf="{{ csrf_token() }}">
-        <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Source-checked openings and clearly marked simulated records for workflow testing." />
+        <x-workspace-heading eyebrow="PESO · WORK" title="Job opportunities" description="Browse current openings checked by PESO staff." />
         <aside class="suite-note"><strong>Want more current openings?</strong> Search the official DOLE PhilJobNet vacancy portal. Openings shown below have been checked by PESO staff.<br><a href="https://philjobnet.gov.ph/job-vacancies/" target="_blank" rel="noopener noreferrer">Browse live PhilJobNet vacancies ↗</a></aside>
         @include('operations.search', ['placeholder' => 'Search job titles or employers', 'count' => $jobs->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif

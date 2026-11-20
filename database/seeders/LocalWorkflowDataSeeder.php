@@ -84,7 +84,7 @@ class LocalWorkflowDataSeeder extends Seeder
             ->oldest('id')
             ->first();
         $center = $centerStaff?->trainingCenter
-            ?? TrainingCenter::query()->where('is_demo', true)->oldest('id')->first();
+            ?? TrainingCenter::query()->where('is_active', true)->oldest('id')->first();
 
         if ($center === null) {
             throw new RuntimeException('Seed the local training catalog before seeding workflow data.');
@@ -113,7 +113,6 @@ class LocalWorkflowDataSeeder extends Seeder
                     'training_program_id' => $program->id,
                     'training_center_id' => $center->id,
                     'starts_at' => $startsAt,
-                    'is_demo' => true,
                 ],
                 [
                     'ends_at' => $startsAt->copy()->addHours(6),
@@ -130,7 +129,6 @@ class LocalWorkflowDataSeeder extends Seeder
             $application->fill([
                 'training_session_id' => $session->id,
                 'status' => $statuses[$index],
-                'is_demo' => true,
             ])->save();
             $applications[] = $application;
         }
@@ -140,20 +138,20 @@ class LocalWorkflowDataSeeder extends Seeder
                 'scheduled_at' => now()->addDays(30)->setTime(9, 0),
                 'status' => 'scheduled',
                 'result' => null,
-                'notes' => 'Local test record: assessment is scheduled and awaiting completion.',
+                'notes' => 'Assessment is scheduled and awaiting completion.',
             ],
             [
                 'scheduled_at' => now()->subDays(2)->setTime(9, 0),
                 'status' => 'completed',
                 'result' => 'passed',
-                'notes' => 'Local test record: sample completed outcome for checking the results workflow.',
+                'notes' => 'Assessment completed and result recorded.',
             ],
         ];
 
         foreach (array_slice($applications, 1) as $index => $application) {
             AssessmentRecord::query()->updateOrCreate(
                 ['training_application_id' => $application->id],
-                $assessments[$index] + ['recorded_by' => $admin->id, 'is_demo' => true],
+                $assessments[$index] + ['recorded_by' => $admin->id],
             );
         }
     }
