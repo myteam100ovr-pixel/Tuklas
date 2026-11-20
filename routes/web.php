@@ -125,6 +125,7 @@ Route::middleware([
         Route::put('/jobs/applications/{jobApplication}', [JobApplicationController::class, 'update'])->name('job-applications.update');
         Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');
         Route::put('/opportunities/{job}', [JobOpportunityController::class, 'update'])->name('opportunities.update');
+        Route::delete('/opportunities/{job}', [JobOpportunityController::class, 'destroy'])->name('opportunities.destroy');
         Route::post('/opportunities/{job}/recommend', [JobOpportunityController::class, 'recommend'])->name('opportunities.recommend');
         Route::post('/opportunities/{job}/hire', [JobOpportunityController::class, 'hire'])->name('opportunities.hire');
         Route::post('/opportunities/{job}/not-selected', [JobOpportunityController::class, 'notSelected'])->name('opportunities.not-selected');
@@ -161,9 +162,11 @@ Route::middleware([
     Route::middleware('role:admin,tesda_admin')->group(function () {
         Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');
         Route::put('/training-sessions/{session}', [TrainingSessionController::class, 'update'])->name('sessions.update');
+        Route::delete('/training-sessions/{session}', [TrainingSessionController::class, 'destroy'])->name('sessions.destroy');
         Route::put('/training-applications/{application}', [TrainingApplicationController::class, 'update'])->name('applications.update');
         Route::post('/assessment-records', [AssessmentRecordController::class, 'store'])->name('assessments.store');
         Route::put('/assessment-records/{assessment}', [AssessmentRecordController::class, 'update'])->name('assessments.update');
+        Route::delete('/assessment-records/{assessment}', [AssessmentRecordController::class, 'destroy'])->name('assessments.destroy');
     });
     Route::middleware('role:youth')->group(function () {
         Route::post('/opportunities/{job}/applications', [JobApplicationController::class, 'store'])

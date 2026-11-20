@@ -107,7 +107,16 @@
                     <label>Application URL <input name="application_url" type="url" value="{{ $job->application_url }}"></label><label>Closing date <input name="closes_at" type="date" value="{{ $job->closes_at?->toDateString() }}"></label>
                     <label>Source URL <input name="source_url" type="url" value="{{ $job->source_url }}"></label><label>Source checked date <input name="source_checked_at" type="date" value="{{ $job->source_checked_at?->toDateString() }}"></label>
                     <label>Status <select name="status">@foreach (['draft', 'published', 'closed'] as $status)<option value="{{ $status }}" @selected($job->status === $status)>{{ ucfirst($status) }}</option>@endforeach</select></label><button type="submit">Update</button>
-                </form></details>@endif
+                </form></details>
+                    <details><summary>Delete opening</summary>
+                        <p>Openings with applications or career seeker matches can’t be deleted. Close those openings to preserve their records.</p>
+                        <form method="POST" action="{{ route('admin.opportunities.destroy', $job) }}" onsubmit="return confirm('Delete this job opening? This action cannot be undone.')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Confirm delete</button>
+                        </form>
+                    </details>
+                @endif
             </article>
         @empty <p class="operations-empty">{{ request()->filled('q') ? 'No jobs match your search.' : 'No published opportunities yet.' }}</p> @endforelse
         </section>

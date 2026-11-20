@@ -11,7 +11,13 @@
             <input type="hidden" name="training_application_id" value="{{ $record->training_application_id }}"><label>Scheduled at <input type="datetime-local" name="scheduled_at" value="{{ $record->scheduled_at?->format('Y-m-d\TH:i') }}"></label>
             <label>Status <select name="status">@foreach (['scheduled', 'completed', 'cancelled'] as $status)<option @selected($record->status === $status)>{{ $status }}</option>@endforeach</select></label>
             <label>Result <select name="result"><option value="">Pending</option><option @selected($record->result === 'passed')>passed</option><option @selected($record->result === 'failed')>failed</option></select></label><label>Notes <textarea name="notes">{{ $record->notes }}</textarea></label><button type="submit">Update</button>
-        </form></details>@endif
+        </form></details>
+            <form method="POST" action="{{ route('assessments.destroy', $record) }}" onsubmit="return confirm('Permanently delete this assessment record?')">
+                @csrf
+                @method('DELETE')
+                <button class="operations-secondary" type="submit">Delete assessment record</button>
+            </form>
+        @endif
     </article>@empty <p class="operations-empty">No assessments recorded yet.</p> @endforelse
     {{ $records->links() }}
 </div></x-app-layout>

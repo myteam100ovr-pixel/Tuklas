@@ -61,6 +61,16 @@ class AssessmentRecordController extends Controller
         return $request->routeIs('mobile.*') ? response()->json(['message' => 'Assessment updated.']) : back()->with('status', 'Assessment updated.');
     }
 
+    public function destroy(Request $request, AssessmentRecord $assessment): RedirectResponse|JsonResponse
+    {
+        $this->authorizeApplication($request, $assessment->application()->with('session')->firstOrFail());
+        $assessment->delete();
+
+        return $request->routeIs('mobile.*') || $request->expectsJson()
+            ? response()->json(['message' => 'Assessment record deleted.'])
+            : back()->with('status', 'Assessment record deleted.');
+    }
+
     private function authorizeApplication(Request $request, TrainingApplication $application): void
     {
         $user = $request->user();

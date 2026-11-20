@@ -16,7 +16,16 @@
             <label>Center <select name="training_center_id">@foreach ($centers as $center)<option value="{{ $center->id }}" @selected($center->id === $session->training_center_id)>{{ $center->type }} · {{ $center->name }}</option>@endforeach</select></label>
             <label>Starts <input type="datetime-local" name="starts_at" value="{{ $session->starts_at->format('Y-m-d\TH:i') }}" required></label><label>Ends <input type="datetime-local" name="ends_at" value="{{ $session->ends_at->format('Y-m-d\TH:i') }}" required></label>
             <label>Maximum places you can cater <input type="number" name="capacity" min="1" value="{{ $session->capacity }}" required><small>Only PESO and TESDA can set or change this limit.</small></label><label>Status <select name="status"><option value="open" @selected($session->status === 'open')>Open</option><option value="closed" @selected($session->status === 'closed')>Closed</option></select></label><button type="submit">Update</button>
-        </form></details>@endif
+        </form></details>
+            <details><summary>Delete session</summary>
+                <p>Sessions with application history can’t be deleted. Close them to preserve trainee records.</p>
+                <form method="POST" action="{{ route('sessions.destroy', $session) }}" onsubmit="return confirm('Delete this training session? This action cannot be undone.')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="operations-secondary" type="submit">Delete session</button>
+                </form>
+            </details>
+        @endif
     </article>@empty <p class="operations-empty">{{ request()->filled('q') ? 'No sessions match your search.' : 'No sessions available yet.' }}</p> @endforelse
     {{ $sessions->links() }}
 </div></x-app-layout>

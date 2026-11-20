@@ -75,6 +75,25 @@ class JobOpportunityController extends Controller
         return $request->routeIs('mobile.*') ? response()->json(['message' => 'Job opportunity updated.']) : back()->with('status', 'Job opportunity updated.');
     }
 
+    public function destroy(Request $request, JobOpportunity $job): RedirectResponse|JsonResponse
+    {
+        abort_unless($request->user()->hasRole(Role::Admin), 403);
+
+        if ($job->applications()->exists() || $job->recommendedUsers()->exists()) {
+            $message = 'This opening has applications or career seeker matches. Close it instead to preserve their records.';
+
+            return $request->routeIs('mobile.*') || $request->expectsJson()
+                ? response()->json(['message' => $message], 409)
+                : back()->withErrors(['job' => $message]);
+        }
+
+        $job->delete();
+
+        return $request->routeIs('mobile.*') || $request->expectsJson()
+            ? response()->json(['message' => 'Job opportunity deleted.'])
+            : back()->with('status', 'Job opportunity deleted.');
+    }
+
     public function recommend(Request $request, JobOpportunity $job): RedirectResponse|JsonResponse
     {
         abort_unless($request->user()->hasRole(Role::Admin), 403);

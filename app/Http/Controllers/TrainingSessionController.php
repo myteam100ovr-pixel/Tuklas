@@ -52,6 +52,25 @@ class TrainingSessionController extends Controller
         return $request->routeIs('mobile.*') ? response()->json(['message' => 'Training session updated.']) : back()->with('status', 'Training session updated.');
     }
 
+    public function destroy(Request $request, TrainingSession $session): RedirectResponse|JsonResponse
+    {
+        $this->authorizeManager($request, $session);
+
+        if ($session->applications()->exists()) {
+            $message = 'This session has application history. Close it instead to preserve trainee records.';
+
+            return $request->routeIs('mobile.*') || $request->expectsJson()
+                ? response()->json(['message' => $message], 409)
+                : back()->withErrors(['session' => $message]);
+        }
+
+        $session->delete();
+
+        return $request->routeIs('mobile.*') || $request->expectsJson()
+            ? response()->json(['message' => 'Training session deleted.'])
+            : back()->with('status', 'Training session deleted.');
+    }
+
     private function authorizeManager(Request $request, ?TrainingSession $session = null): void
     {
         $user = $request->user();

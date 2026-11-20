@@ -531,6 +531,84 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  Future<void> _deleteJobOpportunity(Map<String, dynamic> job) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete job opening?'),
+        content: Text(
+          'Delete ${job['title']}? Openings with applications or career seeker matches must be closed instead.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _action('/opportunities/${job['id']}', method: 'DELETE');
+    }
+  }
+
+  Future<void> _deleteTrainingSession(Map<String, dynamic> session) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete training session?'),
+        content: Text(
+          'Delete ${session['program']?['title'] ?? 'this session'}? Sessions with application history must be closed instead.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _action('/training-sessions/${session['id']}', method: 'DELETE');
+    }
+  }
+
+  Future<void> _deleteAssessmentRecord(Map<String, dynamic> record) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete assessment record?'),
+        content: const Text(
+          'Permanently delete this assessment result and notes?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _action('/assessment-records/${record['id']}', method: 'DELETE');
+    }
+  }
+
   Future<void> _reviewScholarshipApplication(
     Map<String, dynamic> application,
     String stage,
@@ -1368,6 +1446,30 @@ class _OperationsViewState extends State<OperationsView> {
                               : () => _deleteTrainingCenter(item),
                           icon: const Icon(Icons.delete_outline),
                           label: const Text('Delete center'),
+                        ),
+                      if (widget.section == 'Jobs' && _role == 'admin')
+                        TextButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _deleteJobOpportunity(item),
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text('Delete opening'),
+                        ),
+                      if (widget.section == 'Sessions' && _canManage)
+                        TextButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _deleteTrainingSession(item),
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text('Delete session'),
+                        ),
+                      if (widget.section == 'Assessments' && _canManage)
+                        TextButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _deleteAssessmentRecord(item),
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text('Delete assessment'),
                         ),
                       if (widget.section == 'Trainers' && _canManage)
                         TextButton(
