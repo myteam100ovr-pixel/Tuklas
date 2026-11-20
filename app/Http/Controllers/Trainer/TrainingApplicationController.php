@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class TrainingApplicationController extends Controller
@@ -113,7 +114,20 @@ class TrainingApplicationController extends Controller
         ]);
         DB::transaction(function () use ($application, $data, $user): void {
             $lockedApplication = TrainingApplication::query()->lockForUpdate()->findOrFail($application->id);
-            abort_unless($lockedApplication->status === 'pending', 422);
+            $isPending = $lockedApplication->status === 'pending';
+            if ($lockedApplication->status === 'accepted'
+                && $lockedApplication->training_session_id === null
+                && $data['status'] === 'accepted'
+                && empty($data['training_session_id'])) {
+                throw ValidationException::withMessages([
+                    'training_session_id' => 'Choose an available intake to assign to this accepted course request.',
+                ]);
+            }
+            $isAssigningIntake = $lockedApplication->status === 'accepted'
+                && $lockedApplication->training_session_id === null
+                && $data['status'] === 'accepted'
+                && ! empty($data['training_session_id']);
+            abort_unless($isPending || $isAssigningIntake, 422);
 
             if ($data['status'] === 'declined') {
                 $lockedApplication->update(['status' => 'declined']);
@@ -121,8 +135,20 @@ class TrainingApplicationController extends Controller
                 return;
             }
 
-            $sessionId = $data['training_session_id'] ?? $lockedApplication->training_session_id;
-            abort_unless($sessionId, 422, 'Add an open training date before accepting this course request.');
+            $sessionId = array_key_exists('training_session_id', $data)
+                ? $data['training_session_id']
+                : $lockedApplication->training_session_id;
+            if (! $sessionId) {
+                if ($isPending) {
+                    $lockedApplication->update(['training_session_id' => null, 'status' => 'accepted']);
+
+                    return;
+                }
+
+                throw ValidationException::withMessages([
+                    'training_session_id' => 'Choose an available intake to assign to this accepted course request.',
+                ]);
+            }
             $session = TrainingSession::query()->lockForUpdate()->with(['program', 'center'])->findOrFail($sessionId);
             abort_unless(
                 $session->training_program_id === $lockedApplication->training_program_id

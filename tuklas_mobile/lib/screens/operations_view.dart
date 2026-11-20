@@ -67,8 +67,7 @@ class _OperationsViewState extends State<OperationsView> {
     'Trainers' =>
       'Assign TESDA staff to a published program at the same center.',
     'Sessions' => 'See upcoming training dates and available places. Open a session to request a place.',
-    'Applications' =>
-      'Track a training request. Staff can accept or decline pending requests.',
+    'Applications' => 'Review course requests. Accept or decline pending requests, then assign an intake when dates and places are available.',
     _ => 'See recorded assessment dates and results for your training.',
   };
 
@@ -509,12 +508,42 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  bool _hasAvailableTrainingIntake(Map<String, dynamic> application) {
+    final program = application['program'] as Map?;
+    final sessions = program?['sessions'];
+    if (sessions is! List) return false;
+
+    return sessions.whereType<Map>().any((session) {
+      final capacity = int.tryParse('${session['capacity']}') ?? 0;
+      final accepted = int.tryParse('${session['accepted_count']}') ?? 0;
+
+      return session['id'] != null && capacity > accepted;
+    });
+  }
+
   Future<void> _acceptTrainingApplication(
     Map<String, dynamic> application,
   ) async {
     final applicationId = application['id'];
+    final isAccepted = application['status'] == 'accepted';
     final existingSession = application['session'] as Map?;
-    if (existingSession != null && existingSession['id'] != null) {
+    final program = application['program'] as Map?;
+    final sessions = (program?['sessions'] as List? ?? const [])
+        .whereType<Map>()
+        .map((session) => Map<String, dynamic>.from(session))
+        .where((session) {
+          final capacity = int.tryParse('${session['capacity']}') ?? 0;
+          final accepted = int.tryParse('${session['accepted_count']}') ?? 0;
+          return capacity > accepted && session['id'] != null;
+        })
+        .toList();
+    final existingSessionIsAvailable =
+        existingSession != null &&
+        sessions.any(
+          (session) => '${session['id']}' == '${existingSession['id']}',
+        );
+    if (isAccepted && existingSession != null) return;
+    if (!isAccepted && existingSessionIsAvailable) {
       await _action(
         '/training-applications/$applicationId',
         method: 'PUT',
@@ -526,20 +555,20 @@ class _OperationsViewState extends State<OperationsView> {
       return;
     }
 
-    final program = application['program'] as Map?;
-    final sessions = (program?['sessions'] as List? ?? const [])
-        .whereType<Map>()
-        .map((session) => Map<String, dynamic>.from(session))
-        .where((session) {
-          final capacity = int.tryParse('${session['capacity']}') ?? 0;
-          final accepted = int.tryParse('${session['accepted_count']}') ?? 0;
-          return capacity > accepted && session['id'] != null;
-        })
-        .toList();
     if (sessions.isEmpty) {
-      setState(() {
-        _error = 'There are no open intakes with places available. Add an open training date and center before accepting this request.';
-      });
+      if (!isAccepted) {
+        final data = <String, dynamic>{'status': 'accepted'};
+        if (existingSession != null) data['training_session_id'] = null;
+        await _action(
+          '/training-applications/$applicationId',
+          method: 'PUT',
+          data: data,
+        );
+      } else {
+        setState(() {
+          _error = 'There are no open intakes with places available. Add an open training date and center before assigning this trainee.';
+        });
+      }
       return;
     }
 
@@ -558,7 +587,7 @@ class _OperationsViewState extends State<OperationsView> {
 
     final saved = await openWorkspaceForm(
       context,
-      title: 'Accept training request',
+      title: isAccepted ? 'Assign training intake' : 'Accept training request',
       path: '/training-applications/$applicationId',
       method: 'PUT',
       initial: const {'status': 'accepted'},
@@ -573,9 +602,12 @@ class _OperationsViewState extends State<OperationsView> {
         WorkspaceField(
           'training_session_id',
           'Intake and training center',
-          options: sessionOptions,
-          optionLabels: sessionLabels,
-          required: true,
+          options: isAccepted ? sessionOptions : ['', ...sessionOptions],
+          optionLabels: {
+            if (!isAccepted) '': 'Accept request and assign an intake later',
+            ...sessionLabels,
+          },
+          required: isAccepted,
         ),
       ],
     );
@@ -1643,6 +1675,17 @@ class _OperationsViewState extends State<OperationsView> {
                               child: const Text('Decline'),
                             ),
                           ],
+                        ),
+                      if (widget.section == 'Applications' &&
+                          _role != 'youth' &&
+                          item['status'] == 'accepted' &&
+                          item['session'] == null &&
+                          _hasAvailableTrainingIntake(item))
+                        TextButton(
+                          onPressed: _busy
+                              ? null
+                              : () => _acceptTrainingApplication(item),
+                          child: const Text('Assign intake'),
                         ),
                       if (widget.section == 'Assessments' && _canManage)
                         TextButton(
