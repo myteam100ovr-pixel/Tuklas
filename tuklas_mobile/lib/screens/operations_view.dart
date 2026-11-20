@@ -505,6 +505,32 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  Future<void> _deleteTrainingCenter(Map<String, dynamic> center) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete training center?'),
+        content: Text(
+          'Delete ${center['name']}? Centers with linked accounts, programs, sessions, or scholarships must be deactivated instead.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _action('/training-centers/${center['id']}', method: 'DELETE');
+    }
+  }
+
   Future<void> _reviewScholarshipApplication(
     Map<String, dynamic> application,
     String stage,
@@ -1334,6 +1360,14 @@ class _OperationsViewState extends State<OperationsView> {
                               : () => _deleteScholarship(item),
                           icon: const Icon(Icons.delete_outline),
                           label: const Text('Delete scholarship'),
+                        ),
+                      if (widget.section == 'Centers' && _canManage)
+                        TextButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _deleteTrainingCenter(item),
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text('Delete center'),
                         ),
                       if (widget.section == 'Trainers' && _canManage)
                         TextButton(

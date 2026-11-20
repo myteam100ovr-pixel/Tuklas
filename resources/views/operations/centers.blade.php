@@ -36,7 +36,14 @@
             <label>Name <input name="name" required value="{{ $center->name }}"></label><label>Type <select name="type"><option value="PTC" @selected($center->type === 'PTC')>PTC · Provincial Training Center</option><option value="PSAT" @selected($center->type === 'PSAT')>PSAT · Pangasinan School of Arts and Trades</option><option value="PRIVATE" @selected($center->type === 'PRIVATE')>Private training center</option></select></label>
             <label>Address <input name="address" value="{{ $center->address }}"></label><label>Email <input type="email" name="contact_email" value="{{ $center->contact_email }}"></label><label>Phone <input name="contact_phone" value="{{ $center->contact_phone }}"></label>
             <label>Status <select name="is_active"><option value="1" @selected($center->is_active)>Active</option><option value="0" @selected(! $center->is_active)>Inactive</option></select></label><button type="submit">Update</button>
-        </form></details>@endif
+        </form></details>
+            <p>Centers with linked accounts, programs, sessions, or scholarships can’t be deleted. Deactivate them to preserve those records.</p>
+            <form method="POST" action="{{ route('centers.destroy', $center) }}" onsubmit="return confirm('Delete this training center? This action cannot be undone.')">
+                @csrf
+                @method('DELETE')
+                <button class="operations-secondary" type="submit">Delete center</button>
+            </form>
+        @endif
     </article>@empty <p class="operations-empty">{{ request()->filled('q') ? 'No centers match your search.' : 'No training centers yet.' }}</p> @endforelse
     {{ $centers->links() }}
 </div></x-app-layout>

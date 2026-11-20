@@ -49,15 +49,42 @@ class TrainingCenterController extends Controller
 
     public function update(Request $request, TrainingCenter $center): RedirectResponse|JsonResponse
     {
-        $this->authorizeManager($request);
+        $this->authorizeCenterAccess($request, $center);
         $center->update($this->validatedData($request));
 
         return $request->routeIs('mobile.*') ? response()->json(['message' => 'Training center updated.']) : back()->with('status', 'Training center updated.');
     }
 
+    public function destroy(Request $request, TrainingCenter $center): RedirectResponse|JsonResponse
+    {
+        $this->authorizeCenterAccess($request, $center);
+
+        if ($center->representatives()->exists() || $center->programs()->exists() || $center->sessions()->exists() || $center->scholarships()->exists()) {
+            $message = 'This center has linked accounts, programs, sessions, or scholarships. Deactivate it to preserve those records.';
+
+            return $request->routeIs('mobile.*')
+                ? response()->json(['message' => $message], 409)
+                : back()->withErrors(['center' => $message]);
+        }
+
+        $center->delete();
+
+        return $request->routeIs('mobile.*')
+            ? response()->json(['message' => 'Training center deleted.'])
+            : back()->with('status', 'Training center deleted.');
+    }
+
     private function authorizeManager(Request $request): void
     {
         abort_unless($request->user()->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+    }
+
+    private function authorizeCenterAccess(Request $request, TrainingCenter $center): void
+    {
+        $this->authorizeManager($request);
+
+        $user = $request->user();
+        abort_unless(! $user->isCenterScopedTesda() || $center->id === $user->training_center_id, 403);
     }
 
     private function validatedData(Request $request): array

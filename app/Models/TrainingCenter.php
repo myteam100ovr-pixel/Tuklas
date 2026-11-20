@@ -33,4 +33,9 @@ class TrainingCenter extends Model
     {
         return $this->hasMany(TrainingProgram::class);
     }
+
+    public function scholarships(): HasMany
+    {
+        return $this->hasMany(Scholarship::class);
+    }
 }
