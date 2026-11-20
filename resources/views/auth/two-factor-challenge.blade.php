@@ -16,7 +16,7 @@
 
                 <div class="mt-4" x-show="! recovery">
                     <x-label for="code" value="{{ __('Code') }}" />
-                    <x-input id="code" class="auth-input block mt-1 w-full" type="text" inputmode="numeric" name="code" autofocus x-ref="code" autocomplete="one-time-code" />
+                    <x-input id="code" class="auth-input block mt-1 w-full" type="text" inputmode="numeric" name="code" maxlength="6" data-two-factor-code autofocus x-ref="code" autocomplete="one-time-code" />
                 </div>
 
                 <div class="mt-4" x-cloak x-show="recovery">

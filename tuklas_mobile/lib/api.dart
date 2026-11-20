@@ -176,6 +176,9 @@ class ApiClient {
     String password, {
     String? code,
   }) async {
+    final enteredCode = code?.trim() ?? '';
+    final authenticatorCode = enteredCode.replaceAll(RegExp(r'\s+'), '');
+    final isAuthenticatorCode = RegExp(r'^\d{6}$').hasMatch(authenticatorCode);
     final body = await _send(
       'POST',
       '/auth/token',
@@ -184,8 +187,9 @@ class ApiClient {
         'email': email,
         'password': password,
         'device_name': 'tuklas-mobile',
-        if (code != null && code.isNotEmpty)
-          (RegExp(r'^\d{6}$').hasMatch(code) ? 'code' : 'recovery_code'): code,
+        if (enteredCode.isNotEmpty)
+          (isAuthenticatorCode ? 'code' : 'recovery_code'):
+              (isAuthenticatorCode ? authenticatorCode : enteredCode),
       },
     );
     await _storage.write(key: _tokenKey, value: body['token'] as String);

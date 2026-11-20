@@ -78,6 +78,13 @@ document.addEventListener('click', (event) => {
     toggle.setAttribute('title', `${showing ? 'Hide' : 'Show'} password`);
 });
 
+document.addEventListener('input', (event) => {
+    const input = event.target.closest('[data-two-factor-code]');
+    if (!input) return;
+
+    input.value = input.value.replace(/\D/g, '').slice(0, 6);
+});
+
 const showNavigationLoading = (message) => {
     document.body.dataset.navigationLoading = message;
     const status = document.getElementById('tk-navigation-status');

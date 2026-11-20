@@ -169,6 +169,17 @@
                     <label>Application URL <input name="application_url" type="url" value="{{ $scholarship->application_url }}"></label><label>Deadline <input name="deadline" type="date" value="{{ $scholarship->deadline?->toDateString() }}"></label>
                     <label>Next step <select name="status"><option value="draft" @selected($scholarship->status === 'draft')>Save draft</option><option value="review" @selected($scholarship->status === 'review')>Submit or resubmit for TESDA approvals</option>@if ($scholarship->status === 'published')<option value="published" selected>Published — resubmit changes for approval</option>@endif<option value="closed" @selected($scholarship->status === 'closed')>Closed</option></select></label><button type="submit">Update</button>
                 </form></details>@endif
+                @if ($canManage)
+                    <details>
+                        <summary>Delete scholarship</summary>
+                        <p>Listings with applicant history can’t be deleted. Close those listings to keep their records.</p>
+                        <form method="POST" action="{{ route('scholarships.destroy', $scholarship) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Confirm delete</button>
+                        </form>
+                    </details>
+                @endif
             </article>
         @empty <p class="operations-empty">{{ request()->filled('q') ? 'No scholarships match your search.' : 'No published scholarships yet.' }}</p> @endforelse
         {{ $scholarships->links() }}

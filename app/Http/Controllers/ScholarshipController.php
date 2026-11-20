@@ -24,6 +24,7 @@ class ScholarshipController extends Controller
         $canManage = $user->hasRole(Role::Admin, Role::TesdaAdmin);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $scholarships = Scholarship::query()->when(! $canManage, fn ($query) => $query->published()->where('is_demo', false))
+            ->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $user->training_center_id))
             ->with(['center:id,name,type', 'trainingProgram:id,title,training_center_id', 'centerApprover:id,name', 'trainerApprover:id,name'])
             ->withCount(['applications as occupied_slots' => fn ($query) => $query->whereIn('status', ['submitted', 'reviewing', 'approved'])])
             ->when($search !== '', fn ($query) => $query->where(fn ($items) => $items->where('title', 'like', '%'.$search.'%')->orWhere('provider', 'like', '%'.$search.'%')))
@@ -45,7 +46,10 @@ class ScholarshipController extends Controller
                 'user:id,name,email',
                 'centerApprover:id,name',
                 'trainerApprover:id,name',
-            ])->latest()->limit(100)->get()
+            ])->when(
+                $user->isCenterScopedTesda(),
+                fn ($query) => $query->whereHas('scholarship', fn ($scholarships) => $scholarships->where('training_center_id', $user->training_center_id)),
+            )->latest()->limit(100)->get()
             : collect();
         $centers = $canManage
             ? TrainingCenter::query()->where('is_active', true)
@@ -140,6 +144,8 @@ class ScholarshipController extends Controller
 
     public function update(Request $request, Scholarship $scholarship): RedirectResponse|JsonResponse
     {
+        $this->authorizeScholarshipAccess($request, $scholarship);
+
         $data = $this->validatedData($request, $scholarship);
         $data['status'] = in_array($data['status'], ['review', 'published'], true) ? 'review' : $data['status'];
         if ($data['status'] === 'review') {
@@ -161,6 +167,28 @@ class ScholarshipController extends Controller
             : 'Scholarship updated.';
 
         return $request->routeIs('mobile.*') ? response()->json(['message' => $message]) : back()->with('status', $message);
+    }
+
+    public function destroy(Request $request, Scholarship $scholarship): RedirectResponse|JsonResponse
+    {
+        $this->authorizeScholarshipAccess($request, $scholarship);
+
+        if ($scholarship->applications()->exists()) {
+            $message = 'This scholarship has application history and cannot be deleted. Close it instead to preserve applicant records.';
+
+            return $request->routeIs('mobile.*')
+                ? response()->json(['message' => $message], 409)
+                : back()->withErrors(['scholarship' => $message]);
+        }
+
+        $scholarship->delete();
+        WorkspaceChanged::dispatch('scholarships');
+
+        $message = 'Scholarship deleted.';
+
+        return $request->routeIs('mobile.*')
+            ? response()->json(['message' => $message])
+            : back()->with('status', $message);
     }
 
     public function approve(Request $request, Scholarship $scholarship): RedirectResponse|JsonResponse
@@ -287,6 +315,13 @@ class ScholarshipController extends Controller
         }
 
         return $data;
+    }
+
+    private function authorizeScholarshipAccess(Request $request, Scholarship $scholarship): void
+    {
+        $user = $request->user();
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+        abort_unless(! $user->isCenterScopedTesda() || $scholarship->training_center_id === $user->training_center_id, 403);
     }
 
     /** @return array<string, mixed> */

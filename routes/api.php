@@ -106,6 +106,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::middleware('role:admin,tesda_admin')->group(function () {
                 Route::post('/scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
                 Route::put('/scholarships/{scholarship}', [ScholarshipController::class, 'update'])->name('scholarships.update');
+                Route::delete('/scholarships/{scholarship}', [ScholarshipController::class, 'destroy'])->name('scholarships.destroy');
                 Route::post('/scholarships/{scholarship}/approval', [ScholarshipController::class, 'approve'])->name('scholarships.approve');
                 Route::put('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'update'])->name('scholarship-applications.update');
                 Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');

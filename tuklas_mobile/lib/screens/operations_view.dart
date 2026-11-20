@@ -479,6 +479,32 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  Future<void> _deleteScholarship(Map<String, dynamic> scholarship) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete scholarship?'),
+        content: Text(
+          'Delete ${scholarship['title']}? Listings with applicant history cannot be deleted; close them to preserve those records.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _action('/scholarships/${scholarship['id']}', method: 'DELETE');
+    }
+  }
+
   Future<void> _reviewScholarshipApplication(
     Map<String, dynamic> application,
     String stage,
@@ -1300,6 +1326,14 @@ class _OperationsViewState extends State<OperationsView> {
                         TextButton(
                           onPressed: _busy ? null : () => _edit(item),
                           child: const Text('Edit'),
+                        ),
+                      if (widget.section == 'Scholarships' && _canManage)
+                        TextButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _deleteScholarship(item),
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text('Delete scholarship'),
                         ),
                       if (widget.section == 'Trainers' && _canManage)
                         TextButton(
