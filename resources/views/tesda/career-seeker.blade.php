@@ -1,3 +1,29 @@
+<section class="tesda-section tesda-assessment-matches" aria-labelledby="career-seeker-training-matches-title">
+    <div class="tesda-section-heading">
+        <div>
+            <p class="tesda-eyebrow">Based on your skills assessment</p>
+            <h2 id="career-seeker-training-matches-title">Training recommendations for you</h2>
+        </div>
+        <a class="tesda-provider-directory__link" href="{{ route('youth.assessment.index') }}">Update your assessment ↗</a>
+    </div>
+    <p class="tesda-note">These matches compare your saved interests and self-reported skills with published courses. They are suggestions; the center confirms enrollment dates and places.</p>
+    @if ($careerSeekerTrainingRecommendations !== [])
+        <div class="tesda-assessment-match-grid">
+            @foreach ($careerSeekerTrainingRecommendations as $recommendation)
+                <article class="tesda-assessment-match">
+                    <h3>{{ $recommendation['title'] }}</h3>
+                    <p>{{ $recommendation['detail'] }}</p>
+                    <a href="#career-seeker-ptc-psat">View course listings ↓</a>
+                </article>
+            @endforeach
+        </div>
+    @else
+        <div class="tesda-empty">
+            <p>No published course closely matches your assessment yet. Browse all available course listings below.</p>
+        </div>
+    @endif
+</section>
+
 <section class="tesda-section" id="career-seeker-ptc-psat" aria-labelledby="career-seeker-ptc-psat-title">
     <div class="tesda-section-heading">
         <div>
@@ -6,7 +32,7 @@
         </div>
         <span class="tesda-count">{{ $careerSeekerPrograms->count() }} listings</span>
     </div>
-    <p class="tesda-note">Filter by PTC, PSAT, or private training center. Choose a course with an upcoming schedule to request a place. PESO and TESDA manage each session’s place limit; pending requests still need the school’s review.</p>
+    <p class="tesda-note">Filter by PTC, PSAT, or private training center. Apply for a published course; if no intake is scheduled, the center will confirm dates and available places before accepting. PESO and TESDA manage each session’s place limit.</p>
 
     <form class="tesda-center-filter" method="GET" action="{{ route('tesda.index') }}">
         <label for="training-center-type">Training center type</label>
@@ -50,8 +76,9 @@
                                     <span>{{ $program->duration_days ? $program->duration_days.' training days' : ($program->duration_hours ? $program->duration_hours.' training hours' : 'Training duration not listed in the schedule') }}</span>
                                 </div>
                                 @php($openSessions = $program->sessions)
+                                @php($courseApplication = $program->applications->first())
                                 @forelse ($openSessions as $session)
-                                    @php($application = $session->applications->first())
+                                    @php($application = $courseApplication ?? $session->applications->first())
                                     @php($placesLeft = max(0, $session->capacity - $session->accepted_count))
                                     <div class="tesda-course-session">
                                         <div class="tesda-course-session__details">
@@ -70,7 +97,20 @@
                                         @endif
                                     </div>
                                 @empty
-                                    <div class="tesda-course-session tesda-course-session--empty">No upcoming intake is listed by this center.</div>
+                                    <div class="tesda-course-session tesda-course-session--empty">
+                                        @if ($courseApplication && in_array($courseApplication->status, ['pending', 'accepted'], true))
+                                            <span>Your application is {{ $courseApplication->status === 'accepted' ? 'approved' : 'pending' }}. The center will confirm the intake details.</span>
+                                        @else
+                                            <div class="tesda-course-session__details">
+                                                <strong>No intake date is listed yet.</strong>
+                                                <span>Apply now; the center must confirm dates and available places before accepting enrollment.</span>
+                                            </div>
+                                            <form method="POST" action="{{ route('applications.program-store', $program) }}">
+                                                @csrf
+                                                <button type="submit">Apply for this course</button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 @endforelse
                             </li>
                         @endforeach

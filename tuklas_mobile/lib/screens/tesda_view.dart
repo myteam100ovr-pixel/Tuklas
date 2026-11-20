@@ -18,6 +18,7 @@ class _TesdaViewState extends State<TesdaView> {
   int _registeredPage = 1;
   String? _centerType;
   final Set<int> _applyingSessionIds = {};
+  final Set<int> _applyingProgramIds = {};
   late Future<Map<String, dynamic>> _catalog;
 
   bool get _isCareerSeeker => ApiClient.instance.user?['role'] == 'youth';
@@ -78,6 +79,30 @@ class _TesdaViewState extends State<TesdaView> {
     }
   }
 
+  Future<void> _requestCourseReview(int programId) async {
+    if (_applyingProgramIds.contains(programId)) return;
+    setState(() => _applyingProgramIds.add(programId));
+    try {
+      final result = await ApiClient.instance.workspace(
+        '/training-programs/$programId/applications',
+        method: 'POST',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${result['message'] ?? 'Course request submitted.'}'),
+        ),
+      );
+      _loadPage(_page);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _applyingProgramIds.remove(programId));
+    }
+  }
+
   Future<void> _openResource(String rawUrl) async {
     final uri = Uri.tryParse(rawUrl);
     if (uri == null || !uri.hasScheme) {
@@ -128,6 +153,9 @@ class _TesdaViewState extends State<TesdaView> {
 
         final data = snapshot.data!;
         final programs = asList(data['programs']);
+        final trainingRecommendations = asList(
+          data['training_recommendations'],
+        );
         final resources = asList(data['resources']);
         final pagination = asMap(data['pagination']);
         final currentPage = (pagination['current_page'] as num?)?.toInt() ?? 1;
@@ -148,6 +176,7 @@ class _TesdaViewState extends State<TesdaView> {
           return _careerSeekerCatalog(
             context,
             programs: programs,
+            trainingRecommendations: trainingRecommendations,
             currentPage: currentPage,
             lastPage: lastPage,
             total: total,
@@ -414,6 +443,7 @@ class _TesdaViewState extends State<TesdaView> {
   Widget _careerSeekerCatalog(
     BuildContext context, {
     required List<dynamic> programs,
+    required List<dynamic> trainingRecommendations,
     required int currentPage,
     required int lastPage,
     required int total,
@@ -495,6 +525,8 @@ class _TesdaViewState extends State<TesdaView> {
                     height: 1.45,
                   ),
                 ),
+                const SizedBox(height: 14),
+                _trainingRecommendationsCard(context, trainingRecommendations),
                 const SizedBox(height: 16),
                 Wrap(
                   spacing: 8,
@@ -722,6 +754,69 @@ class _TesdaViewState extends State<TesdaView> {
         onSelected: (_) => _filterByCenterType(value),
       );
 
+  Widget _trainingRecommendationsCard(
+    BuildContext context,
+    List<dynamic> recommendations,
+  ) {
+    final colors = TkColors.of(context);
+    return TkCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Recommended from your skills assessment',
+            style: tkText(context, size: 15, weight: 600),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            recommendations.isEmpty
+                ? 'Complete or save your skills and interests assessment to get course matches here.'
+                : 'These published courses match your saved skills and interests.',
+            style: tkText(context, size: 12, color: colors.muted, height: 1.4),
+          ),
+          if (recommendations.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            for (final rawRecommendation in recommendations)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: colors.surface2,
+                    border: Border.all(color: colors.line),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${asMap(rawRecommendation)['title'] ?? ''}',
+                        style: tkText(context, size: 13, weight: 600),
+                      ),
+                      if ('${asMap(rawRecommendation)['detail'] ?? ''}'
+                          .isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          '${asMap(rawRecommendation)['detail']}',
+                          style: tkText(
+                            context,
+                            size: 11.5,
+                            color: colors.muted,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _careerSeekerCourseTile(
     BuildContext context,
     Map<String, dynamic> program,
@@ -733,6 +828,10 @@ class _TesdaViewState extends State<TesdaView> {
         ? '${program['duration_hours']} training hours'
         : 'Training duration not listed in the school schedule';
     final sessions = asList(program['sessions']).map(asMap).toList();
+    final applicationStatus = '${program['application_status'] ?? ''}';
+    final programId = int.tryParse('${program['id']}');
+    final isApplying =
+        programId != null && _applyingProgramIds.contains(programId);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9),
@@ -749,20 +848,54 @@ class _TesdaViewState extends State<TesdaView> {
             style: tkText(context, size: 12, color: colors.muted, height: 1.4),
           ),
           const SizedBox(height: 8),
-          if (sessions.isEmpty)
+          if (applicationStatus == 'pending' || applicationStatus == 'accepted')
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                applicationStatus == 'accepted' ? 'Course request approved' : 'Course request pending · The center will confirm an intake and available places.',
+                style: tkText(
+                  context,
+                  size: 12,
+                  weight: 600,
+                  color: TkColors.violet,
+                  height: 1.4,
+                ),
+              ),
+            )
+          else if (sessions.isEmpty) ...[
             Text(
-              'No upcoming intake is listed by this center. Try another filter or contact the center directly.',
+              'No upcoming intake is listed yet. Send a course request and the center can confirm dates and available places.',
               style: tkText(
                 context,
                 size: 12,
                 color: colors.muted,
                 height: 1.4,
               ),
-            )
-          else
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: programId == null || isApplying
+                  ? null
+                  : () => _requestCourseReview(programId),
+              icon: isApplying
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.send_outlined, size: 16),
+              label: Text(
+                isApplying ? 'Sending request…' : 'Apply for this course',
+              ),
+            ),
+          ] else
             for (final session in sessions) ...[
               const SizedBox(height: 6),
-              _careerSeekerSessionOption(context, session),
+              _careerSeekerSessionOption(
+                context,
+                session,
+                programApplicationStatus: applicationStatus,
+              ),
             ],
         ],
       ),
@@ -771,14 +904,17 @@ class _TesdaViewState extends State<TesdaView> {
 
   Widget _careerSeekerSessionOption(
     BuildContext context,
-    Map<String, dynamic> session,
-  ) {
+    Map<String, dynamic> session, {
+    String programApplicationStatus = '',
+  }) {
     final colors = TkColors.of(context);
     final sessionId = int.tryParse('${session['id']}');
     final capacity = int.tryParse('${session['capacity']}') ?? 0;
     final accepted = int.tryParse('${session['accepted_count']}') ?? 0;
     final placesLeft = (capacity - accepted).clamp(0, capacity);
-    final applicationStatus = '${session['application_status'] ?? ''}';
+    final applicationStatus = programApplicationStatus.isNotEmpty
+        ? programApplicationStatus
+        : '${session['application_status'] ?? ''}';
     final isAlreadyApplied =
         applicationStatus == 'pending' || applicationStatus == 'accepted';
     final isApplying =

@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\TrainerQualification;
 use App\Models\TrainingProgram;
 use App\Models\User;
+use App\Services\StarterCareerRecommendations;
 use App\Services\TesdaQualificationCatalog;
 use App\Services\TesdaRegisteredProgramCatalog;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +16,7 @@ use Illuminate\View\View;
 
 class TesdaCatalogController extends Controller
 {
-    public function index(Request $request, TesdaQualificationCatalog $catalog, TesdaRegisteredProgramCatalog $registeredCatalog): View|JsonResponse
+    public function index(Request $request, TesdaQualificationCatalog $catalog, TesdaRegisteredProgramCatalog $registeredCatalog, StarterCareerRecommendations $starterRecommendations): View|JsonResponse
     {
         $centerType = $request->user()?->hasRole(Role::Youth)
             ? ($request->validate(['center_type' => ['nullable', Rule::in(['PTC', 'PSAT', 'PRIVATE'])]])['center_type'] ?? null)
@@ -42,14 +43,21 @@ class TesdaCatalogController extends Controller
                     ->when($centerType !== null, fn ($center) => $center->where('type', $centerType))))
             ->when($request->user()?->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $request->user()->training_center_id))
             ->with(['teachingAssignments.trainer:id,name', 'center:id,name,type,is_active,is_demo,address'])
-            ->when($request->user()?->hasRole(Role::Youth), fn ($query) => $query->with(['sessions' => fn ($sessions) => $sessions
-                ->where('status', 'open')
-                ->where('starts_at', '>', now())
-                ->where('is_demo', false)
-                ->withCount(['applications as accepted_count' => fn ($applications) => $applications->where('status', 'accepted')])
-                ->with(['applications' => fn ($applications) => $applications
+            ->when($request->user()?->hasRole(Role::Youth), fn ($query) => $query->with([
+                'sessions' => fn ($sessions) => $sessions
+                    ->where('status', 'open')
+                    ->where('starts_at', '>', now())
+                    ->where('is_demo', false)
+                    ->withCount(['applications as accepted_count' => fn ($applications) => $applications->where('status', 'accepted')])
+                    ->with([
+                        'applications' => fn ($applications) => $applications
+                            ->where('user_id', $request->user()->id)
+                            ->latest('id'),
+                    ]),
+                'applications' => fn ($applications) => $applications
                     ->where('user_id', $request->user()->id)
-                    ->latest('id')])]))
+                    ->latest('id'),
+            ]))
             ->orderBy('title')
             ->get(['id', 'title', 'nc_level', 'description', 'duration_hours', 'duration_days', 'training_center_id', 'schedule_note', 'last_verified_at', 'is_demo']);
         $levelOrder = ['NC I' => 0, 'NC II' => 1, 'NC III' => 2, 'NC IV' => 3, 'Other / Not specified' => 4];
@@ -89,7 +97,9 @@ class TesdaCatalogController extends Controller
         $careerSeekerPrograms = collect();
         $careerSeekerProgramGroups = collect();
         $careerSeekerProviders = collect();
+        $careerSeekerTrainingRecommendations = [];
         if ($request->user()?->hasRole(Role::Youth)) {
+            $careerSeekerTrainingRecommendations = $starterRecommendations->for($request->user())['training'];
             $careerSeekerPrograms = $programs
                 ->filter(fn (TrainingProgram $program): bool => $program->center !== null)
                 ->values();
@@ -127,6 +137,7 @@ class TesdaCatalogController extends Controller
             'careerSeekerCenterType' => $centerType,
             'careerSeekerProviders' => $careerSeekerProviders,
             'careerSeekerProviderCount' => $careerSeekerProviders->count(),
+            'careerSeekerTrainingRecommendations' => $careerSeekerTrainingRecommendations,
             'registeredProgramCount' => count($registeredDirectory['records']),
             'registeredProgramsFetchedAt' => $registeredDirectory['fetched_at'],
             'programCount' => $programs->count(),

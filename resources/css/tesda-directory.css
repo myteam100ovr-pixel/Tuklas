@@ -54,6 +54,15 @@
 .tesda-course-session button { min-height:38px; padding:8px 13px; border:0; border-radius:9px; background:var(--violet); color:#fff; font:inherit; font-size:.74rem; font-weight:600; cursor:pointer; }
 .tesda-course-session button:hover { filter:brightness(1.08); }
 .tesda-course-session--empty { justify-content:flex-start; color:var(--muted); }
+.tk-workspace .tesda-assessment-matches { margin:18px 0; padding:clamp(16px,2vw,24px); border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+.tesda-assessment-match-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:12px; margin-top:16px; }
+.tesda-assessment-match { min-width:0; padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); }
+.tesda-assessment-match h3 { margin:0; color:var(--ink); font-size:.9rem; line-height:1.45; }
+.tesda-assessment-match p { margin:8px 0 12px; color:var(--muted); font-size:.78rem; line-height:1.55; }
+.tesda-assessment-match a { color:var(--violet); font-size:.78rem; font-weight:600; }
+.tesda-course-session--empty .tesda-course-session__details { flex:1 1 220px; }
+.tesda-course-session--empty .tesda-course-session__details strong { color:var(--ink); font-size:.75rem; }
+.tesda-course-session--empty .tesda-course-session__details span { display:block; margin-top:4px; font-size:.72rem; line-height:1.5; }
 .tesda-session-status { padding:5px 8px; border-radius:999px; background:var(--surface); color:var(--violet); font-size:.68rem; font-weight:600; white-space:nowrap; }
 .tesda-provider-source { margin-top:24px; color:var(--muted); font-size:.75rem; }
 .tesda-directory .qualification-catalog { margin:0; padding:40px 0; border:0; border-radius:0; background:transparent; }

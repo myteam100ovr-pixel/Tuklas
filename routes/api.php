@@ -122,6 +122,8 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::post('/opportunities/{job}/applications', [JobApplicationController::class, 'store'])->middleware('throttle:10,1')->name('job-applications.store');
                 Route::post('/scholarships/{scholarship}/applications', [ScholarshipApplicationController::class, 'store'])->middleware('throttle:10,1')->name('scholarship-applications.store');
                 Route::delete('/scholarship-applications/{application}', [ScholarshipApplicationController::class, 'cancel'])->name('scholarship-applications.cancel');
+                Route::post('/training-programs/{program}/applications', [TrainingApplicationController::class, 'storeForProgram'])
+                    ->middleware('throttle:10,1')->name('applications.program-store');
                 Route::post('/training-sessions/{session}/apply', [TrainingApplicationController::class, 'store'])->name('applications.store');
                 Route::delete('/training-applications/{application}', [TrainingApplicationController::class, 'destroy'])->name('applications.destroy');
             });

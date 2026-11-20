@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\TrainingProgram;
+use App\Services\StarterCareerRecommendations;
 use App\Services\TesdaRegisteredProgramCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,10 +14,11 @@ use Illuminate\Validation\Rule;
 
 class MobileCatalogController extends Controller
 {
-    public function index(Request $request, TesdaRegisteredProgramCatalog $registeredCatalog): JsonResponse
+    public function index(Request $request, TesdaRegisteredProgramCatalog $registeredCatalog, StarterCareerRecommendations $starterRecommendations): JsonResponse
     {
         $careerSeekerCatalog = $request->boolean('career_seeker');
         $catalogUser = $request->user() ?? Auth::guard('sanctum')->user();
+        $isCareerSeeker = $catalogUser?->hasRole(Role::Youth) ?? false;
         $centerType = $careerSeekerCatalog
             ? ($request->validate(['center_type' => ['nullable', Rule::in(['PTC', 'PSAT', 'PRIVATE'])]])['center_type'] ?? null)
             : null;
@@ -32,7 +35,11 @@ class MobileCatalogController extends Controller
                     ->withCount(['applications as accepted_count' => fn ($applications) => $applications->where('status', 'accepted')])
                     ->with(['applications' => fn ($applications) => $applications
                         ->where('user_id', $catalogUser?->id ?? 0)
-                        ->latest('id')])])
+                        ->latest('id')]),
+                    'applications' => fn ($applications) => $applications
+                        ->where('user_id', $catalogUser?->id ?? 0)
+                        ->latest('id'),
+                ])
                 ->whereHas('center', fn ($query) => $query
                     ->whereIn('type', ['PTC', 'PSAT', 'PRIVATE'])
                     ->where('is_active', true)
@@ -66,6 +73,7 @@ class MobileCatalogController extends Controller
                 'training_center' => $program->center?->name,
                 ...($careerSeekerCatalog ? ['training_center_type' => $program->center?->type] : []),
                 ...($careerSeekerCatalog ? ['training_center_address' => $program->center?->address] : []),
+                ...($careerSeekerCatalog ? ['application_status' => $program->applications->first()?->status] : []),
                 'requirements' => $program->requirements,
                 'schedule_note' => $program->schedule_note,
                 'last_verified_at' => $program->last_verified_at?->toDateString(),
@@ -85,6 +93,9 @@ class MobileCatalogController extends Controller
                 'last_page' => $programs->lastPage(),
                 'total' => $programs->total(),
             ],
+            'training_recommendations' => $careerSeekerCatalog && $isCareerSeeker
+                ? $starterRecommendations->for($catalogUser)['training']
+                : [],
             'registered_programs' => $registeredRecords->forPage($registeredPage, $registeredPerPage)->values()->all(),
             'registered_programs_pagination' => [
                 'current_page' => $registeredPage,
