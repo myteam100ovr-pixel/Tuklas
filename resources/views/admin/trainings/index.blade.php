@@ -2,6 +2,7 @@
     <div class="trainer-courses suite-page">
         <x-workspace-heading eyebrow="{{ auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin) ? 'TESDA · TRAINING' : 'PESO · TRAINING' }}" title="Training catalog" description="Review registered provider entries. Confirm requirements and schedules with the provider before publishing; published programs appear in the public TESDA catalog." />
         @if (session('status'))<p class="trainer-courses__feedback" role="status">{{ session('status') }}</p>@endif
+        @if ($errors->any())<p class="trainer-courses__feedback" role="alert">{{ $errors->first() }}</p>@endif
         <div class="trainer-courses__toolbar">
             <div class="flex flex-wrap gap-3 text-sm">
                 @foreach (['All' => null, 'Draft' => 'draft', 'Published' => 'published', 'Archived' => 'archived'] as $label => $value)
@@ -25,7 +26,18 @@
                             <p>Source: {{ $program->source_reference }}</p>
                         @endif
                     </div>
-                    <a href="{{ route('admin.trainings.edit', $program) }}">Edit program <span aria-hidden="true">↗</span></a>
+                    <div class="trainer-courses__card-actions">
+                        <a href="{{ route('admin.trainings.edit', $program) }}">Edit program <span aria-hidden="true">↗</span></a>
+                        <details>
+                            <summary>Delete</summary>
+                            <form method="POST" action="{{ route('admin.trainings.destroy', $program) }}">
+                                @csrf
+                                @method('DELETE')
+                                <p>Delete {{ $program->title }} permanently? Courses with linked records must be archived instead.</p>
+                                <button type="submit">Confirm delete</button>
+                            </form>
+                        </details>
+                    </div>
                 </article>
             @empty
                 <div class="trainer-courses__empty">No training programs match this view. Add one as a draft or ask a TESDA trainer to publish a verified offering.</div>

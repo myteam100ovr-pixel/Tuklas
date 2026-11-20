@@ -53,4 +53,17 @@ class TrainingProgram extends Model
     {
         return $this->hasMany(TrainingSession::class);
     }
+
+    public function scholarships(): HasMany
+    {
+        return $this->hasMany(Scholarship::class);
+    }
+
+    public function hasLinkedRecords(): bool
+    {
+        return $this->applications()->exists()
+            || $this->sessions()->exists()
+            || $this->teachingAssignments()->exists()
+            || $this->scholarships()->exists();
+    }
 }

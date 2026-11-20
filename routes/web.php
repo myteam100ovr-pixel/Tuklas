@@ -138,11 +138,11 @@ Route::middleware([
         Route::post('/users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('throttle:5,1')->name('users.reset-password');
         Route::post('/users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
         Route::get('/job-matches', fn () => redirect()->route('peso.index'))->name('recommendations.index');
-        Route::resource('careers', CareerPathController::class)->except(['show', 'destroy']);
+        Route::resource('careers', CareerPathController::class)->except(['show']);
     });
 
     Route::middleware('role:admin,tesda_admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('trainings', TrainingCatalogController::class)->except(['show', 'destroy']);
+        Route::resource('trainings', TrainingCatalogController::class)->except(['show']);
     });
 
     Route::middleware('role:admin,tesda_admin')->group(function () {
@@ -176,7 +176,7 @@ Route::middleware([
 
     Route::middleware('role:tesda_admin')->prefix('trainer')->name('trainer.')->group(function () {
         Route::get('/', [DashboardController::class, 'trainer'])->name('dashboard');
-        Route::resource('programs', TrainingProgramController::class)->except(['show', 'destroy']);
+        Route::resource('programs', TrainingProgramController::class)->except(['show']);
         Route::post('/teaching/{program}', [TeachingAssignmentController::class, 'store'])->name('teaching.store');
         Route::delete('/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->name('teaching.destroy');
         Route::post('/qualifications', [TrainerQualificationController::class, 'store'])->name('qualifications.store');

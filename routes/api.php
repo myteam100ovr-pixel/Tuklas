@@ -141,6 +141,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
             Route::get('/trainer/programs', [TrainingProgramController::class, 'index'])->middleware('role:tesda_admin')->name('trainer.programs.index');
             Route::post('/trainer/programs', [TrainingProgramController::class, 'store'])->middleware('role:tesda_admin')->name('trainer.programs.store');
             Route::put('/trainer/programs/{program}', [TrainingProgramController::class, 'update'])->middleware('role:tesda_admin')->name('trainer.programs.update');
+            Route::delete('/trainer/programs/{program}', [TrainingProgramController::class, 'destroy'])->middleware('role:tesda_admin')->name('trainer.programs.destroy');
             Route::post('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'store'])->middleware('role:tesda_admin')->name('trainer.teaching.store');
             Route::delete('/trainer/teaching/{program}', [TeachingAssignmentController::class, 'destroy'])->middleware('role:tesda_admin')->name('trainer.teaching.destroy');
             Route::post('/trainer/qualifications', [TrainerQualificationController::class, 'store'])->middleware('role:tesda_admin')->name('trainer.qualifications.store');

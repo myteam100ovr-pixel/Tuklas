@@ -562,6 +562,15 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                 initial: asMap(raw),
               ),
             ),
+            _button(
+              'Delete program',
+              () => _act(
+                '/trainer/programs/${raw['id']}',
+                method: 'DELETE',
+                confirm:
+                    'Delete ${raw['title']} permanently? Courses with applications, schedules, trainer assignments, or scholarships cannot be deleted.',
+              ),
+            ),
           ],
           subtitle:
               '${raw['status']} • ${raw['nc_level'] ?? 'No NC level'} • ${raw['duration_days'] == null ? 'Duration not specified' : '${raw['duration_days']} training days'} • ${(raw['center'] as Map?)?['name'] ?? 'No center assigned'}',

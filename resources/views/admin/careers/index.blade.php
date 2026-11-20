@@ -20,7 +20,18 @@
                         <h3>{{ $career->title }}</h3>
                         <p>{{ $career->education_level ?: 'Education level not specified' }} · {{ $career->source_note ?: 'Source not recorded' }}</p>
                     </div>
-                    <a href="{{ route('admin.careers.edit', $career) }}">Edit path <span aria-hidden="true">↗</span></a>
+                    <div class="trainer-courses__card-actions">
+                        <a href="{{ route('admin.careers.edit', $career) }}">Edit path <span aria-hidden="true">↗</span></a>
+                        <details>
+                            <summary>Delete</summary>
+                            <form method="POST" action="{{ route('admin.careers.destroy', $career) }}">
+                                @csrf
+                                @method('DELETE')
+                                <p>Delete {{ $career->title }} permanently?</p>
+                                <button type="submit">Confirm delete</button>
+                            </form>
+                        </details>
+                    </div>
                 </article>
             @empty
                 <div class="trainer-courses__empty">No career paths match this view. Add one as a draft to get started.</div>

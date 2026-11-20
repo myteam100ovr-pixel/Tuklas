@@ -53,6 +53,15 @@ class CareerPathController extends Controller
         return redirect()->route('admin.careers.index')->with('status', 'Career path updated.');
     }
 
+    public function destroy(Request $request, CareerPath $career, ActivityNotifier $activity): RedirectResponse
+    {
+        $title = $career->title;
+        $career->delete();
+        $activity->record($request->user(), 'deleted career path '.$title.'.');
+
+        return redirect()->route('admin.careers.index')->with('status', 'Career path deleted.');
+    }
+
     /** @return array<string, mixed> */
     private function validatedData(Request $request): array
     {

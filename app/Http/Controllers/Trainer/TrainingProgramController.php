@@ -108,6 +108,31 @@ class TrainingProgramController extends Controller
         return redirect()->route('trainer.programs.index')->with('status', 'Course updated.');
     }
 
+    public function destroy(Request $request, TrainingProgram $program, ActivityNotifier $activity): RedirectResponse|JsonResponse
+    {
+        $this->authorizeOwner($request, $program);
+
+        if ($program->hasLinkedRecords()) {
+            $message = 'This course has applications, schedules, trainer assignments, or scholarships. Archive it instead to preserve those records.';
+
+            if ($request->routeIs('mobile.*')) {
+                return response()->json(['message' => $message], 409);
+            }
+
+            return redirect()->route('trainer.programs.index')->withErrors(['program' => $message]);
+        }
+
+        $title = $program->title;
+        $program->delete();
+        $activity->record($request->user(), 'deleted course '.$title.'.');
+
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(['message' => 'Course deleted.']);
+        }
+
+        return redirect()->route('trainer.programs.index')->with('status', 'Course deleted.');
+    }
+
     private function authorizeOwner(Request $request, TrainingProgram $program): void
     {
         $user = $request->user();

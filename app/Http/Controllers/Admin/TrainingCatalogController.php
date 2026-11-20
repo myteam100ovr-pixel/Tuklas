@@ -80,6 +80,21 @@ class TrainingCatalogController extends Controller
         return redirect()->route('admin.trainings.index')->with('status', 'Training program updated.');
     }
 
+    public function destroy(Request $request, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse
+    {
+        if ($training->hasLinkedRecords()) {
+            return redirect()->route('admin.trainings.index')->withErrors([
+                'program' => 'This course has applications, schedules, trainer assignments, or scholarships. Archive it instead to preserve those records.',
+            ]);
+        }
+
+        $title = $training->title;
+        $training->delete();
+        $activity->record($request->user(), 'deleted course '.$title.'.');
+
+        return redirect()->route('admin.trainings.index')->with('status', 'Training program deleted.');
+    }
+
     public function updateForCenter(Request $request, TrainingCenter $center, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse
     {
         abort_unless($training->training_center_id === $center->id, 404);
@@ -97,11 +112,9 @@ class TrainingCatalogController extends Controller
     {
         abort_unless($training->training_center_id === $center->id, 404);
 
-        if ($training->applications()->exists()
-            || $training->sessions()->exists()
-            || $training->teachingAssignments()->exists()) {
+        if ($training->hasLinkedRecords()) {
             return redirect()->route('centers.index')->withErrors([
-                'program' => 'This course has applications, schedules, or trainer assignments. Archive it instead to preserve those records.',
+                'program' => 'This course has applications, schedules, trainer assignments, or scholarships. Archive it instead to preserve those records.',
             ]);
         }
 

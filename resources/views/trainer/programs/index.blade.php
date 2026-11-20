@@ -3,6 +3,7 @@
         <x-workspace-heading eyebrow="TESDA · TRAINER" title="Courses I teach" description="Choose national TESDA qualifications or published local courses to teach, and manage the offerings you publish." />
 
         @if (session('status'))<p class="trainer-courses__feedback" role="status">{{ session('status') }}</p>@endif
+        @if ($errors->any())<p class="trainer-courses__feedback" role="alert">{{ $errors->first() }}</p>@endif
 
         <div class="trainer-courses__toolbar">
             <a href="{{ route('trainer.programs.create') }}" class="trainer-courses__primary">Add a course <span aria-hidden="true">↗</span></a>
@@ -30,7 +31,18 @@
                         <h3>{{ $program->title }}</h3>
                         <p>{{ $program->nc_level ?: 'NC level not set' }} · {{ $program->center?->name ?? 'No center assigned' }} · {{ $program->duration_days ? $program->duration_days.' training days' : 'Duration not specified' }} · Updated {{ $program->updated_at->format('M j, Y') }}</p>
                     </div>
-                    <a href="{{ route('trainer.programs.edit', $program) }}">Edit course <span aria-hidden="true">↗</span></a>
+                    <div class="trainer-courses__card-actions">
+                        <a href="{{ route('trainer.programs.edit', $program) }}">Edit course <span aria-hidden="true">↗</span></a>
+                        <details>
+                            <summary>Delete</summary>
+                            <form method="POST" action="{{ route('trainer.programs.destroy', $program) }}">
+                                @csrf
+                                @method('DELETE')
+                                <p>Delete {{ $program->title }} permanently? Courses with linked records must be archived instead.</p>
+                                <button type="submit">Confirm delete</button>
+                            </form>
+                        </details>
+                    </div>
                 </article>
             @empty
                 <div class="trainer-courses__empty">No courses yet. Add one as a draft or publish a verified offering.</div>

@@ -41,6 +41,13 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .trainer-courses { display:grid; gap:1.5rem; }
 .trainer-courses__toolbar,.trainer-courses__section-heading,.trainer-courses__card,.trainer-courses__form-actions { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
 .trainer-courses__toolbar > a:not(.trainer-courses__primary),.trainer-courses__card > a,.trainer-courses__form-actions > a { color:var(--violet); font-size:.82rem; font-weight:600; }
+.trainer-courses__card-actions { display:flex; align-items:center; gap:.85rem; flex-wrap:wrap; }
+.trainer-courses__card-actions > a,.trainer-courses__card-actions summary { color:var(--violet); font-size:.82rem; font-weight:600; }
+.trainer-courses__card-actions details { position:relative; }
+.trainer-courses__card-actions summary { cursor:pointer; }
+.trainer-courses__card-actions details form { position:absolute; right:0; z-index:5; width:min(19rem,80vw); margin-top:.45rem; padding:1rem; border:1px solid var(--line); border-radius:.7rem; background:var(--surface); box-shadow:0 8px 30px #0002; }
+.trainer-courses__card-actions details form p { margin:0 0 .75rem; line-height:1.5; }
+.trainer-courses__card-actions details form button { padding:.65rem .8rem; border:0; border-radius:.55rem; color:#fff; background:#b42318; font:inherit; font-size:.78rem; font-weight:650; cursor:pointer; }
 .trainer-courses__primary { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.75rem 1rem; border:0; border-radius:.65rem; color:#fff; background:#5b17ff; font:inherit; font-size:.82rem; font-weight:600; cursor:pointer; }
 .trainer-courses__section-heading h2 { margin:0; font-size:1.25rem; }
 .trainer-courses__section-heading > span,.trainer-courses__applications > p { color:var(--muted); font-size:.78rem; }
