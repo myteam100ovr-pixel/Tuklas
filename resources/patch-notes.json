@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-11-21",
+        "published_at": "2026-11-21T00:00:00+08:00",
+        "version": "1.0.9+10",
+        "title": "Flexible training request decisions",
+        "items": [
+            "TESDA staff and PESO administrators can accept a course request before an intake date is available, then assign a future intake with available places later.",
+            "The website and mobile app can clear an expired or full intake while accepting a request, and keep declining requests available independently."
+        ]
+    },
+    {
         "date": "2026-11-19",
         "published_at": "2026-11-19T00:00:00+08:00",
         "version": "Current source update",
