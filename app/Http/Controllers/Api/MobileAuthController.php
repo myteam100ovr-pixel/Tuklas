@@ -35,9 +35,11 @@ class MobileAuthController extends Controller
             'device_name' => ['required', 'string', 'max:100'],
         ]);
 
-        $user = $createUser->create($request->only([
+        $registrationData = $request->only([
             'name', 'first_name', 'middle_initial', 'last_name', 'contact_number', 'barangay', 'date_of_birth', 'email', 'password', 'password_confirmation', 'terms',
-        ]));
+        ]);
+        $registrationData['email'] = Str::lower(trim((string) ($registrationData['email'] ?? '')));
+        $user = $createUser->create($registrationData);
 
         event(new Registered($user));
 
@@ -54,8 +56,10 @@ class MobileAuthController extends Controller
             'password' => ['required', 'string'],
             'device_name' => ['required', 'string', 'max:100'],
         ]);
+        $validated['email'] = Str::lower(trim($validated['email']));
 
-        $user = User::query()->where('email', $validated['email'])->first();
+        $user = User::query()->where('email', $validated['email'])->first()
+            ?? User::query()->whereRaw('LOWER(email) = ?', [$validated['email']])->first();
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([

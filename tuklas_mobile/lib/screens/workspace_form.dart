@@ -99,7 +99,10 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
       final data = <String, dynamic>{};
       for (final f in widget.fields) {
         final value = _inputs[f.name]!.text;
-        data[f.name] = f.name == 'is_active' || f.name == 'is_verified'
+        data[f.name] =
+            f.name == 'is_active' ||
+                f.name == 'is_verified' ||
+                f.name == 'employer_verified'
             ? value == 'true'
             : value.isEmpty && !f.required
             ? null

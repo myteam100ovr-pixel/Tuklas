@@ -107,7 +107,10 @@ class ApiClient {
       user = null;
     }
 
-    var message = response.statusCode == 401 || response.statusCode == 419
+    final twoFactorRequired = body['two_factor_required'] == true;
+    var message = twoFactorRequired
+        ? 'Enter your authenticator or recovery code to continue.'
+        : response.statusCode == 401 || response.statusCode == 419
         ? _httpErrorMessage(response.statusCode)
         : body['message'] is String
         ? body['message'] as String
@@ -125,7 +128,7 @@ class ApiClient {
 
     throw ApiException(
       message,
-      twoFactorRequired: body['two_factor_required'] == true,
+      twoFactorRequired: twoFactorRequired,
       fieldErrors: fieldErrors,
       statusCode: response.statusCode,
     );
@@ -184,12 +187,13 @@ class ApiClient {
       '/auth/token',
       auth: false,
       body: {
-        'email': email,
+        'email': email.trim().toLowerCase(),
         'password': password,
         'device_name': 'tuklas-mobile',
         if (enteredCode.isNotEmpty)
-          (isAuthenticatorCode ? 'code' : 'recovery_code'):
-              (isAuthenticatorCode ? authenticatorCode : enteredCode),
+          (isAuthenticatorCode ? 'code' : 'recovery_code'): (isAuthenticatorCode
+              ? authenticatorCode
+              : enteredCode),
       },
     );
     await _storage.write(key: _tokenKey, value: body['token'] as String);
