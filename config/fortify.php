@@ -170,7 +170,7 @@ return [
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,
-            'window' => 1,
+            'window' => 2,
         ]),
         Features::passkeys([
             'confirmPassword' => true,
