@@ -363,6 +363,19 @@ html[data-theme='dark'] .shadow-lg {
 .document-scanner__dropzone:hover,
 .document-scanner__dropzone.is-dragging { border-color: var(--role-accent); }
 .document-scanner__dropzone:disabled { opacity: .55; cursor: wait; }
+.document-scanner__camera { min-height: 2.4rem; padding: .5rem .75rem; border: 1px solid var(--system-line); border-radius: .6rem; color: var(--role-accent); background: var(--system-card); font: inherit; font-size: .72rem; cursor: pointer; }
+.document-scanner__camera:hover { border-color: var(--role-accent); }
+.document-scanner__camera:disabled { opacity: .55; cursor: wait; }
+.document-scanner__camera-dialog { width: min(38rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 1rem; border: 1px solid var(--system-line); border-radius: 1rem; color: var(--system-text); background: var(--system-card); }
+.document-scanner__camera-dialog::backdrop { background: rgb(10 8 20 / 72%); }
+.document-scanner__camera-heading,
+.document-scanner__camera-actions { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.document-scanner__camera-heading h3 { margin: 0; font-size: 1rem; font-weight: 500; }
+.document-scanner__camera-heading button,
+.document-scanner__camera-actions button { min-height: 2.5rem; padding: .5rem .8rem; border: 1px solid var(--system-line); border-radius: .6rem; color: var(--system-text); background: var(--system-surface); font: inherit; cursor: pointer; }
+.document-scanner__camera-dialog video { display: block; width: 100%; max-height: min(65dvh, 34rem); margin-top: .85rem; border-radius: .7rem; background: #111; object-fit: contain; }
+.document-scanner__camera-dialog p { color: var(--system-muted); font-size: .75rem; line-height: 1.5; }
+.document-scanner__camera-actions [data-camera-capture] { color: #fff; border-color: var(--role-accent); background: var(--role-accent); }
 .document-scanner__upload-mark { display: grid; width: 2rem; height: 2rem; flex: 0 0 auto; place-items: center; border-radius: .6rem; color: var(--role-accent); background: var(--role-accent-soft); font-size: 1.2rem; }
 .document-scanner__dropzone strong,
 .document-scanner__dropzone small { display: block; }

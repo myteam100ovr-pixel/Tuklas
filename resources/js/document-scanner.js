@@ -3,6 +3,11 @@ const scanner = document.querySelector('[data-document-scanner]');
 if (scanner) {
     const input = scanner.querySelector('[data-document-input]');
     const chooseButton = scanner.querySelector('[data-document-choose]');
+    const cameraOpenButton = scanner.querySelector('[data-camera-open]');
+    const cameraDialog = scanner.querySelector('[data-camera-dialog]');
+    const cameraVideo = scanner.querySelector('[data-camera-video]');
+    const cameraStatus = scanner.querySelector('[data-camera-status]');
+    const cameraCaptureButton = scanner.querySelector('[data-camera-capture]');
     const consent = scanner.querySelector('[data-document-consent]');
     const submitButton = scanner.querySelector('[data-document-submit]');
     const cancelButton = scanner.querySelector('[data-document-cancel]');
@@ -25,6 +30,7 @@ if (scanner) {
     let activeRequest = null;
     let reusedRecentScan = false;
     let historyRequestId = 0;
+    let cameraStream = null;
 
     const formatSize = (bytes) => {
         if (bytes < 1024 * 1024) {
@@ -288,7 +294,7 @@ if (scanner) {
 
         const invalid = received.find((file) => {
             const extension = file.name.split('.').pop()?.toLowerCase();
-            return file.size > maxFileSize || !['pdf', 'jpg', 'jpeg', 'png', 'webp'].includes(extension);
+            return file.size > maxFileSize || !['pdf', 'docx', 'jpg', 'jpeg', 'png', 'webp'].includes(extension);
         });
 
         if (invalid) {
@@ -401,6 +407,7 @@ if (scanner) {
         updateSubmitState();
         input.disabled = true;
         chooseButton.disabled = true;
+        cameraOpenButton.disabled = true;
         consent.disabled = true;
         cancelButton.hidden = false;
         progress.hidden = false;
@@ -430,6 +437,7 @@ if (scanner) {
         renderSelected();
         input.disabled = false;
         chooseButton.disabled = false;
+        cameraOpenButton.disabled = false;
         consent.checked = false;
         consent.disabled = false;
         cancelButton.hidden = true;
@@ -514,6 +522,95 @@ if (scanner) {
             loadHistory();
         }
     });
+
+    const stopCamera = () => {
+        cameraStream?.getTracks().forEach((track) => track.stop());
+        cameraStream = null;
+        cameraVideo.srcObject = null;
+    };
+
+    cameraOpenButton.addEventListener('click', async () => {
+        if (!navigator.mediaDevices?.getUserMedia) {
+            setStatus('Camera capture needs a secure connection and a browser with camera support.', 'error');
+            return;
+        }
+
+        cameraOpenButton.disabled = true;
+
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: { ideal: 'environment' } },
+            });
+            cameraVideo.srcObject = cameraStream;
+            cameraDialog.showModal();
+            await cameraVideo.play();
+            cameraStatus.textContent = 'Position the resume or certificate inside the frame.';
+        } catch (error) {
+            stopCamera();
+            cameraOpenButton.disabled = false;
+            const message = error.name === 'NotAllowedError'
+                ? 'Camera permission was denied. Allow camera access in your browser settings and try again.'
+                : 'The camera could not be opened. Check that it is connected and not being used by another app.';
+            cameraStatus.textContent = message;
+            setStatus(message, 'error');
+        }
+    });
+
+    cameraCaptureButton.addEventListener('click', () => {
+        if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) {
+            cameraStatus.textContent = 'The camera is not ready yet. Wait a moment and try again.';
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(1, 1800 / Math.max(cameraVideo.videoWidth, cameraVideo.videoHeight));
+        canvas.width = Math.round(cameraVideo.videoWidth * scale);
+        canvas.height = Math.round(cameraVideo.videoHeight * scale);
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+            cameraStatus.textContent = 'The photo could not be captured. Please try again.';
+            return;
+        }
+
+        context.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+        cameraCaptureButton.disabled = true;
+        canvas.toBlob((blob) => {
+            cameraCaptureButton.disabled = false;
+
+            if (!blob) {
+                cameraStatus.textContent = 'The photo could not be captured. Please try again.';
+                return;
+            }
+
+            if (blob.size > maxFileSize) {
+                cameraStatus.textContent = 'The photo is larger than 10 MB. Move closer to the document and try again.';
+                return;
+            }
+
+            const photo = new File([blob], `tuklas-document-${Date.now()}.jpg`, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+            });
+            setFiles([photo]);
+            cameraDialog.close();
+            stopCamera();
+
+            if (selectedFiles.includes(photo)) {
+                setStatus('Photo added. You can scan it now or add more documents.');
+            }
+        }, 'image/jpeg', 0.84);
+    });
+
+    scanner.querySelectorAll('[data-camera-close], [data-camera-cancel]').forEach((button) => {
+        button.addEventListener('click', () => cameraDialog.close());
+    });
+    cameraDialog.addEventListener('close', () => {
+        stopCamera();
+        cameraOpenButton.disabled = false;
+    });
+    window.addEventListener('pagehide', stopCamera);
 
     chooseButton.addEventListener('click', () => input.click());
     input.addEventListener('change', () => {

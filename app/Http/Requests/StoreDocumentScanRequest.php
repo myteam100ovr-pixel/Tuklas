@@ -28,8 +28,8 @@ class StoreDocumentScanRequest extends FormRequest
             'file' => [
                 'required',
                 'file',
-                'mimes:pdf,jpg,jpeg,png,webp',
-                'extensions:pdf,jpg,jpeg,png,webp',
+                'mimes:pdf,jpg,jpeg,png,webp,docx',
+                'extensions:pdf,jpg,jpeg,png,webp,docx',
                 'max:10240',
             ],
         ];

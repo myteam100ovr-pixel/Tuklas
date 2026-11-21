@@ -149,6 +149,13 @@ class DocumentScanController extends Controller
             });
             Cache::put($deduplicationKey, $scan->getKey(), now()->addMinutes(5));
         } catch (Throwable $exception) {
+            if ($exception instanceof \InvalidArgumentException) {
+                return response()->json([
+                    'message' => $exception->getMessage(),
+                    'errors' => ['file' => [$exception->getMessage()]],
+                ], 422);
+            }
+
             report($exception);
             $failureMessage = $this->failureMessage($exception);
             $providerStatus = (int) $exception->getCode();

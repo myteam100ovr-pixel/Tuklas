@@ -50,7 +50,7 @@ class _ScannerViewState extends State<ScannerView> {
     try {
       result = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
+        allowedExtensions: const ['pdf', 'docx', 'jpg', 'jpeg', 'png', 'webp'],
         allowMultiple: true,
         withData: true,
       );
@@ -462,7 +462,7 @@ class _ScannerViewState extends State<ScannerView> {
                       ],
                       const SizedBox(height: 6),
                       Text(
-                        'PDF or image · up to 10 MB each · up to 5 files per scan',
+                        'PDF, DOCX or image · up to 10 MB each · up to 5 files per scan',
                         style: tkText(context, size: 12, color: colors.muted),
                       ),
                       const SizedBox(height: 12),
