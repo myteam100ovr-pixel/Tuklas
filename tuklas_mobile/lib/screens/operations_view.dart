@@ -28,12 +28,18 @@ class _OperationsViewState extends State<OperationsView> {
   Timer? _syncTimer;
   bool _syncing = false;
 
-  bool get _searchable =>
-      ['Jobs', 'Scholarships', 'Centers', 'Sessions'].contains(widget.section);
+  bool get _searchable => [
+    'Jobs',
+    'Scholarships',
+    'Centers',
+    'Sessions',
+    'Career paths',
+  ].contains(widget.section);
 
   String get _role => '${ApiClient.instance.user?['role']}';
   String get _path => switch (widget.section) {
     'Jobs' => '/opportunities',
+    'Career paths' => '/career-paths',
     'Job applications' => '/job-applications',
     'Scholarships' => '/scholarships',
     'Centers' => '/training-centers',
@@ -44,6 +50,7 @@ class _OperationsViewState extends State<OperationsView> {
   };
   String get _key => switch (widget.section) {
     'Jobs' => 'jobs',
+    'Career paths' => 'careers',
     'Job applications' => 'applications',
     'Scholarships' => 'scholarships',
     'Centers' => 'centers',
@@ -54,6 +61,7 @@ class _OperationsViewState extends State<OperationsView> {
   };
   bool get _canManage => switch (widget.section) {
     'Jobs' || 'Job applications' => _role == 'admin',
+    'Career paths' => _role == 'admin',
     'Scholarships' || 'Centers' => _role == 'admin' || _role == 'tesda_admin',
     'Sessions' || 'Assessments' => _role == 'admin' || _role == 'tesda_admin',
     'Trainers' => _role == 'admin' || _role == 'tesda_admin',
@@ -61,6 +69,7 @@ class _OperationsViewState extends State<OperationsView> {
   };
   String get _helpText => switch (widget.section) {
     'Jobs' => 'Browse openings. PESO staff enter the employer and listing together, verify current details, then publish and recommend the opening.',
+    'Career paths' => 'Manage published career guidance paths. Career Seekers can browse published paths; Admin can create, edit, publish, archive, and remove them.',
     'Job applications' => 'Review Career Seeker applications, move them under review, record hiring decisions, and give a reason when someone is not selected.',
     'Scholarships' => 'PTC and PSAT courses can each have a scholarship listing. Places are first come, first served. A submitted application reserves one place while the center and a different TESDA trainer review it.',
     'Centers' => 'See the training centers that provide Tuklas programs.',
@@ -265,6 +274,18 @@ class _OperationsViewState extends State<OperationsView> {
         'status',
         'Status',
         options: ['draft', 'published', 'closed'],
+        required: true,
+      ),
+    ],
+    'Career paths' => [
+      const WorkspaceField('title', 'Career path title', required: true),
+      const WorkspaceField('description', 'Description', multiline: true),
+      const WorkspaceField('education_level', 'Education or entry level'),
+      const WorkspaceField('source_note', 'Source or reference'),
+      const WorkspaceField(
+        'status',
+        'Status',
+        options: ['draft', 'published', 'archived'],
         required: true,
       ),
     ],
@@ -996,6 +1017,13 @@ class _OperationsViewState extends State<OperationsView> {
     ].join('\n'),
     'Jobs' =>
       '${item['employer_name'] ?? (item['employer'] as Map?)?['name'] ?? ''} · ${item['location'] ?? ''}\n${item['description'] ?? ''}',
+    'Career paths' => [
+      '${item['description'] ?? ''}',
+      if (item['education_level'] != null)
+        'Education or entry level: ${item['education_level']}',
+      if (item['source_note'] != null) 'Source: ${item['source_note']}',
+      if (_role == 'admin') 'Status: ${item['status'] ?? 'draft'}',
+    ].where((line) => line.isNotEmpty).join('\n'),
     'Scholarships' => [
       '${item['provider'] ?? ''}',
       '${item['description'] ?? ''}',
@@ -1589,6 +1617,17 @@ class _OperationsViewState extends State<OperationsView> {
                               : () => _deleteJobOpportunity(item),
                           icon: const Icon(Icons.delete_outline),
                           label: const Text('Delete opening'),
+                        ),
+                      if (widget.section == 'Career paths' && _canManage)
+                        TextButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _action(
+                                  '/career-paths/${item['id']}',
+                                  method: 'DELETE',
+                                ),
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text('Delete career path'),
                         ),
                       if (widget.section == 'Sessions' && _canManage)
                         TextButton.icon(

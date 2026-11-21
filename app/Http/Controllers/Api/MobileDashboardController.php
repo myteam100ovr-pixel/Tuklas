@@ -110,7 +110,7 @@ class MobileDashboardController extends Controller
             ],
             'actions' => $this->actions([
                 ['Manage users', 'users', 'users'],
-                ['Career paths', 'peso', 'briefcase'],
+                ['Career paths', 'careers', 'briefcase'],
                 ['Training catalog', 'tesda', 'cap'],
                 ['Edit profile', 'profile', 'user'],
                 ['Scanner', 'scanner', 'scan'],
@@ -197,9 +197,6 @@ class MobileDashboardController extends Controller
                 ['My programs', 'programs', 'cap'],
                 ['Add a program', 'programs', 'clipboard'],
                 ['Edit profile', 'profile', 'user'],
-                ['Scanner', 'scanner', 'scan'],
-                ['PESO job matches', 'peso', 'briefcase'],
-                ['TESDA', 'tesda', 'cap'],
             ]),
         ];
     }

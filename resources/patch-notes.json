@@ -1,6 +1,19 @@
 [
     {
         "date": "2026-11-21",
+        "published_at": "2026-11-21T12:00:00+08:00",
+        "version": "1.0.12+13",
+        "title": "Mobile navigation and career guidance update",
+        "items": [
+            "Career Seekers can browse published career paths, and Admin can create, edit, publish, archive, and remove career paths from mobile.",
+            "Dashboard shortcuts now open the intended PESO AI and career-path screens; TESDA dashboard actions show only training-role functions.",
+            "Reduced motion is enabled by default on mobile and can be changed in account settings.",
+            "Mobile document scanning supports camera capture and PDF, DOCX, and image files; messages support file attachments.",
+            "Mobile authentication and job-form requests use the same normalized account and validation rules as the website."
+        ]
+    },
+    {
+        "date": "2026-11-21",
         "published_at": "2026-11-21T00:00:00+08:00",
         "version": "1.0.9+10",
         "title": "Flexible training request decisions",

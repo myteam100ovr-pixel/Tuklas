@@ -902,6 +902,9 @@ class _DashboardViewState extends State<DashboardView> {
                       'Careers' => () => widget.onOpenWorkspace?.call(
                         'Careers',
                       ),
+                      'careers' => () => widget.onOpenWorkspace?.call(
+                        'Career paths',
+                      ),
                       'Messages' => () => widget.onOpenWorkspace?.call(
                         'Messages',
                       ),
@@ -1013,6 +1016,9 @@ class _DashboardViewState extends State<DashboardView> {
                           ),
                           'users' => () => widget.onOpenWorkspace?.call(
                             'Users',
+                          ),
+                          'careers' => () => widget.onOpenWorkspace?.call(
+                            'Career paths',
                           ),
                           'programs' => () => widget.onOpenWorkspace?.call(
                             'My programs',

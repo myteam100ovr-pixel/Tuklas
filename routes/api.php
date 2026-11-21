@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\MobileCatalogController;
 use App\Http\Controllers\Api\MobileDashboardController;
+use App\Http\Controllers\Api\CareerPathApiController;
 use App\Http\Controllers\AssessmentRecordController;
 use App\Http\Controllers\CareerChatController;
 use App\Http\Controllers\DirectMessageController;
@@ -82,6 +83,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
 
         Route::middleware('verified')->group(function () {
             Route::get('/opportunities', [JobOpportunityController::class, 'index'])->name('opportunities.index');
+            Route::get('/career-paths', [CareerPathApiController::class, 'index'])->middleware('role:admin,youth')->name('career-paths.index');
             Route::get('/scholarships', [ScholarshipController::class, 'index'])->name('scholarships.index');
             Route::get('/scholarship-applications/{application}/documents/{document}', [ScholarshipApplicationController::class, 'download'])
                 ->whereNumber('document')->name('scholarship-applications.documents');
@@ -95,6 +97,9 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::delete('/center-trainers/{assignment}', [CenterTrainerController::class, 'destroy'])->name('center-trainers.destroy');
             });
             Route::middleware('role:admin')->group(function () {
+                Route::post('/career-paths', [CareerPathApiController::class, 'store'])->name('career-paths.store');
+                Route::put('/career-paths/{careerPath}', [CareerPathApiController::class, 'update'])->name('career-paths.update');
+                Route::delete('/career-paths/{careerPath}', [CareerPathApiController::class, 'destroy'])->name('career-paths.destroy');
                 Route::get('/job-applications', [JobApplicationController::class, 'index'])->name('job-applications.index');
                 Route::put('/job-applications/{jobApplication}', [JobApplicationController::class, 'update'])->name('job-applications.update');
                 Route::post('/opportunities', [JobOpportunityController::class, 'store'])->name('opportunities.store');

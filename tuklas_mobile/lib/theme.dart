@@ -238,12 +238,12 @@ class NoMotionPageTransitionsBuilder extends PageTransitionsBuilder {
 
 class MotionController extends ChangeNotifier {
   static const _key = 'tuklas-reduce-motion';
-  bool enabled = false;
+  bool enabled = true;
 
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      enabled = prefs.getBool(_key) ?? false;
+      enabled = prefs.getBool(_key) ?? true;
       notifyListeners();
     } on PlatformException {
       // Continue with normal transitions if device preferences are unavailable.

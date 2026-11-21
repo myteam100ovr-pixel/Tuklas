@@ -139,11 +139,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   String get _role => '${ApiClient.instance.user?['role']}';
 
   List<String> get _groupItems => switch ((_role, _tab)) {
-    ('admin', 1) => ['Openings', 'PESO', 'Applications'],
+    ('admin', 1) => ['Openings', 'PESO AI', 'Applications'],
     ('admin', 2) => ['Centers', 'Trainers', 'Dates', 'Requests', 'Results'],
     ('admin', 3) => ['Messages', 'Notifications'],
     ('admin', 4) => [
       'Users',
+      'Career paths',
       'Scholarships',
       'Course catalog',
       'Document Scanner',
@@ -152,7 +153,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'Account & security',
       'Patch Notes',
     ],
-    ('youth', 1) => ['Find jobs', 'PESO AI', 'Document Scanner'],
+    ('youth', 1) => [
+      'Find jobs',
+      'PESO AI',
+      'Career paths',
+      'Document Scanner',
+    ],
     ('youth', 2) => [
       'Courses',
       'Scholarships',
@@ -193,7 +199,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     ('admin', 1) => 'Openings',
     ('admin', 2) => 'Centers',
     ('admin', 3) => 'Messages',
-    ('admin', 4) => 'Profile',
+    ('admin', 4) => 'Users',
     ('youth', 1) => 'Find jobs',
     ('youth', 2) => 'Courses',
     ('youth', 3) => 'Messages',
@@ -209,24 +215,17 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     if (_tab == 0) {
       return DashboardView(
         key: ValueKey(_version),
-        onEditProfile: () => _selectTab(4),
-        onOpenPeso: () => _selectTab(_role == 'tesda_admin' ? 2 : 1),
+        onEditProfile: () => _openWorkspace('Profile'),
+        onOpenPeso: () => _openWorkspace('PESO AI'),
         onOpenScanner: () => _openWorkspace('Document Scanner'),
-        onOpenTesda: () => _selectTab(2),
+        onOpenTesda: () => _openWorkspace('Course catalog'),
         onLogout: _logout,
         onOpenWorkspace: _openWorkspace,
       );
     }
-    if (_tab == 4) {
-      return ProfileView(
-        onSaved: () => setState(() => _version++),
-        onLogout: _logout,
-      );
-    }
-    if (_tab == 3) return const MessagesView();
     final item = _activeGroupItem ?? _defaultGroupItem;
     return switch (item) {
-      'PESO' || 'PESO AI' => const PesoView(),
+      'PESO AI' => const PesoView(),
       'Courses' || 'Course catalog' => const TesdaView(),
       'My courses' => const WorkspaceView(section: 'My programs'),
       'Document Scanner' => ScannerView(
@@ -236,6 +235,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'Messages' => const MessagesView(),
       'Notifications' => const WorkspaceView(section: 'Notifications'),
       'Users' => const WorkspaceView(section: 'Users'),
+      'Career paths' ||
+      'Careers' => const OperationsView(section: 'Career paths'),
       'Training plans' || 'Skills assessment' => WorkspaceView(section: item),
       'TuklasBot' => const ChatView(),
       'Profile' => ProfileView(
@@ -319,7 +320,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             'TuklasBot' => const ChatView(),
             'Patch Notes' => const PatchNotesView(),
             'Messages' => const MessagesView(),
-            'PESO' || 'PESO AI' => const PesoView(),
+            'PESO AI' => const PesoView(),
+            'Career paths' ||
+            'Careers' => const OperationsView(section: 'Career paths'),
             'Course catalog' || 'Courses' => const TesdaView(),
             'Document Scanner' => ScannerView(
               onScanComplete: _handleScanComplete,
