@@ -1,5 +1,16 @@
 [
     {
+        "date": "2026-11-27",
+        "published_at": "2026-11-27T00:17:10+08:00",
+        "version": "1.0.17+18",
+        "title": "Mobile photo sharing fix",
+        "items": [
+            "Camera photos are resized for reliable sending and shown as a preview before you tap Send.",
+            "Android camera results can be recovered after an app restart and stay tied to the conversation that opened the camera.",
+            "Received message photos now appear inline, and tapping a photo lets the recipient save it."
+        ]
+    },
+    {
         "date": "2026-11-26",
         "published_at": "2026-11-26T23:38:21+08:00",
         "version": "1.0.16+17",

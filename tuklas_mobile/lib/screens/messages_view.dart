@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 import '../theme.dart';
@@ -203,10 +205,13 @@ class _ConversationViewState extends State<_ConversationView>
     with WidgetsBindingObserver {
   static const _maximumAttachmentCount = 5;
   static const _maximumAttachmentBytes = 10 * 1024 * 1024;
+  static const _pendingCameraRecipientKey =
+      'tuklas_pending_message_camera_recipient';
   final _composer = TextEditingController();
   final _imagePicker = ImagePicker();
   final _messages = <Map<String, dynamic>>[];
   final _attachments = <PlatformFile>[];
+  final _attachmentPreviews = <String, Future<Uint8List>>{};
   final _messageIds = <int>{};
   Timer? _refreshTimer;
   WebSocket? _socket;
@@ -228,6 +233,9 @@ class _ConversationViewState extends State<_ConversationView>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _refreshMessages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_recoverLostCameraPhoto());
+    });
     _refreshTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed &&
           !_socketConnected) {
@@ -451,6 +459,13 @@ class _ConversationViewState extends State<_ConversationView>
         _attachments.removeWhere(sendingAttachments.contains);
         _addMessage(asMap(response['message']));
       });
+      if (sendingAttachments.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Attachment sent and saved in this conversation.'),
+          ),
+        );
+      }
     } on ApiException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -500,19 +515,47 @@ class _ConversationViewState extends State<_ConversationView>
   }
 
   Future<void> _pickPhoto(ImageSource source) async {
+    final shouldRecoverAfterRestart =
+        Platform.isAndroid && source == ImageSource.camera;
     try {
+      if (shouldRecoverAfterRestart) {
+        final preferences = await SharedPreferences.getInstance();
+        await preferences.setInt(_pendingCameraRecipientKey, _personId);
+      }
       final photo = await _imagePicker.pickImage(
         source: source,
-        imageQuality: 88,
+        imageQuality: 82,
+        maxWidth: 1920,
+        maxHeight: 1920,
       );
       if (photo == null || !mounted) {
+        if (shouldRecoverAfterRestart) {
+          await _clearPendingCameraRecipient();
+        }
         return;
       }
       final bytes = await photo.readAsBytes();
-      _addAttachments([
-        PlatformFile(name: photo.name, size: bytes.length, bytes: bytes),
+      if (shouldRecoverAfterRestart) {
+        await _clearPendingCameraRecipient();
+      }
+      final attached = _addAttachments([
+        PlatformFile(
+          name: _photoFileName(photo),
+          size: bytes.length,
+          bytes: bytes,
+        ),
       ]);
+      if (attached && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo attached. Tap Send to share it.'),
+          ),
+        );
+      }
     } on Exception catch (_) {
+      if (shouldRecoverAfterRestart) {
+        await _clearPendingCameraRecipient();
+      }
       if (mounted) {
         _showAttachmentError(
           'Could not access the image. Check app permissions and try again.',
@@ -521,21 +564,185 @@ class _ConversationViewState extends State<_ConversationView>
     }
   }
 
-  void _addAttachments(List<PlatformFile> selected) {
+  Future<void> _recoverLostCameraPhoto() async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      if (preferences.getInt(_pendingCameraRecipientKey) != _personId) {
+        return;
+      }
+
+      final result = await _imagePicker.retrieveLostData();
+      final photos =
+          result.files ?? (result.file == null ? [] : [result.file!]);
+      final recovered = <PlatformFile>[];
+      for (final photo in photos) {
+        final bytes = await photo.readAsBytes();
+        recovered.add(
+          PlatformFile(
+            name: _photoFileName(photo),
+            size: bytes.length,
+            bytes: bytes,
+          ),
+        );
+      }
+
+      await preferences.remove(_pendingCameraRecipientKey);
+      if (!mounted) return;
+      if (recovered.isNotEmpty) {
+        if (_addAttachments(recovered)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Your photo was recovered. Tap Send to share it.'),
+            ),
+          );
+        }
+      } else if (result.exception != null) {
+        _showAttachmentError(
+          'The camera did not return a photo. Please take it again.',
+        );
+      }
+    } on Exception catch (_) {
+      await _clearPendingCameraRecipient();
+      if (mounted) {
+        _showAttachmentError(
+          'Could not recover the photo. Please take it again.',
+        );
+      }
+    }
+  }
+
+  Future<void> _clearPendingCameraRecipient() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.remove(_pendingCameraRecipientKey);
+    } on Exception catch (_) {
+      // Camera capture can still proceed when local preference storage fails.
+    }
+  }
+
+  String _photoFileName(XFile photo) {
+    if (_isImageName(photo.name)) return photo.name;
+
+    final extension = photo.path.split('.').last.toLowerCase();
+    final safeExtension =
+        const {'jpg', 'jpeg', 'png', 'webp'}.contains(extension)
+        ? extension
+        : 'jpg';
+    return 'tuklas-photo-${DateTime.now().millisecondsSinceEpoch}.$safeExtension';
+  }
+
+  bool _isImageName(String name) {
+    final extension = name.split('.').last.toLowerCase();
+    return const {'jpg', 'jpeg', 'png', 'webp'}.contains(extension);
+  }
+
+  bool _isImageAttachment(Map<String, dynamic> attachment) {
+    final mime = '${attachment['mime'] ?? ''}'.toLowerCase();
+    final name = '${attachment['name'] ?? ''}';
+    return mime.startsWith('image/') || _isImageName(name);
+  }
+
+  Future<Uint8List> _loadAttachmentPreview(
+    Map<String, dynamic> message,
+    Map<String, dynamic> attachment,
+  ) {
+    final key = '${message['id']}:${attachment['index']}';
+    return _attachmentPreviews.putIfAbsent(key, () async {
+      try {
+        return await ApiClient.instance.downloadMessageAttachment(
+          personId: _personId,
+          messageId: message['id'] as int,
+          attachmentIndex: attachment['index'] as int,
+        );
+      } catch (_) {
+        _attachmentPreviews.remove(key);
+        rethrow;
+      }
+    });
+  }
+
+  Widget _imageAttachmentPreview(
+    BuildContext context,
+    Map<String, dynamic> message,
+    Map<String, dynamic> attachment,
+  ) {
+    final width = (MediaQuery.sizeOf(context).width * .68)
+        .clamp(150.0, 220.0)
+        .toDouble();
+    return FutureBuilder<Uint8List>(
+      future: _loadAttachmentPreview(message, attachment),
+      builder: (context, snapshot) {
+        final preview = snapshot.data;
+        if (preview == null) {
+          return Container(
+            width: width,
+            height: 120,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: TkColors.of(context).surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              snapshot.hasError
+                  ? 'Preview unavailable. Tap to save the image.'
+                  : 'Loading photo…',
+              textAlign: TextAlign.center,
+              style: tkText(
+                context,
+                size: 12,
+                color: TkColors.of(context).muted,
+              ),
+            ),
+          );
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.memory(
+            preview,
+            width: width,
+            height: 170,
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+            errorBuilder: (_, _, _) => SizedBox(
+              width: width,
+              height: 120,
+              child: Center(
+                child: Text(
+                  'Preview unavailable. Tap to save the image.',
+                  textAlign: TextAlign.center,
+                  style: tkText(
+                    context,
+                    size: 12,
+                    color: TkColors.of(context).muted,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  bool _addAttachments(List<PlatformFile> selected) {
     final remaining = _maximumAttachmentCount - _attachments.length;
     if (selected.length > remaining) {
       _showAttachmentError(
         'You can attach up to $_maximumAttachmentCount files per message.',
       );
-      return;
+      return false;
     }
     for (final file in selected) {
       if (file.size > _maximumAttachmentBytes) {
         _showAttachmentError('${file.name} is larger than 10 MB.');
-        return;
+        return false;
       }
     }
     setState(() => _attachments.addAll(selected));
+    return true;
   }
 
   void _showAttachmentError(String message) {
@@ -716,27 +923,46 @@ class _ConversationViewState extends State<_ConversationView>
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.only(top: 8),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            const Icon(
-                                              Icons.attach_file,
-                                              size: 18,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Flexible(
-                                              child: Text(
-                                                '${attachment['name'] ?? 'Attachment'}',
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: tkText(
-                                                  context,
-                                                  color: mine
-                                                      ? Colors.white
-                                                      : c.ink,
-                                                  size: 13,
-                                                ),
+                                            if (_isImageAttachment(
+                                              attachment,
+                                            )) ...[
+                                              _imageAttachmentPreview(
+                                                context,
+                                                message,
+                                                attachment,
                                               ),
+                                              const SizedBox(height: 5),
+                                            ],
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  _isImageAttachment(attachment)
+                                                      ? Icons.image_outlined
+                                                      : Icons.attach_file,
+                                                  size: 18,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Flexible(
+                                                  child: Text(
+                                                    '${attachment['name'] ?? 'Attachment'} · tap to save',
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: tkText(
+                                                      context,
+                                                      color: mine
+                                                          ? Colors.white
+                                                          : c.ink,
+                                                      size: 13,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
@@ -776,7 +1002,17 @@ class _ConversationViewState extends State<_ConversationView>
                         itemBuilder: (context, index) {
                           final file = _attachments[index];
                           return InputChip(
-                            avatar: const Icon(Icons.attach_file, size: 16),
+                            avatar:
+                                file.bytes != null && _isImageName(file.name)
+                                ? ClipOval(
+                                    child: Image.memory(
+                                      file.bytes!,
+                                      width: 24,
+                                      height: 24,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : const Icon(Icons.attach_file, size: 16),
                             label: ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 180),
                               child: Text(
