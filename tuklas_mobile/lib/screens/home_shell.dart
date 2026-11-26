@@ -373,9 +373,13 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     setState(() => _switching = false);
   }
 
-  Future<void> _openGroupedItem(String item) async {
+  void _openGroupedItem(String item) {
+    if ((_activeGroupItem ?? _defaultGroupItem) == item) return;
+
     setState(() => _activeGroupItem = item);
-    await _openWorkspace(item);
+    if (item == 'Notifications') {
+      unawaited(_loadUnreadNotifications());
+    }
   }
 
   @override
@@ -503,7 +507,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                         ],
                       ),
                     )
-                  : WorkspaceRefreshScope(child: _selectedView()),
+                  : KeyedSubtree(
+                      key: ValueKey(
+                        '$_tab-${_activeGroupItem ?? _defaultGroupItem}',
+                      ),
+                      child: WorkspaceRefreshScope(child: _selectedView()),
+                    ),
             ),
           ],
         ),

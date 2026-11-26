@@ -221,55 +221,71 @@ class TkHeader extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-      child: Container(
-        key: const ValueKey('top-navigation-panel'),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: _navigationPanelDecoration(context),
-        child: Row(
-          children: [
-            Image.asset(
-              'assets/images/tuklas-logo.png',
-              width: 30,
-              height: 30,
-              fit: BoxFit.contain,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 360;
+
+          return Container(
+            key: const ValueKey('top-navigation-panel'),
+            padding: EdgeInsets.symmetric(
+              horizontal: compact ? 12 : 16,
+              vertical: 10,
             ),
-            const SizedBox(width: 8),
-            Text(
-              'Tuklas.',
-              style: tkText(
-                context,
-                size: 27,
-                weight: 700,
-                spacing: -1.4,
-                height: 1,
-              ),
-            ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: TkColors.violet.withValues(alpha: .09),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                'WORKSPACE',
-                style: tkText(
-                  context,
-                  size: 9,
-                  weight: 600,
-                  spacing: 1,
-                  color: TkColors.of(context).taskMeta,
+            decoration: _navigationPanelDecoration(context),
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/images/tuklas-logo.png',
+                  width: 30,
+                  height: 30,
+                  fit: BoxFit.contain,
                 ),
-              ),
+                const SizedBox(width: 8),
+                Text(
+                  'Tuklas.',
+                  style: tkText(
+                    context,
+                    size: compact ? 24 : 27,
+                    weight: 700,
+                    spacing: -1.4,
+                    height: 1,
+                  ),
+                ),
+                const Spacer(),
+                if (!compact) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: TkColors.violet.withValues(alpha: .09),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Text(
+                      'WORKSPACE',
+                      style: tkText(
+                        context,
+                        size: 9,
+                        weight: 600,
+                        spacing: 1,
+                        color: TkColors.of(context).taskMeta,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                TkIconButton(
+                  icon: dark
+                      ? Icons.dark_mode_outlined
+                      : Icons.light_mode_outlined,
+                  tooltip: 'Light / dark mode',
+                  onTap: () => themeController.toggle(context),
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            TkIconButton(
-              icon: dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-              tooltip: 'Light / dark mode',
-              onTap: () => themeController.toggle(context),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

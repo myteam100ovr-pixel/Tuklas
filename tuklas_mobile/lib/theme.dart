@@ -118,6 +118,21 @@ ThemeData tkTheme(Brightness brightness, {bool reduceMotion = false}) {
         borderSide: BorderSide(color: color, width: width),
       );
 
+  final panelShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(14),
+    side: BorderSide(color: c.line),
+  );
+  final dialogShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(20),
+    side: BorderSide(color: c.line),
+  );
+  final selectedColor = c.isDark ? const Color(0xFFA786FF) : TkColors.violet;
+  final checkboxFill = WidgetStateProperty.resolveWith<Color>((states) {
+    if (states.contains(WidgetState.disabled)) return c.line;
+    if (states.contains(WidgetState.selected)) return selectedColor;
+    return c.surface;
+  });
+
   return ThemeData(
     pageTransitionsTheme: reduceMotion
         ? const PageTransitionsTheme(
@@ -132,6 +147,203 @@ ThemeData tkTheme(Brightness brightness, {bool reduceMotion = false}) {
     fontFamily: 'SchibstedGrotesk',
     scaffoldBackgroundColor: c.bg,
     dividerColor: c.line,
+    canvasColor: c.surface,
+    iconTheme: IconThemeData(color: c.ink2),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll(c.ink2),
+        overlayColor: WidgetStatePropertyAll(
+          selectedColor.withValues(alpha: .1),
+        ),
+        minimumSize: const WidgetStatePropertyAll(Size(44, 44)),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      ),
+    ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: c.ink,
+        border: Border.all(color: c.line),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        color: c.bg,
+        fontSize: 12,
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: c.surface,
+      foregroundColor: c.ink,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: c.ink,
+      ),
+    ),
+    cardTheme: CardThemeData(
+      color: c.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: panelShape,
+    ),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: checkboxFill,
+      checkColor: const WidgetStatePropertyAll(Colors.white),
+      side: BorderSide(color: c.muted, width: 1.4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      visualDensity: VisualDensity.standard,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: c.surface2,
+      disabledColor: c.surface2,
+      selectedColor: selectedColor.withValues(alpha: c.isDark ? .28 : .12),
+      secondarySelectedColor: selectedColor.withValues(
+        alpha: c.isDark ? .28 : .12,
+      ),
+      checkmarkColor: selectedColor,
+      showCheckmark: false,
+      labelStyle: TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 12,
+        color: c.ink2,
+      ),
+      secondaryLabelStyle: TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: selectedColor,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      side: BorderSide(color: c.line),
+      shape: const StadiumBorder(),
+      iconTheme: IconThemeData(color: c.taskMeta, size: 16),
+    ),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: c.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: dialogShape,
+      headerBackgroundColor: selectedColor,
+      headerForegroundColor: Colors.white,
+      dayForegroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) return Colors.white;
+        if (states.contains(WidgetState.disabled)) return c.muted;
+        return c.ink;
+      }),
+      dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) return selectedColor;
+        return null;
+      }),
+      todayForegroundColor: WidgetStatePropertyAll(selectedColor),
+      todayBackgroundColor: WidgetStatePropertyAll(
+        selectedColor.withValues(alpha: .12),
+      ),
+      todayBorder: BorderSide(color: selectedColor),
+      dividerColor: c.line,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: c.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 12,
+      shape: dialogShape,
+      iconColor: c.taskMeta,
+      titleTextStyle: TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: c.ink,
+      ),
+      contentTextStyle: TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 14,
+        height: 1.45,
+        color: c.ink2,
+      ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      clipBehavior: Clip.antiAlias,
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      textStyle: TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 14,
+        color: c.ink,
+      ),
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(c.surface),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(10),
+        shape: WidgetStatePropertyAll(dialogShape),
+        side: WidgetStatePropertyAll(BorderSide(color: c.line)),
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: c.surface,
+      modalBackgroundColor: c.surface,
+      surfaceTintColor: Colors.transparent,
+      showDragHandle: true,
+      dragHandleColor: c.muted,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+        side: BorderSide(color: c.line),
+      ),
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.disabled)) return c.muted;
+        if (states.contains(WidgetState.selected)) return selectedColor;
+        return c.ink2;
+      }),
+      visualDensity: VisualDensity.standard,
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) return Colors.white;
+        return c.muted;
+      }),
+      trackColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) return selectedColor;
+        return c.surface2;
+      }),
+      trackOutlineColor: WidgetStatePropertyAll(c.line),
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: selectedColor,
+      unselectedLabelColor: c.muted,
+      indicatorColor: selectedColor,
+      dividerColor: c.line,
+      labelStyle: const TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelStyle: const TextStyle(
+        fontFamily: 'SchibstedGrotesk',
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    dividerTheme: DividerThemeData(color: c.line, thickness: 1, space: 1),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: selectedColor,
+      linearTrackColor: c.surface2,
+      circularTrackColor: c.surface2,
+    ),
+    listTileTheme: ListTileThemeData(
+      iconColor: c.taskMeta,
+      textColor: c.ink,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+    ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: selectedColor,
+      selectionColor: selectedColor.withValues(alpha: .24),
+      selectionHandleColor: selectedColor,
+    ),
     colorScheme: base.copyWith(
       primary: c.isDark ? const Color(0xFFA786FF) : TkColors.violet,
       onPrimary: c.isDark ? c.bg : Colors.white,

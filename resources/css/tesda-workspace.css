@@ -142,7 +142,21 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .operations-search a { color:var(--violet); border:1px solid var(--line); }
 .operations-search p { margin:0; color:var(--muted); font-size:.75rem; }
 .operations-page > .operations-empty { margin:0; padding:1.5rem; border:1px dashed var(--line); border-radius:.9rem; background:var(--surface); color:var(--muted); }
+.training-date-planner { display:grid; grid-column:1/-1; gap:.8rem; min-width:0; margin:0; padding:1rem; border:1px solid var(--line); border-radius:.8rem; background:var(--surface-2); }
+.training-date-planner legend { padding:0 .35rem; color:var(--ink); font-size:.9rem; font-weight:700; }
+.training-date-planner > p,.training-date-planner > small { margin:0; color:var(--muted); font-size:.76rem; line-height:1.5; }
+.training-date-planner__toggle { display:flex!important; align-items:center; gap:.55rem!important; }
+.training-date-planner__dates,.training-date-planner__excluded { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; }
+.training-date-planner__date { display:grid!important; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:.4rem!important; min-width:0; padding:.65rem; border:1px solid var(--line); border-radius:.65rem; background:var(--surface); }
+.training-date-planner__date span { grid-column:1/-1; color:var(--muted); font-size:.72rem; font-weight:600; }
+.training-date-planner__date input { min-width:0; padding:.55rem!important; }
+.training-date-planner__date button,.training-date-planner__add { width:max-content!important; padding:.55rem .7rem!important; color:var(--violet)!important; background:transparent!important; }
+.training-date-planner__label { grid-column:1/-1; color:var(--muted); font-size:.75rem; font-weight:650; }
+.operations-page > .operations-card form .training-date-planner label:has(input[type="checkbox"]) { display:flex; }
+.operations-page > .operations-card form .training-date-planner input[type="checkbox"] { flex:0 0 auto; }
 @media(max-width:650px) { .operations-page > .operations-card form { grid-template-columns:1fr; } .operations-page > .operations-card form label:has(textarea) { grid-column:auto; } .operations-page > .operations-card form button { width:100%; } .operations-search__controls button { flex:1; } }
+@media(max-width:800px) { .training-date-planner__dates,.training-date-planner__excluded { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:480px) { .training-date-planner__dates,.training-date-planner__excluded { grid-template-columns:minmax(0,1fr); } .training-date-planner__date button { width:auto!important; } }
 .job-opportunities { width:100%; max-width:none; }
 .job-opportunities > .operations-card { width:100%; }
 .job-opportunities__list { display:grid; grid-template-columns:minmax(0,1fr); gap:1rem; }

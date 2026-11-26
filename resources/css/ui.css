@@ -380,6 +380,51 @@ textarea.input { resize: vertical; }
 .tk-body select option:checked { color: #fff !important; background: var(--violet) !important; }
 .tk-body select option:hover,
 .tk-body select option:focus { color: var(--ink); background: color-mix(in srgb, var(--violet) 14%, var(--surface)); }
+@supports (appearance: base-select) {
+    .tk-body select:not([multiple]) {
+        appearance: base-select;
+        -webkit-appearance: base-select;
+        background-image: none;
+    }
+    .tk-body select:not([multiple])::picker(select) {
+        appearance: base-select;
+        color: var(--ink);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: var(--pop-shadow);
+        padding: .35rem;
+        max-height: min(22rem, 55vh);
+    }
+    .tk-body select:not([multiple])::picker-icon {
+        color: var(--violet);
+        font-size: .9em;
+        transition: rotate .15s ease;
+    }
+    .tk-body select:not([multiple]):open::picker-icon { rotate: 180deg; }
+    .tk-body select:not([multiple]) option {
+        display: flex;
+        align-items: center;
+        min-height: 42px;
+        margin: 2px 0;
+        padding: .6rem .75rem;
+        border-radius: 8px;
+        color: var(--ink);
+        background: transparent;
+    }
+    .tk-body select:not([multiple]) option:checked {
+        color: #fff;
+        background: var(--violet) !important;
+    }
+    .tk-body select:not([multiple]) option:hover,
+    .tk-body select:not([multiple]) option:focus {
+        color: var(--ink);
+        background: color-mix(in srgb, var(--violet) 14%, var(--surface));
+    }
+    .tk-body select:not([multiple]) option::checkmark {
+        color: currentColor;
+    }
+}
 @media (max-width: 640px) {
     .tk-workspace :where(input, select, textarea) { font-size: 16px; }
 }

@@ -8,6 +8,7 @@ import './auth-carousel.js';
 import './auth-legal-dialog.js';
 import './assessment-walkthrough.js';
 import './workspace-sync.js';
+import './training-schedule.js';
 
 const initializeRegistrationLocation = (root = document) => {
     const locationFields = root.querySelector('[data-registration-location]');

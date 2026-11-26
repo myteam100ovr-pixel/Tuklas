@@ -13,11 +13,11 @@ class TrainingSession extends Model
     /** @use HasFactory<TrainingSessionFactory> */
     use HasFactory;
 
-    protected $fillable = ['training_program_id', 'training_center_id', 'starts_at', 'ends_at', 'capacity', 'status', 'created_by', 'is_demo'];
+    protected $fillable = ['training_program_id', 'training_center_id', 'trainer_id', 'starts_at', 'ends_at', 'training_dates', 'skip_weekends', 'non_working_dates', 'capacity', 'status', 'created_by', 'is_demo'];
 
     protected function casts(): array
     {
-        return ['starts_at' => 'datetime', 'ends_at' => 'datetime', 'capacity' => 'integer', 'is_demo' => 'boolean'];
+        return ['starts_at' => 'datetime', 'ends_at' => 'datetime', 'training_dates' => 'array', 'skip_weekends' => 'boolean', 'non_working_dates' => 'array', 'capacity' => 'integer', 'is_demo' => 'boolean'];
     }
 
     public function program(): BelongsTo
@@ -28,6 +28,11 @@ class TrainingSession extends Model
     public function center(): BelongsTo
     {
         return $this->belongsTo(TrainingCenter::class, 'training_center_id');
+    }
+
+    public function trainer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'trainer_id');
     }
 
     public function applications(): HasMany
