@@ -46,7 +46,7 @@
     background: #fafaff;
 }
 .role-dashboard--trainer, .role-dashboard--youth { --role-accent: #8274e8; --role-accent-soft: #f0eeff; }
-.role-dashboard__inner { width: min(100%, 1240px); margin-inline: auto; }
+.role-dashboard__inner { width: min(100%, 1440px); margin-inline: auto; }
 .min-h-screen:has(.role-dashboard) > nav { display: none; }
 .role-dashboard__topline { display: flex; align-items: center; gap: 1rem; min-height: 3rem; margin-bottom: clamp(2rem, 5vw, 4rem); }
 .role-dashboard__brand { display: inline-flex; align-items: center; gap: .6rem; color: #17192a; font-family: var(--font-display); font-size: 1rem; letter-spacing: .12em; text-decoration: none; }

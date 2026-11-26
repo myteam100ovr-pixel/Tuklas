@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountPasswordResetController;
 use App\Http\Controllers\Admin\CareerRecommendationController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\TrainingCatalogController;
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\MobileCatalogController;
 use App\Http\Controllers\Api\MobileDashboardController;
@@ -118,6 +119,9 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
                 Route::post('/training-centers', [TrainingCenterController::class, 'store'])->name('centers.store');
                 Route::put('/training-centers/{center}', [TrainingCenterController::class, 'update'])->name('centers.update');
                 Route::delete('/training-centers/{center}', [TrainingCenterController::class, 'destroy'])->name('centers.destroy');
+                Route::post('/training-centers/{center}/programs', [TrainingCatalogController::class, 'storeForCenter'])->name('centers.programs.store');
+                Route::put('/training-centers/{center}/programs/{training}', [TrainingCatalogController::class, 'updateForCenter'])->name('centers.programs.update');
+                Route::delete('/training-centers/{center}/programs/{training}', [TrainingCatalogController::class, 'destroyForCenter'])->name('centers.programs.destroy');
             });
             Route::middleware('role:admin,tesda_admin')->group(function () {
                 Route::post('/training-sessions', [TrainingSessionController::class, 'store'])->name('sessions.store');

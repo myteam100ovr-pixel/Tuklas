@@ -312,19 +312,22 @@ class TkBottomNavigation extends StatelessWidget {
             ('Training', Icons.school_outlined, Icons.school),
             ('Programs', Icons.menu_book_outlined, Icons.menu_book),
             ('Inbox', Icons.forum_outlined, Icons.forum),
-            ('Account', Icons.person_outline, Icons.person),
+            ('More', Icons.grid_view_outlined, Icons.grid_view),
+          ]
+        : role == 'admin'
+        ? const [
+            ('Home', Icons.dashboard_outlined, Icons.dashboard),
+            ('Applications', Icons.assignment_outlined, Icons.assignment),
+            ('Programs', Icons.menu_book_outlined, Icons.menu_book),
+            ('Users', Icons.people_outline, Icons.people),
+            ('More', Icons.grid_view_outlined, Icons.grid_view),
           ]
         : const [
             ('Home', Icons.dashboard_outlined, Icons.dashboard),
             ('Jobs', Icons.work_outline, Icons.work),
             ('Training', Icons.school_outlined, Icons.school),
             ('Inbox', Icons.forum_outlined, Icons.forum),
-            (
-              'Scanner',
-              Icons.document_scanner_outlined,
-              Icons.document_scanner,
-            ),
-            ('More', Icons.grid_view_outlined, Icons.grid_view),
+            ('Profile', Icons.person_outline, Icons.person),
           ];
 
     return SafeArea(

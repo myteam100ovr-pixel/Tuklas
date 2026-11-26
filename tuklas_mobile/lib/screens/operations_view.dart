@@ -697,6 +697,78 @@ class _OperationsViewState extends State<OperationsView> {
     }
   }
 
+  Future<void> _editCenterProgram(
+    Map<String, dynamic> center, [
+    Map<String, dynamic> program = const {},
+  ]) async {
+    final centerId = center['id'];
+    if (centerId == null) return;
+    final programId = program['id'];
+    final path =
+        '/training-centers/$centerId/programs'
+        '${programId == null ? '' : '/$programId'}';
+    final saved = await openWorkspaceForm(
+      context,
+      title: programId == null ? 'Add course' : 'Edit course',
+      path: path,
+      method: programId == null ? 'POST' : 'PUT',
+      initial: program,
+      fields: const [
+        WorkspaceField('title', 'Course title', required: true),
+        WorkspaceField(
+          'nc_level',
+          'National Certificate level',
+          options: ['', 'NC I', 'NC II', 'NC III', 'NC IV'],
+          optionLabels: {'': 'Not specified'},
+        ),
+        WorkspaceField('duration_hours', 'Training hours'),
+        WorkspaceField('duration_days', 'Training days'),
+        WorkspaceField('description', 'Description', multiline: true),
+        WorkspaceField('requirements', 'Requirements', multiline: true),
+        WorkspaceField('schedule_note', 'Schedule notes', multiline: true),
+        WorkspaceField('source_reference', 'Source reference'),
+        WorkspaceField(
+          'status',
+          'Status',
+          options: ['draft', 'published', 'archived'],
+          required: true,
+        ),
+      ],
+    );
+    if (saved != null) await _load();
+  }
+
+  Future<void> _deleteCenterProgram(
+    Map<String, dynamic> center,
+    Map<String, dynamic> program,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete course?'),
+        content: Text(
+          'Delete ${program['title'] ?? 'this course'}? Courses with linked requests, schedules, trainer assignments, or scholarships must be archived instead.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      await _action(
+        '/training-centers/${center['id']}/programs/${program['id']}',
+        method: 'DELETE',
+      );
+    }
+  }
+
   Future<void> _deleteJobOpportunity(Map<String, dynamic> job) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -1548,18 +1620,68 @@ class _OperationsViewState extends State<OperationsView> {
                       if (widget.section == 'Centers' &&
                           item['programs'] is List) ...[
                         const SizedBox(height: 10),
-                        Text(
-                          'Program offerings (${(item['programs'] as List).length})',
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Program offerings (${(item['programs'] as List).length})',
+                              ),
+                            ),
+                            if (_canManage)
+                              TextButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _editCenterProgram(item),
+                                icon: const Icon(Icons.add, size: 18),
+                                label: const Text('Add course'),
+                              ),
+                          ],
                         ),
                         for (final rawProgram
                             in (item['programs'] as List).whereType<Map>())
-                          Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: Text(
-                              _programSummary(
-                                Map<String, dynamic>.from(rawProgram),
-                              ),
-                            ),
+                          Builder(
+                            builder: (context) {
+                              final program = Map<String, dynamic>.from(
+                                rawProgram,
+                              );
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(_programSummary(program)),
+                                    ),
+                                    if (_canManage) ...[
+                                      IconButton(
+                                        tooltip: 'Edit course',
+                                        onPressed: _busy
+                                            ? null
+                                            : () => _editCenterProgram(
+                                                item,
+                                                program,
+                                              ),
+                                        icon: const Icon(Icons.edit_outlined),
+                                      ),
+                                      IconButton(
+                                        tooltip: 'Delete course',
+                                        onPressed: _busy
+                                            ? null
+                                            : () => _deleteCenterProgram(
+                                                item,
+                                                program,
+                                              ),
+                                        icon: Icon(
+                                          Icons.delete_outline,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                       ],
                       if ((widget.section == 'Jobs' ||

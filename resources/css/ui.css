@@ -244,7 +244,7 @@ textarea.input { resize: vertical; }
 .col-span-6, .sm\:col-span-4 { grid-column: 1 / -1; }
 
 /* ---------- TESDA catalog in the signed-in workspace ---------- */
-.tesda-main { width: min(100%, 1180px); margin: 0 auto; padding: 1.5rem 0 4rem; }
+.tesda-main { width: min(100%, 1440px); margin: 0 auto; padding: 1.5rem 0 4rem; }
 .tesda-intro { max-width: 760px; padding: clamp(1.5rem, 4vw, 3rem) 0 2rem; }
 .tesda-eyebrow { color: var(--violet); font-size: .72rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
 .tesda-intro h1 { margin-top: .75rem; font-size: clamp(2.3rem, 6vw, 4.6rem); letter-spacing: -.065em; line-height: 1; }

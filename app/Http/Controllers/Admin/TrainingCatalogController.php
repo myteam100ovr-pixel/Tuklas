@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Support\ActivityNotifier;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -48,8 +50,9 @@ class TrainingCatalogController extends Controller
         return redirect()->route('admin.trainings.index')->with('status', 'Training program saved.');
     }
 
-    public function storeForCenter(Request $request, TrainingCenter $center, ActivityNotifier $activity): RedirectResponse
+    public function storeForCenter(Request $request, TrainingCenter $center, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
+        $this->authorizeCenterAccess($request, $center);
         $data = $this->validatedData($request);
         $data['training_center_id'] = $center->id;
         $data['created_by'] = $request->user()->id;
@@ -57,7 +60,11 @@ class TrainingCatalogController extends Controller
         $program = TrainingProgram::create($data);
         $activity->record($request->user(), 'added course '.$program->title.' to '.$center->name.'.');
 
-        return redirect()->route('centers.index')->with('status', 'Course added to '.$center->name.'.');
+        $message = 'Course added to '.$center->name.'.';
+
+        return $request->routeIs('mobile.*')
+            ? response()->json(['message' => $message], 201)
+            : redirect()->route('centers.index')->with('status', $message);
     }
 
     public function edit(TrainingProgram $training): View
@@ -95,8 +102,9 @@ class TrainingCatalogController extends Controller
         return redirect()->route('admin.trainings.index')->with('status', 'Training program deleted.');
     }
 
-    public function updateForCenter(Request $request, TrainingCenter $center, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse
+    public function updateForCenter(Request $request, TrainingCenter $center, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
+        $this->authorizeCenterAccess($request, $center);
         abort_unless($training->training_center_id === $center->id, 404);
 
         $data = $this->validatedData($request);
@@ -105,24 +113,38 @@ class TrainingCatalogController extends Controller
         $training->update($data);
         $activity->record($request->user(), 'updated course '.$training->title.' at '.$center->name.'.');
 
-        return redirect()->route('centers.index')->with('status', 'Course updated.');
+        return $request->routeIs('mobile.*')
+            ? response()->json(['message' => 'Course updated.'])
+            : redirect()->route('centers.index')->with('status', 'Course updated.');
     }
 
-    public function destroyForCenter(Request $request, TrainingCenter $center, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse
+    public function destroyForCenter(Request $request, TrainingCenter $center, TrainingProgram $training, ActivityNotifier $activity): RedirectResponse|JsonResponse
     {
+        $this->authorizeCenterAccess($request, $center);
         abort_unless($training->training_center_id === $center->id, 404);
 
         if ($training->hasLinkedRecords()) {
-            return redirect()->route('centers.index')->withErrors([
-                'program' => 'This course has applications, schedules, trainer assignments, or scholarships. Archive it instead to preserve those records.',
-            ]);
+            $message = 'This course has applications, schedules, trainer assignments, or scholarships. Archive it instead to preserve those records.';
+
+            return $request->routeIs('mobile.*')
+                ? response()->json(['message' => $message], 409)
+                : redirect()->route('centers.index')->withErrors(['program' => $message]);
         }
 
         $title = $training->title;
         $training->delete();
         $activity->record($request->user(), 'deleted course '.$title.' from '.$center->name.'.');
 
-        return redirect()->route('centers.index')->with('status', 'Course deleted.');
+        return $request->routeIs('mobile.*')
+            ? response()->json(['message' => 'Course deleted.'])
+            : redirect()->route('centers.index')->with('status', 'Course deleted.');
+    }
+
+    private function authorizeCenterAccess(Request $request, TrainingCenter $center): void
+    {
+        $user = $request->user();
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+        abort_unless(! $user->isCenterScopedTesda() || $user->training_center_id === $center->id, 403);
     }
 
     /** @return array<string, mixed> */

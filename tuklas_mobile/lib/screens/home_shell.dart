@@ -139,20 +139,22 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   String get _role => '${ApiClient.instance.user?['role']}';
 
   List<String> get _groupItems => switch ((_role, _tab)) {
-    ('admin', 1) => ['Openings', 'PESO AI', 'Applications'],
-    ('admin', 2) => ['Centers', 'Trainers', 'Dates', 'Requests', 'Results'],
-    ('admin', 3) => ['Messages', 'Notifications'],
-    ('admin', 5) => [
-      'Users',
-      'Career paths',
-      'Scholarships',
-      'Course catalog',
+    ('admin', 2) => ['Scholarships', 'Course catalog', 'Career paths'],
+    ('admin', 4) => [
+      'Openings',
+      'Centers',
+      'Trainers',
+      'Dates',
+      'Requests',
+      'Results',
+      'PESO AI',
+      'Messages',
+      'Notifications',
       'TuklasBot',
       'Profile',
       'Account & security',
       'Patch Notes',
     ],
-    ('youth', 1) => ['Find jobs', 'PESO AI', 'Career paths'],
     ('youth', 2) => [
       'Courses',
       'Scholarships',
@@ -164,7 +166,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'Training plans',
     ],
     ('youth', 3) => ['Messages', 'Notifications'],
-    ('youth', 5) => [
+    ('youth', 4) => [
       'Profile',
       'TuklasBot',
       'Account & security',
@@ -190,14 +192,10 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   };
 
   String get _defaultGroupItem => switch ((_role, _tab)) {
-    ('admin', 1) => 'Openings',
-    ('admin', 2) => 'Centers',
-    ('admin', 3) => 'Messages',
-    ('admin', 5) => 'Users',
-    ('youth', 1) => 'Find jobs',
+    ('admin', 2) => 'Scholarships',
+    ('admin', 4) => 'Centers',
     ('youth', 2) => 'Courses',
     ('youth', 3) => 'Messages',
-    ('youth', 5) => 'Profile',
     ('tesda_admin', 1) => 'Centers',
     ('tesda_admin', 2) => 'Course catalog',
     ('tesda_admin', 3) => 'Messages',
@@ -217,11 +215,22 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         onOpenWorkspace: _openWorkspace,
       );
     }
-    if ((_role == 'admin' || _role == 'youth') && _tab == 4) {
-      return ScannerView(
-        key: const ValueKey('scanner'),
-        onScanComplete: _handleScanComplete,
+    if (_groupItems.isNotEmpty && _activeGroupItem == null) {
+      return _NavigationHub(
+        title: _hubTitle,
+        items: _groupItems,
+        unreadNotifications: _unreadNotifications,
+        onSelect: _openGroupedItem,
       );
+    }
+    if (_role == 'admin' && _tab == 1) {
+      return const OperationsView(section: 'Job applications');
+    }
+    if (_role == 'admin' && _tab == 3) {
+      return const WorkspaceView(section: 'Users');
+    }
+    if (_role == 'youth' && _tab == 1) {
+      return const OperationsView(section: 'Jobs');
     }
     final item = _activeGroupItem ?? _defaultGroupItem;
     return switch (item) {
@@ -257,6 +266,19 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       _ => OperationsView(section: item),
     };
   }
+
+  String get _hubTitle => switch ((_role, _tab)) {
+    ('admin', 2) => 'Programs',
+    ('admin', 4) => 'More tools',
+    ('youth', 2) => 'Training',
+    ('youth', 3) => 'Inbox',
+    ('youth', 4) => 'Profile and settings',
+    ('tesda_admin', 1) => 'Training',
+    ('tesda_admin', 2) => 'Programs',
+    ('tesda_admin', 3) => 'Inbox',
+    ('tesda_admin', 4) => 'More tools',
+    _ => 'Workspace',
+  };
 
   Future<void> _checkVerification({bool resend = false}) async {
     if (_checkingVerification) return;
@@ -362,7 +384,13 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   }
 
   Future<void> _selectTab(int index) async {
-    if (_switching || index == _tab) return;
+    if (_switching) return;
+    if (index == _tab) {
+      if (_activeGroupItem != null) {
+        setState(() => _activeGroupItem = null);
+      }
+      return;
+    }
     setState(() {
       _tab = index;
       _activeGroupItem = null;
@@ -374,7 +402,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   }
 
   void _openGroupedItem(String item) {
-    if ((_activeGroupItem ?? _defaultGroupItem) == item) return;
+    if (_activeGroupItem == item) return;
 
     setState(() => _activeGroupItem = item);
     if (item == 'Notifications') {
@@ -465,36 +493,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         child: Column(
           children: [
             const TkHeader(),
-            if (_groupItems.isNotEmpty)
-              SizedBox(
-                height: 48,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (final (index, item) in _groupItems.indexed) ...[
-                        if (index > 0) const SizedBox(width: 8),
-                        ChoiceChip(
-                          label: Text(
-                            item == 'Notifications' && _unreadNotifications > 0
-                                ? '$item ($_unreadNotifications)'
-                                : item,
-                          ),
-                          selected:
-                              (_activeGroupItem ?? _defaultGroupItem) == item,
-                          onSelected: (_) => _openGroupedItem(item),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
             Expanded(
               child: _switching
                   ? Center(
@@ -526,6 +524,75 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         selectedIndex: _tab,
         onDestinationSelected: _selectTab,
       ),
+      floatingActionButton: _role == 'admin' || _role == 'youth'
+          ? FloatingActionButton.extended(
+              onPressed: () => _openWorkspace('Document Scanner'),
+              icon: const Icon(Icons.document_scanner_outlined),
+              label: const Text('Scan document'),
+            )
+          : null,
     );
   }
+}
+
+class _NavigationHub extends StatelessWidget {
+  const _NavigationHub({
+    required this.title,
+    required this.items,
+    required this.unreadNotifications,
+    required this.onSelect,
+  });
+
+  final String title;
+  final List<String> items;
+  final int unreadNotifications;
+  final ValueChanged<String> onSelect;
+
+  IconData _icon(String item) => switch (item) {
+    'Scholarships' => Icons.volunteer_activism_outlined,
+    'Course catalog' || 'Courses' || 'My courses' => Icons.menu_book_outlined,
+    'Career paths' => Icons.route_outlined,
+    'Centers' => Icons.location_city_outlined,
+    'Trainers' || 'Assign trainers' => Icons.co_present_outlined,
+    'Dates' || 'Sessions' => Icons.calendar_month_outlined,
+    'Requests' || 'My requests' || 'Applications' => Icons.assignment_outlined,
+    'Results' || 'My results' => Icons.fact_check_outlined,
+    'PESO AI' => Icons.auto_awesome_outlined,
+    'Messages' => Icons.chat_bubble_outline,
+    'Notifications' => Icons.notifications_none_outlined,
+    'Document Scanner' => Icons.document_scanner_outlined,
+    'TuklasBot' => Icons.forum_outlined,
+    'Profile' => Icons.person_outline,
+    'Account & security' => Icons.security_outlined,
+    'Patch Notes' => Icons.new_releases_outlined,
+    _ => Icons.circle_outlined,
+  };
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(title)),
+    body: ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        for (final item in items)
+          Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: Icon(_icon(item)),
+              title: Text(item),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (item == 'Notifications' && unreadNotifications > 0)
+                    Badge(label: Text('$unreadNotifications')),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+              onTap: () => onSelect(item),
+            ),
+          ),
+      ],
+    ),
+  );
 }

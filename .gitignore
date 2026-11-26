@@ -18,6 +18,8 @@
 /.zed
 /auth.json
 /node_modules
+/build/
+**/build/
 /public/build
 /public/fonts-manifest.dev.json
 /public/hot
@@ -25,6 +27,9 @@
 /storage/*.key
 /storage/pail
 /vendor
+*.jks
+*.keystore
+tuklas_mobile/android/key.properties
 _ide_helper.php
 Homestead.json
 Homestead.yaml
