@@ -1,4 +1,20 @@
 document.addEventListener('click', (event) => {
+    const editor = event.target.closest('[data-review-edit]');
+    if (editor) {
+        const group = editor.closest('.scholarship-review-action-group');
+        const recorded = group?.querySelector('[data-review-recorded]');
+        const form = group?.querySelector('[data-scholarship-review-form]');
+        const controls = form?.querySelector('[data-review-controls]');
+
+        if (!recorded || !form || !controls) return;
+
+        recorded.hidden = true;
+        form.hidden = false;
+        controls.hidden = false;
+        controls.querySelector('button')?.focus();
+        return;
+    }
+
     const opener = event.target.closest('[data-review-decline-open]');
 
     if (opener) {
@@ -27,6 +43,5 @@ document.addEventListener('close', (event) => {
     const reason = dialog.querySelector('[data-review-decline-reason]');
     if (!reason) return;
 
-    reason.value = '';
     reason.disabled = true;
 }, true);

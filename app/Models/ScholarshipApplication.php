@@ -30,6 +30,19 @@ class ScholarshipApplication extends Model
 
     protected $hidden = ['documents'];
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $application): void {
+            $status = (string) ($application->status ?? 'submitted');
+            $isInactive = in_array($status, ['cancelled', 'rejected', 'failed'], true);
+
+            $application->setAttribute(
+                'active_application_key',
+                $isInactive ? null : hash('sha256', $application->user_id.':'.$application->scholarship_id),
+            );
+        });
+    }
+
     protected function casts(): array
     {
         return [

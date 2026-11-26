@@ -109,10 +109,26 @@ class ScholarshipController extends Controller
                     && $application->trainer_approved_by !== $user->id,
             );
             $application->setAttribute(
+                'can_change_center_decision',
+                $isTesda
+                    && in_array($application->status, ['submitted', 'reviewing', 'approved', 'rejected'], true)
+                    && in_array($application->center_approval_status, ['approved', 'failed', 'rejected'], true)
+                    && $user->training_center_id === $application->scholarship->training_center_id
+                    && $application->trainer_approved_by !== $user->id,
+            );
+            $application->setAttribute(
                 'can_approve_trainer',
                 $isTesda
                     && in_array($application->status, ['submitted', 'reviewing'], true)
                     && $application->trainer_approval_status === 'pending'
+                    && in_array($application->scholarship->training_center_id, $trainerCenterIds, true)
+                    && $application->center_approved_by !== $user->id,
+            );
+            $application->setAttribute(
+                'can_change_trainer_decision',
+                $isTesda
+                    && in_array($application->status, ['submitted', 'reviewing', 'approved', 'rejected'], true)
+                    && in_array($application->trainer_approval_status, ['approved', 'failed', 'rejected'], true)
                     && in_array($application->scholarship->training_center_id, $trainerCenterIds, true)
                     && $application->center_approved_by !== $user->id,
             );
@@ -370,7 +386,9 @@ class ScholarshipController extends Controller
             'trainer_approver' => $application->trainerApprover,
             'cancelled_at' => $application->cancelled_at?->toISOString(),
             'can_approve_center' => (bool) $application->can_approve_center,
+            'can_change_center_decision' => (bool) $application->can_change_center_decision,
             'can_approve_trainer' => (bool) $application->can_approve_trainer,
+            'can_change_trainer_decision' => (bool) $application->can_change_trainer_decision,
             'is_ready_for_approval' => $application->isReadyForApproval(),
             'application_message' => $application->application_message,
             'review_notes' => $application->review_notes,

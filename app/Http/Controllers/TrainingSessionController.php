@@ -24,6 +24,9 @@ class TrainingSessionController extends Controller
         $canManage = $user->hasRole(Role::Admin, Role::TesdaAdmin);
         $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $sessions = TrainingSession::query()->with(['program:id,title,status,duration_days,training_center_id', 'center:id,name,type', 'trainer:id,name'])
+            ->when($user->hasRole(Role::Youth), fn ($query) => $query->with(['applications' => fn ($applications) => $applications
+                ->where('user_id', $user->id)
+                ->latest('id')]))
             ->when($search !== '', fn ($query) => $query->where(fn ($sessions) => $sessions->whereHas('program', fn ($program) => $program->where('title', 'like', '%'.$search.'%'))->orWhereHas('center', fn ($center) => $center->where('name', 'like', '%'.$search.'%'))))
             ->withCount(['applications as accepted_count' => fn ($query) => $query->where('status', 'accepted')])
             ->when($user->isCenterScopedTesda(), fn ($query) => $query->where('training_center_id', $user->training_center_id))

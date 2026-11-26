@@ -74,6 +74,8 @@ const setupScheduleForm = (form) => {
         const endTime = end.value.split('T')[1] || '17:00';
         start.value = `${firstDate}T${startTime}`;
         end.value = `${lastDate}T${endTime}`;
+        start.dispatchEvent(new Event('input', { bubbles: true }));
+        end.dispatchEvent(new Event('input', { bubbles: true }));
     };
 
     const selectedNonWorkingDates = () => Array.from(form.querySelectorAll('[data-non-working-date]'))

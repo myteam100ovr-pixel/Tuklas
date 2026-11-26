@@ -11,6 +11,7 @@ import './assessment-walkthrough.js';
 import './scholarship-review.js';
 import './workspace-sync.js';
 import './training-schedule.js';
+import './date-time-picker.js';
 
 const initializeRegistrationLocation = (root = document) => {
     const locationFields = root.querySelector('[data-registration-location]');

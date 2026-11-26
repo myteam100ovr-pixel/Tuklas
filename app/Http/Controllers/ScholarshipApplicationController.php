@@ -31,11 +31,16 @@ class ScholarshipApplicationController extends Controller
             $lockedScholarship = Scholarship::query()->lockForUpdate()->findOrFail($scholarship->id);
             abort_unless(Scholarship::published()->whereKey($lockedScholarship->id)->exists(), 404);
             abort_unless($lockedScholarship->training_center_id && $lockedScholarship->training_program_id && $lockedScholarship->slot_limit, 422, 'This scholarship does not have a confirmed course and slot count yet. Contact the training center.');
-            abort_if(
-                $lockedScholarship->applications()->where('user_id', $request->user()->id)->exists(),
-                422,
-                'You have already applied to this scholarship.',
-            );
+            $hasActiveApplication = $lockedScholarship->applications()
+                ->where('user_id', $request->user()->id)
+                ->whereIn('status', ['submitted', 'reviewing', 'approved'])
+                ->lockForUpdate()
+                ->exists();
+            if ($hasActiveApplication) {
+                throw ValidationException::withMessages([
+                    'scholarship' => 'You already have an active application for this scholarship.',
+                ]);
+            }
 
             $occupiedSlots = $lockedScholarship->applications()
                 ->whereIn('status', ['submitted', 'reviewing', 'approved'])
@@ -117,10 +122,13 @@ class ScholarshipApplicationController extends Controller
             }
 
             abort_unless($user->hasRole(Role::TesdaAdmin), 403);
-            abort_unless(in_array($lockedApplication->status, ['submitted', 'reviewing'], true), 422, 'This application is no longer awaiting review.');
-
             $stage = $data['stage'];
-            abort_unless($lockedApplication->{$stage.'_approval_status'} === 'pending', 422, 'This approval stage is already complete.');
+            $stageStatus = $lockedApplication->{$stage.'_approval_status'};
+            $isFirstDecision = in_array($lockedApplication->status, ['submitted', 'reviewing'], true)
+                && $stageStatus === 'pending';
+            $isDecisionChange = in_array($lockedApplication->status, ['submitted', 'reviewing', 'approved', 'rejected'], true)
+                && in_array($stageStatus, ['approved', 'failed', 'rejected'], true);
+            abort_unless($isFirstDecision || $isDecisionChange, 422, 'This application stage cannot be changed.');
             foreach (['center', 'trainer'] as $reviewStage) {
                 if ($reviewStage !== $stage) {
                     abort_if($lockedApplication->{$reviewStage.'_approved_by'} === $user->id, 403, 'A different TESDA staff member must decide the other approval stage.');
@@ -143,21 +151,36 @@ class ScholarshipApplicationController extends Controller
 
             $otherStage = $stage === 'center' ? 'trainer' : 'center';
             $notes = $decision === 'failed' ? $data['notes'] : null;
-            $lockedApplication->update([
+            $otherStatus = $lockedApplication->{$otherStage.'_approval_status'};
+            $resultingOtherStatus = $decision === 'approved' && $otherStatus === 'cancelled'
+                ? 'pending'
+                : $otherStatus;
+            $applicationUpdates = [
                 $stage.'_approval_status' => $decision,
                 $stage.'_approved_by' => $user->id,
                 $stage.'_approved_at' => now(),
                 $stage.'_approval_notes' => $notes,
                 'status' => $decision === 'failed'
                     ? 'rejected'
-                    : ($lockedApplication->{$otherStage.'_approval_status'} === 'approved' ? 'approved' : 'reviewing'),
+                    : ($resultingOtherStatus === 'approved'
+                        ? 'approved'
+                        : (in_array($resultingOtherStatus, ['failed', 'rejected'], true) ? 'rejected' : 'reviewing')),
                 'review_notes' => $notes,
                 'reviewed_by' => $decision === 'failed' ? $user->id : null,
                 'reviewed_at' => $decision === 'failed' ? now() : null,
-            ]);
+            ];
+
+            if ($decision === 'approved' && $otherStatus === 'cancelled') {
+                $applicationUpdates[$otherStage.'_approval_status'] = 'pending';
+                $applicationUpdates[$otherStage.'_approved_by'] = null;
+                $applicationUpdates[$otherStage.'_approved_at'] = null;
+                $applicationUpdates[$otherStage.'_approval_notes'] = null;
+            }
+
+            $lockedApplication->update($applicationUpdates);
 
             if ($decision === 'failed') {
-                if ($lockedApplication->{$otherStage.'_approval_status'} === 'pending') {
+                if ($otherStatus === 'pending') {
                     $lockedApplication->update([$otherStage.'_approval_status' => 'cancelled']);
                 }
             }
@@ -210,7 +233,21 @@ class ScholarshipApplicationController extends Controller
         abort_unless(is_array($file) && isset($file['path'], $file['name']), 404);
         abort_unless(Storage::disk('local')->exists($file['path']), 404);
 
-        return Storage::disk('local')->download($file['path'], basename($file['name']));
+        $disk = Storage::disk('local');
+        $mime = $disk->mimeType($file['path']) ?: 'application/octet-stream';
+        $inlineTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+        $disposition = in_array($mime, $inlineTypes, true) ? 'inline' : 'attachment';
+
+        return $disk->response(
+            $file['path'],
+            basename($file['name']),
+            [
+                'Content-Type' => $mime,
+                'Cache-Control' => 'private, no-store',
+                'X-Content-Type-Options' => 'nosniff',
+            ],
+            $disposition,
+        );
     }
 
     private function ensureApplicationIsReadyForApproval(ScholarshipApplication $application): void

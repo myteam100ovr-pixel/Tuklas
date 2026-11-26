@@ -4,16 +4,34 @@
         @include('operations.search', ['placeholder' => 'Search scholarships or providers', 'count' => $scholarships->total()])
         @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
         @if ($errors->any())<p role="alert">{{ $errors->first() }}</p>@endif
-        @php($myScholarshipIds = $myApplications->pluck('scholarship_id')->all())
+        @php($myScholarshipIds = $myApplications->whereIn('status', ['submitted', 'reviewing', 'approved'])->pluck('scholarship_id')->all())
         @php($approvalLabel = fn ($status) => ['pending' => 'Pending', 'approved' => 'Approved', 'failed' => 'Failed', 'rejected' => 'Failed', 'cancelled' => 'Canceled', 'not_recorded' => 'Not recorded'][$status] ?? 'Not recorded')
+        @php($applicationStatus = static function ($application): string {
+            if ($application->status === 'cancelled') {
+                return 'Canceled';
+            }
+            if ($application->status === 'approved' && $application->center_approval_status === 'approved' && $application->trainer_approval_status === 'approved') {
+                return 'Approved';
+            }
+            if ($application->status === 'approved' && $application->reviewed_by !== null) {
+                return 'Approved · TESDA/Admin override';
+            }
+            if (in_array($application->status, ['rejected', 'failed'], true) || in_array($application->center_approval_status, ['failed', 'rejected'], true) || in_array($application->trainer_approval_status, ['failed', 'rejected'], true)) {
+                return 'Failed';
+            }
+            if ($application->status === 'approved') {
+                return 'Review needed';
+            }
+
+            return 'Pending';
+        })
 
         @if (auth()->user()->hasRole(\App\Enums\Role::Youth))
             <section class="operations-card scholarship-applications" aria-labelledby="my-scholarship-applications">
                 <h2 id="my-scholarship-applications">My scholarship applications</h2>
                 @forelse ($myApplications as $application)
-                    @php($applicationStatus = ['submitted' => 'Pending', 'reviewing' => 'Pending', 'approved' => 'Approved', 'cancelled' => 'Canceled', 'rejected' => 'Failed'][$application->status] ?? 'Pending')
                     <article class="operations-card">
-                        <h3>{{ $application->scholarship->title }} <span class="operations-status">{{ $applicationStatus }}</span></h3>
+                        <h3>{{ $application->scholarship->title }} <span class="operations-status">{{ $applicationStatus($application) }}</span></h3>
                         <p>{{ $application->scholarship->provider }}</p>
                         @if ($application->scholarship->trainingProgram)<p><strong>Course:</strong> {{ $application->scholarship->trainingProgram->title }}</p>@endif
                         @if ($application->scholarship->center)<p><strong>Training center:</strong> {{ $application->scholarship->center->type }} · {{ $application->scholarship->center->name }}</p>@endif
@@ -26,7 +44,7 @@
                             <p><strong>{{ in_array($application->status, ['approved', 'rejected'], true) ? 'Final TESDA/admin decision reason' : 'Latest review reason' }}@if ($application->reviewer) · {{ $application->reviewer->name }}@endif:</strong> {{ $application->review_notes }}</p>
                         @endif
                         @foreach ($application->documents ?? [] as $index => $document)
-                            <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}">{{ $document['name'] }}</a>
+                            <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}" target="_blank" rel="noopener noreferrer">{{ $document['name'] }}</a>
                         @endforeach
                         @if (in_array($application->status, ['submitted', 'reviewing'], true))
                             <form method="POST" action="{{ route('scholarship-applications.cancel', $application) }}">@csrf @method('DELETE')
@@ -52,9 +70,9 @@
                     <p class="scholarship-review-error" role="alert">{{ $errors->first() }}</p>
                 @endif
                 @forelse ($applications as $application)
-                    @php($applicationStatus = ['submitted' => 'Pending', 'reviewing' => 'Pending', 'approved' => 'Approved', 'cancelled' => 'Canceled', 'rejected' => 'Failed'][$application->status] ?? 'Pending')
-                    <article class="operations-card">
-                        <h3>{{ $application->scholarship->title }} <span class="operations-status">{{ $applicationStatus }}</span></h3>
+                    @php($finalDecisionRecorded = in_array($application->status, ['approved', 'rejected'], true) && $application->reviewed_by !== null && ($application->status === 'approved' || (! in_array($application->center_approval_status, ['failed', 'rejected'], true) && ! in_array($application->trainer_approval_status, ['failed', 'rejected'], true))))
+                    <article class="operations-card scholarship-application-card">
+                        <h3>{{ $application->scholarship->title }} <span class="operations-status">{{ $applicationStatus($application) }}</span></h3>
                         <p>{{ $application->user->name }} · {{ $application->user->email }}</p>
                         @if ($application->scholarship->trainingProgram)<p><strong>Course:</strong> {{ $application->scholarship->trainingProgram->title }}</p>@endif
                         <p><strong>Center approval:</strong> {{ $approvalLabel($application->center_approval_status) }}@if ($application->centerApprover) · {{ $application->centerApprover->name }}@endif</p>
@@ -67,43 +85,71 @@
                         <p>{{ $application->application_message }}</p>
                         <p><strong>Scholarship requirements:</strong> {{ $application->scholarship->requirements ?: 'Not specified by provider.' }}</p>
                         @foreach ($application->documents ?? [] as $index => $document)
-                            <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}">{{ $document['name'] }}</a>
+                            <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}" target="_blank" rel="noopener noreferrer">{{ $document['name'] }}</a>
                         @endforeach
                         @if ($application->is_ready_for_approval)
                             <p class="scholarship-review-readiness" role="status">The application message and uploaded files are available. Compare the files with the scholarship requirements above before accepting.</p>
                         @else
                             <p class="scholarship-review-blocked" role="status">Acceptance is disabled until the application message is complete and every uploaded file is available.</p>
                         @endif
-                        @if ($application->can_approve_center || $application->can_approve_trainer)
-                            <section class="operations-card" aria-label="TESDA application approvals">
-                                @foreach (['center' => 'Training center', 'trainer' => 'TESDA trainer'] as $stage => $label)
-                                    @if (($stage === 'center' && $application->can_approve_center) || ($stage === 'trainer' && $application->can_approve_trainer))
-                                        <form method="POST" action="{{ route('scholarship-applications.update', $application) }}" data-scholarship-review-form>@csrf @method('PUT')
-                                            <input type="hidden" name="stage" value="{{ $stage }}">
-                                            <button type="submit" name="decision" value="approved" @disabled(! $application->is_ready_for_approval)>Accept as {{ strtolower($label) }}</button>
-                                            <button type="button" data-review-decline-open>Decline as {{ strtolower($label) }}</button>
-                                            @include('operations.partials.scholarship-decline-dialog', [
-                                                'dialogId' => 'scholarship-decline-'.$application->id.'-'.$stage,
-                                                'decision' => 'failed',
-                                            ])
-                                        </form>
+                        @if ($application->can_approve_center || $application->can_change_center_decision || $application->can_approve_trainer || $application->can_change_trainer_decision || $application->can_override_final)
+                            <section class="scholarship-review-actions" aria-label="Scholarship application decisions">
+                                @foreach (['center' => ['Training center', $application->can_approve_center || $application->can_change_center_decision, $application->center_approval_status, $application->center_approval_notes], 'trainer' => ['TESDA trainer', $application->can_approve_trainer || $application->can_change_trainer_decision, $application->trainer_approval_status, $application->trainer_approval_notes]] as $stage => [$label, $canReviewStage, $stageStatus, $stageReason])
+                                    @if ($canReviewStage)
+                                        @php($stageDecisionRecorded = in_array($stageStatus, ['approved', 'failed', 'rejected'], true))
+                                        <div class="scholarship-review-action-group">
+                                            <h4>{{ $label }} decision</h4>
+                                            @if ($stageDecisionRecorded)
+                                                <div class="scholarship-review-recorded" data-review-recorded>
+                                                    <p><strong>Recorded:</strong> {{ $approvalLabel($stageStatus) }}</p>
+                                                    @if ($stageReason)<p><strong>Decline reason:</strong> {{ $stageReason }}</p>@endif
+                                                    <button type="button" class="scholarship-review-edit" data-review-edit>Change decision</button>
+                                                </div>
+                                            @endif
+                                            <form class="scholarship-review-form" method="POST" action="{{ route('scholarship-applications.update', $application) }}" data-scholarship-review-form @if ($stageDecisionRecorded) hidden @endif>@csrf @method('PUT')
+                                                <input type="hidden" name="stage" value="{{ $stage }}">
+                                                <div class="scholarship-review-controls" data-review-controls @if ($stageDecisionRecorded) hidden @endif>
+                                                    <div class="scholarship-review-controls__buttons">
+                                                        <button class="scholarship-review-accept" type="submit" name="decision" value="approved" @disabled(! $application->is_ready_for_approval)>Accept application</button>
+                                                        <button class="scholarship-review-decline" type="button" data-review-decline-open>Decline application</button>
+                                                    </div>
+                                                </div>
+                                                @include('operations.partials.scholarship-decline-dialog', [
+                                                    'dialogId' => 'scholarship-decline-'.$application->id.'-'.$stage,
+                                                    'decision' => 'failed',
+                                                    'reason' => $stageReason,
+                                                ])
+                                            </form>
+                                        </div>
                                     @endif
                                 @endforeach
-                            </section>
-                        @endif
-                        @if ($application->can_override_final)
-                            <section class="operations-card" aria-label="Final TESDA or administrator decision">
-                                <h3>Final decision or override</h3>
-                                <p>Accepting does not require a reason. Declining requires a reason, which will be shown to the Career Seeker.</p>
-                                <form method="POST" action="{{ route('scholarship-applications.update', $application) }}" data-scholarship-review-form>@csrf @method('PUT')
-                                    <input type="hidden" name="stage" value="final">
-                                    <button type="submit" name="decision" value="approved" @disabled(! $application->is_ready_for_approval)>Accept application</button>
-                                    <button type="button" data-review-decline-open>Decline application</button>
-                                    @include('operations.partials.scholarship-decline-dialog', [
-                                        'dialogId' => 'scholarship-decline-'.$application->id.'-final',
-                                        'decision' => 'rejected',
-                                    ])
-                                </form>
+                                @if ($application->can_override_final)
+                                    <div class="scholarship-review-action-group">
+                                        <h4>Final TESDA or administrator decision</h4>
+                                        @if ($finalDecisionRecorded)
+                                            <div class="scholarship-review-recorded" data-review-recorded>
+                                                <p><strong>Recorded:</strong> {{ $application->status === 'approved' ? 'Approved' : 'Declined' }}</p>
+                                                @if ($application->review_notes)<p><strong>Decision reason:</strong> {{ $application->review_notes }}</p>@endif
+                                                <button type="button" class="scholarship-review-edit" data-review-edit>Change decision</button>
+                                            </div>
+                                        @endif
+                                        <form class="scholarship-review-form" method="POST" action="{{ route('scholarship-applications.update', $application) }}" data-scholarship-review-form @if ($finalDecisionRecorded) hidden @endif>@csrf @method('PUT')
+                                            <input type="hidden" name="stage" value="final">
+                                            <div class="scholarship-review-controls" data-review-controls @if ($finalDecisionRecorded) hidden @endif>
+                                                <p>Accepting does not require a reason. Declining requires a reason, which will be shown to the Career Seeker.</p>
+                                                <div class="scholarship-review-controls__buttons">
+                                                    <button class="scholarship-review-accept" type="submit" name="decision" value="approved" @disabled(! $application->is_ready_for_approval)>Accept application</button>
+                                                    <button class="scholarship-review-decline" type="button" data-review-decline-open>Decline application</button>
+                                                </div>
+                                            </div>
+                                            @include('operations.partials.scholarship-decline-dialog', [
+                                                'dialogId' => 'scholarship-decline-'.$application->id.'-final',
+                                                'decision' => 'rejected',
+                                                'reason' => $application->review_notes,
+                                            ])
+                                        </form>
+                                    </div>
+                                @endif
                             </section>
                         @endif
                     </article>
@@ -172,7 +218,10 @@
                 @endif
                 @if ($scholarship->source_url)<p><a href="{{ $scholarship->source_url }}" target="_blank" rel="noopener noreferrer">Check provider source ↗</a></p>@endif
                 @if ($scholarship->deadline)<p>Deadline {{ $scholarship->deadline->format('M j, Y') }}</p>@endif
-                @if (auth()->user()->hasRole(\App\Enums\Role::Youth) && ! in_array($scholarship->id, $myScholarshipIds, true))
+                @if (auth()->user()->hasRole(\App\Enums\Role::Youth) && in_array($scholarship->id, $myScholarshipIds, true))
+                    @php($existingApplication = $myApplications->firstWhere('scholarship_id', $scholarship->id))
+                    <p class="scholarship-already-applied" role="status">Already applied · {{ $applicationStatus($existingApplication) }}.</p>
+                @elseif (auth()->user()->hasRole(\App\Enums\Role::Youth))
                     @if ($scholarship->is_full)
                         <p role="status"><strong>This scholarship is fully occupied.</strong> You may refer to another private training center listed below.</p>
                     @elseif (! $scholarship->slot_limit || ! $scholarship->center || ! $scholarship->trainingProgram)

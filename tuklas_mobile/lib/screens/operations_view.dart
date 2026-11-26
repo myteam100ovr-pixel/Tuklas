@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:pdfrx/pdfrx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
@@ -850,8 +851,9 @@ class _OperationsViewState extends State<OperationsView> {
   Future<void> _reviewScholarshipApplication(
     Map<String, dynamic> application,
     String stage,
-    String label,
-  ) async {
+    String label, {
+    String? previousReason,
+  }) async {
     final scholarship = application['scholarship'] as Map?;
     final isReady = application['is_ready_for_approval'] == true;
     final decision = await showDialog<String>(
@@ -872,6 +874,11 @@ class _OperationsViewState extends State<OperationsView> {
                     ? 'The application message and uploaded documents are available. Review each document before accepting.'
                     : 'Acceptance is unavailable until the application message is complete and every uploaded document is available.',
               ),
+              if (previousReason != null &&
+                  previousReason.trim().isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text('Current reason: $previousReason'),
+              ],
             ],
           ),
         ),
@@ -900,7 +907,9 @@ class _OperationsViewState extends State<OperationsView> {
 
     String? notes;
     if (decision == 'failed' || decision == 'rejected') {
-      final reasonController = TextEditingController();
+      final reasonController = TextEditingController(
+        text: previousReason ?? '',
+      );
       final formKey = GlobalKey<FormState>();
       notes = await showDialog<String>(
         context: context,
@@ -954,7 +963,7 @@ class _OperationsViewState extends State<OperationsView> {
     );
   }
 
-  Future<void> _downloadScholarshipDocument(
+  Future<void> _viewScholarshipDocument(
     Map<String, dynamic> application,
     Map<String, dynamic> document,
     int index,
@@ -965,15 +974,49 @@ class _OperationsViewState extends State<OperationsView> {
             applicationId: application['id'] as int,
             documentIndex: index,
           );
-      final saved = await FilePicker.saveFile(
-        fileName: '${document['name'] ?? 'scholarship-document'}',
-        bytes: bytes,
-      );
-      if (mounted && saved != null) {
+      if (!mounted) return;
+      final name = '${document['name'] ?? 'scholarship-document'}';
+      final lowerName = name.toLowerCase();
+      final isImage = RegExp(r'\.(jpg|jpeg|png|webp)$').hasMatch(lowerName);
+      final isPdf = lowerName.endsWith('.pdf');
+      if (!isImage && !isPdf) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Application document saved.')),
+          const SnackBar(content: Text('This file type cannot be previewed.')),
         );
+        return;
       }
+
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => Dialog.fullscreen(
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+              leading: IconButton(
+                tooltip: 'Close preview',
+                onPressed: () => Navigator.pop(dialogContext),
+                icon: const Icon(Icons.close),
+              ),
+            ),
+            body: isImage
+                ? Center(
+                    child: InteractiveViewer(
+                      minScale: 0.75,
+                      maxScale: 5,
+                      child: Image.memory(
+                        bytes,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                              child: Text('This image could not be displayed.'),
+                            ),
+                      ),
+                    ),
+                  )
+                : PdfViewer.data(bytes, sourceName: name),
+          ),
+        ),
+      );
     } on ApiException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -983,25 +1026,59 @@ class _OperationsViewState extends State<OperationsView> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not save the application document.'),
+            content: Text('Could not preview the application document.'),
           ),
         );
       }
     }
   }
 
-  bool _hasScholarshipApplication(int scholarshipId) => _list('myApplications')
-      .any(
-        (application) =>
-            (application['scholarship'] as Map?)?['id'] == scholarshipId,
-      );
+  Map<String, dynamic>? _activeScholarshipApplication(int scholarshipId) {
+    for (final application in _list('myApplications')) {
+      final applicationStatus = application['status'];
+      if ((application['scholarship'] as Map?)?['id'] == scholarshipId &&
+          ['submitted', 'reviewing', 'approved'].contains(applicationStatus)) {
+        return application;
+      }
+    }
+    return null;
+  }
 
-  String _scholarshipApplicationLabel(Object? status) => switch (status) {
-    'approved' => 'Approved',
-    'cancelled' => 'Canceled',
-    'rejected' => 'Failed',
-    _ => 'Pending',
-  };
+  String? _activeTrainingApplicationStatus(Map<String, dynamic> session) {
+    for (final application in asList(session['applications']).map(asMap)) {
+      final status = '${application['status'] ?? ''}';
+      if (status == 'pending' || status == 'accepted') return status;
+    }
+    return null;
+  }
+
+  bool _hasScholarshipApplication(int scholarshipId) =>
+      _activeScholarshipApplication(scholarshipId) != null;
+
+  String _scholarshipApplicationLabel(Map<String, dynamic> application) {
+    final status = application['status'];
+    final centerStatus = application['center_approval_status'];
+    final trainerStatus = application['trainer_approval_status'];
+    if (status == 'cancelled') return 'Canceled';
+    if (status == 'approved' && application['reviewer'] != null) {
+      return 'Approved · TESDA/Admin override';
+    }
+    if (status == 'rejected' ||
+        status == 'failed' ||
+        centerStatus == 'failed' ||
+        centerStatus == 'rejected' ||
+        trainerStatus == 'failed' ||
+        trainerStatus == 'rejected') {
+      return 'Failed';
+    }
+    if (status == 'approved' &&
+        centerStatus == 'approved' &&
+        trainerStatus == 'approved') {
+      return 'Approved';
+    }
+    if (status == 'approved') return 'Review needed';
+    return 'Pending';
+  }
 
   String _approvalLabel(Object? status) => switch (status) {
     'approved' => 'Approved',
@@ -1322,7 +1399,7 @@ class _OperationsViewState extends State<OperationsView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'} · ${_scholarshipApplicationLabel(application['status'])}',
+                          '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'} · ${_scholarshipApplicationLabel(application)}',
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                         Text(
@@ -1346,6 +1423,26 @@ class _OperationsViewState extends State<OperationsView> {
                         if (application['review_notes'] != null)
                           Text(
                             '${application['status'] == 'approved' || application['status'] == 'rejected' ? 'Final decision reason' : 'Latest review reason'}${(application['reviewer'] as Map?)?['name'] == null ? '' : ' · ${(application['reviewer'] as Map)['name']}'}: ${application['review_notes']}',
+                          ),
+                        for (final (index, rawDocument)
+                            in (application['documents'] as List? ?? const [])
+                                .whereType<Map>()
+                                .indexed)
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              onPressed: _busy
+                                  ? null
+                                  : () => _viewScholarshipDocument(
+                                      application,
+                                      Map<String, dynamic>.from(rawDocument),
+                                      index,
+                                    ),
+                              icon: const Icon(Icons.visibility_outlined),
+                              label: Text(
+                                'View ${rawDocument['name'] ?? 'application document'}',
+                              ),
+                            ),
                           ),
                         if (application['status'] == 'submitted' ||
                             application['status'] == 'reviewing')
@@ -1385,7 +1482,7 @@ class _OperationsViewState extends State<OperationsView> {
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text(
-                            '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'} · ${_scholarshipApplicationLabel(application['status'])}',
+                            '${(application['scholarship'] as Map?)?['title'] ?? 'Scholarship'} · ${_scholarshipApplicationLabel(application)}',
                           ),
                           subtitle: Text(
                             '${(application['user'] as Map?)?['name'] ?? 'Applicant'} · ${application['application_message'] ?? ''}\nCenter: ${_approvalLabel(application['center_approval_status'])} · Trainer: ${_approvalLabel(application['trainer_approval_status'])}',
@@ -1415,12 +1512,12 @@ class _OperationsViewState extends State<OperationsView> {
                             child: TextButton.icon(
                               onPressed: _busy
                                   ? null
-                                  : () => _downloadScholarshipDocument(
+                                  : () => _viewScholarshipDocument(
                                       application,
                                       Map<String, dynamic>.from(rawDocument),
                                       index,
                                     ),
-                              icon: const Icon(Icons.download_outlined),
+                              icon: const Icon(Icons.visibility_outlined),
                               label: Text(
                                 '${rawDocument['name'] ?? 'Application document'}',
                               ),
@@ -1441,7 +1538,9 @@ class _OperationsViewState extends State<OperationsView> {
                         Wrap(
                           spacing: 8,
                           children: [
-                            if (application['can_approve_center'] == true)
+                            if (application['can_approve_center'] == true ||
+                                application['can_change_center_decision'] ==
+                                    true)
                               TextButton.icon(
                                 onPressed: _busy
                                     ? null
@@ -1449,11 +1548,20 @@ class _OperationsViewState extends State<OperationsView> {
                                         application,
                                         'center',
                                         'Training center',
+                                        previousReason:
+                                            '${application['center_approval_notes'] ?? ''}',
                                       ),
                                 icon: const Icon(Icons.apartment_outlined),
-                                label: const Text('Center decision'),
+                                label: Text(
+                                  application['can_change_center_decision'] ==
+                                          true
+                                      ? 'Change center decision'
+                                      : 'Center decision',
+                                ),
                               ),
-                            if (application['can_approve_trainer'] == true)
+                            if (application['can_approve_trainer'] == true ||
+                                application['can_change_trainer_decision'] ==
+                                    true)
                               TextButton.icon(
                                 onPressed: _busy
                                     ? null
@@ -1461,9 +1569,16 @@ class _OperationsViewState extends State<OperationsView> {
                                         application,
                                         'trainer',
                                         'TESDA trainer',
+                                        previousReason:
+                                            '${application['trainer_approval_notes'] ?? ''}',
                                       ),
                                 icon: const Icon(Icons.school_outlined),
-                                label: const Text('Trainer decision'),
+                                label: Text(
+                                  application['can_change_trainer_decision'] ==
+                                          true
+                                      ? 'Change trainer decision'
+                                      : 'Trainer decision',
+                                ),
                               ),
                             if (application['can_override_final'] == true)
                               TextButton.icon(
@@ -1473,9 +1588,15 @@ class _OperationsViewState extends State<OperationsView> {
                                         application,
                                         'final',
                                         'Final TESDA/Admin',
+                                        previousReason:
+                                            '${application['review_notes'] ?? ''}',
                                       ),
                                 icon: const Icon(Icons.fact_check_outlined),
-                                label: const Text('Final decision / override'),
+                                label: Text(
+                                  application['reviewer'] != null
+                                      ? 'Change final decision'
+                                      : 'Final decision / override',
+                                ),
                               ),
                           ],
                         ),
@@ -1987,21 +2108,41 @@ class _OperationsViewState extends State<OperationsView> {
                       if (widget.section == 'Sessions' &&
                           _role == 'youth' &&
                           item['status'] == 'open')
-                        TextButton(
-                          onPressed: _busy
-                              ? null
-                              : () => _action(
-                                  '/training-sessions/${item['id']}/apply',
-                                ),
-                          child: const Text('Request course'),
-                        ),
+                        if (_activeTrainingApplicationStatus(item)
+                            case final String applicationStatus)
+                          Text(
+                            'Already requested · ${applicationStatus == 'accepted' ? 'Accepted' : 'Pending'}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        else
+                          TextButton(
+                            onPressed: _busy
+                                ? null
+                                : () => _action(
+                                    '/training-sessions/${item['id']}/apply',
+                                  ),
+                            child: const Text('Request course'),
+                          ),
                       if (widget.section == 'Scholarships' &&
+                          _role == 'youth' &&
+                          item['id'] is int &&
+                          _hasScholarshipApplication(item['id'] as int))
+                        Text(
+                          'Already applied · ${_scholarshipApplicationLabel(_activeScholarshipApplication(item['id'] as int)!)}',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      else if (widget.section == 'Scholarships' &&
                           _role == 'youth' &&
                           item['id'] is int &&
                           item['is_full'] != true &&
                           item['slot_limit'] != null &&
-                          item['training_program_id'] != null &&
-                          !_hasScholarshipApplication(item['id'] as int))
+                          item['training_program_id'] != null)
                         TextButton.icon(
                           onPressed: _busy
                               ? null

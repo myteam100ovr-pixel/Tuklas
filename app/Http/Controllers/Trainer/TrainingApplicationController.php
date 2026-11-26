@@ -64,14 +64,22 @@ class TrainingApplicationController extends Controller
             $application = TrainingApplication::query()
                 ->where('training_program_id', $program->id)
                 ->where('user_id', $request->user()->id)
+                ->whereIn('status', ['pending', 'accepted'])
                 ->lockForUpdate()
-                ->first();
-            abort_if($application && in_array($application->status, ['pending', 'accepted'], true), 422, 'You already have an active request for this course.');
+                ->exists();
+            if ($application) {
+                throw ValidationException::withMessages([
+                    'training_program_id' => 'You already have an active request for this course.',
+                ]);
+            }
 
-            TrainingApplication::query()->updateOrCreate(
-                ['training_program_id' => $program->id, 'user_id' => $request->user()->id],
-                ['training_session_id' => null, 'status' => 'pending', 'is_demo' => false],
-            );
+            TrainingApplication::query()->create([
+                'training_program_id' => $program->id,
+                'training_session_id' => null,
+                'user_id' => $request->user()->id,
+                'status' => 'pending',
+                'is_demo' => false,
+            ]);
         });
 
         $message = 'Your course request was sent. The training center will confirm dates and available places before accepting enrollment.';
@@ -85,15 +93,27 @@ class TrainingApplicationController extends Controller
     {
         abort_unless($request->user()->hasRole(Role::Youth), 403);
         DB::transaction(function () use ($request, $session): void {
+            TrainingProgram::query()->lockForUpdate()->findOrFail($session->training_program_id);
             $session = TrainingSession::query()->lockForUpdate()->findOrFail($session->id);
             abort_unless($session->status === 'open' && $session->starts_at->isFuture() && $session->program->status === 'published' && $session->center->is_active, 404);
+            $hasActiveApplication = TrainingApplication::query()
+                ->where('training_program_id', $session->training_program_id)
+                ->where('user_id', $request->user()->id)
+                ->whereIn('status', ['pending', 'accepted'])
+                ->lockForUpdate()
+                ->exists();
+            if ($hasActiveApplication) {
+                throw ValidationException::withMessages([
+                    'training_program_id' => 'You already have an active application for this course.',
+                ]);
+            }
             abort_if($session->applications()->where('status', 'accepted')->count() >= $session->capacity, 422, 'This session is full.');
-            $existing = TrainingApplication::query()->where('training_program_id', $session->training_program_id)->where('user_id', $request->user()->id)->first();
-            abort_if($existing && in_array($existing->status, ['pending', 'accepted'], true), 422, 'You already have an active application for this program.');
-            TrainingApplication::query()->updateOrCreate(
-                ['training_program_id' => $session->training_program_id, 'user_id' => $request->user()->id],
-                ['training_session_id' => $session->id, 'status' => 'pending'],
-            );
+            TrainingApplication::query()->create([
+                'training_program_id' => $session->training_program_id,
+                'training_session_id' => $session->id,
+                'user_id' => $request->user()->id,
+                'status' => 'pending',
+            ]);
         });
 
         return $request->routeIs('mobile.*') ? response()->json(['message' => 'Application submitted.'], 201) : back()->with('status', 'Application submitted.');

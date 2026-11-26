@@ -31,8 +31,15 @@
                     <p><strong>Training dates:</strong> {{ collect($session->training_dates)->map(fn ($date) => \Illuminate\Support\Carbon::parse($date)->format('M j, Y'))->implode(' · ') }}</p>
                 @endif
                 <p>{{ $session->accepted_count }} of {{ $session->capacity }} places accepted</p>
-                @if (auth()->user()->hasRole(\App\Enums\Role::Youth) && $session->accepted_count < $session->capacity)
-                    <form method="POST" action="{{ route('applications.store', $session) }}">@csrf<button type="submit">Request course</button></form>
+                @if (auth()->user()->hasRole(\App\Enums\Role::Youth))
+                    @php($myApplication = $session->applications->first())
+                    @if ($myApplication && in_array($myApplication->status, ['pending', 'accepted'], true))
+                        <p class="operations-status" role="status">Already requested · {{ ucfirst($myApplication->status) }}</p>
+                    @elseif ($session->accepted_count < $session->capacity)
+                        <form method="POST" action="{{ route('applications.store', $session) }}">@csrf<button type="submit">Request course</button></form>
+                    @else
+                        <p class="operations-status" role="status">Fully occupied</p>
+                    @endif
                 @endif
                 @if ($canManage)
                     <details>
