@@ -73,7 +73,10 @@ class DocumentScanControllerTest extends TestCase
     public function test_unaccepted_content_returns_422_without_saving_or_updating_profile(?string $type, string $route): void
     {
         $youth = $this->createYouth();
-        $youth->youthProfile()->create(['skills' => ['Sewing'], 'credentials' => ['Existing credential']]);
+        $youth->youthProfile()->update([
+            'skills' => ['Sewing'],
+            'credentials' => ['Existing credential'],
+        ]);
         Storage::fake('local');
         config()->set('services.google.gemini_api_key', 'test-key');
         config()->set('services.google.gemini_model', 'gemini-3.7-flash');
@@ -102,7 +105,13 @@ class DocumentScanControllerTest extends TestCase
     public function test_certificate_scan_saves_tesda_recommendations_from_gemini(): void
     {
         $youth = $this->createYouth();
-        $youth->youthProfile()->create(['assessment_preferences' => ['career_goal' => 'Open a neighborhood bakery', 'schedule' => 'Weekends']]);
+        $youth->youthProfile()->update([
+            'assessment_preferences' => [
+                'assessment_skills' => [],
+                'career_goal' => 'Open a neighborhood bakery',
+                'schedule' => 'Weekends',
+            ],
+        ]);
         Storage::fake('local');
         config()->set('services.google.gemini_api_key', 'test-key');
         config()->set('services.google.gemini_model', 'gemini-3.7-flash');
@@ -219,7 +228,8 @@ class DocumentScanControllerTest extends TestCase
         ])->assertStatus(429)->assertJsonPath('provider_status', 429);
 
         $this->assertDatabaseCount('document_scans', 0);
-        $this->assertDatabaseCount('youth_profiles', 0);
+        $this->assertDatabaseCount('youth_profiles', 1);
+        $this->assertNull($youth->fresh()->youthProfile->skills);
         $this->assertSame([], Storage::disk('local')->allFiles());
         Http::assertSentCount(1);
     }
@@ -243,6 +253,8 @@ class DocumentScanControllerTest extends TestCase
         Sleep::fake();
         Storage::fake('local');
         config()->set('services.google.gemini_api_key', 'test-key');
+        config()->set('services.google.gemini_model', 'gemini-3.6-flash');
+        config()->set('services.google.gemini_fallback_model', 'gemini-3.6-flash');
         Http::preventStrayRequests();
         $sequence = Http::sequence()->push(['error' => ['message' => 'Busy']], 503);
         if ($recovers) {
@@ -274,6 +286,10 @@ class DocumentScanControllerTest extends TestCase
         $user->is_active = true;
         $user->email_verified_at = now();
         $user->save();
+        $user->youthProfile()->create([
+            'interests' => ['technology'],
+            'assessment_preferences' => [],
+        ]);
 
         return $user;
     }

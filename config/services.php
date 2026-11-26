@@ -34,6 +34,7 @@ return [
     'google' => [
         'gemini_api_key' => env('GOOGLE_AI_API_KEY') ?: env('GEMINI_API_KEY'),
         'gemini_model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
+        'gemini_fallback_model' => env('GEMINI_FALLBACK_MODEL', 'gemini-3.6-flash'),
         'gemini_chat_web_search' => (bool) env('GEMINI_CHAT_WEB_SEARCH', true),
         'gemini_chat_url_context' => (bool) env('GEMINI_CHAT_URL_CONTEXT', true),
     ],

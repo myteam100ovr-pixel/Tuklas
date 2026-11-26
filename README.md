@@ -630,7 +630,8 @@ Configure secrets only in the untracked local `.env` or the deployment environme
 | Variable | Purpose |
 |---|---|
 | `GOOGLE_AI_API_KEY` | Enables Gemini document scans and career chat; the key stays on the Laravel server. |
-| `GEMINI_MODEL` | Selects the configured Gemini model. |
+| `GEMINI_MODEL` | Primary Gemini model; defaults to `gemini-3.5-flash-lite`. |
+| `GEMINI_FALLBACK_MODEL` | Model tried if the primary model times out or is temporarily unavailable; defaults to `gemini-3.6-flash`. |
 | `MAIL_MAILER` | `phpmailer` for the PHPMailer SMTP transport, `smtp` for Laravel SMTP, or `log` for local inspection. |
 | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SCHEME` | SMTP connection settings. |
 | `MAIL_TIMEOUT` | SMTP connection timeout in seconds. |

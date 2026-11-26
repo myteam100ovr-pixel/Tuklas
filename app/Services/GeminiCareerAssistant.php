@@ -33,6 +33,13 @@ class GeminiCareerAssistant
             throw new RuntimeException('Gemini model is not configured.');
         }
 
+        $fallbackModel = config('services.google.gemini_fallback_model');
+        $models = [$model];
+
+        if (is_string($fallbackModel) && $fallbackModel !== '' && $fallbackModel !== $model) {
+            $models[] = $fallbackModel;
+        }
+
         $contents = array_map(fn (array $message): array => [
             'role' => $message['role'],
             'parts' => [['text' => $message['text']]],
@@ -91,8 +98,11 @@ class GeminiCareerAssistant
         $quotaExceeded = false;
         $lastMessage = 'Gemini could not reply.';
         $searchUnavailable = false;
+        $lastCandidate = $model;
 
-        foreach ([$model] as $candidate) {
+        foreach ($models as $candidate) {
+            $lastCandidate = $candidate;
+
             try {
                 $candidateResponse = Http::withHeaders(['x-goog-api-key' => $apiKey])
                     ->connectTimeout(5)
@@ -122,8 +132,14 @@ class GeminiCareerAssistant
                 if (! in_array($candidateResponse->status(), [400, 404, 429, 500, 502, 503, 504], true)) {
                     $candidateResponse->throw();
                 }
+
+                if (! in_array($candidateResponse->status(), [404, 500, 502, 503, 504], true)) {
+                    break;
+                }
             } catch (ConnectionException $exception) {
                 $lastException = $exception;
+                $lastStatus = 0;
+                $lastMessage = 'Gemini did not respond in time.';
             } catch (RequestException $exception) {
                 throw new RuntimeException('Gemini could not reply.', code: $exception->response->status(), previous: $exception);
             }
@@ -146,7 +162,7 @@ class GeminiCareerAssistant
                 $fallbackResponse = Http::withHeaders(['x-goog-api-key' => $apiKey])
                     ->connectTimeout(5)
                     ->timeout(25)
-                    ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($model).':generateContent', $fallbackBody);
+                    ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($lastCandidate).':generateContent', $fallbackBody);
 
                 if ($fallbackResponse->successful()) {
                     $response = $fallbackResponse;

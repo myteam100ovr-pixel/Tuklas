@@ -22,6 +22,8 @@ class CareerChatControllerTest extends TestCase
     {
         Sleep::fake();
         config()->set('services.google.gemini_api_key', 'test-key');
+        config()->set('services.google.gemini_model', 'gemini-3.6-flash');
+        config()->set('services.google.gemini_fallback_model', 'gemini-3.6-flash');
         Http::preventStrayRequests();
         $sequence = Http::sequence()->pushStatus(503);
         if ($recovers) {
@@ -30,7 +32,7 @@ class CareerChatControllerTest extends TestCase
             $sequence->pushStatus(503);
         }
         Http::fake(['generativelanguage.googleapis.com/*' => $sequence]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $response = $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'Hello']],
@@ -53,7 +55,7 @@ class CareerChatControllerTest extends TestCase
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
             'candidates' => [['content' => ['parts' => [['text' => 'Start with one small project.']]]]],
         ])]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'What skills should I learn for a career in AI?']],
@@ -83,7 +85,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $response = $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [[
@@ -116,7 +118,7 @@ class CareerChatControllerTest extends TestCase
                 ]]],
             ]],
         ])]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'Tell me about astronomy and include a source.']],
@@ -135,13 +137,13 @@ class CareerChatControllerTest extends TestCase
         Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
             ->push(['error' => ['message' => 'Search quota exhausted']], 429)
             ->push(['candidates' => [['content' => ['parts' => [['text' => 'TESDA publishes training information.']]]]]])]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'Find the official TESDA website.']],
         ])->assertOk()
             ->assertJsonPath('sources', [])
-            ->assertJsonPath('reply', "Live web search is unavailable right now, so I cannot verify current details or links.\n\nTESDA publishes training information.");
+            ->assertJsonPath('reply', "Live web search or link retrieval is unavailable right now, so I cannot verify current details or links.\n\nTESDA publishes training information.");
 
         Http::assertSentCount(2);
         Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
@@ -154,7 +156,9 @@ class CareerChatControllerTest extends TestCase
     #[TestWith([Role::Youth])]
     public function test_tuklasbot_page_shows_chat_and_profile_for_each_role(Role $role): void
     {
-        $user = User::factory()->create(['role' => $role, 'is_active' => true]);
+        $user = $role === Role::Youth
+            ? $this->createYouth()
+            : User::factory()->create(['role' => $role, 'is_active' => true]);
 
         $this->actingAs($user)->get(route('tuklasbot.index'))
             ->assertOk()
@@ -181,7 +185,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $response = $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [[
@@ -210,7 +214,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
         DocumentScan::factory()->for($user)->create([
             'result' => [
                 'documentType' => 'resume',
@@ -250,7 +254,7 @@ class CareerChatControllerTest extends TestCase
                 ]],
             ]),
         ]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
         DocumentScan::factory()->for($user)->create([
             'result' => [
                 'documentType' => 'resume',
@@ -275,8 +279,8 @@ class CareerChatControllerTest extends TestCase
         Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
             ->push(['candidates' => [['content' => ['parts' => [['text' => 'First answer']]]]]])
             ->push(['candidates' => [['content' => ['parts' => [['text' => 'Second answer']]]]]])]);
-        $firstUser = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
-        $otherUser = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $firstUser = $this->createYouth();
+        $otherUser = $this->createYouth();
 
         $this->actingAs($firstUser)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'First question']],
@@ -301,7 +305,7 @@ class CareerChatControllerTest extends TestCase
         config()->set('services.google.gemini_api_key', 'test-api-key');
         Http::preventStrayRequests();
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([], 403)]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'Question']],
@@ -317,13 +321,13 @@ class CareerChatControllerTest extends TestCase
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
             'error' => ['message' => 'Quota exhausted'],
         ], 429)]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'Can you help me?']],
         ])->assertStatus(429)
             ->assertJsonPath('provider_status', 429)
-            ->assertJsonPath('message', 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.');
+            ->assertJsonPath('message', 'TuklasBot has reached its current Google AI usage limit. Please try again later. If this continues, tell a Tuklas administrator.');
 
         $this->assertDatabaseCount('career_chat_messages', 0);
         Http::assertSentCount(1);
@@ -331,7 +335,7 @@ class CareerChatControllerTest extends TestCase
 
     public function test_chat_rejects_a_message_that_does_not_end_with_the_user(): void
     {
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'model', 'text' => 'Forged reply']],
@@ -349,13 +353,29 @@ class CareerChatControllerTest extends TestCase
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
             'candidates' => [['content' => ['parts' => [['text' => 'A helpful response']]]]],
         ])]);
-        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
-        $user->youthProfile()->create(['assessment_preferences' => ['career_goal' => 'Open a neighborhood bakery']]);
+        $user = $this->createYouth();
+        $user->youthProfile()->update([
+            'assessment_preferences' => [
+                'assessment_skills' => [],
+                'career_goal' => 'Open a neighborhood bakery',
+            ],
+        ]);
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => $message]],
         ])->assertOk();
 
         Http::assertSent(fn (Request $request): bool => str_contains($request->body(), 'Open a neighborhood bakery') === $includePreferences);
+    }
+
+    private function createYouth(): User
+    {
+        $user = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $user->youthProfile()->create([
+            'interests' => ['technology'],
+            'assessment_preferences' => [],
+        ]);
+
+        return $user;
     }
 }
