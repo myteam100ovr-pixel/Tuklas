@@ -300,6 +300,29 @@ class ApiClient {
     return response.bodyBytes;
   }
 
+  Future<Uint8List> downloadScholarshipApplicationDocument({
+    required int applicationId,
+    required int documentIndex,
+  }) async {
+    final bearer = await token;
+    if (bearer == null) throw ApiException('Please sign in.');
+    final response = await _withConnectionHandling(
+      () => http.get(
+        _apiUri(
+          '/scholarship-applications/$applicationId/documents/$documentIndex',
+        ),
+        headers: {
+          'Accept': 'application/octet-stream',
+          'Authorization': 'Bearer $bearer',
+        },
+      ),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      await _decode(response);
+    }
+    return response.bodyBytes;
+  }
+
   Future<Map<String, dynamic>> dashboard() => _send('GET', '/dashboard');
 
   Future<String> legalDocument(String document) async {

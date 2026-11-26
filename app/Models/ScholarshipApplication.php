@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class ScholarshipApplication extends Model
 {
@@ -38,6 +39,31 @@ class ScholarshipApplication extends Model
             'trainer_approved_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];
+    }
+
+    public function isReadyForApproval(): bool
+    {
+        $messageLength = mb_strlen(trim((string) $this->application_message));
+        $documents = $this->documents;
+
+        if ($messageLength < 20 || $messageLength > 3000 || ! is_array($documents) || count($documents) < 1 || count($documents) > 5) {
+            return false;
+        }
+
+        foreach ($documents as $document) {
+            if (
+                ! is_array($document)
+                || ! is_string($document['name'] ?? null)
+                || trim($document['name']) === ''
+                || ! is_string($document['path'] ?? null)
+                || trim($document['path']) === ''
+                || ! Storage::disk('local')->exists($document['path'])
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function scholarship(): BelongsTo

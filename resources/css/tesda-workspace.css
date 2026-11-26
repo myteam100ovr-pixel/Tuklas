@@ -100,6 +100,18 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .scholarship-applications > article.operations-card form :is(input,select,textarea) { width:100%; min-width:0; padding:.7rem .8rem; border:1px solid var(--line); border-radius:.6rem; color:var(--ink); background:var(--surface); font:inherit; font-weight:400; }
 .scholarship-applications > article.operations-card form label:has(textarea),.scholarship-applications > article.operations-card form > button { grid-column:1/-1; }
 .scholarship-applications > article.operations-card form > button { justify-self:start; padding:.7rem 1rem; border:1px solid var(--violet); border-radius:.6rem; color:#fff; background:var(--violet); font:inherit; font-size:.8rem; font-weight:650; cursor:pointer; }
+.scholarship-applications > article.operations-card form > button:disabled { opacity:.55; cursor:not-allowed; }
+.scholarship-review-readiness,.scholarship-review-blocked,.scholarship-review-error { padding:.65rem .8rem; border-left:3px solid var(--violet); border-radius:.25rem; background:var(--surface-2); }
+.scholarship-review-blocked,.scholarship-review-error { border-left-color:#b54708; }
+.scholarship-review-dialog { width:min(34rem,calc(100vw - 2rem)); max-height:calc(100dvh - 2rem); margin:auto; padding:1.25rem; border:1px solid var(--line); border-radius:1rem; color:var(--ink); background:var(--surface); box-shadow:0 24px 80px rgb(25 13 52 / .25); }
+.scholarship-review-dialog[open] { display:grid; gap:1rem; }
+.scholarship-review-dialog::backdrop { background:rgb(10 8 20 / 72%); }
+.scholarship-review-dialog h3,.scholarship-review-dialog p { margin:0; }
+.scholarship-review-dialog label { display:grid; gap:.45rem; color:var(--ink); font-size:.85rem; font-weight:600; }
+.scholarship-review-dialog textarea { width:100%; min-height:7rem; padding:.7rem .8rem; border:1px solid var(--line); border-radius:.6rem; color:var(--ink); background:var(--surface-2); font:inherit; font-weight:400; resize:vertical; }
+.scholarship-review-dialog__actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:.75rem; }
+.scholarship-review-dialog__actions button { padding:.7rem 1rem; border:1px solid var(--violet); border-radius:.6rem; color:#fff; background:var(--violet); font:inherit; font-size:.8rem; font-weight:650; cursor:pointer; }
+.scholarship-review-dialog__actions button[type="button"] { color:var(--ink); background:var(--surface-2); }
 .scholarships-page > article.operations-card { display:flex; min-width:0; flex-direction:column; margin:0; overflow-wrap:anywhere; }
 .scholarships-page > article.operations-card details { margin-top:auto; padding-top:1rem; }
 .scholarships-page > article.operations-card details form label:has(textarea),.scholarships-page > article.operations-card details form label:has(input[type="file"]) { grid-column:1/-1; }

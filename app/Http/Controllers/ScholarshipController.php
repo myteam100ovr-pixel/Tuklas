@@ -41,7 +41,7 @@ class ScholarshipController extends Controller
             : collect();
         $applications = $canManage
             ? ScholarshipApplication::query()->with([
-                'scholarship:id,title,provider,is_demo,training_center_id,training_program_id,slot_limit',
+                'scholarship:id,title,provider,requirements,is_demo,training_center_id,training_program_id,slot_limit',
                 'scholarship.center:id,name,type',
                 'scholarship.trainingProgram:id,title,training_center_id',
                 'user:id,name,email',
@@ -99,6 +99,7 @@ class ScholarshipController extends Controller
 
         $applications->each(function (ScholarshipApplication $application) use ($user, $trainerCenterIds): void {
             $isTesda = $user->hasRole(Role::TesdaAdmin);
+            $application->setAttribute('is_ready_for_approval', $application->isReadyForApproval());
             $application->setAttribute(
                 'can_approve_center',
                 $isTesda
@@ -370,6 +371,7 @@ class ScholarshipController extends Controller
             'cancelled_at' => $application->cancelled_at?->toISOString(),
             'can_approve_center' => (bool) $application->can_approve_center,
             'can_approve_trainer' => (bool) $application->can_approve_trainer,
+            'is_ready_for_approval' => $application->isReadyForApproval(),
             'application_message' => $application->application_message,
             'review_notes' => $application->review_notes,
             'reviewed_at' => $application->reviewed_at?->toISOString(),

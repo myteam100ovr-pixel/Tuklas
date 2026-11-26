@@ -1,6 +1,18 @@
 [
     {
         "date": "2026-11-27",
+        "published_at": "2026-11-27T06:09:03+08:00",
+        "version": "1.0.19+20",
+        "title": "Scholarship application review update",
+        "items": [
+            "TESDA reviewers can check each scholarship's requirements and open the applicant's uploaded documents from the mobile application.",
+            "Applications are accepted only when the applicant message and uploaded documents are complete and available.",
+            "Declining an application asks for a reason, while accepting it no longer asks for an unnecessary reason.",
+            "The website and Android release use the same scholarship review rules."
+        ]
+    },
+    {
+        "date": "2026-11-27",
         "published_at": "2026-11-27T01:38:30+08:00",
         "version": "1.0.18+19",
         "title": "Role-focused mobile navigation and course tools",

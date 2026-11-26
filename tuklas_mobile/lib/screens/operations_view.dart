@@ -852,42 +852,142 @@ class _OperationsViewState extends State<OperationsView> {
     String stage,
     String label,
   ) async {
-    final saved = await openWorkspaceForm(
-      context,
-      title: '$label decision',
-      path: '/scholarship-applications/${application['id']}',
-      method: 'PUT',
-      fields: [
-        WorkspaceField(
-          'stage',
-          'Approval stage',
-          options: [stage],
-          required: true,
+    final scholarship = application['scholarship'] as Map?;
+    final isReady = application['is_ready_for_approval'] == true;
+    final decision = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('$label decision'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Scholarship requirements: ${scholarship?['requirements'] ?? 'Not specified by provider.'}',
+              ),
+              const SizedBox(height: 12),
+              Text(
+                isReady
+                    ? 'The application message and uploaded documents are available. Review each document before accepting.'
+                    : 'Acceptance is unavailable until the application message is complete and every uploaded document is available.',
+              ),
+            ],
+          ),
         ),
-        WorkspaceField(
-          'decision',
-          'Decision',
-          options: stage == 'final'
-              ? ['approved', 'rejected']
-              : ['approved', 'failed'],
-          optionLabels: stage == 'final'
-              ? {
-                  'approved': 'Accept application',
-                  'rejected': 'Decline application',
-                }
-              : {'approved': 'Accept', 'failed': 'Decline'},
-          required: true,
-        ),
-        const WorkspaceField(
-          'notes',
-          'Decision reason for Career Seeker',
-          multiline: true,
-          required: true,
-          minLength: 5,
-        ),
-      ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(
+              dialogContext,
+              stage == 'final' ? 'rejected' : 'failed',
+            ),
+            child: const Text('Decline'),
+          ),
+          FilledButton(
+            onPressed: isReady
+                ? () => Navigator.pop(dialogContext, 'approved')
+                : null,
+            child: const Text('Accept'),
+          ),
+        ],
+      ),
     );
-    if (saved != null) _load();
+    if (decision == null || !mounted) return;
+
+    String? notes;
+    if (decision == 'failed' || decision == 'rejected') {
+      final reasonController = TextEditingController();
+      final formKey = GlobalKey<FormState>();
+      notes = await showDialog<String>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Reason for declining'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: reasonController,
+              autofocus: true,
+              maxLength: 3000,
+              minLines: 3,
+              maxLines: 6,
+              decoration: const InputDecoration(
+                labelText: 'Reason for the Career Seeker',
+                alignLabelWithHint: true,
+              ),
+              validator: (value) => (value?.trim().length ?? 0) < 5
+                  ? 'Enter at least 5 characters.'
+                  : null,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (formKey.currentState?.validate() == true) {
+                  Navigator.pop(dialogContext, reasonController.text.trim());
+                }
+              },
+              child: const Text('Confirm decline'),
+            ),
+          ],
+        ),
+      );
+      reasonController.dispose();
+      if (notes == null || !mounted) return;
+    }
+
+    await _action(
+      '/scholarship-applications/${application['id']}',
+      method: 'PUT',
+      data: {
+        'stage': stage,
+        'decision': decision,
+        if (notes != null) 'notes': notes,
+      },
+    );
+  }
+
+  Future<void> _downloadScholarshipDocument(
+    Map<String, dynamic> application,
+    Map<String, dynamic> document,
+    int index,
+  ) async {
+    try {
+      final bytes = await ApiClient.instance
+          .downloadScholarshipApplicationDocument(
+            applicationId: application['id'] as int,
+            documentIndex: index,
+          );
+      final saved = await FilePicker.saveFile(
+        fileName: '${document['name'] ?? 'scholarship-document'}',
+        bytes: bytes,
+      );
+      if (mounted && saved != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Application document saved.')),
+        );
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } on Exception catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not save the application document.'),
+          ),
+        );
+      }
+    }
   }
 
   bool _hasScholarshipApplication(int scholarshipId) => _list('myApplications')
@@ -1292,6 +1392,40 @@ class _OperationsViewState extends State<OperationsView> {
                           ),
                           isThreeLine: true,
                         ),
+                        Text(
+                          'Scholarship requirements: ${(application['scholarship'] as Map?)?['requirements'] ?? 'Not specified by provider.'}',
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          application['is_ready_for_approval'] == true
+                              ? 'Message and uploaded documents are available. Review the files against the requirements before accepting.'
+                              : 'Acceptance is blocked until the application message is complete and every uploaded document is available.',
+                          style: TextStyle(
+                            color: application['is_ready_for_approval'] == true
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        for (final (index, rawDocument)
+                            in (application['documents'] as List? ?? const [])
+                                .whereType<Map>()
+                                .indexed)
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              onPressed: _busy
+                                  ? null
+                                  : () => _downloadScholarshipDocument(
+                                      application,
+                                      Map<String, dynamic>.from(rawDocument),
+                                      index,
+                                    ),
+                              icon: const Icon(Icons.download_outlined),
+                              label: Text(
+                                '${rawDocument['name'] ?? 'Application document'}',
+                              ),
+                            ),
+                          ),
                         if (application['review_notes'] != null)
                           Text(
                             '${application['status'] == 'approved' || application['status'] == 'rejected' ? 'Final decision reason' : 'Latest review reason'}${(application['reviewer'] as Map?)?['name'] == null ? '' : ' · ${(application['reviewer'] as Map)['name']}'}: ${application['review_notes']}',

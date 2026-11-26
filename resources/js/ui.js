@@ -8,6 +8,7 @@ import './direct-messages.js';
 import './auth-carousel.js';
 import './auth-legal-dialog.js';
 import './assessment-walkthrough.js';
+import './scholarship-review.js';
 import './workspace-sync.js';
 import './training-schedule.js';
 

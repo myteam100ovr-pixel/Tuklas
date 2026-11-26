@@ -62,6 +62,7 @@ class ScholarshipApplicationTest extends TestCase
 
     public function test_center_and_distinct_assigned_trainer_approve_in_order(): void
     {
+        Storage::fake('local');
         $scholarship = Scholarship::factory()->create();
         $centerApprover = User::factory()->create([
             'role' => Role::TesdaAdmin,
@@ -78,16 +79,19 @@ class ScholarshipApplicationTest extends TestCase
             'user_id' => $trainerApprover->id,
         ]);
         $applicant = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $documentPath = 'scholarship-applications/'.$applicant->id.'/supporting-document.pdf';
+        Storage::disk('local')->put($documentPath, 'Available supporting document.');
         $application = ScholarshipApplication::query()->create([
             'scholarship_id' => $scholarship->id,
             'user_id' => $applicant->id,
             'application_message' => 'A fictional application used in a review test.',
+            'documents' => [['name' => 'supporting-document.pdf', 'path' => $documentPath]],
             'center_approval_status' => 'pending',
             'trainer_approval_status' => 'pending',
         ]);
 
         $this->actingAs($centerApprover)->put(route('scholarship-applications.update', $application), [
-            'stage' => 'center', 'decision' => 'approved', 'notes' => 'The center verified the submission.',
+            'stage' => 'center', 'decision' => 'approved',
         ])->assertRedirect();
         $this->assertDatabaseHas('scholarship_applications', [
             'id' => $application->id,
@@ -100,14 +104,124 @@ class ScholarshipApplicationTest extends TestCase
             'stage' => 'trainer', 'decision' => 'approved',
         ])->assertForbidden();
         $this->actingAs($trainerApprover)->put(route('scholarship-applications.update', $application), [
-            'stage' => 'trainer', 'decision' => 'approved', 'notes' => 'Trainer checked the course documents.',
+            'stage' => 'trainer', 'decision' => 'approved',
         ])->assertRedirect();
         $this->assertDatabaseHas('scholarship_applications', [
             'id' => $application->id,
             'status' => 'approved',
             'trainer_approval_status' => 'approved',
             'trainer_approved_by' => $trainerApprover->id,
+            'review_notes' => null,
         ]);
+    }
+
+    public function test_center_cannot_approve_an_application_with_unavailable_documents(): void
+    {
+        Storage::fake('local');
+        $scholarship = Scholarship::factory()->create();
+        $centerApprover = User::factory()->create([
+            'role' => Role::TesdaAdmin,
+            'training_center_id' => $scholarship->training_center_id,
+            'is_active' => true,
+        ]);
+        $applicant = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $application = ScholarshipApplication::query()->create([
+            'scholarship_id' => $scholarship->id,
+            'user_id' => $applicant->id,
+            'application_message' => 'A fictional application used in a review test.',
+            'documents' => [['name' => 'missing-document.pdf', 'path' => 'scholarship-applications/missing.pdf']],
+            'center_approval_status' => 'pending',
+            'trainer_approval_status' => 'pending',
+        ]);
+
+        $this->actingAs($centerApprover)->from(route('scholarships.index'))->put(route('scholarship-applications.update', $application), [
+            'stage' => 'center', 'decision' => 'approved',
+        ])->assertRedirect(route('scholarships.index'))->assertSessionHasErrors('documents');
+
+        $this->assertDatabaseHas('scholarship_applications', [
+            'id' => $application->id,
+            'status' => 'submitted',
+            'center_approval_status' => 'pending',
+        ]);
+    }
+
+    public function test_center_cannot_approve_an_application_with_an_incomplete_message(): void
+    {
+        Storage::fake('local');
+        $scholarship = Scholarship::factory()->create();
+        $centerApprover = User::factory()->create([
+            'role' => Role::TesdaAdmin,
+            'training_center_id' => $scholarship->training_center_id,
+            'is_active' => true,
+        ]);
+        $applicant = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $documentPath = 'scholarship-applications/'.$applicant->id.'/supporting-document.pdf';
+        Storage::disk('local')->put($documentPath, 'Available supporting document.');
+        $application = ScholarshipApplication::query()->create([
+            'scholarship_id' => $scholarship->id,
+            'user_id' => $applicant->id,
+            'application_message' => 'Too short.',
+            'documents' => [['name' => 'supporting-document.pdf', 'path' => $documentPath]],
+            'center_approval_status' => 'pending',
+            'trainer_approval_status' => 'pending',
+        ]);
+
+        $this->actingAs($centerApprover)->from(route('scholarships.index'))->put(route('scholarship-applications.update', $application), [
+            'stage' => 'center', 'decision' => 'approved',
+        ])->assertRedirect(route('scholarships.index'))->assertSessionHasErrors('documents');
+
+        $this->assertDatabaseHas('scholarship_applications', [
+            'id' => $application->id,
+            'status' => 'submitted',
+            'center_approval_status' => 'pending',
+        ]);
+    }
+
+    public function test_final_acceptance_cannot_bypass_unavailable_application_documents(): void
+    {
+        Storage::fake('local');
+        $applicant = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        $application = ScholarshipApplication::query()->create([
+            'scholarship_id' => Scholarship::factory()->create()->id,
+            'user_id' => $applicant->id,
+            'application_message' => 'A fictional application used in a review test.',
+            'documents' => [['name' => 'missing-document.pdf', 'path' => 'scholarship-applications/missing.pdf']],
+        ]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+
+        $this->actingAs($admin)->putJson(route('scholarship-applications.update', $application), [
+            'stage' => 'final', 'decision' => 'approved',
+        ])->assertUnprocessable()->assertJsonValidationErrors('documents');
+
+        $this->assertDatabaseHas('scholarship_applications', [
+            'id' => $application->id,
+            'status' => 'submitted',
+        ]);
+    }
+
+    public function test_review_page_disables_acceptance_when_a_supporting_document_is_unavailable(): void
+    {
+        Storage::fake('local');
+        $scholarship = Scholarship::factory()->create([
+            'requirements' => 'Certificate of residence and a valid ID.',
+        ]);
+        $applicant = User::factory()->create(['role' => Role::Youth, 'is_active' => true]);
+        ScholarshipApplication::query()->create([
+            'scholarship_id' => $scholarship->id,
+            'user_id' => $applicant->id,
+            'application_message' => 'A fictional application used in a review test.',
+            'documents' => [['name' => 'missing-document.pdf', 'path' => 'scholarship-applications/missing.pdf']],
+        ]);
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+
+        $this->actingAs($admin)->get(route('scholarships.index'))
+            ->assertOk()
+            ->assertSee('Certificate of residence and a valid ID.')
+            ->assertSee('<strong>Scholarship requirements:</strong> Certificate of residence and a valid ID.', false)
+            ->assertSee('Acceptance is disabled until the application message is complete and every uploaded file is available.')
+            ->assertSee('<button type="submit" name="decision" value="approved" disabled>Accept application</button>', false)
+            ->assertSee('data-review-decline-open', false)
+            ->assertSee('data-review-decline-dialog', false);
     }
 
     public function test_failed_center_review_releases_the_reserved_slot(): void
@@ -126,6 +240,10 @@ class ScholarshipApplicationTest extends TestCase
             'center_approval_status' => 'pending',
             'trainer_approval_status' => 'pending',
         ]);
+
+        $this->actingAs($centerApprover)->from(route('scholarships.index'))->put(route('scholarship-applications.update', $application), [
+            'stage' => 'center', 'decision' => 'failed',
+        ])->assertRedirect(route('scholarships.index'))->assertSessionHasErrors('notes');
 
         $this->actingAs($centerApprover)->put(route('scholarship-applications.update', $application), [
             'stage' => 'center', 'decision' => 'failed', 'notes' => 'A required document was missing.',

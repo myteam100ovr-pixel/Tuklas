@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ScholarshipApplicationController extends Controller
@@ -76,7 +77,13 @@ class ScholarshipApplicationController extends Controller
         $data = $request->validate([
             'stage' => ['required', Rule::in(['center', 'trainer', 'final'])],
             'decision' => ['required', Rule::in(['approved', 'failed', 'rejected'])],
-            'notes' => ['nullable', 'string', 'min:5', 'max:3000'],
+            'notes' => [
+                Rule::requiredIf(in_array($request->input('decision'), ['failed', 'rejected'], true)),
+                'nullable',
+                'string',
+                'min:5',
+                'max:3000',
+            ],
         ]);
 
         DB::transaction(function () use ($application, $data, $user): void {
@@ -87,12 +94,15 @@ class ScholarshipApplicationController extends Controller
                 abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
                 abort_unless(! $user->isCenterScopedTesda() || $user->training_center_id === $lockedScholarship->training_center_id, 403);
                 abort_unless($lockedApplication->status !== 'cancelled', 422, 'A canceled application cannot receive a final decision.');
-                abort_if(blank($data['notes'] ?? null), 422, 'Add a reason for the final decision.');
 
                 $decision = $data['decision'] === 'approved' ? 'approved' : 'rejected';
+                if ($decision === 'approved') {
+                    $this->ensureApplicationIsReadyForApproval($lockedApplication);
+                }
+
                 $finalDecision = [
                     'status' => $decision,
-                    'review_notes' => $data['notes'],
+                    'review_notes' => $decision === 'rejected' ? $data['notes'] : null,
                     'reviewed_by' => $user->id,
                     'reviewed_at' => now(),
                 ];
@@ -126,20 +136,24 @@ class ScholarshipApplicationController extends Controller
                 abort_unless($isAssignedTrainer, 403);
             }
 
-            abort_if(blank($data['notes'] ?? null), 422, 'Add a reason for this decision.');
             $decision = $data['decision'] === 'approved' ? 'approved' : 'failed';
+            if ($decision === 'approved') {
+                $this->ensureApplicationIsReadyForApproval($lockedApplication);
+            }
+
             $otherStage = $stage === 'center' ? 'trainer' : 'center';
+            $notes = $decision === 'failed' ? $data['notes'] : null;
             $lockedApplication->update([
                 $stage.'_approval_status' => $decision,
                 $stage.'_approved_by' => $user->id,
                 $stage.'_approved_at' => now(),
-                $stage.'_approval_notes' => $data['notes'],
+                $stage.'_approval_notes' => $notes,
                 'status' => $decision === 'failed'
                     ? 'rejected'
                     : ($lockedApplication->{$otherStage.'_approval_status'} === 'approved' ? 'approved' : 'reviewing'),
-                'review_notes' => $data['notes'],
-                'reviewed_by' => $user->id,
-                'reviewed_at' => now(),
+                'review_notes' => $notes,
+                'reviewed_by' => $decision === 'failed' ? $user->id : null,
+                'reviewed_at' => $decision === 'failed' ? now() : null,
             ]);
 
             if ($decision === 'failed') {
@@ -152,10 +166,10 @@ class ScholarshipApplicationController extends Controller
         WorkspaceChanged::dispatch('scholarships');
         $message = $data['stage'] === 'final'
             ? ($data['decision'] === 'approved'
-                ? 'Final scholarship decision saved as approved with the reason recorded.'
+                ? 'Final scholarship decision saved as approved.'
                 : 'Final scholarship decision saved as declined with the reason recorded.')
             : ($data['decision'] === 'approved'
-                ? 'TESDA '.$data['stage'].' approval saved with the review reason recorded.'
+                ? 'TESDA '.$data['stage'].' approval saved. The application is automatically approved once both center and trainer approvals are complete.'
                 : 'Application marked as failed with the review reason recorded.');
 
         return $request->routeIs('mobile.*')
@@ -197,5 +211,14 @@ class ScholarshipApplicationController extends Controller
         abort_unless(Storage::disk('local')->exists($file['path']), 404);
 
         return Storage::disk('local')->download($file['path'], basename($file['name']));
+    }
+
+    private function ensureApplicationIsReadyForApproval(ScholarshipApplication $application): void
+    {
+        if (! $application->isReadyForApproval()) {
+            throw ValidationException::withMessages([
+                'documents' => 'The application message must be complete and every uploaded document must be available before accepting.',
+            ]);
+        }
     }
 }

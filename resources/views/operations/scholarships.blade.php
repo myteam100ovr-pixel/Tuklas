@@ -43,11 +43,14 @@
         @if ($canManage)
             <section class="operations-card scholarship-applications" aria-labelledby="received-scholarship-applications">
                 <h2 id="received-scholarship-applications">Applications received</h2>
-                <p class="scholarship-approval-help">Center and trainer approvals require separate TESDA accounts: one assigned to the center and a different one assigned to the course. Admin and TESDA can record or override the final decision with a reason here.
+                <p class="scholarship-approval-help">Center and trainer approvals require separate TESDA accounts: one assigned to the center and a different one assigned to the course. An application is automatically approved after both approvals if its message is complete and all uploaded files are available. Accepting does not require a reason; declining opens a reason prompt. Admin and TESDA can also override the final decision.
                     @if (auth()->user()->hasRole(\App\Enums\Role::Admin))
                         <a href="{{ route('admin.users.create') }}">Create a TESDA approver account</a>, assign it to the center, then assign trainer accounts to their courses.
                     @endif
                 </p>
+                @if ($errors->any())
+                    <p class="scholarship-review-error" role="alert">{{ $errors->first() }}</p>
+                @endif
                 @forelse ($applications as $application)
                     @php($applicationStatus = ['submitted' => 'Pending', 'reviewing' => 'Pending', 'approved' => 'Approved', 'cancelled' => 'Canceled', 'rejected' => 'Failed'][$application->status] ?? 'Pending')
                     <article class="operations-card">
@@ -62,18 +65,27 @@
                         @if ($application->center_approval_notes)<p><strong>Center decision reason:</strong> {{ $application->center_approval_notes }}</p>@endif
                         @if ($application->trainer_approval_notes)<p><strong>Trainer decision reason:</strong> {{ $application->trainer_approval_notes }}</p>@endif
                         <p>{{ $application->application_message }}</p>
+                        <p><strong>Scholarship requirements:</strong> {{ $application->scholarship->requirements ?: 'Not specified by provider.' }}</p>
                         @foreach ($application->documents ?? [] as $index => $document)
                             <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}">{{ $document['name'] }}</a>
                         @endforeach
+                        @if ($application->is_ready_for_approval)
+                            <p class="scholarship-review-readiness" role="status">The application message and uploaded files are available. Compare the files with the scholarship requirements above before accepting.</p>
+                        @else
+                            <p class="scholarship-review-blocked" role="status">Acceptance is disabled until the application message is complete and every uploaded file is available.</p>
+                        @endif
                         @if ($application->can_approve_center || $application->can_approve_trainer)
                             <section class="operations-card" aria-label="TESDA application approvals">
                                 @foreach (['center' => 'Training center', 'trainer' => 'TESDA trainer'] as $stage => $label)
                                     @if (($stage === 'center' && $application->can_approve_center) || ($stage === 'trainer' && $application->can_approve_trainer))
-                                        <form method="POST" action="{{ route('scholarship-applications.update', $application) }}">@csrf @method('PUT')
+                                        <form method="POST" action="{{ route('scholarship-applications.update', $application) }}" data-scholarship-review-form>@csrf @method('PUT')
                                             <input type="hidden" name="stage" value="{{ $stage }}">
-                                            <label>{{ $label }} decision reason <textarea name="notes" required minlength="5" maxlength="3000"></textarea></label>
-                                            <button type="submit" name="decision" value="approved">Accept as {{ strtolower($label) }}</button>
-                                            <button type="submit" name="decision" value="failed">Decline as {{ strtolower($label) }}</button>
+                                            <button type="submit" name="decision" value="approved" @disabled(! $application->is_ready_for_approval)>Accept as {{ strtolower($label) }}</button>
+                                            <button type="button" data-review-decline-open>Decline as {{ strtolower($label) }}</button>
+                                            @include('operations.partials.scholarship-decline-dialog', [
+                                                'dialogId' => 'scholarship-decline-'.$application->id.'-'.$stage,
+                                                'decision' => 'failed',
+                                            ])
                                         </form>
                                     @endif
                                 @endforeach
@@ -82,12 +94,15 @@
                         @if ($application->can_override_final)
                             <section class="operations-card" aria-label="Final TESDA or administrator decision">
                                 <h3>Final decision or override</h3>
-                                <p>Record the final outcome for this application. A reason is required and will be shown to the Career Seeker.</p>
-                                <form method="POST" action="{{ route('scholarship-applications.update', $application) }}">@csrf @method('PUT')
+                                <p>Accepting does not require a reason. Declining requires a reason, which will be shown to the Career Seeker.</p>
+                                <form method="POST" action="{{ route('scholarship-applications.update', $application) }}" data-scholarship-review-form>@csrf @method('PUT')
                                     <input type="hidden" name="stage" value="final">
-                                    <label>Decision reason <textarea name="notes" required minlength="5" maxlength="3000"></textarea></label>
-                                    <button type="submit" name="decision" value="approved">Accept application</button>
-                                    <button type="submit" name="decision" value="rejected">Decline application</button>
+                                    <button type="submit" name="decision" value="approved" @disabled(! $application->is_ready_for_approval)>Accept application</button>
+                                    <button type="button" data-review-decline-open>Decline application</button>
+                                    @include('operations.partials.scholarship-decline-dialog', [
+                                        'dialogId' => 'scholarship-decline-'.$application->id.'-final',
+                                        'decision' => 'rejected',
+                                    ])
                                 </form>
                             </section>
                         @endif
