@@ -28,7 +28,12 @@ class AdminUserManagementTest extends TestCase
         $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
         $center = TrainingCenter::factory()->create();
         $this->actingAs($admin);
-        $this->get(route('admin.users.create'))->assertOk()->assertSee('Initial password');
+        $this->get(route('admin.users.create'))
+            ->assertOk()
+            ->assertSee('Initial password')
+            ->assertSee('data-tesda-account-form', false)
+            ->assertSee('data-tesda-account-type-field hidden', false)
+            ->assertSee('data-tesda-center-field hidden', false);
 
         foreach (Role::cases() as $role) {
             $this->post(route('admin.users.store'), [
@@ -50,10 +55,83 @@ class AdminUserManagementTest extends TestCase
             $this->assertTrue($account->hasVerifiedEmail());
             $this->assertTrue($account->is_active);
             $this->assertSame('New Member', $account->name);
+            if ($role === Role::TesdaAdmin) {
+                $this->assertSame($center->id, $account->training_center_id);
+            }
             if ($role === Role::Youth) {
                 $this->assertSame('Poblacion', $account->youthProfile->barangay);
             }
         }
+    }
+
+    public function test_admin_creates_a_center_scoped_tesda_account(): void
+    {
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $center = TrainingCenter::factory()->create();
+
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            'first_name' => 'Center',
+            'last_name' => 'Manager',
+            'email' => 'center-manager@example.test',
+            'role' => Role::TesdaAdmin->value,
+            'tesda_account_type' => 'center',
+            'training_center_id' => $center->id,
+            'is_active' => 1,
+            'password' => 'StrongPassword123!',
+            'password_confirmation' => 'StrongPassword123!',
+        ])->assertRedirect(route('admin.users.index'));
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'center-manager@example.test',
+            'role' => Role::TesdaAdmin->value,
+            'training_center_id' => $center->id,
+        ]);
+    }
+
+    public function test_admin_requires_a_training_center_for_center_tesda_accounts(): void
+    {
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+
+        $response = $this->actingAs($admin)->post(route('admin.users.store'), [
+            'first_name' => 'Center',
+            'last_name' => 'Manager',
+            'email' => 'missing-center@example.test',
+            'role' => Role::TesdaAdmin->value,
+            'tesda_account_type' => 'center',
+            'training_center_id' => '',
+            'is_active' => 1,
+            'password' => 'StrongPassword123!',
+            'password_confirmation' => 'StrongPassword123!',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'training_center_id' => 'Select a training center for a Center TESDA account.',
+        ]);
+        $this->assertDatabaseMissing('users', ['email' => 'missing-center@example.test']);
+    }
+
+    public function test_admin_does_not_assign_a_center_to_tesda_trainer_accounts(): void
+    {
+        $admin = User::factory()->create(['role' => Role::Admin, 'is_active' => true]);
+        $center = TrainingCenter::factory()->create();
+
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            'first_name' => 'Training',
+            'last_name' => 'Trainer',
+            'email' => 'tesda-trainer@example.test',
+            'role' => Role::TesdaAdmin->value,
+            'tesda_account_type' => 'trainer',
+            'training_center_id' => $center->id,
+            'is_active' => 1,
+            'password' => 'StrongPassword123!',
+            'password_confirmation' => 'StrongPassword123!',
+        ])->assertRedirect(route('admin.users.index'));
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'tesda-trainer@example.test',
+            'role' => Role::TesdaAdmin->value,
+            'training_center_id' => null,
+        ]);
     }
 
     public function test_admin_can_search_user_directory_by_name(): void

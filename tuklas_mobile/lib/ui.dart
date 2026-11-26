@@ -352,7 +352,7 @@ class TkBottomNavigation extends StatelessWidget {
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
               labelPadding: EdgeInsets.zero,
               labelTextStyle: const WidgetStatePropertyAll(
-                TextStyle(fontSize: 10),
+                TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis),
               ),
               animationDuration: motionController.enabled
                   ? Duration.zero

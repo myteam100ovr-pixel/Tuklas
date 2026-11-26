@@ -3,10 +3,11 @@
         $editing = $account->exists;
         $selectedRole = old('role', $account->role?->value ?? 'youth');
         $selectedStatus = old('is_active', $account->exists ? (int) $account->is_active : 1);
+        $selectedTesdaType = old('tesda_account_type', $account->training_center_id ? 'center' : 'trainer');
     @endphp
     <div class="suite-page trainer-courses">
         <x-workspace-heading eyebrow="COMMUNITY · PEOPLE" :title="$editing ? 'Edit user account' : 'Add a user'" :description="$editing ? 'Update this account’s details and access.' : 'A unique strong initial password is generated for each account. Share it with the user through a secure channel.'" />
-        <form method="POST" action="{{ $editing ? route('admin.users.update', $account) : route('admin.users.store') }}" class="trainer-courses__form">
+        <form method="POST" action="{{ $editing ? route('admin.users.update', $account) : route('admin.users.store') }}" class="trainer-courses__form" data-tesda-account-form>
             @csrf
             @if ($editing)@method('PUT')@endif
             @if ($errors->any())<p class="trainer-courses__error" role="alert">Please review the highlighted fields.</p>@endif
@@ -17,8 +18,9 @@
             </div>
             <label>Email<input name="email" type="email" required maxlength="255" value="{{ old('email', $account->email) }}">@error('email')<small>{{ $message }}</small>@enderror</label>
             <div class="trainer-courses__form-row">
-                <label>Role<select name="role" required>@foreach (\App\Enums\Role::cases() as $role)<option value="{{ $role->value }}" @selected($selectedRole === $role->value)>{{ $role->label() }}</option>@endforeach</select>@error('role')<small>{{ $message }}</small>@enderror</label>
-                <label>Training center (optional for TESDA accounts)<select name="training_center_id"><option value="">All centers</option>@foreach ($centers as $center)<option value="{{ $center->id }}" @selected((string) old('training_center_id', $account->training_center_id) === (string) $center->id)>{{ $center->name }} ({{ $center->type }})</option>@endforeach</select>@error('training_center_id')<small>{{ $message }}</small>@enderror</label>
+                <label>Role<select name="role" required data-user-role>@foreach (\App\Enums\Role::cases() as $role)<option value="{{ $role->value }}" @selected($selectedRole === $role->value)>{{ $role->label() }}</option>@endforeach</select>@error('role')<small>{{ $message }}</small>@enderror</label>
+                <label data-tesda-account-type-field hidden>TESDA account type<select name="tesda_account_type" required disabled data-tesda-account-type><option value="trainer" @selected($selectedTesdaType === 'trainer')>Trainer</option><option value="center" @selected($selectedTesdaType === 'center')>Center</option></select>@error('tesda_account_type')<small>{{ $message }}</small>@enderror</label>
+                <label data-tesda-center-field hidden>Training center<select name="training_center_id" disabled data-tesda-center><option value="">Select a training center</option>@foreach ($centers as $center)<option value="{{ $center->id }}" @selected((string) old('training_center_id', $account->training_center_id) === (string) $center->id)>{{ $center->name }} ({{ $center->type }})</option>@endforeach</select>@error('training_center_id')<small>{{ $message }}</small>@enderror</label>
                 <label>Account status<select name="is_active"><option value="1" @selected($selectedStatus == 1)>Active</option><option value="0" @selected($selectedStatus == 0)>Inactive</option></select>@error('is_active')<small>{{ $message }}</small>@enderror</label>
             </div>
             <fieldset class="users-form__fieldset"><legend>Career Seeker details, when applicable</legend>

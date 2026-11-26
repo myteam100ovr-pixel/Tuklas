@@ -468,26 +468,31 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             if (_groupItems.isNotEmpty)
               SizedBox(
                 height: 48,
-                child: ListView.separated(
+                child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 4,
                   ),
-                  itemCount: _groupItems.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 8),
-                  itemBuilder: (context, index) {
-                    final item = _groupItems[index];
-                    return ChoiceChip(
-                      label: Text(
-                        item == 'Notifications' && _unreadNotifications > 0
-                            ? '$item ($_unreadNotifications)'
-                            : item,
-                      ),
-                      selected: (_activeGroupItem ?? _defaultGroupItem) == item,
-                      onSelected: (_) => _openGroupedItem(item),
-                    );
-                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final (index, item) in _groupItems.indexed) ...[
+                        if (index > 0) const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: Text(
+                            item == 'Notifications' && _unreadNotifications > 0
+                                ? '$item ($_unreadNotifications)'
+                                : item,
+                          ),
+                          selected:
+                              (_activeGroupItem ?? _defaultGroupItem) == item,
+                          onSelected: (_) => _openGroupedItem(item),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             Expanded(

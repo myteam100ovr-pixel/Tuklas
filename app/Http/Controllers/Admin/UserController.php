@@ -65,7 +65,7 @@ class UserController extends Controller
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'role' => $data['role'],
-                'training_center_id' => $data['role'] === Role::TesdaAdmin->value ? ($data['training_center_id'] ?? null) : null,
+                'training_center_id' => $this->assignedTrainingCenterId($data),
                 'is_active' => $data['is_active'],
                 'email_verified_at' => now(),
                 'date_of_birth' => $data['role'] === Role::Youth->value ? ($data['date_of_birth'] ?? null) : null,
@@ -115,7 +115,7 @@ class UserController extends Controller
                 'last_name' => trim($data['last_name']),
                 'email' => $data['email'],
                 'role' => $data['role'],
-                'training_center_id' => $data['role'] === Role::TesdaAdmin->value ? ($data['training_center_id'] ?? null) : null,
+                'training_center_id' => $this->assignedTrainingCenterId($data),
                 'is_active' => $data['is_active'],
                 'date_of_birth' => $data['role'] === Role::Youth->value ? ($data['date_of_birth'] ?? null) : null,
                 'email_verified_at' => $emailChanged ? now() : $user->email_verified_at,
@@ -200,7 +200,15 @@ class UserController extends Controller
             'last_name' => ['required', 'string', 'max:127'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($account?->id)],
             'role' => ['required', Rule::enum(Role::class)],
-            'training_center_id' => ['nullable', Rule::exists('training_centers', 'id')->where('is_active', true)],
+            'tesda_account_type' => ['sometimes', 'required', Rule::in(['trainer', 'center'])],
+            'training_center_id' => [
+                Rule::requiredIf(
+                    $request->input('role') === Role::TesdaAdmin->value
+                    && $request->input('tesda_account_type') === 'center',
+                ),
+                'nullable',
+                Rule::exists('training_centers', 'id')->where('is_active', true),
+            ],
             'is_active' => ['required', 'boolean'],
             'password' => $account ? ['prohibited'] : [
                 'required',
@@ -235,7 +243,18 @@ class UserController extends Controller
             'barangay' => ['nullable', 'string', 'max:100'],
         ], [
             'password' => 'Use 12 to 72 characters, including uppercase and lowercase letters, a number, and a symbol.',
+            'training_center_id.required' => 'Select a training center for a Center TESDA account.',
         ]);
+    }
+
+    /** @param array<string, mixed> $data */
+    private function assignedTrainingCenterId(array $data): ?int
+    {
+        if ($data['role'] !== Role::TesdaAdmin->value || ($data['tesda_account_type'] ?? null) === 'trainer') {
+            return null;
+        }
+
+        return isset($data['training_center_id']) ? (int) $data['training_center_id'] : null;
     }
 
     private function generateInitialPassword(): string

@@ -59,6 +59,8 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .trainer-courses__feedback,.trainer-courses__error { margin:0; padding:.8rem 1rem; border:1px solid var(--line); border-radius:.65rem; color:var(--violet); background:var(--surface-2); font-size:.82rem; }
 .trainer-courses__error,.trainer-courses__form small { color:#b44838; }
 .trainer-courses__form { display:grid; gap:1.2rem; max-width:54rem; margin-top:0; }
+.trainer-courses__form:has(.users-form__fieldset) { width:100%; max-width:78rem; }
+.trainer-courses__form [hidden] { display:none; }
 .trainer-courses__form label { display:grid; gap:.4rem; color:var(--ink); font-size:.8rem; font-weight:600; }
 .trainer-courses__form input,.trainer-courses__form select,.trainer-courses__form textarea { width:100%; min-width:0; padding:.7rem .8rem; border:1px solid var(--line); border-radius:.6rem; color:var(--ink); background:var(--surface-2); font:inherit; font-weight:400; }
 .trainer-courses__form input:focus,.trainer-courses__form select:focus,.trainer-courses__form textarea:focus { outline:2px solid var(--violet); outline-offset:1px; }

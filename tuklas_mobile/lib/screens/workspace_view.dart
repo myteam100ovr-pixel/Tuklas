@@ -323,6 +323,130 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           ),
         ),
       );
+
+  Widget _userCard(Map<String, dynamic> user) {
+    final colors = TkColors.of(context);
+    final userId = user['id'];
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 1,
+      color: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: colors.line),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${user['name']}',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.surface2,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          "${user['role']} • ${user['is_active'] == true ? 'Active' : 'Inactive'}",
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!_deleted)
+                  IconButton(
+                    tooltip: 'Delete account',
+                    onPressed: _busy
+                        ? null
+                        : () => _act(
+                            '/admin/users/$userId',
+                            method: 'DELETE',
+                            confirm: 'Delete this account? It can be restored.',
+                          ),
+                    icon: const Icon(Icons.delete_outline),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${user['email']}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (_deleted)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _busy
+                      ? null
+                      : () => _act(
+                          '/admin/users/$userId/restore',
+                          confirm: 'Restore this account?',
+                        ),
+                  icon: const Icon(Icons.restore_outlined),
+                  label: const Text('Restore account'),
+                ),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _busy ? null : () => _editUser(user),
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      label: const Text('Edit', maxLines: 1),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Tooltip(
+                      message: 'Request password reset',
+                      child: OutlinedButton.icon(
+                        onPressed: _busy
+                            ? null
+                            : () => _act(
+                                '/admin/users/$userId/reset-password',
+                                confirm: 'Request a password reset for this account?',
+                              ),
+                        icon: const Icon(Icons.lock_reset_outlined, size: 18),
+                        label: const Text('Reset', maxLines: 1),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _pages(Map<String, dynamic> pagination) => TkPagination(
     currentPage: _page,
     lastPage: (pagination['last_page'] as num?)?.toInt() ?? 1,
@@ -950,10 +1074,18 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   List<Widget> _users() {
     final pagination = asMap(_data!['users']);
     return [
-      _button('Create account', () => _editUser(null)),
+      SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: _busy ? null : () => _editUser(null),
+          icon: const Icon(Icons.person_add_alt_1_outlined),
+          label: const Text('Create account'),
+        ),
+      ),
       SwitchListTile(
         title: const Text('Deleted accounts'),
         value: _deleted,
+        contentPadding: EdgeInsets.zero,
         onChanged: _busy
             ? null
             : (v) {
@@ -963,44 +1095,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
               },
       ),
       if (asList(pagination['data']).isEmpty) const Text('No accounts found.'),
-      for (final raw in asList(pagination['data']))
-        _card(
-          '${raw['name']}',
-          [
-            Text('${raw['email']}'),
-            if (_deleted)
-              _button(
-                'Restore',
-                () => _act(
-                  '/admin/users/${raw['id']}/restore',
-                  confirm: 'Restore this account?',
-                ),
-              )
-            else
-              Wrap(
-                children: [
-                  _button('Edit', () => _editUser(asMap(raw))),
-                  _button(
-                    'Request password reset',
-                    () => _act(
-                      '/admin/users/${raw['id']}/reset-password',
-                      confirm: 'Request a password reset for this account?',
-                    ),
-                  ),
-                  _button(
-                    'Delete',
-                    () => _act(
-                      '/admin/users/${raw['id']}',
-                      method: 'DELETE',
-                      confirm: 'Delete this account? It can be restored.',
-                    ),
-                  ),
-                ],
-              ),
-          ],
-          subtitle:
-              '${raw['role']} • ${raw['is_active'] == true ? 'Active' : 'Inactive'}',
-        ),
+      for (final raw in asList(pagination['data'])) _userCard(asMap(raw)),
       _pages(pagination),
     ];
   }

@@ -38,7 +38,7 @@
         <div class="hero-layer hero-layer-pink" aria-hidden="true"></div>
         <div class="hero-copy">
             <span class="hero-badge"><span aria-hidden="true">&#10022;</span> Powered by Google Gemini AI</span>
-            <h1>AI-Powered Career Path and<br>Skills Development for Youth in Pangasinan</h1>
+            <h1>An AI-Powered Web and Mobile Platform <br>for Youth Career Pathfinding and Skills Development in Pangasinan</h1>
             <p>Piloting in Bugallon, with TESDA training.</p>
             <div class="hero-actions">
                 <a class="hero-primary" href="{{ Route::has('register') ? route('register') : url('/register') }}">Get started</a>
