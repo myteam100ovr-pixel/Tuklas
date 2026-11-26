@@ -519,8 +519,12 @@ class _ConversationViewState extends State<_ConversationView>
         Platform.isAndroid && source == ImageSource.camera;
     try {
       if (shouldRecoverAfterRestart) {
-        final preferences = await SharedPreferences.getInstance();
-        await preferences.setInt(_pendingCameraRecipientKey, _personId);
+        try {
+          final preferences = await SharedPreferences.getInstance();
+          await preferences.setInt(_pendingCameraRecipientKey, _personId);
+        } on Exception catch (_) {
+          // Camera capture should still work if recovery storage is unavailable.
+        }
       }
       final photo = await _imagePicker.pickImage(
         source: source,
