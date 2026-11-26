@@ -129,12 +129,15 @@ class GeminiCareerAssistant
             }
         }
 
-        if ($response === null && $lastStatus === 429 && $useGoogleSearch) {
+        if ($response === null && $tools !== [] && in_array($lastStatus, [400, 429], true)) {
             $fallbackBody = $requestBody;
             unset($fallbackBody['tools']);
+            $fallbackInstructions = $useGoogleSearch
+                ? 'Live web search and URL retrieval are unavailable for this reply. Answer only from general knowledge and the conversation. Do not claim to have searched, opened a page, or verified current details. Do not invent links, vacancies, schedules, prices, or availability.'
+                : 'URL retrieval is unavailable for this reply. Answer only from general knowledge and the conversation. Do not claim to have opened the user’s link or verified its contents. Do not invent links, vacancies, schedules, prices, or availability.';
             $fallbackBody['systemInstruction']['parts'][0]['text'] = str_replace(
                 $webInstructions,
-                'Live web search and URL retrieval are unavailable for this reply. Answer only from general knowledge and the conversation. Do not claim to have searched, opened a page, or verified current details. Do not invent links, vacancies, schedules, prices, or availability.',
+                $fallbackInstructions,
                 $fallbackBody['systemInstruction']['parts'][0]['text'],
             );
 
@@ -201,7 +204,7 @@ class GeminiCareerAssistant
 
         return [
             'reply' => $searchUnavailable
-                ? "Live web search is unavailable right now, so I cannot verify current details or links.\n\n".trim($reply)
+            ? "Live web search or link retrieval is unavailable right now, so I cannot verify current details or links.\n\n".trim($reply)
                 : trim($reply),
             'sources' => $searchUnavailable ? [] : $sources,
         ];
