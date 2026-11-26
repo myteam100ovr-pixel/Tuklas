@@ -72,7 +72,7 @@
                     <div id="workspace-assistant"><x-career-chat /></div>
                 </aside>
             </div>
-            <footer class="workspace-footer"><span>tuklas / your next possibility</span><a href="{{ route('tesda.index') }}">Official TESDA resources ↗</a></footer>
+            <footer class="workspace-footer"><span>Tuklas / your next possibility</span><a href="{{ route('tesda.index') }}">Official TESDA resources ↗</a></footer>
         </div>
     </div>
 </x-app-layout>

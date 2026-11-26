@@ -19,6 +19,7 @@
                         <span class="trainer-courses__status">{{ ucfirst($career->status) }}</span>
                         <h3>{{ $career->title }}</h3>
                         <p>{{ $career->education_level ?: 'Education level not specified' }} · {{ $career->source_note ?: 'Source not recorded' }}</p>
+                        <p>{{ count($career->required_skills ?? []) }} path skills listed</p>
                     </div>
                     <div class="trainer-courses__card-actions">
                         <a href="{{ route('admin.careers.edit', $career) }}">Edit path <span aria-hidden="true">↗</span></a>

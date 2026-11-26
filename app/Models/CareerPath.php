@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class CareerPath extends Model
 {
-    protected $fillable = ['title', 'description', 'education_level', 'source_note', 'status'];
+    protected $fillable = ['title', 'description', 'education_level', 'required_skills', 'source_note', 'status'];
+
+    protected function casts(): array
+    {
+        return ['required_skills' => 'array'];
+    }
 
     public function scopePublished(Builder $query): Builder
     {

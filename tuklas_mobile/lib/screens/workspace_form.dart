@@ -9,6 +9,9 @@ class WorkspaceField {
     this.name,
     this.label, {
     this.options,
+    this.multiSelect = false,
+    this.minSelections = 0,
+    this.maxSelections = 8,
     this.optionLabels = const {},
     this.secret = false,
     this.multiline = false,
@@ -20,6 +23,9 @@ class WorkspaceField {
   });
   final String name, label;
   final List<String>? options;
+  final bool multiSelect;
+  final int minSelections;
+  final int maxSelections;
   final Map<String, String> optionLabels;
   final bool secret, multiline, required;
   final bool passwordStrength, passwordConfirmation;
@@ -74,7 +80,15 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
   final _form = GlobalKey<FormState>();
   late final Map<String, TextEditingController> _inputs = {
     for (final f in widget.fields)
-      f.name: TextEditingController(text: '${widget.initial[f.name] ?? ''}'),
+      if (!f.multiSelect)
+        f.name: TextEditingController(text: '${widget.initial[f.name] ?? ''}'),
+  };
+  late final Map<String, Set<String>> _selections = {
+    for (final f in widget.fields)
+      if (f.multiSelect)
+        f.name: Set<String>.from(
+          (widget.initial[f.name] as List? ?? []).map((value) => '$value'),
+        ),
   };
   bool _saving = false;
   final Set<String> _visibleSecrets = {};
@@ -90,6 +104,16 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
+    for (final field in widget.fields.where((field) => field.multiSelect)) {
+      if (_selections[field.name]!.length < field.minSelections ||
+          _selections[field.name]!.length > field.maxSelections) {
+        setState(
+          () => _errors[field.name] =
+              'Choose ${field.minSelections} to ${field.maxSelections} skills.',
+        );
+        return;
+      }
+    }
     setState(() {
       _saving = true;
       _error = null;
@@ -98,6 +122,10 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
     try {
       final data = <String, dynamic>{};
       for (final f in widget.fields) {
+        if (f.multiSelect) {
+          data[f.name] = _selections[f.name]!.toList();
+          continue;
+        }
         final value = _inputs[f.name]!.text;
         data[f.name] =
             f.name == 'is_active' ||
@@ -140,7 +168,55 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
           for (final f in widget.fields)
             Padding(
               padding: const EdgeInsets.only(bottom: 18),
-              child: f.options == null
+              child: f.multiSelect
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          f.label,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: [
+                            for (final option in f.options ?? [])
+                              FilterChip(
+                                label: Text(option),
+                                selected: _selections[f.name]!.contains(option),
+                                onSelected:
+                                    _saving ||
+                                        (!_selections[f.name]!.contains(
+                                              option,
+                                            ) &&
+                                            _selections[f.name]!.length >=
+                                                f.maxSelections)
+                                    ? null
+                                    : (selected) => setState(() {
+                                        if (selected) {
+                                          _selections[f.name]!.add(option);
+                                        } else {
+                                          _selections[f.name]!.remove(option);
+                                        }
+                                        _errors.remove(f.name);
+                                      }),
+                              ),
+                          ],
+                        ),
+                        if (_errors[f.name] != null)
+                          Text(
+                            _errors[f.name]!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        Text(
+                          'Select up to 8 skills from the path source. A published path needs at least 3.',
+                        ),
+                      ],
+                    )
+                  : f.options == null
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

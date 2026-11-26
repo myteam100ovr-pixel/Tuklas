@@ -83,7 +83,7 @@ class _FirstLaunchState extends State<FirstLaunch> {
                           ),
                           const SizedBox(width: 9),
                           Text(
-                            'tuklas.',
+                            'Tuklas.',
                             style: tkText(
                               context,
                               size: 34,

@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class StarterCareerRecommendations
 {
+    public function __construct(private CareerPathSkillMatcher $careerSkillMatcher)
+    {
+    }
+
     private const INTEREST_TERMS = [
         'Information technology' => ['computer', 'information technology', 'software', 'network', 'programming', 'digital'],
         'Hospitality and tourism' => ['hospitality', 'tourism', 'food', 'beverage', 'cookery', 'bread', 'pastry', 'housekeeping'],
@@ -34,6 +38,14 @@ class StarterCareerRecommendations
         $terms = collect($profile?->interests ?? [])
             ->flatMap(fn (string $interest): array => self::INTEREST_TERMS[$interest] ?? [$interest])
             ->merge($this->skillTerms($profile))
+            ->merge($this->skillTermsFromAssessment($profile))
+            ->map(fn (string $term): string => mb_strtolower(trim($term)))
+            ->filter(fn (string $term): bool => $term !== '')
+            ->unique()->values()->all();
+
+        $careerTerms = collect($profile?->interests ?? [])
+            ->flatMap(fn (string $interest): array => self::INTEREST_TERMS[$interest] ?? [$interest])
+            ->merge($this->skillTermsFromAssessment($profile))
             ->map(fn (string $term): string => mb_strtolower(trim($term)))
             ->filter(fn (string $term): bool => $term !== '')
             ->unique()->values()->all();
@@ -87,14 +99,19 @@ class StarterCareerRecommendations
                     'url' => route('opportunities.index', ['q' => $job->title]),
                 ])->all(),
             'careers' => CareerPath::published()
-                ->where(fn (Builder $query): Builder => $this->matchTerms($query, $terms, ['title', 'description']))
-                ->tap(fn (Builder $query): Builder => $this->orderByRelevance($query, $terms, ['title', 'description']))
-                ->orderBy('title')->limit(3)->get(['title', 'description', 'education_level'])
-                ->map(fn (CareerPath $career): array => [
-                    'title' => $career->title,
-                    'detail' => trim(collect([$career->education_level, $this->matchReason($profile, $career->title.' '.$career->description)])->filter()->implode(' · ')),
-                    'url' => route('careers.index'),
-                ])->all(),
+                ->when($careerTerms !== [], fn (Builder $query): Builder => $query->where(fn (Builder $matches): Builder => $this->matchTerms($matches, $careerTerms, ['title', 'description'])))
+                ->when($careerTerms === [], fn (Builder $query): Builder => $query->whereRaw('1 = 0'))
+                ->orderBy('title')->limit(100)->get(['title', 'description', 'education_level', 'required_skills'])
+                ->map(function (CareerPath $career) use ($profile): array {
+                    return [
+                        'title' => $career->title,
+                        'detail' => trim(collect([$career->education_level, $this->matchReason($profile, $career->title.' '.$career->description)])->filter()->implode(' · ')),
+                        'url' => route('careers.index'),
+                        'skill_match' => $this->careerSkillMatcher->match($career, $profile),
+                    ];
+                })
+                ->sortByDesc(fn (array $career): int => $career['skill_match']['percent'] ?? -1)
+                ->take(3)->values()->all(),
             'training' => $trainingRecommendations,
         ];
     }
@@ -163,6 +180,12 @@ class StarterCareerRecommendations
             }
         }
 
+        foreach ($profile?->assessmentSkills() ?? [] as $skill) {
+            if (str_contains($normalizedText, mb_strtolower($this->skillTerm($skill)))) {
+                return 'Connects with your self-reported '.$skill.' assessment skill.';
+            }
+        }
+
         return 'Based on your saved interests and skills.';
     }
 
@@ -170,6 +193,12 @@ class StarterCareerRecommendations
     private function skillTerms(?YouthProfile $profile): array
     {
         return collect($profile?->skills ?? [])->map(fn (string $skill): string => $this->skillTerm($skill))->all();
+    }
+
+    /** @return array<int, string> */
+    private function skillTermsFromAssessment(?YouthProfile $profile): array
+    {
+        return collect($profile?->assessmentSkills() ?? [])->map(fn (string $skill): string => $this->skillTerm($skill))->all();
     }
 
     private function skillTerm(string $skill): string

@@ -93,8 +93,11 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         if (widget.section == 'Skills assessment') {
           final profile = asMap(result['profile']);
           _assessment.addAll(asMap(profile['assessment_preferences']));
+          final assessmentPreferences = asMap(
+            profile['assessment_preferences'],
+          );
           _assessment['skills'] = List<String>.from(
-            asList(profile['skills'])
+            asList(assessmentPreferences['assessment_skills'])
                 .where((skill) => asList(result['skills']).contains(skill)),
           );
           _assessment['interests'] = List<String>.from(
@@ -408,6 +411,10 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       const Text(
         'Save at least one interest to unlock AI guidance and see initial job, career, and training suggestions. You can start without a resume or NC certificate. Document scanning is optional, and any skills you have practiced can support your preferences.',
       ),
+      if (_data?['assessmentSkillsRecorded'] == false)
+        const Text(
+          'Review your skills and select only tasks you have personally practiced. Older profile skills may include document-scan findings, so they are not counted in career matches until you save your assessment choices.',
+        ),
       for (final entry in options.entries)
         _card(entry.key.replaceAll('_', ' '), [
           if (['skills', 'interests', 'support_needs'].contains(entry.key))
@@ -476,11 +483,31 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text('${asMap(recommendation)['title'] ?? ''}'),
-                  subtitle: Text('${asMap(recommendation)['detail'] ?? ''}'),
+                  subtitle: Text(
+                    _recommendationDetails(asMap(recommendation), section.$1),
+                  ),
                 ),
           ]),
       ],
     ];
+  }
+
+  String _recommendationDetails(
+    Map<String, dynamic> recommendation,
+    String section,
+  ) {
+    final details = <String>['${recommendation['detail'] ?? ''}'];
+    if (section == 'careers' && recommendation['skill_match'] is Map) {
+      final match = asMap(recommendation['skill_match']);
+      details.add(switch (match['status']) {
+        'ready' =>
+          '${match['percent']}% skills overlap · ${match['matched']} of ${match['total']} listed path skills selected. This is not a qualification or hiring score.',
+        'assessment_update_required' =>
+          'Update your skills assessment to see a personal match.',
+        _ => 'PESO has not listed enough path skills for a percentage yet.',
+      });
+    }
+    return details.where((detail) => detail.trim().isNotEmpty).join('\n');
   }
 
   static const _programFields = [

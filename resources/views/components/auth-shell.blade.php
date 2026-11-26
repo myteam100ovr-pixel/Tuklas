@@ -5,7 +5,7 @@
         <section class="auth-story" data-auth-carousel aria-roledescription="carousel" aria-label="What Tuklas can help you do">
             <a class="auth-brand" href="{{ url('/') }}" aria-label="Tuklas home">
                 <img class="auth-brand-mark" src="{{ asset('images/tuklas-logo.png') }}" alt="">
-                <span>tuklas</span>
+                <span>Tuklas</span>
             </a>
 
             <div class="auth-story-copy">
@@ -97,7 +97,7 @@
         </section>
 
         <section class="auth-form-panel" aria-labelledby="auth-title">
-            <a class="auth-mobile-brand" href="{{ url('/') }}" aria-label="Tuklas home"><img src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
+            <a class="auth-mobile-brand" href="{{ url('/') }}" aria-label="Tuklas home"><img src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
             <div class="auth-form-wrap">
                 <a class="auth-back" href="{{ url('/') }}"><span aria-hidden="true">←</span> Back to Tuklas</a>
                 <div class="auth-heading">

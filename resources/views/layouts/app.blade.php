@@ -21,7 +21,7 @@
     <a class="tk-skip" href="#main-content">Skip to content</a>
     @unless ($assessmentRequired)
     <aside class="tk-sidebar {{ $isGroupedWorkspace ? 'tk-sidebar--admin' : '' }}">
-        <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home"><img class="tk-brand-symbol" src="{{ asset('images/tuklas-logo.png') }}" alt="">tuklas<span class="tk-brand-dot">.</span></a>
+        <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home"><img class="tk-brand-symbol" src="{{ asset('images/tuklas-logo.png') }}" alt="">Tuklas<span class="tk-brand-dot">.</span></a>
         <p class="tk-nav-caption">WORKSPACE</p>
 
         <nav class="tk-tabs tk-tabs--workspace" aria-label="Primary">

@@ -4,7 +4,7 @@
     <div class="role-dashboard__inner">
         <div class="role-dashboard__topline">
             <div class="role-dashboard__identity">
-                <a class="role-dashboard__brand" href="{{ route('home') }}" aria-label="Tuklas home"><img class="role-dashboard__brand-image" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
+                <a class="role-dashboard__brand" href="{{ route('home') }}" aria-label="Tuklas home"><img class="role-dashboard__brand-image" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
                 <span class="role-dashboard__divider" aria-hidden="true"></span>
                 <span class="role-dashboard__role">{{ $roleLabel }}</span>
             </div>

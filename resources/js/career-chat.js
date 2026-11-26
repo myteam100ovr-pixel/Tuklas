@@ -20,31 +20,34 @@ if (chat) {
             const sourceList = document.createElement('span');
             sourceList.className = 'career-chat__sources';
             sourceList.append(document.createTextNode('Sources: '));
-
-            sources.forEach((source, index) => {
+            const validSources = sources.flatMap((source) => {
                 try {
                     const url = new URL(source.url);
 
-                    if (!['http:', 'https:'].includes(url.protocol)) {
-                        return;
-                    }
-
-                    if (index > 0) {
-                        sourceList.append(document.createTextNode(' · '));
-                    }
-
-                    const link = document.createElement('a');
-                    link.href = url.href;
-                    link.target = '_blank';
-                    link.rel = 'noopener noreferrer';
-                    link.textContent = source.title || url.hostname;
-                    sourceList.append(link);
+                    return ['http:', 'https:'].includes(url.protocol)
+                        ? [{ source, url }]
+                        : [];
                 } catch {
-                    // Ignore malformed source URLs from the provider response.
+                    return [];
                 }
             });
 
-            message.append(document.createElement('br'), sourceList);
+            validSources.forEach(({ source, url }, index) => {
+                if (index > 0) {
+                    sourceList.append(document.createTextNode(' · '));
+                }
+
+                const link = document.createElement('a');
+                link.href = url.href;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = source.title || url.hostname;
+                sourceList.append(link);
+            });
+
+            if (validSources.length > 0) {
+                message.append(document.createElement('br'), sourceList);
+            }
         }
 
         transcript.append(message);
@@ -96,7 +99,10 @@ if (chat) {
         sendButton.disabled = true;
         const thinkingMessage = appendMessage('model', 'Thinking…');
         thinkingMessage.classList.add('is-thinking');
-        status.textContent = 'TuklasBot is working on your reply…';
+        const needsSources = /\b(find|search|look\s+up|browse|research|sources?|cite|citation|links?|urls?|websites?|online|current|latest|recent|today|now|available|availability|schedule|price|cost|news|weather|opening\w*|vacan\w*|hiring|salary|scholarship)\b|\b(recommend|suggest|share|send|give|show)\b.{0,50}\b(links?|resources?|websites?|sources?)\b|\bwhere\b.{0,50}\b(apply|enroll|register|sign\s+up)\b/i.test(message);
+        status.textContent = needsSources
+            ? 'TuklasBot is checking current sources…'
+            : 'TuklasBot is working on your reply…';
         delete status.dataset.kind;
 
         try {

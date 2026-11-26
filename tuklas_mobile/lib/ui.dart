@@ -235,7 +235,7 @@ class TkHeader extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'tuklas.',
+              'Tuklas.',
               style: tkText(
                 context,
                 size: 27,

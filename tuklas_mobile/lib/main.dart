@@ -240,7 +240,7 @@ class _ServerUnavailable extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'tuklas',
+                    'Tuklas',
                     style: tkText(
                       context,
                       size: 40,
@@ -300,7 +300,7 @@ class _StartupSplash extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'tuklas',
+                'Tuklas',
                 style: tkText(
                   context,
                   size: 40,

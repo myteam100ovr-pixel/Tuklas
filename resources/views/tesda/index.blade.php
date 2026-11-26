@@ -17,7 +17,7 @@
     </head>
     <body class="tesda-body">
         <header class="hdr" id="hdr">
-            <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
+            <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
             <nav class="pill" aria-label="Primary">
                 <a href="{{ route('home') }}#features">Features</a>
                 <a href="{{ route('scanner.index') }}">Scanner</a>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\StarterCareerRecommendations;
 use App\Support\ActivityNotifier;
+use App\Support\CareerSkillCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,8 +13,6 @@ use Illuminate\View\View;
 
 class SkillsAssessmentController extends Controller
 {
-    private const SKILLS = ['Communication', 'Customer service', 'Computer literacy', 'Food preparation', 'Basic electronics', 'Sewing', 'Gardening', 'Bookkeeping', 'Teamwork', 'Problem solving', 'Writing', 'Design and creativity', 'Sales', 'Repair and maintenance', 'Caregiving', 'Planning and organization'];
-
     private const INTERESTS = ['Information technology', 'Hospitality and tourism', 'Food and beverage', 'Cooking and baking', 'Electronics', 'Agriculture', 'Entrepreneurship', 'Construction', 'Health and caregiving', 'Arts and design', 'Automotive', 'Business and finance', 'Logistics'];
 
     private const PREFERENCES = [
@@ -30,11 +29,12 @@ class SkillsAssessmentController extends Controller
         $profile = $request->user()->youthProfile;
         $assessmentComplete = $profile?->hasCompletedSkillsAssessment() ?? false;
         $data = [
-            'skills' => self::SKILLS,
+            'skills' => CareerSkillCatalog::OPTIONS,
             'interests' => self::INTERESTS,
             'profile' => $profile,
             'preferenceOptions' => self::PREFERENCES,
             'assessmentComplete' => $assessmentComplete,
+            'assessmentSkillsRecorded' => $profile?->assessmentSkills() !== null,
             'starterRecommendations' => $assessmentComplete ? $recommendations->for($request->user()) : [],
         ];
 
@@ -50,7 +50,7 @@ class SkillsAssessmentController extends Controller
     {
         $rules = [
             'skills' => ['sometimes', 'array', 'max:16'],
-            'skills.*' => ['string', 'distinct', Rule::in(self::SKILLS)],
+            'skills.*' => ['string', 'distinct', Rule::in(CareerSkillCatalog::OPTIONS)],
             'interests' => ['required', 'array', 'min:1', 'max:12'],
             'interests.*' => ['string', 'distinct', Rule::in(self::INTERESTS)],
             'career_goal' => ['nullable', 'string', 'max:500'],
@@ -70,7 +70,9 @@ class SkillsAssessmentController extends Controller
         $profile = $request->user()->youthProfile()->firstOrNew();
         $profile->skills = array_values(array_unique(array_merge($profile->skills ?? [], $validated['skills'] ?? [])));
         $profile->interests = array_values($validated['interests']);
-        $profile->assessment_preferences = collect($validated)->except(['skills', 'interests'])->all();
+        $preferences = collect($validated)->except(['skills', 'interests'])->all();
+        $preferences['assessment_skills'] = array_values(array_unique($validated['skills'] ?? []));
+        $profile->assessment_preferences = $preferences;
         $profile->save();
         $activity->record($request->user(), 'updated their skills assessment.');
         $starterRecommendations = $recommendations->for($request->user()->fresh());

@@ -334,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'tuklas',
+                            'Tuklas',
                             style: tkText(
                               context,
                               size: 30,

@@ -282,6 +282,15 @@ class _OperationsViewState extends State<OperationsView> {
       const WorkspaceField('title', 'Career path title', required: true),
       const WorkspaceField('description', 'Description', multiline: true),
       const WorkspaceField('education_level', 'Education or entry level'),
+      WorkspaceField(
+        'required_skills',
+        'Skills listed for this career path',
+        options: asList(_response?['career_skill_options'])
+            .map((skill) => '$skill')
+            .toList(),
+        multiSelect: true,
+        maxSelections: 8,
+      ),
       const WorkspaceField('source_note', 'Source or reference'),
       const WorkspaceField(
         'status',
@@ -1022,6 +1031,10 @@ class _OperationsViewState extends State<OperationsView> {
       '${item['description'] ?? ''}',
       if (item['education_level'] != null)
         'Education or entry level: ${item['education_level']}',
+      if (asList(item['required_skills']).isNotEmpty)
+        'Listed path skills: ${asList(item['required_skills']).join(', ')}',
+      if (item['skill_match'] is Map)
+        _skillMatchDetails(asMap(item['skill_match'])),
       if (item['source_note'] != null) 'Source: ${item['source_note']}',
       if (_role == 'admin') 'Status: ${item['status'] ?? 'draft'}',
     ].where((line) => line.isNotEmpty).join('\n'),
@@ -1060,6 +1073,23 @@ class _OperationsViewState extends State<OperationsView> {
       '${((item['application'] as Map?)?['user'] as Map?)?['name'] ?? ''} · ${item['status'] ?? ''} · ${item['result'] ?? 'Pending'}${item['scheduled_at'] == null ? '' : ' · ${formatTuklasDate(item['scheduled_at'], includeTime: true)}'}',
     _ => '${item['location'] ?? item['contact_email'] ?? ''}',
   };
+
+  String _skillMatchDetails(Map<String, dynamic> match) {
+    if (match['status'] == 'ready') {
+      return [
+        '${match['percent']}% skills overlap · ${match['matched']} of ${match['total']} listed skills selected in your assessment.',
+        if (asList(match['matched_skills']).isNotEmpty)
+          'Selected: ${asList(match['matched_skills']).join(', ')}',
+        if (asList(match['unselected_skills']).isNotEmpty)
+          'Not selected: ${asList(match['unselected_skills']).join(', ')}',
+        'This is not a qualification or hiring score.',
+      ].join('\n');
+    }
+    if (match['status'] == 'assessment_update_required') {
+      return 'Save or update your skills assessment to see a personal match.';
+    }
+    return 'A match percentage is unavailable because PESO has not listed at least three path skills.';
+  }
 
   String _programSummary(Map<String, dynamic> program) {
     final duration = program['duration_days'];

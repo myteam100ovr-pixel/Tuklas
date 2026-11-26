@@ -1,7 +1,7 @@
 <x-app-layout>
     @php
         $saved = $profile?->assessment_preferences ?? [];
-        $selectedSkills = old('skills', session()->hasOldInput() ? [] : ($profile?->skills ?? []));
+        $selectedSkills = old('skills', session()->hasOldInput() ? [] : ($profile?->assessmentSkills() ?? []));
         $selectedInterests = old('interests', session()->hasOldInput() ? [] : ($profile?->interests ?? []));
         $preferenceLabels = ['priority' => 'What matters most right now?', 'learning_mode' => 'How do you prefer to learn?', 'schedule' => 'When could you attend training?', 'weekly_hours' => 'How much time can you set aside each week?', 'work_environment' => 'Where do you see yourself working?'];
     @endphp
@@ -13,6 +13,7 @@
             <div class="assessment-intro-meta"><strong>5 areas to explore</strong><span>About 5–8 minutes</span><span>Update your answers anytime</span></div>
         </div>
         @if (session('status'))<p class="assessment-notice" role="status">{{ session('status') }}</p>@endif
+        @if ($assessmentComplete && $profile?->assessmentSkills() === null)<p class="assessment-notice" role="status">Review the skills below and select only tasks you have personally practiced. Earlier profile skills may include document-scan findings, so they are not counted in your assessment match until you confirm them here.</p>@endif
         <div class="assessment-layout">
             <form method="POST" action="{{ route('youth.assessment.store') }}" class="assessment-form">
                 @csrf
@@ -79,6 +80,12 @@
                                 <article class="assessment-recommendation-item">
                                     <strong>{{ $recommendation['title'] }}</strong>
                                     @if ($recommendation['detail'] !== '')<p>{{ $recommendation['detail'] }}</p>@endif
+                                    @if ($key === 'careers' && ($recommendation['skill_match']['status'] ?? null) === 'ready')
+                                        <p><strong>{{ $recommendation['skill_match']['percent'] }}% skills overlap · {{ $recommendation['skill_match']['matched'] }} of {{ $recommendation['skill_match']['total'] }} path skills selected.</strong></p>
+                                        <p>This reflects your self-assessment choices, not verified qualifications or hiring probability.</p>
+                                    @elseif ($key === 'careers' && ($recommendation['skill_match']['status'] ?? null) === 'requirements_missing')
+                                        <p>PESO has not listed enough skills for a percentage match yet.</p>
+                                    @endif
                                     <a href="{{ $recommendation['url'] }}">Explore this option ↗</a>
                                 </article>
                             @empty

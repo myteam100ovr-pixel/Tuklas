@@ -13,7 +13,7 @@
 
 {{-- Header --}}
 <header class="site-header">
-    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
+    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
 
     <nav class="nav-pill" aria-label="Main">
         <a href="#features">Features</a>
@@ -139,7 +139,7 @@
     <div class="pathways-title reveal">
         <span class="mail"></span>
         <span>Pathways</span>
-        <span class="ticker"><span class="ticker-track">tuklas  </span></span>
+        <span class="ticker"><span class="ticker-track">Tuklas  </span></span>
     </div>
 
     <div class="steps">
@@ -305,7 +305,7 @@
 
 <footer class="site-footer">
     <div class="footer-main">
-        <a href="{{ route('home') }}" class="footer-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
+        <a href="{{ route('home') }}" class="footer-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
         <p>Career and skills guidance for youth in Bugallon, Pangasinan.</p>
         <nav aria-label="Footer">
             <a href="#features">Features</a>

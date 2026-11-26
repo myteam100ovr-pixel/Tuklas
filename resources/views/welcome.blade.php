@@ -21,7 +21,7 @@
 
 {{-- ============ HEADER ============ --}}
 <header class="hdr" id="hdr">
-    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
+    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
 
     <nav class="pill" id="site-nav" aria-label="Primary">
         <a href="#features">Features</a>
@@ -275,7 +275,7 @@
                 <svg class="float-ic" viewBox="0 0 120 120" aria-hidden="true"><g transform="rotate(-18 60 60)"><rect x="12" y="28" width="96" height="64" rx="12" fill="#3a14b0"/><path d="M12 36 L60 68 L108 36" fill="none" stroke="#7d5cff" stroke-width="6" stroke-linejoin="round"/><circle cx="60" cy="68" r="8" fill="#ffd92e"/></g><circle cx="102" cy="34" r="12" fill="#5b17ff" stroke="#fff" stroke-width="3"/></svg>
                 <h2>
                     <span class="w">Pathways</span>
-                    <span class="tick" aria-hidden="true"><span class="tick-in">tuklas &nbsp; tuklas &nbsp; tuklas &nbsp; tuklas &nbsp; tuklas &nbsp; tuklas</span></span>
+                    <span class="tick" aria-hidden="true"><span class="tick-in">Tuklas &nbsp; Tuklas &nbsp; Tuklas &nbsp; Tuklas &nbsp; Tuklas &nbsp; Tuklas</span></span>
                 </h2>
             </div>
 
@@ -448,7 +448,7 @@
 <footer class="foot" id="contact">
     <div class="foot-top">
         <div class="foot-brand">
-            <a href="{{ route('home') }}" class="foot-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
+            <a href="{{ route('home') }}" class="foot-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
             <p>AI-powered career path and skills development for youth in Pangasinan, piloting in Bugallon.</p>
             <p class="gem sm"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8bff"/><stop offset=".55" stop-color="#7b5cff"/><stop offset="1" stop-color="#f55ba8"/></linearGradient></defs><path d="M12 1.5C12 8 16 12 22.5 12C16 12 12 16 12 22.5C12 16 8 12 1.5 12C8 12 12 8 12 1.5Z" fill="url(#gg3)"/></svg>Powered by Google Gemini AI</p>
         </div>
@@ -491,7 +491,7 @@
 
     <p class="foot-note">Recommendations are guidance to support informed decisions, not guarantees of employment, admission, or training availability.</p>
 
-    <div class="foot-word" aria-hidden="true">tuklas</div>
+    <div class="foot-word" aria-hidden="true">Tuklas</div>
 
     <div class="foot-bottom">
         <span>&copy; {{ date('Y') }} Tuklas</span>

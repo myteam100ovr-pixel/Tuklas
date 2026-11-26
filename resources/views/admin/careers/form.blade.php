@@ -14,6 +14,18 @@
                 <textarea name="description" rows="5" maxlength="3000">{{ old('description', $career->description) }}</textarea>
                 @error('description')<small>{{ $message }}</small>@enderror
             </label>
+            <fieldset class="trainer-courses__form-section">
+                <legend>Skills for this path</legend>
+                <input type="hidden" name="required_skills_present" value="1">
+                <p>Choose 3–8 relevant skills based on the source you recorded. Match percentages compare these with the Career Seeker’s saved assessment choices. They are not a qualification or hiring score.</p>
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    @foreach ($skillOptions as $skill)
+                        <label class="flex items-center gap-2"><input type="checkbox" name="required_skills[]" value="{{ $skill }}" @checked(in_array($skill, old('required_skills', $career->required_skills ?? []), true))><span>{{ $skill }}</span></label>
+                    @endforeach
+                </div>
+                @error('required_skills')<small>{{ $message }}</small>@enderror
+                @error('required_skills.*')<small>{{ $message }}</small>@enderror
+            </fieldset>
             <div class="trainer-courses__form-row">
                 <label>Education or entry level
                     <input name="education_level" type="text" maxlength="60" value="{{ old('education_level', $career->education_level) }}" placeholder="e.g. Senior high school">

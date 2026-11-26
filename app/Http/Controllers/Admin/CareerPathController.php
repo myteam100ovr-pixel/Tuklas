@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CareerPath;
 use App\Support\ActivityNotifier;
+use App\Support\CareerSkillCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -29,7 +30,7 @@ class CareerPathController extends Controller
 
     public function create(): View
     {
-        return view('admin.careers.form', ['career' => new CareerPath]);
+        return view('admin.careers.form', ['career' => new CareerPath, 'skillOptions' => CareerSkillCatalog::OPTIONS]);
     }
 
     public function store(Request $request, ActivityNotifier $activity): RedirectResponse
@@ -42,7 +43,7 @@ class CareerPathController extends Controller
 
     public function edit(CareerPath $career): View
     {
-        return view('admin.careers.form', compact('career'));
+        return view('admin.careers.form', ['career' => $career, 'skillOptions' => CareerSkillCatalog::OPTIONS]);
     }
 
     public function update(Request $request, CareerPath $career, ActivityNotifier $activity): RedirectResponse
@@ -65,12 +66,23 @@ class CareerPathController extends Controller
     /** @return array<string, mixed> */
     private function validatedData(Request $request): array
     {
-        return $request->validate([
+        $skillRules = $request->input('status') === 'published'
+            ? ['required', 'array', 'min:3', 'max:8']
+            : ['sometimes', 'nullable', 'array', 'max:8'];
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:3000'],
             'education_level' => ['nullable', 'string', 'max:60'],
+            'required_skills' => $skillRules,
+            'required_skills.*' => ['string', 'distinct', Rule::in(CareerSkillCatalog::OPTIONS)],
             'source_note' => ['nullable', 'string', 'max:255'],
             'status' => ['required', Rule::in(['draft', 'published', 'archived'])],
         ]);
+
+        if ($request->boolean('required_skills_present') && ! array_key_exists('required_skills', $data)) {
+            $data['required_skills'] = [];
+        }
+
+        return $data;
     }
 }
