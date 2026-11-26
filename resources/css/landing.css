@@ -44,6 +44,9 @@ html.lenis, html.lenis body { height: auto; }
 .hdr.is-blurred { background: rgb(255 255 255 / .72); -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%); box-shadow: 0 1px 0 rgb(13 13 15 / .07); }
 [data-theme="dark"] .hdr.is-blurred { background: rgb(12 11 18 / .72); box-shadow: 0 1px 0 rgb(255 255 255 / .08); }
 .logo { font-size: 1.75rem; font-weight: 500; letter-spacing: -.05em; line-height: 1; transition: color .3s; }
+.logo, .foot-logo, .footer-logo { display: inline-flex; align-items: center; gap: .5rem; }
+.site-logo-mark { display: block; width: 2rem; height: 2rem; flex: 0 0 auto; border-radius: .45rem; background: #fff; object-fit: contain; }
+.foot-logo .site-logo-mark, .footer-logo .site-logo-mark { width: 2.25rem; height: 2.25rem; }
 .pill { display: flex; padding: .3rem; border-radius: .9rem; background: rgb(244 244 246 / .92); backdrop-filter: blur(8px); transition: background .3s; }
 .pill a { padding: .55rem 1.1rem; border-radius: .65rem; font-size: .8125rem; transition: background .2s; }
 .pill a:hover { background: rgb(0 0 0 / .05); }

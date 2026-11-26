@@ -9,6 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Tuklas">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16.png') }}">
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     @include('partials.theme-boot')
@@ -16,7 +18,7 @@
 </head>
 <body class="app-download-body">
     <header class="app-download-nav">
-        <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home">tuklas</a>
+        <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
         <a href="{{ route('home') }}">Back to Tuklas</a>
     </header>
 

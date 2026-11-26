@@ -227,6 +227,13 @@ class TkHeader extends StatelessWidget {
         decoration: _navigationPanelDecoration(context),
         child: Row(
           children: [
+            Image.asset(
+              'assets/images/tuklas-logo.png',
+              width: 30,
+              height: 30,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
             Text(
               'tuklas.',
               style: tkText(

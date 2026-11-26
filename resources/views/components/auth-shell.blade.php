@@ -4,12 +4,7 @@
     <main class="auth-layout">
         <section class="auth-story" data-auth-carousel aria-roledescription="carousel" aria-label="What Tuklas can help you do">
             <a class="auth-brand" href="{{ url('/') }}" aria-label="Tuklas home">
-                <span class="auth-brand-mark" aria-hidden="true">
-                    <svg viewBox="0 0 32 32" fill="none">
-                        <path d="M16 2.5 19.6 12.4 29.5 16l-9.9 3.6L16 29.5l-3.6-9.9L2.5 16l9.9-3.6L16 2.5Z" fill="currentColor" />
-                        <circle cx="24.7" cy="7.3" r="2.3" fill="#FFD92E" />
-                    </svg>
-                </span>
+                <img class="auth-brand-mark" src="{{ asset('images/tuklas-logo.png') }}" alt="">
                 <span>tuklas</span>
             </a>
 
@@ -102,7 +97,7 @@
         </section>
 
         <section class="auth-form-panel" aria-labelledby="auth-title">
-            <a class="auth-mobile-brand" href="{{ url('/') }}" aria-label="Tuklas home">✳ <span>tuklas</span></a>
+            <a class="auth-mobile-brand" href="{{ url('/') }}" aria-label="Tuklas home"><img src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
             <div class="auth-form-wrap">
                 <a class="auth-back" href="{{ url('/') }}"><span aria-hidden="true">←</span> Back to Tuklas</a>
                 <div class="auth-heading">

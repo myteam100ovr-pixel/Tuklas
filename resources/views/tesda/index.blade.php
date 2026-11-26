@@ -10,12 +10,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <title>TESDA training and services | {{ config('app.name', 'Tuklas') }}</title>
         <meta name="description" content="Search TESDA NC I to IV registered training programs in Pangasinan and browse official learning, scholarship, and certification resources.">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16.png') }}">
         @include('partials.theme-boot')
         @vite(['resources/css/landing.css', 'resources/js/ui.js'])
     </head>
     <body class="tesda-body">
         <header class="hdr" id="hdr">
-            <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home">tuklas</a>
+            <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
             <nav class="pill" aria-label="Primary">
                 <a href="{{ route('home') }}#features">Features</a>
                 <a href="{{ route('scanner.index') }}">Scanner</a>

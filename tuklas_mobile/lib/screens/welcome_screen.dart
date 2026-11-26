@@ -72,14 +72,26 @@ class _FirstLaunchState extends State<FirstLaunch> {
                   child: ListView(
                     padding: const EdgeInsets.all(24),
                     children: [
-                      Text(
-                        'tuklas.',
-                        style: tkText(
-                          context,
-                          size: 34,
-                          weight: 700,
-                          spacing: -1.8,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/images/tuklas-logo.png',
+                            width: 38,
+                            height: 38,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(width: 9),
+                          Text(
+                            'tuklas.',
+                            style: tkText(
+                              context,
+                              size: 34,
+                              weight: 700,
+                              spacing: -1.8,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 32),
                       Container(

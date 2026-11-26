@@ -9,6 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Tuklas">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16.png') }}">
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <script>document.documentElement.classList.add('js')</script>
@@ -19,7 +21,7 @@
 
 {{-- ============ HEADER ============ --}}
 <header class="hdr" id="hdr">
-    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home">tuklas</a>
+    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
 
     <nav class="pill" id="site-nav" aria-label="Primary">
         <a href="#features">Features</a>
@@ -446,7 +448,7 @@
 <footer class="foot" id="contact">
     <div class="foot-top">
         <div class="foot-brand">
-            <a href="{{ route('home') }}" class="foot-logo" aria-label="Tuklas home">tuklas</a>
+            <a href="{{ route('home') }}" class="foot-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
             <p>AI-powered career path and skills development for youth in Pangasinan, piloting in Bugallon.</p>
             <p class="gem sm"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8bff"/><stop offset=".55" stop-color="#7b5cff"/><stop offset="1" stop-color="#f55ba8"/></linearGradient></defs><path d="M12 1.5C12 8 16 12 22.5 12C16 12 12 16 12 22.5C12 16 8 12 1.5 12C8 12 12 8 12 1.5Z" fill="url(#gg3)"/></svg>Powered by Google Gemini AI</p>
         </div>

@@ -29,8 +29,7 @@ body { margin: 0; }
 .auth-story::after { width: 22rem; height: 22rem; bottom: -17rem; left: -13rem; }
 .auth-brand { display: inline-flex; align-items: center; align-self: flex-start; gap: .5rem; color: #fff; font-size: 1.8rem; font-weight: 600; letter-spacing: -.075em; line-height: 1; }
 .auth-brand:hover { color: #fff; }
-.auth-brand-mark { width: 2rem; height: 2rem; color: var(--auth-pink); }
-.auth-brand-mark svg { display: block; width: 100%; height: 100%; }
+.auth-brand-mark { display: block; width: 2rem; height: 2rem; flex: 0 0 auto; border-radius: .45rem; background: #fff; object-fit: contain; }
 .auth-story-copy { position: relative; z-index: 1; width: min(100%, 35rem); margin: auto auto 0; padding-top: 3rem; }
 .auth-eyebrow, .auth-form-kicker { display: flex; align-items: center; gap: .65rem; font-size: .68rem; font-weight: 600; letter-spacing: .14em; }
 .auth-eyebrow { color: rgb(255 255 255 / .75); }
@@ -101,6 +100,7 @@ body { margin: 0; }
 .auth-errors ul { margin: .45rem 0 0; padding-left: 1.1rem; }
 .auth-status { margin-bottom: 1rem; padding: .8rem 1rem; border: 1px solid #cde9d7; border-radius: .7rem; color: #236b3d; background: #f3fbf5; font-size: .8rem; }
 .auth-mobile-brand { display: none; }
+.auth-mobile-brand img { display: block; width: 1.4rem; height: 1.4rem; flex: 0 0 auto; border-radius: .3rem; background: #fff; object-fit: contain; }
 
 .auth-name-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .9rem; }
 .auth-name-row .auth-field { min-width: 0; }

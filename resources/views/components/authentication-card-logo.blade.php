@@ -1,1 +1,1 @@
-<a href="/" class="tk-brand" aria-label="Tuklas home">tuklas</a>
+<a href="/" class="tk-brand" aria-label="Tuklas home"><img class="tk-brand-image" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Tuklas') }}</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16.png') }}">
     @include('partials.theme-boot')
     @vite(['resources/css/ui.css', 'resources/css/app.css', 'resources/js/ui.js'])
     @if (request()->routeIs('scanner.index', 'tuklasbot.index', 'peso.index', 'admin.dashboard', 'admin.recommendations.index', 'trainer.dashboard', 'youth.dashboard'))
@@ -19,7 +21,7 @@
     <a class="tk-skip" href="#main-content">Skip to content</a>
     @unless ($assessmentRequired)
     <aside class="tk-sidebar {{ $isGroupedWorkspace ? 'tk-sidebar--admin' : '' }}">
-        <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home"><span class="tk-brand-symbol" aria-hidden="true">t</span>tuklas<span class="tk-brand-dot">.</span></a>
+        <a class="tk-brand" href="{{ route('dashboard') }}" aria-label="Tuklas home"><img class="tk-brand-symbol" src="{{ asset('images/tuklas-logo.png') }}" alt="">tuklas<span class="tk-brand-dot">.</span></a>
         <p class="tk-nav-caption">WORKSPACE</p>
 
         <nav class="tk-tabs tk-tabs--workspace" aria-label="Primary">

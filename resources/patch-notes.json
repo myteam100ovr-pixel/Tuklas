@@ -1,6 +1,17 @@
 [
     {
         "date": "2026-11-26",
+        "published_at": "2026-11-26T19:44:53+08:00",
+        "version": "Brand update",
+        "title": "Updated Tuklas logo across web and mobile",
+        "items": [
+            "The new Tuklas logo appears across the website, sign-in and registration pages, and workspace navigation.",
+            "Updated browser, home-screen, Android, and iOS app icons.",
+            "The mobile app headers and onboarding screen now use the same logo."
+        ]
+    },
+    {
+        "date": "2026-11-26",
         "published_at": "2026-11-26T18:32:17+08:00",
         "version": "Mobile update",
         "title": "Easier scanner access and career matches",

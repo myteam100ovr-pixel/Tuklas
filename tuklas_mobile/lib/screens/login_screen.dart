@@ -323,15 +323,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   constraints: const BoxConstraints(maxWidth: 432),
                   child: Column(
                     children: [
-                      Text(
-                        'tuklas',
-                        style: tkText(
-                          context,
-                          size: 30,
-                          weight: 500,
-                          spacing: -1.5,
-                          height: 1,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/images/tuklas-logo.png',
+                            width: 34,
+                            height: 34,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'tuklas',
+                            style: tkText(
+                              context,
+                              size: 30,
+                              weight: 500,
+                              spacing: -1.5,
+                              height: 1,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 22),
                       TkCard(

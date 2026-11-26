@@ -50,7 +50,7 @@
 .min-h-screen:has(.role-dashboard) > nav { display: none; }
 .role-dashboard__topline { display: flex; align-items: center; gap: 1rem; min-height: 3rem; margin-bottom: clamp(2rem, 5vw, 4rem); }
 .role-dashboard__brand { display: inline-flex; align-items: center; gap: .6rem; color: #17192a; font-family: var(--font-display); font-size: 1rem; letter-spacing: .12em; text-decoration: none; }
-.role-dashboard__brand-mark { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: .65rem; background: #8274e8; color: #fff; font-family: var(--font-display); font-size: .88rem; font-weight: 700; letter-spacing: 0; }
+.role-dashboard__brand-image { display: block; width: 2rem; height: 2rem; flex: 0 0 auto; border-radius: .5rem; background: #fff; object-fit: contain; }
 .role-dashboard__divider { width: 1px; height: 1.5rem; background: #d9dce6; }
 .role-dashboard__role { color: #69697b; font-size: .73rem; font-weight: 500; letter-spacing: 0; }
 .role-dashboard__account { display: inline-flex; align-items: center; gap: .7rem; margin-left: auto; color: #17192a; text-decoration: none; }

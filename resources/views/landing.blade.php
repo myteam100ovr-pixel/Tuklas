@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tuklas</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16.png') }}">
 
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
 </head>
@@ -11,7 +13,7 @@
 
 {{-- Header --}}
 <header class="site-header">
-    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home">tuklas</a>
+    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
 
     <nav class="nav-pill" aria-label="Main">
         <a href="#features">Features</a>
@@ -303,7 +305,7 @@
 
 <footer class="site-footer">
     <div class="footer-main">
-        <a href="{{ route('home') }}" class="footer-logo" aria-label="Tuklas home">tuklas</a>
+        <a href="{{ route('home') }}" class="footer-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>tuklas</span></a>
         <p>Career and skills guidance for youth in Bugallon, Pangasinan.</p>
         <nav aria-label="Footer">
             <a href="#features">Features</a>
