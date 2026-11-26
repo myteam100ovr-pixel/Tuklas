@@ -129,25 +129,68 @@ class CareerChatControllerTest extends TestCase
             && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'PESO job recommendations'));
     }
 
-    public function test_chat_continues_without_live_sources_when_search_quota_is_exhausted(): void
+    public function test_chat_tries_the_fallback_model_with_search_after_primary_rate_limit(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
         config()->set('services.google.gemini_chat_web_search', true);
+        config()->set('services.google.gemini_model', 'gemini-3.5-flash-lite');
+        config()->set('services.google.gemini_fallback_model', 'gemini-3.6-flash');
         Http::preventStrayRequests();
-        Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
-            ->push(['error' => ['message' => 'Search quota exhausted']], 429)
-            ->push(['candidates' => [['content' => ['parts' => [['text' => 'TESDA publishes training information.']]]]]])]);
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent' => Http::response([
+                'error' => ['message' => 'Rate limit reached'],
+            ], 429),
+            'generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent' => Http::response([
+                'candidates' => [[
+                    'content' => ['parts' => [['text' => 'I found a current listing from the official job portal.']]],
+                    'groundingMetadata' => ['groundingChunks' => [[
+                        'web' => ['title' => 'Official job portal', 'uri' => 'https://example.test/jobs'],
+                    ]]],
+                ]],
+            ]),
+        ]);
         $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
-            'messages' => [['role' => 'user', 'text' => 'Find the official TESDA website.']],
+            'messages' => [['role' => 'user', 'text' => 'Find current job openings near Bugalon.']],
         ])->assertOk()
-            ->assertJsonPath('sources', [])
-            ->assertJsonPath('reply', "Live web search or link retrieval is unavailable right now, so I cannot verify current details or links.\n\nTESDA publishes training information.");
+            ->assertJsonPath('reply', 'I found a current listing from the official job portal.')
+            ->assertJsonPath('sources.0.url', 'https://example.test/jobs');
 
         Http::assertSentCount(2);
-        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Live web search and URL retrieval are unavailable'));
+        Http::assertSent(fn (Request $request): bool => str_contains(
+            $request->url(),
+            '/models/gemini-3.5-flash-lite:generateContent',
+        ) && array_key_exists('google_search', $request->data()['tools'][0] ?? []));
+        Http::assertSent(fn (Request $request): bool => str_contains(
+            $request->url(),
+            '/models/gemini-3.6-flash:generateContent',
+        ) && array_key_exists('google_search', $request->data()['tools'][0] ?? []));
+        $this->assertDatabaseCount('career_chat_messages', 2);
+    }
+
+    public function test_chat_returns_a_safe_notice_when_all_search_models_are_rate_limited(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        config()->set('services.google.gemini_chat_web_search', true);
+        config()->set('services.google.gemini_model', 'gemini-3.5-flash-lite');
+        config()->set('services.google.gemini_fallback_model', 'gemini-3.5-flash-lite');
+        Http::preventStrayRequests();
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent' => Http::response([
+                'error' => ['message' => 'Search quota exhausted'],
+            ], 429),
+        ]);
+        $user = $this->createYouth();
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Find current job openings near Bugalon.']],
+        ])->assertOk()
+            ->assertJsonPath('sources', [])
+            ->assertJsonPath('reply', 'Live web search is temporarily unavailable, so I can’t verify current details or provide sourced links right now. I won’t guess which employers are hiring. Please try again later or share a public page URL for me to review.');
+
+        Http::assertSentCount(1);
+        Http::assertSent(fn (Request $request): bool => array_key_exists('google_search', $request->data()['tools'][0] ?? []));
         $this->assertDatabaseCount('career_chat_messages', 2);
     }
 
@@ -200,6 +243,53 @@ class CareerChatControllerTest extends TestCase
         Http::assertSent(fn (Request $request): bool => array_key_exists('url_context', $request->data()['tools'][0] ?? [])
             && ! array_key_exists('google_search', $request->data()['tools'][0] ?? [])
         );
+    }
+
+    public function test_chat_can_follow_up_on_a_link_from_the_previous_user_message(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        config()->set('services.google.gemini_model', 'gemini-3.5-flash-lite');
+        config()->set('services.google.gemini_fallback_model', 'gemini-3.5-flash-lite');
+        config()->set('services.google.gemini_chat_web_search', true);
+        config()->set('services.google.gemini_chat_url_context', true);
+        Http::preventStrayRequests();
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::sequence()
+                ->push(['candidates' => [['content' => ['parts' => [['text' => 'I can help review that repository.']]]]]])
+                ->push([
+                    'candidates' => [[
+                        'content' => ['parts' => [['text' => 'The repository contains the Laravel framework.']]],
+                        'urlContextMetadata' => ['urlMetadata' => [[
+                            'retrievedUrl' => 'https://github.com/laravel/framework',
+                            'urlRetrievalStatus' => 'URL_RETRIEVAL_STATUS_SUCCESS',
+                        ]]],
+                    ]],
+                ]),
+        ]);
+        $user = $this->createYouth();
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [[
+                'role' => 'user',
+                'text' => 'Explain this repository: https://github.com/laravel/framework',
+            ]],
+        ])->assertOk();
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Can you summarize that page?']],
+        ])->assertOk()
+            ->assertJsonPath('reply', 'The repository contains the Laravel framework.')
+            ->assertJsonPath('sources.0.url', 'https://github.com/laravel/framework');
+
+        Http::assertSentCount(2);
+        Http::assertSent(function (Request $request): bool {
+            $contents = json_encode($request->data()['contents'], JSON_UNESCAPED_SLASHES);
+
+            return array_key_exists('url_context', $request->data()['tools'][0] ?? [])
+                && is_string($contents)
+                && str_contains($contents, 'Can you summarize that page?')
+                && str_contains($contents, 'https://github.com/laravel/framework');
+        });
     }
 
     public function test_peso_job_questions_use_limited_context_from_the_latest_resume_scan(): void

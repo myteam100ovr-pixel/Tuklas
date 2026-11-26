@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
@@ -97,12 +98,8 @@ class GeminiCareerAssistant
         $lastStatus = 0;
         $quotaExceeded = false;
         $lastMessage = 'Gemini could not reply.';
-        $searchUnavailable = false;
-        $lastCandidate = $model;
 
         foreach ($models as $candidate) {
-            $lastCandidate = $candidate;
-
             try {
                 $candidateResponse = Http::withHeaders(['x-goog-api-key' => $apiKey])
                     ->connectTimeout(5)
@@ -133,7 +130,7 @@ class GeminiCareerAssistant
                     $candidateResponse->throw();
                 }
 
-                if (! in_array($candidateResponse->status(), [404, 500, 502, 503, 504], true)) {
+                if ($tools === [] && in_array($candidateResponse->status(), [400, 429], true)) {
                     break;
                 }
             } catch (ConnectionException $exception) {
@@ -145,38 +142,21 @@ class GeminiCareerAssistant
             }
         }
 
-        if ($response === null && $tools !== []
-            && in_array($lastStatus, [400, 403, 429], true)) {
-            $fallbackBody = $requestBody;
-            unset($fallbackBody['tools']);
-            $fallbackInstructions = $useGoogleSearch
-                ? 'Live web search and URL retrieval are unavailable for this reply. Answer only from general knowledge and the conversation. Do not claim to have searched, opened a page, or verified current details. Do not invent links, vacancies, schedules, prices, or availability.'
-                : 'URL retrieval is unavailable for this reply. Answer only from general knowledge and the conversation. Do not claim to have opened the user’s link or verified its contents. Do not invent links, vacancies, schedules, prices, or availability.';
-            $fallbackBody['systemInstruction']['parts'][0]['text'] = str_replace(
-                $webInstructions,
-                $fallbackInstructions,
-                $fallbackBody['systemInstruction']['parts'][0]['text'],
-            );
+        if ($response === null && $tools !== [] && in_array($lastStatus, [400, 429], true)) {
+            Log::warning('Gemini chat web tools were unavailable.', [
+                'status' => $lastStatus,
+                'models' => $models,
+                'google_search' => $useGoogleSearch,
+                'url_context' => $urlsToFetch !== [],
+            ]);
 
-            try {
-                $fallbackResponse = Http::withHeaders(['x-goog-api-key' => $apiKey])
-                    ->connectTimeout(5)
-                    ->timeout(25)
-                    ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($lastCandidate).':generateContent', $fallbackBody);
+            $reply = match (true) {
+                $urlsToFetch !== [] && $useGoogleSearch => 'I couldn’t retrieve that page or complete a web search right now. I can’t verify current details or links, so I won’t guess. Please try again later or paste the relevant text.',
+                $urlsToFetch !== [] => 'I couldn’t retrieve that page. It may require sign-in, be blocked from public retrieval, or use an unsupported format. Paste the relevant text or share another publicly accessible page and I’ll help.',
+                default => 'Live web search is temporarily unavailable, so I can’t verify current details or provide sourced links right now. I won’t guess which employers are hiring. Please try again later or share a public page URL for me to review.',
+            };
 
-                if ($fallbackResponse->successful()) {
-                    $response = $fallbackResponse;
-                    $searchUnavailable = true;
-                } else {
-                    $lastStatus = $fallbackResponse->status();
-                    $lastMessage = (string) data_get($fallbackResponse->json(), 'error.message', $lastMessage);
-                    $quotaExceeded = $lastStatus === 429;
-                }
-            } catch (ConnectionException $exception) {
-                $lastException = $exception;
-                $lastStatus = 0;
-                $lastMessage = 'Gemini did not respond in time.';
-            }
+            return ['reply' => $reply, 'sources' => []];
         }
 
         if ($response === null) {
@@ -220,10 +200,8 @@ class GeminiCareerAssistant
             ->all();
 
         return [
-            'reply' => $searchUnavailable
-            ? "Live web search or link retrieval is unavailable right now, so I cannot verify current details or links.\n\n".trim($reply)
-                : trim($reply),
-            'sources' => $searchUnavailable ? [] : $sources,
+            'reply' => trim($reply),
+            'sources' => $sources,
         ];
     }
 
@@ -290,17 +268,28 @@ class GeminiCareerAssistant
             return [];
         }
 
-        $latestUserMessage = collect($messages)
+        $userMessages = collect($messages)
             ->where('role', 'user')
-            ->last();
+            ->values();
+        $latestUserMessage = $userMessages->last();
 
         if (! is_array($latestUserMessage)) {
             return [];
         }
 
-        preg_match_all('~https?://[^\s<>"\']+~i', $latestUserMessage['text'], $matches);
+        $messagesToSearch = collect([$latestUserMessage]);
+        $referencesPreviousLink = '/\b(?:this|that|these|those|above|previous|same)\s+(?:link|page|site|website|url|repository|repo|article|document)\b|\b(?:open|read|fetch|summari[sz]e|explain|review|analy[sz]e|check)\s+(?:it|that|this)\b|\bwhat\s+(?:does|did)\s+(?:it|that)\s+say\b/i';
 
-        return collect($matches[0] ?? [])
+        if (preg_match($referencesPreviousLink, $latestUserMessage['text']) === 1) {
+            $messagesToSearch = $userMessages->slice(-3);
+        }
+
+        return $messagesToSearch
+            ->flatMap(function (array $message): array {
+                preg_match_all('~https?://[^\s<>"\']+~i', $message['text'], $matches);
+
+                return $matches[0] ?? [];
+            })
             ->map(fn (string $url): string => rtrim($url, '.,!?;:)\']}'))
             ->filter(fn (string $url): bool => in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true))
             ->unique()
