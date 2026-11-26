@@ -1,6 +1,18 @@
 [
     {
         "date": "2026-11-26",
+        "published_at": "2026-11-26T18:32:17+08:00",
+        "version": "Mobile update",
+        "title": "Easier scanner access and career matches",
+        "items": [
+            "Career Seekers and Admin can open Document Scanner from the main mobile navigation after the Career Seeker completes the required skills assessment.",
+            "Follow numbered steps to choose or capture a document, add an optional career goal, review consent, scan, and check suggested next steps.",
+            "PESO job matches show the role and documented-skill coverage first; expand a match to read its supporting skills, evidence, and learning resources.",
+            "Mobile text uses an explicit no-underline default to prevent inherited text decoration from affecting the interface."
+        ]
+    },
+    {
+        "date": "2026-11-26",
         "published_at": "2026-11-26T12:00:00+08:00",
         "version": "1.0.13+14",
         "title": "Mobile layout update",

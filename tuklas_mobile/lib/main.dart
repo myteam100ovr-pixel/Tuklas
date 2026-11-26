@@ -58,7 +58,10 @@ class TuklasApp extends StatelessWidget {
                 motionController.enabled ||
                 MediaQuery.of(context).disableAnimations,
           ),
-          child: child ?? const SizedBox.shrink(),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(decoration: TextDecoration.none),
+            child: child ?? const SizedBox.shrink(),
+          ),
         ),
         home: const AppUpdateWatcher(child: FirstLaunch(child: Gate())),
       ),

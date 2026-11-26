@@ -177,14 +177,13 @@ class _PesoViewState extends State<PesoView> {
   Widget _recommendation(BuildContext context, dynamic item) {
     final value = asMap(item);
     final title = value['title'] ?? value['name'] ?? item;
-    final details = [
-      if (value['skillCoverage'] is Map)
-        '${value['skillCoverage']['percent']}% documented skill coverage (${value['skillCoverage']['matched']} of ${value['skillCoverage']['total']} listed skills)',
+    final coverage = asMap(value['skillCoverage']);
+    final details = <String>[
       if (asList(value['evidencedSkills']).isNotEmpty)
-        'Documented: ${asList(value['evidencedSkills']).join(', ')}',
+        'Documented skills: ${asList(value['evidencedSkills']).join(', ')}',
       if (asList(value['skillsToDevelop']).isNotEmpty)
-        'To develop: ${asList(value['skillsToDevelop']).join(', ')}',
-      if (value['reason'] != null) '${value['reason']}',
+        'Skills to build: ${asList(value['skillsToDevelop']).join(', ')}',
+      if (value['reason'] != null) 'Why it may fit: ${value['reason']}',
       if (value['description'] != null) '${value['description']}',
       if (value['evidence'] != null) 'Evidence: ${value['evidence']}',
     ];
@@ -195,46 +194,92 @@ class _PesoViewState extends State<PesoView> {
         : null;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 3, bottom: 3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('• $title', style: tkText(context, size: 13)),
-          for (final detail in details)
-            Padding(
-              padding: const EdgeInsets.only(left: 12, top: 2),
-              child: Text(
-                detail,
-                style: tkText(
-                  context,
-                  size: 12,
-                  color: TkColors.of(context).muted,
+      padding: const EdgeInsets.only(top: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: TkColors.of(context).surface2,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: TkColors.of(context).line),
+        ),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          shape: const RoundedRectangleBorder(),
+          collapsedShape: const RoundedRectangleBorder(),
+          title: Text(
+            '$title',
+            style: tkText(context, size: 13.5, weight: 500),
+          ),
+          subtitle: Text(
+            coverage.isEmpty
+                ? 'Tap to view details and next steps'
+                : '${coverage['percent']}% documented skill coverage · '
+                      '${coverage['matched']} of ${coverage['total']} listed skills',
+            style: tkText(
+              context,
+              size: 11.5,
+              color: TkColors.of(context).muted,
+            ),
+          ),
+          children: [
+            if (details.isEmpty && safeUri == null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'No additional match details are available.',
+                    style: tkText(
+                      context,
+                      size: 12,
+                      color: TkColors.of(context).muted,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          if (safeUri != null)
-            TextButton.icon(
-              onPressed: () async {
-                final opened = await launchUrl(
-                  safeUri,
-                  mode: LaunchMode.externalApplication,
-                );
-                if (!opened && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Could not open this resource.'),
+            for (final detail in details)
+              Padding(
+                padding: const EdgeInsets.only(top: 7),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    detail,
+                    style: tkText(
+                      context,
+                      size: 12,
+                      color: TkColors.of(context).muted,
+                      height: 1.4,
                     ),
-                  );
-                }
-              },
-              icon: const Icon(Icons.open_in_new, size: 14),
-              label: const Text('Open resource'),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                visualDensity: VisualDensity.compact,
+                  ),
+                ),
               ),
-            ),
-        ],
+            if (safeUri != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () async {
+                    final opened = await launchUrl(
+                      safeUri,
+                      mode: LaunchMode.externalApplication,
+                    );
+                    if (!opened && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Could not open this resource.'),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 14),
+                  label: const Text('Open resource'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

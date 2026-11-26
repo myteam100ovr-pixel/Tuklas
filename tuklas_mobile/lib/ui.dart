@@ -296,6 +296,11 @@ class TkBottomNavigation extends StatelessWidget {
             ('Jobs', Icons.work_outline, Icons.work),
             ('Training', Icons.school_outlined, Icons.school),
             ('Inbox', Icons.forum_outlined, Icons.forum),
+            (
+              'Scanner',
+              Icons.document_scanner_outlined,
+              Icons.document_scanner,
+            ),
             ('More', Icons.grid_view_outlined, Icons.grid_view),
           ];
 

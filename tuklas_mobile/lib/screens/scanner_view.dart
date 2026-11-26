@@ -331,6 +331,61 @@ class _ScannerViewState extends State<ScannerView> {
     if (mounted) setState(() => _scanning = false);
   }
 
+  Widget _scanStep(
+    BuildContext context,
+    int number,
+    String title,
+    String detail,
+  ) {
+    final colors = TkColors.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: TkColors.violet.withValues(alpha: .12),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '$number',
+              style: tkText(
+                context,
+                size: 12,
+                weight: 600,
+                color: colors.taskMeta,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: tkText(context, size: 13.5, weight: 500)),
+                const SizedBox(height: 2),
+                Text(
+                  detail,
+                  style: tkText(
+                    context,
+                    size: 12,
+                    color: colors.muted,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = TkColors.of(context);
@@ -353,6 +408,43 @@ class _ScannerViewState extends State<ScannerView> {
                   style: tkText(context, size: 15, color: colors.muted),
                 ),
                 const SizedBox(height: 18),
+                TkCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'How to use the scanner',
+                        style: tkText(context, size: 15, weight: 500),
+                      ),
+                      _scanStep(
+                        context,
+                        1,
+                        'Choose your document',
+                        'Select a resume, certificate, or training document, or take a clear photo.',
+                      ),
+                      _scanStep(
+                        context,
+                        2,
+                        'Add a goal if you want',
+                        'Tell Gemini what you are aiming for, such as a job or TESDA course.',
+                      ),
+                      _scanStep(
+                        context,
+                        3,
+                        'Review and agree',
+                        'Check the selected files and consent before they are sent for analysis.',
+                      ),
+                      _scanStep(
+                        context,
+                        4,
+                        'Scan, then review your next steps',
+                        'Check suggested jobs, skills to build, and learning resources. Confirm important details with the provider.',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
                 TkCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

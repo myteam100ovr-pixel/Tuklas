@@ -142,23 +142,17 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     ('admin', 1) => ['Openings', 'PESO AI', 'Applications'],
     ('admin', 2) => ['Centers', 'Trainers', 'Dates', 'Requests', 'Results'],
     ('admin', 3) => ['Messages', 'Notifications'],
-    ('admin', 4) => [
+    ('admin', 5) => [
       'Users',
       'Career paths',
       'Scholarships',
       'Course catalog',
-      'Document Scanner',
       'TuklasBot',
       'Profile',
       'Account & security',
       'Patch Notes',
     ],
-    ('youth', 1) => [
-      'Find jobs',
-      'PESO AI',
-      'Career paths',
-      'Document Scanner',
-    ],
+    ('youth', 1) => ['Find jobs', 'PESO AI', 'Career paths'],
     ('youth', 2) => [
       'Courses',
       'Scholarships',
@@ -170,7 +164,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       'Training plans',
     ],
     ('youth', 3) => ['Messages', 'Notifications'],
-    ('youth', 4) => [
+    ('youth', 5) => [
       'Profile',
       'TuklasBot',
       'Account & security',
@@ -199,11 +193,11 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     ('admin', 1) => 'Openings',
     ('admin', 2) => 'Centers',
     ('admin', 3) => 'Messages',
-    ('admin', 4) => 'Users',
+    ('admin', 5) => 'Users',
     ('youth', 1) => 'Find jobs',
     ('youth', 2) => 'Courses',
     ('youth', 3) => 'Messages',
-    ('youth', 4) => 'Profile',
+    ('youth', 5) => 'Profile',
     ('tesda_admin', 1) => 'Centers',
     ('tesda_admin', 2) => 'Course catalog',
     ('tesda_admin', 3) => 'Messages',
@@ -221,6 +215,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         onOpenTesda: () => _openWorkspace('Course catalog'),
         onLogout: _logout,
         onOpenWorkspace: _openWorkspace,
+      );
+    }
+    if ((_role == 'admin' || _role == 'youth') && _tab == 4) {
+      return ScannerView(
+        key: const ValueKey('scanner'),
+        onScanComplete: _handleScanComplete,
       );
     }
     final item = _activeGroupItem ?? _defaultGroupItem;
