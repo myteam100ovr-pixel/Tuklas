@@ -211,7 +211,7 @@ if (scanner) {
     const renderSelected = () => {
         selectedList.replaceChildren();
 
-        selectedFiles.forEach((file) => {
+        selectedFiles.forEach((file, index) => {
             const item = document.createElement('div');
             item.className = 'document-scanner__file';
 
@@ -221,7 +221,44 @@ if (scanner) {
             const size = document.createElement('small');
             size.textContent = formatSize(file.size);
 
-            item.append(name, size);
+            const details = document.createElement('div');
+            details.className = 'document-scanner__file-details';
+            details.append(name, size);
+
+            const actions = document.createElement('div');
+            actions.className = 'document-scanner__file-actions';
+
+            const replaceButton = document.createElement('button');
+            replaceButton.type = 'button';
+            replaceButton.textContent = 'Replace';
+            replaceButton.setAttribute('aria-label', `Replace ${file.name}`);
+            replaceButton.disabled = isScanning;
+            replaceButton.addEventListener('click', () => {
+                const replacementInput = input.cloneNode();
+                replacementInput.multiple = false;
+                replacementInput.value = '';
+                replacementInput.addEventListener('change', () => {
+                    setFiles(replacementInput.files, { replaceIndex: index });
+                    replacementInput.remove();
+                }, { once: true });
+                replacementInput.addEventListener('cancel', () => replacementInput.remove(), { once: true });
+                input.insertAdjacentElement('afterend', replacementInput);
+                replacementInput.click();
+            });
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = 'Remove';
+            removeButton.setAttribute('aria-label', `Remove ${file.name}`);
+            removeButton.disabled = isScanning;
+            removeButton.addEventListener('click', () => {
+                selectedFiles = selectedFiles.filter((_, fileIndex) => fileIndex !== index);
+                renderSelected();
+                setStatus(`${file.name} removed from the scan list.`);
+            });
+
+            actions.append(replaceButton, removeButton);
+            item.append(details, actions);
             selectedList.append(item);
         });
 
@@ -289,8 +326,9 @@ if (scanner) {
         }
     };
 
-    const setFiles = (files, { replace = false } = {}) => {
+    const setFiles = (files, { replace = false, replaceIndex = null } = {}) => {
         const received = Array.from(files);
+        if (received.length === 0) return;
 
         const invalid = received.find((file) => {
             const extension = file.name.split('.').pop()?.toLowerCase();
@@ -300,6 +338,21 @@ if (scanner) {
         if (invalid) {
             setStatus(`${invalid.name} is too large or uses an unsupported format.`, 'error');
             input.value = '';
+            return;
+        }
+
+        if (replaceIndex !== null && selectedFiles[replaceIndex]) {
+            const duplicate = selectedFiles.some((file, index) =>
+                index !== replaceIndex && file.name === received[0].name && file.size === received[0].size && file.lastModified === received[0].lastModified,
+            );
+            if (duplicate) {
+                setStatus('That file is already in the scan list.', 'error');
+                return;
+            }
+            selectedFiles = [...selectedFiles];
+            selectedFiles[replaceIndex] = received[0];
+            renderSelected();
+            setStatus(`${received[0].name} is ready to scan.`);
             return;
         }
 

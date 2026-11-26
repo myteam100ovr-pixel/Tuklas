@@ -105,7 +105,55 @@ class _ScannerViewState extends State<ScannerView> {
     });
   }
 
-  Future<void> _useCapturedPhoto(XFile photo) async {
+  Future<void> _replaceDocument(int index) async {
+    setState(() => _error = null);
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['pdf', 'docx', 'jpg', 'jpeg', 'png', 'webp'],
+        allowMultiple: false,
+        withData: true,
+      );
+      if (!mounted || result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      if (file.size > 10 * 1024 * 1024 || file.bytes == null) {
+        setState(
+          () => _error = file.size > 10 * 1024 * 1024
+              ? '${file.name} is over 10 MB.'
+              : '${file.name} could not be read. Please choose it again.',
+        );
+        return;
+      }
+      final duplicate = _selectedFiles.asMap().entries.any(
+        (entry) =>
+            entry.key != index &&
+            ((entry.value.name == file.name && entry.value.size == file.size) ||
+                (entry.value.bytes != null &&
+                    listEquals(entry.value.bytes, file.bytes))),
+      );
+      if (duplicate) {
+        setState(() => _error = 'That file is already in the scan list.');
+        return;
+      }
+      setState(() {
+        if (index < _selectedFiles.length) {
+          _selectedFiles[index] = file;
+        }
+        _error = null;
+      });
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () => _error = _isPermissionDenied(error)
+              ? 'File access was denied. Allow access and try again.'
+              : 'Could not open your files. Please try again.',
+        );
+      }
+    }
+  }
+
+  Future<void> _useCapturedPhoto(XFile photo, {int? replaceIndex}) async {
     try {
       final bytes = await photo.readAsBytes();
       if (!mounted) {
@@ -120,25 +168,30 @@ class _ScannerViewState extends State<ScannerView> {
       }
 
       setState(() {
-        if (_selectedFiles.length >= 5) {
+        if (replaceIndex == null && _selectedFiles.length >= 5) {
           _error = 'Up to five files can be scanned at a time.';
           return;
         }
-        if (_selectedFiles.any(
-          (selected) =>
-              selected.bytes != null && listEquals(selected.bytes, bytes),
-        )) {
+        final isDuplicate = _selectedFiles.indexed.any(
+          (entry) =>
+              entry.$1 != replaceIndex &&
+              entry.$2.bytes != null &&
+              listEquals(entry.$2.bytes, bytes),
+        );
+        if (isDuplicate) {
           _error = 'This exact photo is already in your scan list.';
           return;
         }
-        _selectedFiles.add(
-          PlatformFile(
-            name:
-                'camera-document-${DateTime.now().millisecondsSinceEpoch}.jpg',
-            size: bytes.length,
-            bytes: bytes,
-          ),
+        final capturedFile = PlatformFile(
+          name: 'camera-document-${DateTime.now().millisecondsSinceEpoch}.jpg',
+          size: bytes.length,
+          bytes: bytes,
         );
+        if (replaceIndex != null && replaceIndex < _selectedFiles.length) {
+          _selectedFiles[replaceIndex] = capturedFile;
+        } else {
+          _selectedFiles.add(capturedFile);
+        }
         _error = null;
       });
     } catch (_) {
@@ -153,7 +206,7 @@ class _ScannerViewState extends State<ScannerView> {
     }
   }
 
-  Future<void> _takeDocumentPhoto() async {
+  Future<void> _takeDocumentPhoto({int? replaceIndex}) async {
     setState(() => _error = null);
     try {
       final photo = await _imagePicker.pickImage(
@@ -164,7 +217,7 @@ class _ScannerViewState extends State<ScannerView> {
         maxHeight: 4000,
       );
       if (photo != null) {
-        await _useCapturedPhoto(photo);
+        await _useCapturedPhoto(photo, replaceIndex: replaceIndex);
       } else {
         await _recordOutcome('canceled', 'Camera capture');
         _showToast('Camera capture canceled.');
@@ -197,6 +250,66 @@ class _ScannerViewState extends State<ScannerView> {
     } catch (_) {
       // Keep local feedback visible if notification sync is offline.
     }
+  }
+
+  Widget _selectedFileTile(int index) {
+    final file = _selectedFiles[index];
+    final isImage = RegExp(
+      r'\.(jpg|jpeg|png|webp)$',
+      caseSensitive: false,
+    ).hasMatch(file.name);
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: isImage && file.bytes != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                file.bytes!,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+              ),
+            )
+          : const Icon(Icons.description_outlined),
+      title: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text('${(file.size / (1024 * 1024)).toStringAsFixed(1)} MB'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PopupMenuButton<String>(
+            tooltip: 'Replace ${file.name}',
+            enabled: !_scanning,
+            onSelected: (choice) {
+              if (choice == 'camera') {
+                _takeDocumentPhoto(replaceIndex: index);
+              } else {
+                _replaceDocument(index);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'file',
+                child: Text('Choose replacement file or picture'),
+              ),
+              if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+                const PopupMenuItem(
+                  value: 'camera',
+                  child: Text('Take replacement photo'),
+                ),
+            ],
+            icon: const Icon(Icons.edit_outlined),
+          ),
+          IconButton(
+            tooltip: 'Remove ${file.name}',
+            onPressed: _scanning
+                ? null
+                : () => setState(() => _selectedFiles.removeAt(index)),
+            icon: const Icon(Icons.close),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showToast(String message, {bool isError = false}) {
@@ -514,43 +627,12 @@ class _ScannerViewState extends State<ScannerView> {
                       ],
                       if (_selectedFiles.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        for (final file in _selectedFiles)
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading:
-                                file.bytes != null &&
-                                    RegExp(
-                                      r'\.(jpg|jpeg|png|webp)$',
-                                      caseSensitive: false,
-                                    ).hasMatch(file.name)
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.memory(
-                                      file.bytes!,
-                                      width: 48,
-                                      height: 48,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : const Icon(Icons.picture_as_pdf_outlined),
-                            title: Text(
-                              file.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: Text(
-                              '${(file.size / (1024 * 1024)).toStringAsFixed(1)} MB',
-                            ),
-                            trailing: IconButton(
-                              tooltip: 'Remove ${file.name}',
-                              onPressed: _scanning
-                                  ? null
-                                  : () => setState(
-                                      () => _selectedFiles.remove(file),
-                                    ),
-                              icon: const Icon(Icons.close),
-                            ),
-                          ),
+                        for (
+                          var index = 0;
+                          index < _selectedFiles.length;
+                          index++
+                        )
+                          _selectedFileTile(index),
                       ],
                       const SizedBox(height: 6),
                       Text(
