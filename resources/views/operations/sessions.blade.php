@@ -32,7 +32,7 @@
                 @endif
                 <p>{{ $session->accepted_count }} of {{ $session->capacity }} places accepted</p>
                 @if (auth()->user()->hasRole(\App\Enums\Role::Youth) && $session->accepted_count < $session->capacity)
-                    <form method="POST" action="{{ route('applications.store', $session) }}">@csrf<button type="submit">Request a place</button></form>
+                    <form method="POST" action="{{ route('applications.store', $session) }}">@csrf<button type="submit">Request course</button></form>
                 @endif
                 @if ($canManage)
                     <details>

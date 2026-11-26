@@ -86,7 +86,7 @@ class _FirstLaunchState extends State<FirstLaunch> {
                             'Tuklas.',
                             style: tkText(
                               context,
-                              size: 34,
+                              size: 33,
                               weight: 700,
                               spacing: -1.8,
                             ),

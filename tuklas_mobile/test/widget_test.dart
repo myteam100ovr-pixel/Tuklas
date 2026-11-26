@@ -22,7 +22,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
 
-    expect(find.text('tuklas'), findsOneWidget);
+    expect(find.text('Tuklas'), findsOneWidget);
     expect(find.text('Email'), findsOneWidget);
     expect(find.text('Password'), findsOneWidget);
     expect(find.text('Log in'), findsOneWidget);
@@ -53,7 +53,7 @@ void main() {
       MaterialApp(home: Gate(checkSignedIn: () => startupCheck.future)),
     );
 
-    expect(find.text('tuklas'), findsOneWidget);
+    expect(find.text('Tuklas'), findsOneWidget);
     expect(find.text('Getting things ready'), findsNothing);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
@@ -160,7 +160,14 @@ void main() {
         IconTheme.of(tester.element(find.byIcon(Icons.dashboard))).color,
         Colors.white,
       );
-      for (final label in ['Home', 'Jobs', 'Training', 'Inbox', 'More']) {
+      for (final label in [
+        'Home',
+        'Jobs',
+        'Training',
+        'Inbox',
+        'Scanner',
+        'More',
+      ]) {
         expect(find.text(label), findsOneWidget);
       }
       expect(find.byIcon(Icons.work_outline), findsOneWidget);
@@ -199,7 +206,7 @@ void main() {
     expect(topDecoration.color, bottomDecoration.color);
   });
 
-  testWidgets('bottom navigation exposes five role grouped destinations', (
+  testWidgets('bottom navigation exposes six role grouped destinations', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -216,12 +223,13 @@ void main() {
     final destinations = tester
         .widgetList<NavigationDestination>(find.byType(NavigationDestination))
         .toList();
-    expect(destinations.length, 5);
+    expect(destinations.length, 6);
     expect(destinations.map((destination) => destination.label).toList(), [
       'Home',
       'Jobs',
       'Training',
       'Inbox',
+      'Scanner',
       'More',
     ]);
     expect(destinations.map((destination) => destination.tooltip).toList(), [
@@ -229,6 +237,7 @@ void main() {
       'Jobs',
       'Training',
       'Inbox',
+      'Scanner',
       'More',
     ]);
     final selection = tester.widget<NavigationBar>(find.byType(NavigationBar));
@@ -251,7 +260,7 @@ void main() {
     );
 
     await tester.tap(find.byTooltip('More'));
-    expect(selectedIndex, 4);
+    expect(selectedIndex, 5);
   });
 
   testWidgets('profile page provides a working Log out button', (

@@ -92,7 +92,7 @@
                                         @else
                                             <form method="POST" action="{{ route('applications.store', $session) }}">
                                                 @csrf
-                                                <button type="submit">Request a place</button>
+                                                <button type="submit">Request course</button>
                                             </form>
                                         @endif
                                     </div>

@@ -1695,7 +1695,7 @@ class _OperationsViewState extends State<OperationsView> {
                               : () => _action(
                                   '/training-sessions/${item['id']}/apply',
                                 ),
-                          child: const Text('Request a place'),
+                          child: const Text('Request course'),
                         ),
                       if (widget.section == 'Scholarships' &&
                           _role == 'youth' &&

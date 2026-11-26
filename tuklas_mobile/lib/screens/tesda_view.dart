@@ -941,7 +941,7 @@ class _TesdaViewState extends State<TesdaView> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.send_outlined, size: 16),
-              label: Text(isApplying ? 'Sending request…' : 'Request a place'),
+              label: Text(isApplying ? 'Sending request…' : 'Request course'),
             ),
         ],
       ),

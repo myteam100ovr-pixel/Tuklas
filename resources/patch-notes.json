@@ -1,6 +1,18 @@
 [
     {
         "date": "2026-11-26",
+        "published_at": "2026-11-26T23:38:21+08:00",
+        "version": "1.0.16+17",
+        "title": "Clearer course requests and mobile navigation",
+        "items": [
+            "Course request buttons now say Request course; the selected training center and location stay visible with each course.",
+            "Mobile grouped navigation switches content in place instead of opening an extra screen.",
+            "Mobile controls, dropdowns, dialogs, and tabs use the Tuklas theme and responsive sizing.",
+            "TESDA schedules now show assigned trainers and can generate the exact course duration in editable dates, with weekend and non-working-day options."
+        ]
+    },
+    {
+        "date": "2026-11-26",
         "published_at": "2026-11-26T19:44:53+08:00",
         "version": "Brand update",
         "title": "Updated Tuklas logo across web and mobile",
