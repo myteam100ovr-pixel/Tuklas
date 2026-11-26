@@ -37,7 +37,7 @@ class CareerChatController
     ): JsonResponse {
         if (! $assistant->isConfigured()) {
             return response()->json([
-                'message' => 'AI chat is not configured yet. Add GOOGLE_AI_API_KEY to the server environment.',
+                'message' => 'TuklasBot is temporarily unavailable. Please tell a Tuklas administrator.',
             ], 503);
         }
 
@@ -83,10 +83,10 @@ class CareerChatController
 
             return response()->json([
                 'message' => match ($providerStatus) {
-                    429 => 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.',
+                    429 => 'TuklasBot has reached its current Google AI usage limit. Please try again later. If this continues, tell a Tuklas administrator.',
                     500, 502, 503, 504 => 'Gemini is temporarily busy. Please try again shortly.',
-                    401, 403 => 'Gemini authentication failed. Ask the administrator to check the server API key.',
-                    404 => 'The configured Gemini model is unavailable. Ask the administrator to check the model configuration.',
+                    401, 403 => 'TuklasBot’s AI connection needs an administrator to check the server setup.',
+                    404 => 'TuklasBot’s AI service is unavailable with the current setup. Please tell a Tuklas administrator.',
                     default => 'Gemini could not reply right now. Please try again.',
                 },
                 'provider_status' => $providerStatus > 0 ? $providerStatus : null,

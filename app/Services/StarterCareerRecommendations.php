@@ -11,9 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class StarterCareerRecommendations
 {
-    public function __construct(private CareerPathSkillMatcher $careerSkillMatcher)
-    {
-    }
+    public function __construct(private CareerPathSkillMatcher $careerSkillMatcher) {}
 
     private const INTEREST_TERMS = [
         'Information technology' => ['computer', 'information technology', 'software', 'network', 'programming', 'digital'],
@@ -29,6 +27,24 @@ class StarterCareerRecommendations
         'Automotive' => ['automotive', 'motorcycle', 'vehicle', 'engine', 'mechanic', 'servicing'],
         'Business and finance' => ['business', 'finance', 'bookkeeping', 'accounting', 'office', 'sales'],
         'Logistics' => ['logistics', 'warehouse', 'supply', 'driving', 'delivery', 'forklift'],
+        'Education and teaching' => ['education', 'teaching', 'trainer', 'training', 'childcare', 'tutor'],
+        'Community and public service' => ['community', 'public service', 'government', 'social work', 'community development'],
+        'Beauty and wellness' => ['beauty', 'wellness', 'hair', 'skin', 'salon', 'massage'],
+        'Sports and fitness' => ['sports', 'fitness', 'physical', 'coaching', 'wellness'],
+        'Environment and sustainability' => ['environment', 'sustainability', 'conservation', 'waste', 'organic', 'agriculture'],
+        'Manufacturing and production' => ['manufacturing', 'production', 'assembly', 'quality', 'welding', 'electronics'],
+        'Transportation and delivery' => ['transportation', 'delivery', 'driving', 'logistics', 'vehicle'],
+        'Events and customer experience' => ['events', 'hospitality', 'tourism', 'customer service', 'food', 'beverage'],
+        'Office and administration' => ['office', 'administration', 'bookkeeping', 'computer', 'data entry', 'business'],
+        'Science and laboratory work' => ['science', 'laboratory', 'medical', 'health', 'research'],
+        'Creative media and communication' => ['creative', 'media', 'design', 'graphics', 'writing', 'communication'],
+        'Marine and fisheries' => ['marine', 'fisheries', 'fish', 'aquaculture', 'agriculture'],
+        'Security and safety' => ['security', 'safety', 'first aid', 'health', 'construction'],
+        'Fashion and garment making' => ['fashion', 'dressmaking', 'sewing', 'textile', 'design'],
+        'Retail and customer service' => ['retail', 'sales', 'customer service', 'cashier', 'business'],
+        'Animal care' => ['animal', 'livestock', 'agriculture', 'caregiving'],
+        'Plumbing and building services' => ['plumbing', 'construction', 'carpentry', 'building'],
+        'Childcare and family support' => ['childcare', 'child care', 'caregiving', 'education', 'health'],
     ];
 
     /** @return array{work: array<int, array<string, mixed>>, careers: array<int, array<string, mixed>>, training: array<int, array<string, mixed>>} */
@@ -204,12 +220,34 @@ class StarterCareerRecommendations
     private function skillTerm(string $skill): string
     {
         return match ($skill) {
-            'Food preparation' => 'cookery',
-            'Customer service' => 'service',
+            'Communication', 'Public speaking' => 'communication',
+            'Customer service' => 'customer service',
+            'Computer literacy' => 'computer',
+            'Food preparation', 'Food safety and hygiene' => 'food',
             'Basic electronics' => 'electronic',
             'Sewing' => 'dressmaking',
-            'Gardening' => 'agriculture',
-            'Caregiving' => 'caregiving',
+            'Gardening', 'Crop production' => 'agriculture',
+            'Bookkeeping', 'Financial record keeping' => 'bookkeeping',
+            'Teamwork' => 'teamwork',
+            'Problem solving', 'Troubleshooting' => 'problem solving',
+            'Writing' => 'writing',
+            'Design and creativity', 'Social media content' => 'design',
+            'Sales' => 'sales',
+            'Repair and maintenance' => 'repair',
+            'Caregiving', 'Child care', 'Animal care' => 'care',
+            'Planning and organization', 'Event coordination' => 'planning',
+            'Time management' => 'schedule',
+            'Basic mathematics and measurement' => 'measurement',
+            'Reading and following procedures' => 'procedure',
+            'Cleaning and sanitation' => 'sanitation',
+            'Inventory tracking' => 'inventory',
+            'Cash handling' => 'cash',
+            'Data entry', 'Typing' => 'data entry',
+            'Carpentry' => 'carpentry',
+            'Welding' => 'welding',
+            'Plumbing' => 'plumbing',
+            'Driving and navigation' => 'driving',
+            'First aid' => 'first aid',
             default => $skill,
         };
     }

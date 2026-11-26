@@ -129,7 +129,8 @@ class GeminiCareerAssistant
             }
         }
 
-        if ($response === null && $tools !== [] && in_array($lastStatus, [400, 429], true)) {
+        if ($response === null && $tools !== []
+            && in_array($lastStatus, [400, 403, 429], true)) {
             $fallbackBody = $requestBody;
             unset($fallbackBody['tools']);
             $fallbackInstructions = $useGoogleSearch

@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 import '../date_format.dart';
+import '../theme.dart';
 import '../ui.dart';
 import '../workspace_realtime.dart';
 import 'workspace_form.dart';
@@ -28,6 +30,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   Map<String, dynamic>? _data;
   String? _error;
   bool _busy = false, _deleted = false;
+  bool _showingAssessmentWalkthrough = false;
   int _page = 1;
   int? _target;
   String _search = '';
@@ -96,10 +99,17 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           final assessmentPreferences = asMap(
             profile['assessment_preferences'],
           );
-          _assessment['skills'] = List<String>.from(
+          final selectedSkills = List<String>.from(
             asList(assessmentPreferences['assessment_skills'])
                 .where((skill) => asList(result['skills']).contains(skill)),
           );
+          final noPriorExperienceOption =
+              '${result['noPriorExperienceOption'] ?? ''}';
+          if (assessmentPreferences['no_prior_experience'] == true &&
+              noPriorExperienceOption.isNotEmpty) {
+            selectedSkills.add(noPriorExperienceOption);
+          }
+          _assessment['skills'] = selectedSkills;
           _assessment['interests'] = List<String>.from(
             asList(profile['interests']),
           );
@@ -116,6 +126,85 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+    if (widget.section == 'Skills assessment' && _data != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_maybeShowAssessmentWalkthrough());
+      });
+    }
+  }
+
+  Future<void> _maybeShowAssessmentWalkthrough() async {
+    if (_showingAssessmentWalkthrough ||
+        widget.section != 'Skills assessment') {
+      return;
+    }
+    final userId = ApiClient.instance.user?['id'] ?? 'user';
+    final key = 'tuklas-assessment-walkthrough-v1-$userId';
+    final preferences = await SharedPreferences.getInstance();
+    if (!mounted || preferences.getBool(key) == true) return;
+    _showingAssessmentWalkthrough = true;
+    var step = 0;
+    const steps = [
+      (
+        'Start with a few choices about yourself.',
+        'This is not a test. Your answers help Tuklas suggest directions that fit what you like and what you have tried.',
+      ),
+      (
+        'Choose practiced skills or no prior experience.',
+        'You can begin without a resume or certificate. Select only skills you have actually tried.',
+      ),
+      (
+        'Pick interests and answer each required choice.',
+        'Choose fields you want to explore. Use the flexible or “not sure yet” option if you are still deciding.',
+      ),
+      (
+        'Save to see your matches, then choose a next step.',
+        'Work, career, and training suggestions appear above the questions. Scanning a resume or certificate is optional.',
+      ),
+    ];
+    final completed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, updateDialog) => AlertDialog(
+          icon: const Icon(Icons.auto_awesome_rounded, color: TkColors.violet),
+          title: Text(steps[step].$1),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Step ${step + 1} of ${steps.length}'),
+              const SizedBox(height: 10),
+              Text(steps[step].$2),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Skip walkthrough'),
+            ),
+            if (step > 0)
+              TextButton(
+                onPressed: () => updateDialog(() => step--),
+                child: const Text('Back'),
+              ),
+            FilledButton(
+              onPressed: () {
+                if (step == steps.length - 1) {
+                  Navigator.pop(dialogContext, true);
+                } else {
+                  updateDialog(() => step++);
+                }
+              },
+              child: Text(step == steps.length - 1 ? 'Let’s begin' : 'Next'),
+            ),
+          ],
+        ),
+      ),
+    );
+    _showingAssessmentWalkthrough = false;
+    if (!mounted) return;
+    if (completed == true) await preferences.setBool(key, true);
   }
 
   Future<void> _act(
@@ -400,74 +489,64 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     ];
   }
 
-  List<Widget> _assessmentWidgets() {
-    final recommendations = asMap(_data!['starterRecommendations']);
-    final options = <String, dynamic>{
-      'skills': _data!['skills'],
-      'interests': _data!['interests'],
-      ...asMap(_data!['preferenceOptions']),
-    };
+  Future<void> _saveAssessment() async {
+    final noPriorExperienceOption =
+        '${_data?['noPriorExperienceOption'] ?? ''}';
+    final selectedSkills = asList(_assessment['skills']);
+    final noPriorExperience = selectedSkills.contains(noPriorExperienceOption);
+    final missing = <String>[];
+
+    if (selectedSkills.isEmpty) {
+      missing.add(
+        'Choose practiced skills or select “$noPriorExperienceOption.”',
+      );
+    }
+    if (asList(_assessment['interests']).isEmpty) {
+      missing.add('Choose at least one interest.');
+    }
+    if (asList(_assessment['support_needs']).isEmpty) {
+      missing.add(
+        'Choose a support preference, including “No additional support needed right now.”',
+      );
+    }
+    for (final key in [
+      'priority',
+      'work_environment',
+      'learning_mode',
+      'schedule',
+      'weekly_hours',
+    ]) {
+      if ('${_assessment[key] ?? ''}'.isEmpty) {
+        missing.add('Choose an answer for ${key.replaceAll('_', ' ')}.');
+      }
+    }
+
+    if (missing.isNotEmpty) {
+      setState(() => _error = missing.first);
+      return;
+    }
+
+    final payload = Map<String, dynamic>.from(_assessment)
+      ..['skills'] = selectedSkills
+          .where((skill) => skill != noPriorExperienceOption)
+          .toList()
+      ..['no_prior_experience'] = noPriorExperience;
+    await _act('/assessment', data: payload);
+  }
+
+  List<Widget> _assessmentRecommendations(
+    Map<String, dynamic> recommendations,
+  ) {
+    final isComplete = recommendations.isNotEmpty;
     return [
-      const Text(
-        'Save at least one interest to unlock AI guidance and see initial job, career, and training suggestions. You can start without a resume or NC certificate. Document scanning is optional, and any skills you have practiced can support your preferences.',
-      ),
-      if (_data?['assessmentSkillsRecorded'] == false)
-        const Text(
-          'Review your skills and select only tasks you have personally practiced. Older profile skills may include document-scan findings, so they are not counted in career matches until you save your assessment choices.',
+      _card('Your assessment recommendations', [
+        Text(
+          isComplete
+              ? 'Suggestions use your saved interests and self-reported skills.'
+              : 'Complete and save your assessment to see personalized job, career, and training suggestions here. You can start without prior experience, a resume, or an NC certificate.',
         ),
-      for (final entry in options.entries)
-        _card(entry.key.replaceAll('_', ' '), [
-          if (['skills', 'interests', 'support_needs'].contains(entry.key))
-            Wrap(
-              spacing: 6,
-              children: [
-                for (final option in asList(entry.value))
-                  FilterChip(
-                    label: Text('$option'),
-                    selected: asList(_assessment[entry.key]).contains(option),
-                    onSelected: _busy
-                        ? null
-                        : (selected) => setState(() {
-                            final values = List<dynamic>.from(
-                              asList(_assessment[entry.key]),
-                            );
-                            selected
-                                ? values.add(option)
-                                : values.remove(option);
-                            _assessment[entry.key] = values;
-                          }),
-                  ),
-              ],
-            )
-          else
-            DropdownButtonFormField<String>(
-              initialValue: asList(entry.value).contains(_assessment[entry.key])
-                  ? _assessment[entry.key] as String
-                  : null,
-              isExpanded: true,
-              items: [
-                for (final option in asList(entry.value))
-                  DropdownMenuItem(value: '$option', child: Text('$option')),
-              ],
-              onChanged: (v) => _assessment[entry.key] = v,
-            ),
-        ]),
-      for (final key in ['career_goal', 'experience_example', 'desired_skills'])
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: TextFormField(
-            initialValue: '${_assessment[key] ?? ''}',
-            maxLines: 3,
-            maxLength: 500,
-            decoration: InputDecoration(labelText: key.replaceAll('_', ' ')),
-            onChanged: (v) => _assessment[key] = v,
-          ),
-        ),
-      FilledButton(
-        onPressed: _busy ? null : () => _act('/assessment', data: _assessment),
-        child: const Text('Save assessment'),
-      ),
-      if (recommendations.isNotEmpty) ...[
+      ]),
+      if (isComplete)
         for (final section in [
           ('work', 'Work opportunities'),
           ('careers', 'Career paths'),
@@ -488,7 +567,168 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                   ),
                 ),
           ]),
-      ],
+    ];
+  }
+
+  List<Widget> _assessmentWidgets() {
+    final recommendations = asMap(_data!['starterRecommendations']);
+    final skillsOptions = [
+      ...asList(_data!['skills']),
+      _data!['noPriorExperienceOption'],
+    ];
+    final options = <String, dynamic>{
+      'skills': skillsOptions,
+      'interests': _data!['interests'],
+      ...asMap(_data!['preferenceOptions']),
+    };
+    return [
+      Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: _showingAssessmentWalkthrough
+              ? null
+              : _maybeShowAssessmentWalkthrough,
+          icon: const Icon(Icons.explore_outlined),
+          label: const Text('Walk me through this'),
+        ),
+      ),
+      ..._assessmentRecommendations(recommendations),
+      const Text(
+        'Choose an answer for each required question. “Not sure yet” and “Open to any format” choices are available when you are still deciding. You can start without a resume or NC certificate.',
+      ),
+      if (_data?['assessmentSkillsRecorded'] == false)
+        const Text(
+          'Review your skills and select only tasks you have personally practiced. Older profile skills may include document-scan findings, so they are not counted in career matches until you save your assessment choices.',
+        ),
+      for (final entry in options.entries)
+        _card(
+          entry.key.replaceAll('_', ' '),
+          [
+            if (['skills', 'interests', 'support_needs'].contains(entry.key))
+              Wrap(
+                spacing: 6,
+                children: [
+                  for (final option in asList(entry.value))
+                    FilterChip(
+                      label: Text('$option'),
+                      selected: asList(_assessment[entry.key]).contains(option),
+                      onSelected: _busy
+                          ? null
+                          : (selected) => setState(() {
+                              _error = null;
+                              final values = List<dynamic>.from(
+                                asList(_assessment[entry.key]),
+                              );
+                              final noPriorExperienceOption =
+                                  '${_data?['noPriorExperienceOption'] ?? ''}';
+                              const noAdditionalSupportOption =
+                                  'No additional support needed right now';
+                              final maximumSelections = switch (entry.key) {
+                                'skills' => 16,
+                                'interests' => 12,
+                                'support_needs' => 8,
+                                _ => 100,
+                              };
+                              final resetToSingleChoice =
+                                  (entry.key == 'skills' &&
+                                      option == noPriorExperienceOption) ||
+                                  (entry.key == 'support_needs' &&
+                                      option == noAdditionalSupportOption);
+                              if (selected &&
+                                  !resetToSingleChoice &&
+                                  values.length >= maximumSelections) {
+                                _error =
+                                    'Choose up to $maximumSelections options for ${entry.key.replaceAll('_', ' ')}.';
+                                return;
+                              }
+                              if (entry.key == 'skills' &&
+                                  option == noPriorExperienceOption &&
+                                  selected) {
+                                values
+                                  ..clear()
+                                  ..add(option);
+                              } else if (entry.key == 'skills' &&
+                                  option != noPriorExperienceOption &&
+                                  selected) {
+                                values
+                                  ..remove(noPriorExperienceOption)
+                                  ..add(option);
+                              } else if (entry.key == 'support_needs' &&
+                                  option == noAdditionalSupportOption &&
+                                  selected) {
+                                values
+                                  ..clear()
+                                  ..add(option);
+                              } else if (entry.key == 'support_needs' &&
+                                  option != noAdditionalSupportOption &&
+                                  selected) {
+                                values
+                                  ..remove(noAdditionalSupportOption)
+                                  ..add(option);
+                              } else {
+                                selected
+                                    ? values.add(option)
+                                    : values.remove(option);
+                              }
+                              _assessment[entry.key] = values;
+                            }),
+                    ),
+                ],
+              )
+            else
+              DropdownButtonFormField<String>(
+                initialValue:
+                    asList(entry.value).contains(_assessment[entry.key])
+                    ? _assessment[entry.key] as String
+                    : null,
+                isExpanded: true,
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: TkColors.of(context).taskMeta,
+                ),
+                dropdownColor: TkColors.of(context).surface,
+                decoration: const InputDecoration(
+                  hintText: 'Choose one option',
+                ),
+                items: [
+                  for (final option in asList(entry.value))
+                    DropdownMenuItem(value: '$option', child: Text('$option')),
+                ],
+                onChanged: (v) => setState(() {
+                  _assessment[entry.key] = v;
+                  _error = null;
+                }),
+              ),
+          ],
+          subtitle:
+              [
+                'skills',
+                'interests',
+                'priority',
+                'work_environment',
+                'learning_mode',
+                'schedule',
+                'weekly_hours',
+                'support_needs',
+              ].contains(entry.key)
+              ? 'Required · Choose an answer'
+              : null,
+        ),
+      for (final key in ['career_goal', 'experience_example', 'desired_skills'])
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: TextFormField(
+            initialValue: '${_assessment[key] ?? ''}',
+            maxLines: 3,
+            maxLength: 500,
+            decoration: InputDecoration(labelText: key.replaceAll('_', ' ')),
+            onChanged: (v) => _assessment[key] = v,
+          ),
+        ),
+      FilledButton(
+        onPressed: _busy ? null : _saveAssessment,
+        child: const Text('Save assessment'),
+      ),
     ];
   }
 

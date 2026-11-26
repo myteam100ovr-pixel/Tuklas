@@ -42,7 +42,7 @@ class DocumentScanController extends Controller
         abort_unless($request->user()->hasRole(Role::Admin, Role::Youth), 403);
         if (! $scanner->isConfigured()) {
             return response()->json([
-                'message' => 'AI scanning is not configured yet. Add GOOGLE_AI_API_KEY to the server environment.',
+                'message' => 'Document scanning is temporarily unavailable. Please tell a Tuklas administrator.',
             ], 503);
         }
 
@@ -249,7 +249,15 @@ class DocumentScanController extends Controller
     private function failureMessage(Throwable $exception): string
     {
         if ($exception->getCode() === 429) {
-            return 'Gemini quota is exhausted for this Google AI project. Check the project’s AI Studio rate limits and billing, then try again.';
+            return 'Tuklas document scanning has reached its current Google AI usage limit. Please try again later. If this continues, tell a Tuklas administrator.';
+        }
+
+        if (in_array($exception->getCode(), [401, 403], true)) {
+            return 'The AI connection needs an administrator to check the server setup. Your document was not scanned.';
+        }
+
+        if ($exception->getCode() === 404) {
+            return 'The AI service is unavailable with the current setup. Please tell a Tuklas administrator. Your document was not scanned.';
         }
 
         $previous = $exception->getPrevious();

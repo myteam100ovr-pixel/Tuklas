@@ -6,6 +6,7 @@ import './echo.js';
 import './direct-messages.js';
 import './auth-carousel.js';
 import './auth-legal-dialog.js';
+import './assessment-walkthrough.js';
 import './workspace-sync.js';
 
 const initializeRegistrationLocation = (root = document) => {
@@ -185,6 +186,64 @@ if (workspaceTabs) {
 
 initializeWorkspaceContent();
 initializeRegistrationLocation();
+
+document.addEventListener('change', (event) => {
+    const supportGroup = event.target.closest('[data-assessment-support]');
+    if (supportGroup) {
+        const noAdditionalSupport = supportGroup.querySelector('[data-no-additional-support]');
+        if (event.target.matches('[data-no-additional-support]') && noAdditionalSupport.checked) {
+            supportGroup.querySelectorAll('input[name="support_needs[]"]').forEach((input) => {
+                if (input !== noAdditionalSupport) input.checked = false;
+            });
+        } else if (event.target.matches('input[name="support_needs[]"]') && event.target.checked) {
+            noAdditionalSupport.checked = false;
+        }
+    }
+
+    const skillsGroup = event.target.closest('[data-assessment-skills]');
+    if (skillsGroup) {
+        const noPriorExperience = skillsGroup.querySelector('[data-no-prior-experience]');
+        if (event.target.matches('[data-no-prior-experience]') && noPriorExperience.checked) {
+            skillsGroup.querySelectorAll('input[name="skills[]"]').forEach((input) => { input.checked = false; });
+        } else if (event.target.matches('input[name="skills[]"]') && event.target.checked) {
+            noPriorExperience.checked = false;
+        }
+    }
+
+    const choiceGroup = event.target.closest('[data-assessment-skills], [data-assessment-interests], [data-assessment-support]');
+    choiceGroup?.querySelector('[data-assessment-choice-error]')?.remove();
+});
+
+document.addEventListener('submit', (event) => {
+    const form = event.target.closest('.assessment-form');
+    if (!form) return;
+
+    const requirements = [
+        ['[data-assessment-skills]', 'Select at least one practiced skill, or choose the no prior experience option.', 'input[name="skills[]"]:checked, [data-no-prior-experience]:checked'],
+        ['[data-assessment-interests]', 'Choose at least one interest to get personalized recommendations.', 'input[name="interests[]"]:checked'],
+        ['[data-assessment-support]', 'Choose a support preference, including “No additional support needed right now.”', 'input[name="support_needs[]"]:checked'],
+    ];
+
+    for (const [groupSelector, message, selectedSelector] of requirements) {
+        const group = form.querySelector(groupSelector);
+        if (!group || group.querySelector(selectedSelector)) continue;
+
+        event.preventDefault();
+        let error = group.querySelector('[data-assessment-choice-error]');
+        if (!error) {
+            error = document.createElement('p');
+            error.className = 'assessment-choice-error';
+            error.dataset.assessmentChoiceError = '';
+            error.setAttribute('role', 'alert');
+            group.append(error);
+        }
+        error.textContent = message;
+        group.querySelector('input')?.focus();
+        group.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+});
+
 window.addEventListener('tuklas:content-refreshed', (event) => {
     initializeWorkspaceContent(event.detail?.main || document);
     initializeRegistrationLocation(event.detail?.main || document);

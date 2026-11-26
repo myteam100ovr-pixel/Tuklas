@@ -152,7 +152,7 @@ if (chat) {
 
     if (!geminiReady) {
         input.disabled = true;
-        status.textContent = 'Gemini chat is unavailable until the server API key is configured.';
+        status.textContent = 'TuklasBot is temporarily unavailable. Please tell a Tuklas administrator.';
         status.dataset.kind = 'error';
     }
 }
