@@ -375,7 +375,11 @@ textarea.input { resize: vertical; }
     background-repeat: no-repeat;
     cursor: pointer;
 }
-.tk-workspace select option { color: var(--ink); background: var(--surface); }
+.tk-body select { accent-color: var(--violet); }
+.tk-body select option { padding: .55rem .75rem; color: var(--ink); background-color: var(--surface); font: inherit; }
+.tk-body select option:checked { color: #fff !important; background: var(--violet) !important; }
+.tk-body select option:hover,
+.tk-body select option:focus { color: var(--ink); background: color-mix(in srgb, var(--violet) 14%, var(--surface)); }
 @media (max-width: 640px) {
     .tk-workspace :where(input, select, textarea) { font-size: 16px; }
 }

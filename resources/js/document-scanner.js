@@ -32,6 +32,27 @@ if (scanner) {
     let historyRequestId = 0;
     let cameraStream = null;
 
+    const setFileActionIcon = (button, paths) => {
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.setAttribute('viewBox', '0 0 24 24');
+        icon.setAttribute('width', '18');
+        icon.setAttribute('height', '18');
+        icon.setAttribute('fill', 'none');
+        icon.setAttribute('stroke', 'currentColor');
+        icon.setAttribute('stroke-width', '1.8');
+        icon.setAttribute('stroke-linecap', 'round');
+        icon.setAttribute('stroke-linejoin', 'round');
+        icon.setAttribute('aria-hidden', 'true');
+
+        paths.forEach((data) => {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', data);
+            icon.append(path);
+        });
+
+        button.replaceChildren(icon);
+    };
+
     const formatSize = (bytes) => {
         if (bytes < 1024 * 1024) {
             return `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -213,7 +234,7 @@ if (scanner) {
 
         selectedFiles.forEach((file, index) => {
             const item = document.createElement('div');
-            item.className = 'document-scanner__file';
+            item.className = 'document-scanner__file is-selected';
 
             const name = document.createElement('strong');
             name.textContent = file.name;
@@ -230,8 +251,15 @@ if (scanner) {
 
             const replaceButton = document.createElement('button');
             replaceButton.type = 'button';
-            replaceButton.textContent = 'Replace';
+            replaceButton.className = 'document-scanner__file-action document-scanner__file-action--replace';
             replaceButton.setAttribute('aria-label', `Replace ${file.name}`);
+            replaceButton.title = `Replace ${file.name}`;
+            setFileActionIcon(replaceButton, [
+                'M20 7v5h-5',
+                'M4 17v-5h5',
+                'M5.64 5.64A9 9 0 0 1 20 12',
+                'M4 12a9 9 0 0 0 14.36 6.36',
+            ]);
             replaceButton.disabled = isScanning;
             replaceButton.addEventListener('click', () => {
                 const replacementInput = input.cloneNode();
@@ -248,8 +276,16 @@ if (scanner) {
 
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
-            removeButton.textContent = 'Remove';
+            removeButton.className = 'document-scanner__file-action document-scanner__file-action--remove';
             removeButton.setAttribute('aria-label', `Remove ${file.name}`);
+            removeButton.title = `Remove ${file.name}`;
+            setFileActionIcon(removeButton, [
+                'M3 6h18',
+                'M8 6V4h8v2',
+                'M19 6l-1 14H6L5 6',
+                'M10 11v5',
+                'M14 11v5',
+            ]);
             removeButton.disabled = isScanning;
             removeButton.addEventListener('click', () => {
                 selectedFiles = selectedFiles.filter((_, fileIndex) => fileIndex !== index);
