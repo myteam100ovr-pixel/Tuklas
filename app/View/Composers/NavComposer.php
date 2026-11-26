@@ -74,7 +74,7 @@ class NavComposer
         ],
         'jobs' => [
             ['Openings', 'opportunities.index', ['opportunities.index', 'admin.opportunities.*']],
-            ['PESO', 'peso.index', ['peso.index']],
+            ['PESO AI', 'peso.index', ['peso.index']],
             ['Applications', 'admin.job-applications.index', ['admin.job-applications.*']],
         ],
         'training' => [

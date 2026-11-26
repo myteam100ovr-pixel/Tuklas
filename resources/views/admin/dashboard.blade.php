@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-role-dashboard accent="admin" role-label="PESO Bugallon · Admin" eyebrow="Control room / Local workforce" title="Good morning, {{ auth()->user()->name }}." description="A central workspace for guiding Bugallon’s youth, training, and employment programs." :navigation="[['Overview', 'admin.dashboard'], ['People', 'admin.users.index'], ['PESO', 'peso.index'], ['AI Scanner', 'scanner.index'], ['TESDA', 'tesda.index']]">
+    <x-role-dashboard accent="admin" role-label="PESO Bugallon · Admin" eyebrow="Control room / Local workforce" title="Good morning, {{ auth()->user()->name }}." description="A central workspace for guiding Bugallon’s youth, training, and employment programs." :navigation="[['Overview', 'admin.dashboard'], ['People', 'admin.users.index'], ['PESO AI', 'peso.index'], ['AI Scanner', 'scanner.index'], ['TESDA', 'tesda.index']]">
         <section class="role-dashboard__summary" aria-label="Workspace summary">
             <div class="role-dashboard__summary-card"><span>Account</span><strong>Active</strong></div>
             <div class="role-dashboard__summary-card"><span>Role</span><strong>Admin</strong></div>

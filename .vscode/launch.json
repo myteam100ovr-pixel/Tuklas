@@ -8,7 +8,7 @@
       "program": "${workspaceFolder}\\tuklas_mobile\\lib\\main.dart",
       "cwd": "${workspaceFolder}\\tuklas_mobile",
       "toolArgs": [
-        "--dart-define=API_BASE=http://127.0.0.1:8000/api/mobile"
+        "--dart-define=API_BASE=http://10.0.2.2:8000/api/mobile"
       ],
       "preLaunchTask": "Tuklas: check database and start mobile API"
     }

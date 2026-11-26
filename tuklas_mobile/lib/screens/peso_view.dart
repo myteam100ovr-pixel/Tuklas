@@ -96,30 +96,21 @@ class _PesoViewState extends State<PesoView> {
                       const SizedBox(height: 12),
                       _matchCard(context, asMap(raw)),
                     ],
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: _page > 1
-                              ? () {
-                                  _page--;
-                                  _reload();
-                                }
-                              : null,
-                          child: const Text('Previous'),
-                        ),
-                        Text('Page $_page of ${pagination['last_page'] ?? 1}'),
-                        TextButton(
-                          onPressed:
-                              _page < (pagination['last_page'] as num? ?? 1)
-                              ? () {
-                                  _page++;
-                                  _reload();
-                                }
-                              : null,
-                          child: const Text('Next'),
-                        ),
-                      ],
+                    TkPagination(
+                      currentPage: _page,
+                      lastPage: (pagination['last_page'] as num?)?.toInt() ?? 1,
+                      onPrevious: _page > 1
+                          ? () {
+                              _page--;
+                              _reload();
+                            }
+                          : null,
+                      onNext: _page < (pagination['last_page'] as num? ?? 1)
+                          ? () {
+                              _page++;
+                              _reload();
+                            }
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     Text(

@@ -231,29 +231,21 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           ),
         ),
       );
-  Widget _pages(Map<String, dynamic> pagination) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      TextButton(
-        onPressed: _page > 1 && !_busy
-            ? () {
-                _page--;
-                _load();
-              }
-            : null,
-        child: const Text('Previous'),
-      ),
-      Text('Page $_page of ${pagination['last_page'] ?? 1}'),
-      TextButton(
-        onPressed: _page < (pagination['last_page'] as num? ?? 1) && !_busy
-            ? () {
-                _page++;
-                _load();
-              }
-            : null,
-        child: const Text('Next'),
-      ),
-    ],
+  Widget _pages(Map<String, dynamic> pagination) => TkPagination(
+    currentPage: _page,
+    lastPage: (pagination['last_page'] as num?)?.toInt() ?? 1,
+    onPrevious: _page > 1 && !_busy
+        ? () {
+            _page--;
+            _load();
+          }
+        : null,
+    onNext: _page < (pagination['last_page'] as num? ?? 1) && !_busy
+        ? () {
+            _page++;
+            _load();
+          }
+        : null,
   );
   static const _passwordFields = [
     WorkspaceField('password', 'New password', secret: true, required: true),

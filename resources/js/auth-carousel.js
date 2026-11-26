@@ -6,8 +6,9 @@ if (authCarousel) {
     const pauseButton = document.querySelector('[data-feature-toggle]');
     const pauseIcon = pauseButton?.querySelector('[data-toggle-icon]');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const shouldReduceMotion = () => document.documentElement.dataset.reduceMotion === 'true' || reducedMotion.matches;
     let activeSlide = 0;
-    let userPaused = reducedMotion.matches;
+    let userPaused = shouldReduceMotion();
     let pointerInside = false;
     let focusInside = false;
     let rotationTimer;
@@ -17,14 +18,14 @@ if (authCarousel) {
             return;
         }
 
-        if (reducedMotion.matches) {
+        if (shouldReduceMotion()) {
             pauseButton.hidden = true;
             return;
         }
 
         pauseButton.hidden = false;
 
-        const isPaused = userPaused || reducedMotion.matches;
+        const isPaused = userPaused || shouldReduceMotion();
 
         pauseButton.setAttribute('aria-pressed', String(isPaused));
         pauseButton.setAttribute('aria-label', isPaused ? 'Resume feature rotation' : 'Pause feature rotation');
@@ -52,7 +53,7 @@ if (authCarousel) {
     const scheduleRotation = () => {
         window.clearInterval(rotationTimer);
 
-        if (userPaused || reducedMotion.matches || pointerInside || focusInside || document.hidden || slides.length < 2) {
+        if (userPaused || shouldReduceMotion() || pointerInside || focusInside || document.hidden || slides.length < 2) {
             return;
         }
 

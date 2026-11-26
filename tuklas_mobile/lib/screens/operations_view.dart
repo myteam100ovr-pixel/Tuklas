@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../date_format.dart';
+import '../ui.dart';
 import '../workspace_realtime.dart';
 import 'workspace_form.dart';
 
@@ -1760,24 +1761,15 @@ class _OperationsViewState extends State<OperationsView> {
             if (_response?[_key] is Map &&
                 (_response![_key] as Map)['last_page'] is int &&
                 (_response![_key] as Map)['last_page'] > 1)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: _page > 1 && !_busy
-                        ? () => _changePage(_page - 1)
-                        : null,
-                    child: const Text('Previous'),
-                  ),
-                  Text('Page $_page'),
-                  TextButton(
-                    onPressed:
-                        _page < (_response![_key] as Map)['last_page'] && !_busy
-                        ? () => _changePage(_page + 1)
-                        : null,
-                    child: const Text('Next'),
-                  ),
-                ],
+              TkPagination(
+                currentPage: _page,
+                lastPage: (_response![_key] as Map)['last_page'] as int,
+                onPrevious: _page > 1 && !_busy
+                    ? () => _changePage(_page - 1)
+                    : null,
+                onNext: _page < (_response![_key] as Map)['last_page'] && !_busy
+                    ? () => _changePage(_page + 1)
+                    : null,
               ),
           ],
         ),

@@ -348,6 +348,67 @@ class TkBottomNavigation extends StatelessWidget {
   }
 }
 
+/// Page controls that stay usable when a card has very little horizontal space.
+class TkPagination extends StatelessWidget {
+  const TkPagination({
+    super.key,
+    required this.currentPage,
+    required this.lastPage,
+    required this.onPrevious,
+    required this.onNext,
+    this.outlined = false,
+  });
+
+  final int currentPage;
+  final int lastPage;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
+  final bool outlined;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = TkColors.of(context);
+    final label = Text(
+      'Page $currentPage of $lastPage',
+      textAlign: TextAlign.center,
+      style: tkText(context, size: 12.5, color: c.muted),
+    );
+
+    Widget pageButton(String text, VoidCallback? onPressed) => outlined
+        ? OutlinedButton(onPressed: onPressed, child: Text(text))
+        : TextButton(onPressed: onPressed, child: Text(text));
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 360) {
+          return Column(
+            children: [
+              label,
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(child: pageButton('Previous', onPrevious)),
+                  const SizedBox(width: 8),
+                  Expanded(child: pageButton('Next', onNext)),
+                ],
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            pageButton('Previous', onPrevious),
+            label,
+            pageButton('Next', onNext),
+          ],
+        );
+      },
+    );
+  }
+}
+
 String tkSkillCoverageDetails(Map<dynamic, dynamic> item) {
   final coverage = asMap(item['skillCoverage']);
   return [

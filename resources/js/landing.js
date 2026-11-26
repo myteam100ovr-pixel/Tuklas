@@ -9,7 +9,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const root = document.documentElement;
 
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduce = root.dataset.reduceMotion === 'true' || matchMedia('(prefers-reduced-motion: reduce)').matches;
 const narrowMq = matchMedia('(max-width: 900px)');
 const noPin = reduce || narrowMq.matches;
 if (noPin) root.classList.add('no-pin');

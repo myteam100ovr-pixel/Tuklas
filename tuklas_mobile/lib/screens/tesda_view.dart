@@ -282,39 +282,22 @@ class _TesdaViewState extends State<TesdaView> {
                             _registeredProgramCard(context, asMap(raw)),
                           if (registeredLastPage > 1) ...[
                             const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                OutlinedButton(
-                                  onPressed: registeredCurrentPage > 1
-                                      ? () => _loadPage(
-                                          _page,
-                                          registeredPage:
-                                              registeredCurrentPage - 1,
-                                        )
-                                      : null,
-                                  child: const Text('Previous'),
-                                ),
-                                Text(
-                                  'Page $registeredCurrentPage of $registeredLastPage',
-                                  style: tkText(
-                                    context,
-                                    size: 12.5,
-                                    color: colors.muted,
-                                  ),
-                                ),
-                                OutlinedButton(
-                                  onPressed:
-                                      registeredCurrentPage < registeredLastPage
-                                      ? () => _loadPage(
-                                          _page,
-                                          registeredPage:
-                                              registeredCurrentPage + 1,
-                                        )
-                                      : null,
-                                  child: const Text('Next'),
-                                ),
-                              ],
+                            TkPagination(
+                              currentPage: registeredCurrentPage,
+                              lastPage: registeredLastPage,
+                              outlined: true,
+                              onPrevious: registeredCurrentPage > 1
+                                  ? () => _loadPage(
+                                      _page,
+                                      registeredPage: registeredCurrentPage - 1,
+                                    )
+                                  : null,
+                              onNext: registeredCurrentPage < registeredLastPage
+                                  ? () => _loadPage(
+                                      _page,
+                                      registeredPage: registeredCurrentPage + 1,
+                                    )
+                                  : null,
                             ),
                           ],
                         ],
@@ -361,30 +344,16 @@ class _TesdaViewState extends State<TesdaView> {
                               _programCard(context, asMap(raw)),
                           if (lastPage > 1) ...[
                             const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                OutlinedButton(
-                                  onPressed: currentPage > 1
-                                      ? () => _loadPage(currentPage - 1)
-                                      : null,
-                                  child: const Text('Previous'),
-                                ),
-                                Text(
-                                  'Page $currentPage of $lastPage',
-                                  style: tkText(
-                                    context,
-                                    size: 12.5,
-                                    color: colors.muted,
-                                  ),
-                                ),
-                                OutlinedButton(
-                                  onPressed: currentPage < lastPage
-                                      ? () => _loadPage(currentPage + 1)
-                                      : null,
-                                  child: const Text('Next'),
-                                ),
-                              ],
+                            TkPagination(
+                              currentPage: currentPage,
+                              lastPage: lastPage,
+                              outlined: true,
+                              onPrevious: currentPage > 1
+                                  ? () => _loadPage(currentPage - 1)
+                                  : null,
+                              onNext: currentPage < lastPage
+                                  ? () => _loadPage(currentPage + 1)
+                                  : null,
                             ),
                           ],
                         ],
