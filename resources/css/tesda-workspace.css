@@ -91,7 +91,7 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .operations-page { width:100%; max-width:none; gap:1.15rem; container-name:operations-page; container-type:inline-size; }
 .scholarships-page { width:100%; max-width:none; grid-template-columns:minmax(0,1fr); gap:1rem; }
 .scholarship-applications { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.85rem; }
-.scholarship-applications > h2,.scholarship-applications > .operations-empty { grid-column:1/-1; }
+.scholarship-applications > h2,.scholarship-applications > .operations-empty,.scholarship-applications > .scholarship-approval-help { grid-column:1/-1; }
 .scholarship-applications > article.operations-card { min-width:0; margin:0; padding:1rem; border:1px solid var(--line); border-radius:.8rem; background:var(--surface-2); overflow-wrap:anywhere; }
 .scholarship-applications > article.operations-card form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end; gap:.8rem; margin-top:.8rem; }
 .scholarship-applications > article.operations-card form label { display:grid; min-width:0; gap:.45rem; color:var(--ink); font-size:.8rem; font-weight:600; }

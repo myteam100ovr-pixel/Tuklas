@@ -71,57 +71,92 @@ class ScholarshipApplicationController extends Controller
     public function update(Request $request, ScholarshipApplication $application): RedirectResponse|JsonResponse
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::TesdaAdmin), 403);
+        abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
 
         $data = $request->validate([
-            'stage' => ['required', Rule::in(['center', 'trainer'])],
-            'decision' => ['required', Rule::in(['approved', 'failed'])],
-            'notes' => ['nullable', 'string', 'max:3000'],
+            'stage' => ['required', Rule::in(['center', 'trainer', 'final'])],
+            'decision' => ['required', Rule::in(['approved', 'failed', 'rejected'])],
+            'notes' => ['nullable', 'string', 'min:5', 'max:3000'],
         ]);
 
         DB::transaction(function () use ($application, $data, $user): void {
             $lockedApplication = ScholarshipApplication::query()->lockForUpdate()->findOrFail($application->id);
             $lockedScholarship = Scholarship::query()->lockForUpdate()->findOrFail($lockedApplication->scholarship_id);
+
+            if ($data['stage'] === 'final') {
+                abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
+                abort_unless(! $user->isCenterScopedTesda() || $user->training_center_id === $lockedScholarship->training_center_id, 403);
+                abort_unless($lockedApplication->status !== 'cancelled', 422, 'A canceled application cannot receive a final decision.');
+                abort_if(blank($data['notes'] ?? null), 422, 'Add a reason for the final decision.');
+
+                $decision = $data['decision'] === 'approved' ? 'approved' : 'rejected';
+                $finalDecision = [
+                    'status' => $decision,
+                    'review_notes' => $data['notes'],
+                    'reviewed_by' => $user->id,
+                    'reviewed_at' => now(),
+                ];
+                foreach (['center', 'trainer'] as $stage) {
+                    if ($lockedApplication->{$stage.'_approval_status'} === 'pending') {
+                        $finalDecision[$stage.'_approval_status'] = 'cancelled';
+                    }
+                }
+                $lockedApplication->update($finalDecision);
+
+                return;
+            }
+
+            abort_unless($user->hasRole(Role::TesdaAdmin), 403);
             abort_unless(in_array($lockedApplication->status, ['submitted', 'reviewing'], true), 422, 'This application is no longer awaiting review.');
 
             $stage = $data['stage'];
-            $otherStage = $stage === 'center' ? 'trainer' : 'center';
             abort_unless($lockedApplication->{$stage.'_approval_status'} === 'pending', 422, 'This approval stage is already complete.');
-            abort_if($lockedApplication->{$otherStage.'_approved_by'} === $user->id, 403, 'A different TESDA staff member must approve the second stage.');
+            foreach (['center', 'trainer'] as $reviewStage) {
+                if ($reviewStage !== $stage) {
+                    abort_if($lockedApplication->{$reviewStage.'_approved_by'} === $user->id, 403, 'A different TESDA staff member must decide the other approval stage.');
+                }
+            }
 
             if ($stage === 'center') {
                 abort_unless($user->training_center_id === $lockedScholarship->training_center_id, 403);
             } else {
-                abort_unless($lockedApplication->center_approval_status === 'approved', 422, 'The training center must approve the application first.');
                 $isAssignedTrainer = $user->teachingAssignments()
                     ->whereHas('program', fn ($query) => $query->where('training_center_id', $lockedScholarship->training_center_id))
                     ->exists();
                 abort_unless($isAssignedTrainer, 403);
             }
 
-            $decision = $data['decision'];
+            abort_if(blank($data['notes'] ?? null), 422, 'Add a reason for this decision.');
+            $decision = $data['decision'] === 'approved' ? 'approved' : 'failed';
+            $otherStage = $stage === 'center' ? 'trainer' : 'center';
             $lockedApplication->update([
                 $stage.'_approval_status' => $decision,
                 $stage.'_approved_by' => $user->id,
                 $stage.'_approved_at' => now(),
-                $stage.'_approval_notes' => $data['notes'] ?? null,
+                $stage.'_approval_notes' => $data['notes'],
                 'status' => $decision === 'failed'
                     ? 'rejected'
-                    : ($stage === 'center' ? 'reviewing' : 'approved'),
-                'review_notes' => $data['notes'] ?? null,
+                    : ($lockedApplication->{$otherStage.'_approval_status'} === 'approved' ? 'approved' : 'reviewing'),
+                'review_notes' => $data['notes'],
                 'reviewed_by' => $user->id,
                 'reviewed_at' => now(),
             ]);
 
-            if ($decision === 'failed' && $stage === 'center') {
-                $lockedApplication->update(['trainer_approval_status' => 'cancelled']);
+            if ($decision === 'failed') {
+                if ($lockedApplication->{$otherStage.'_approval_status'} === 'pending') {
+                    $lockedApplication->update([$otherStage.'_approval_status' => 'cancelled']);
+                }
             }
         });
 
         WorkspaceChanged::dispatch('scholarships');
-        $message = $data['decision'] === 'approved'
-            ? 'TESDA '.$data['stage'].' approval saved.'
-            : 'Application marked as failed with the review note saved.';
+        $message = $data['stage'] === 'final'
+            ? ($data['decision'] === 'approved'
+                ? 'Final scholarship decision saved as approved with the reason recorded.'
+                : 'Final scholarship decision saved as declined with the reason recorded.')
+            : ($data['decision'] === 'approved'
+                ? 'TESDA '.$data['stage'].' approval saved with the review reason recorded.'
+                : 'Application marked as failed with the review reason recorded.');
 
         return $request->routeIs('mobile.*')
             ? response()->json(['message' => $message])

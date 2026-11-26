@@ -72,7 +72,7 @@ class _OperationsViewState extends State<OperationsView> {
     'Jobs' => 'Browse openings. PESO staff enter the employer and listing together, verify current details, then publish and recommend the opening.',
     'Career paths' => 'Manage published career guidance paths. Career Seekers can browse published paths; Admin can create, edit, publish, archive, and remove them.',
     'Job applications' => 'Review Career Seeker applications, move them under review, record hiring decisions, and give a reason when someone is not selected.',
-    'Scholarships' => 'PTC and PSAT courses can each have a scholarship listing. Places are first come, first served. A submitted application reserves one place while the center and a different TESDA trainer review it.',
+    'Scholarships' => 'PTC and PSAT courses can each have a scholarship listing. Places are first come, first served. The assigned center and a different TESDA trainer review each application; TESDA or Admin can record a final decision with a reason.',
     'Centers' => 'See the training centers that provide Tuklas programs.',
     'Trainers' =>
       'Assign TESDA staff to a published program at the same center.',
@@ -782,7 +782,7 @@ class _OperationsViewState extends State<OperationsView> {
   ) async {
     final saved = await openWorkspaceForm(
       context,
-      title: '$label approval',
+      title: '$label decision',
       path: '/scholarship-applications/${application['id']}',
       method: 'PUT',
       fields: [
@@ -792,17 +792,26 @@ class _OperationsViewState extends State<OperationsView> {
           options: [stage],
           required: true,
         ),
-        const WorkspaceField(
+        WorkspaceField(
           'decision',
           'Decision',
-          options: ['approved', 'failed'],
-          optionLabels: {'approved': 'Approved', 'failed': 'Failed'},
+          options: stage == 'final'
+              ? ['approved', 'rejected']
+              : ['approved', 'failed'],
+          optionLabels: stage == 'final'
+              ? {
+                  'approved': 'Accept application',
+                  'rejected': 'Decline application',
+                }
+              : {'approved': 'Accept', 'failed': 'Decline'},
           required: true,
         ),
         const WorkspaceField(
           'notes',
-          'Note for Career Seeker',
+          'Decision reason for Career Seeker',
           multiline: true,
+          required: true,
+          minLength: 5,
         ),
       ],
     );
@@ -1148,15 +1157,24 @@ class _OperationsViewState extends State<OperationsView> {
                           'Training center approval: ${_approvalLabel(application['center_approval_status'])}${(application['center_approver'] as Map?)?['name'] == null ? '' : ' · ${(application['center_approver'] as Map)['name']}'}',
                         ),
                         if (application['center_approval_notes'] != null)
-                          Text('${application['center_approval_notes']}'),
+                          Text(
+                            'Center decision reason: ${application['center_approval_notes']}',
+                          ),
                         Text(
                           'TESDA trainer approval: ${_approvalLabel(application['trainer_approval_status'])}${(application['trainer_approver'] as Map?)?['name'] == null ? '' : ' · ${(application['trainer_approver'] as Map)['name']}'}',
                         ),
                         if (application['trainer_approval_notes'] != null)
-                          Text('${application['trainer_approval_notes']}'),
-                        Text(
-                          '${application['review_notes'] ?? application['application_message'] ?? ''}',
-                        ),
+                          Text(
+                            'Trainer decision reason: ${application['trainer_approval_notes']}',
+                          ),
+                        if (application['application_message'] != null)
+                          Text(
+                            'Your message: ${application['application_message']}',
+                          ),
+                        if (application['review_notes'] != null)
+                          Text(
+                            '${application['status'] == 'approved' || application['status'] == 'rejected' ? 'Final decision reason' : 'Latest review reason'}${(application['reviewer'] as Map?)?['name'] == null ? '' : ' · ${(application['reviewer'] as Map)['name']}'}: ${application['review_notes']}',
+                          ),
                         if (application['status'] == 'submitted' ||
                             application['status'] == 'reviewing')
                           TextButton(
@@ -1202,6 +1220,18 @@ class _OperationsViewState extends State<OperationsView> {
                           ),
                           isThreeLine: true,
                         ),
+                        if (application['review_notes'] != null)
+                          Text(
+                            '${application['status'] == 'approved' || application['status'] == 'rejected' ? 'Final decision reason' : 'Latest review reason'}${(application['reviewer'] as Map?)?['name'] == null ? '' : ' · ${(application['reviewer'] as Map)['name']}'}: ${application['review_notes']}',
+                          ),
+                        if (application['center_approval_notes'] != null)
+                          Text(
+                            'Center decision reason: ${application['center_approval_notes']}',
+                          ),
+                        if (application['trainer_approval_notes'] != null)
+                          Text(
+                            'Trainer decision reason: ${application['trainer_approval_notes']}',
+                          ),
                         Wrap(
                           spacing: 8,
                           children: [
@@ -1228,6 +1258,18 @@ class _OperationsViewState extends State<OperationsView> {
                                       ),
                                 icon: const Icon(Icons.school_outlined),
                                 label: const Text('Trainer decision'),
+                              ),
+                            if (application['can_override_final'] == true)
+                              TextButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _reviewScholarshipApplication(
+                                        application,
+                                        'final',
+                                        'Final TESDA/Admin',
+                                      ),
+                                icon: const Icon(Icons.fact_check_outlined),
+                                label: const Text('Final decision / override'),
                               ),
                           ],
                         ),

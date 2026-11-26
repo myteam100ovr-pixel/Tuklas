@@ -22,7 +22,9 @@
                         <p><strong>TESDA trainer approval:</strong> {{ $approvalLabel($application->trainer_approval_status) }}@if ($application->trainerApprover) · {{ $application->trainerApprover->name }}@endif</p>
                         @if ($application->trainer_approval_notes)<p>{{ $application->trainer_approval_notes }}</p>@endif
                         <p>{{ $application->application_message }}</p>
-                        @if ($application->review_notes)<p><strong>Latest review update:</strong> {{ $application->review_notes }}</p>@endif
+                        @if ($application->review_notes)
+                            <p><strong>{{ in_array($application->status, ['approved', 'rejected'], true) ? 'Final TESDA/admin decision reason' : 'Latest review reason' }}@if ($application->reviewer) · {{ $application->reviewer->name }}@endif:</strong> {{ $application->review_notes }}</p>
+                        @endif
                         @foreach ($application->documents ?? [] as $index => $document)
                             <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}">{{ $document['name'] }}</a>
                         @endforeach
@@ -41,6 +43,11 @@
         @if ($canManage)
             <section class="operations-card scholarship-applications" aria-labelledby="received-scholarship-applications">
                 <h2 id="received-scholarship-applications">Applications received</h2>
+                <p class="scholarship-approval-help">Center and trainer approvals require separate TESDA accounts: one assigned to the center and a different one assigned to the course. Admin and TESDA can record or override the final decision with a reason here.
+                    @if (auth()->user()->hasRole(\App\Enums\Role::Admin))
+                        <a href="{{ route('admin.users.create') }}">Create a TESDA approver account</a>, assign it to the center, then assign trainer accounts to their courses.
+                    @endif
+                </p>
                 @forelse ($applications as $application)
                     @php($applicationStatus = ['submitted' => 'Pending', 'reviewing' => 'Pending', 'approved' => 'Approved', 'cancelled' => 'Canceled', 'rejected' => 'Failed'][$application->status] ?? 'Pending')
                     <article class="operations-card">
@@ -49,6 +56,11 @@
                         @if ($application->scholarship->trainingProgram)<p><strong>Course:</strong> {{ $application->scholarship->trainingProgram->title }}</p>@endif
                         <p><strong>Center approval:</strong> {{ $approvalLabel($application->center_approval_status) }}@if ($application->centerApprover) · {{ $application->centerApprover->name }}@endif</p>
                         <p><strong>Trainer approval:</strong> {{ $approvalLabel($application->trainer_approval_status) }}@if ($application->trainerApprover) · {{ $application->trainerApprover->name }}@endif</p>
+                        @if ($application->review_notes)
+                            <p><strong>{{ in_array($application->status, ['approved', 'rejected'], true) ? 'Final decision reason' : 'Latest review reason' }}@if ($application->reviewer) · {{ $application->reviewer->name }}@endif:</strong> {{ $application->review_notes }}</p>
+                        @endif
+                        @if ($application->center_approval_notes)<p><strong>Center decision reason:</strong> {{ $application->center_approval_notes }}</p>@endif
+                        @if ($application->trainer_approval_notes)<p><strong>Trainer decision reason:</strong> {{ $application->trainer_approval_notes }}</p>@endif
                         <p>{{ $application->application_message }}</p>
                         @foreach ($application->documents ?? [] as $index => $document)
                             <a href="{{ route('scholarship-applications.documents', [$application, $index]) }}">{{ $document['name'] }}</a>
@@ -59,12 +71,24 @@
                                     @if (($stage === 'center' && $application->can_approve_center) || ($stage === 'trainer' && $application->can_approve_trainer))
                                         <form method="POST" action="{{ route('scholarship-applications.update', $application) }}">@csrf @method('PUT')
                                             <input type="hidden" name="stage" value="{{ $stage }}">
-                                            <label>{{ $label }} review note <textarea name="notes" maxlength="3000"></textarea></label>
-                                            <button type="submit" name="decision" value="approved">Approve as {{ strtolower($label) }}</button>
-                                            <button type="submit" name="decision" value="failed">Mark failed</button>
+                                            <label>{{ $label }} decision reason <textarea name="notes" required minlength="5" maxlength="3000"></textarea></label>
+                                            <button type="submit" name="decision" value="approved">Accept as {{ strtolower($label) }}</button>
+                                            <button type="submit" name="decision" value="failed">Decline as {{ strtolower($label) }}</button>
                                         </form>
                                     @endif
                                 @endforeach
+                            </section>
+                        @endif
+                        @if ($application->can_override_final)
+                            <section class="operations-card" aria-label="Final TESDA or administrator decision">
+                                <h3>Final decision or override</h3>
+                                <p>Record the final outcome for this application. A reason is required and will be shown to the Career Seeker.</p>
+                                <form method="POST" action="{{ route('scholarship-applications.update', $application) }}">@csrf @method('PUT')
+                                    <input type="hidden" name="stage" value="final">
+                                    <label>Decision reason <textarea name="notes" required minlength="5" maxlength="3000"></textarea></label>
+                                    <button type="submit" name="decision" value="approved">Accept application</button>
+                                    <button type="submit" name="decision" value="rejected">Decline application</button>
+                                </form>
                             </section>
                         @endif
                     </article>

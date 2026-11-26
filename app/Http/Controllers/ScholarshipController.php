@@ -36,6 +36,7 @@ class ScholarshipController extends Controller
                 'scholarship.trainingProgram:id,title,training_center_id',
                 'centerApprover:id,name',
                 'trainerApprover:id,name',
+                'reviewer:id,name',
             ])->where('user_id', $request->user()->id)->latest()->get()
             : collect();
         $applications = $canManage
@@ -46,6 +47,7 @@ class ScholarshipController extends Controller
                 'user:id,name,email',
                 'centerApprover:id,name',
                 'trainerApprover:id,name',
+                'reviewer:id,name',
             ])->when(
                 $user->isCenterScopedTesda(),
                 fn ($query) => $query->whereHas('scholarship', fn ($scholarships) => $scholarships->where('training_center_id', $user->training_center_id)),
@@ -100,6 +102,7 @@ class ScholarshipController extends Controller
             $application->setAttribute(
                 'can_approve_center',
                 $isTesda
+                    && in_array($application->status, ['submitted', 'reviewing'], true)
                     && $application->center_approval_status === 'pending'
                     && $user->training_center_id === $application->scholarship->training_center_id
                     && $application->trainer_approved_by !== $user->id,
@@ -107,10 +110,16 @@ class ScholarshipController extends Controller
             $application->setAttribute(
                 'can_approve_trainer',
                 $isTesda
-                    && $application->center_approval_status === 'approved'
+                    && in_array($application->status, ['submitted', 'reviewing'], true)
                     && $application->trainer_approval_status === 'pending'
                     && in_array($application->scholarship->training_center_id, $trainerCenterIds, true)
                     && $application->center_approved_by !== $user->id,
+            );
+            $application->setAttribute(
+                'can_override_final',
+                $user->hasRole(Role::Admin, Role::TesdaAdmin)
+                    && $application->status !== 'cancelled'
+                    && (! $user->isCenterScopedTesda() || $user->training_center_id === $application->scholarship->training_center_id),
             );
         });
 
@@ -364,6 +373,8 @@ class ScholarshipController extends Controller
             'application_message' => $application->application_message,
             'review_notes' => $application->review_notes,
             'reviewed_at' => $application->reviewed_at?->toISOString(),
+            'reviewer' => $application->reviewer,
+            'can_override_final' => (bool) $application->can_override_final,
             'scholarship' => $application->scholarship,
             'user' => $application->relationLoaded('user') ? $application->user : null,
             'documents' => collect($application->documents ?? [])->values()->map(fn (array $file, int $index): array => [
