@@ -1,6 +1,17 @@
 [
     {
         "date": "2026-11-27",
+        "published_at": "2026-11-27T00:31:03+08:00",
+        "version": "Mobile update",
+        "title": "Clearer document scanner photo capture",
+        "items": [
+            "Photos taken for a resume or certificate now appear in a highlighted Ready to scan list, and the scanner brings that list into view.",
+            "A confirmation explains when the photo is ready and how to start scanning it; capture errors are shown clearly.",
+            "Camera photos are resized to reduce memory and upload problems on lower-spec phones."
+        ]
+    },
+    {
+        "date": "2026-11-27",
         "published_at": "2026-11-27T00:17:10+08:00",
         "version": "1.0.17+18",
         "title": "Mobile photo sharing fix",

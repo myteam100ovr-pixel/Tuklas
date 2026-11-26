@@ -21,6 +21,7 @@ class ScannerView extends StatefulWidget {
 }
 
 class _ScannerViewState extends State<ScannerView> {
+  final GlobalKey _selectedFilesKey = GlobalKey();
   final TextEditingController _goalController = TextEditingController();
   final ImagePicker _imagePicker = ImagePicker();
   final List<PlatformFile> _selectedFiles = [];
@@ -164,9 +165,11 @@ class _ScannerViewState extends State<ScannerView> {
           () => _error =
               'The photo is over 10 MB. Try again with better lighting.',
         );
+        _showToast(_error!, isError: true);
         return;
       }
 
+      var photoAdded = false;
       setState(() {
         if (replaceIndex == null && _selectedFiles.length >= 5) {
           _error = 'Up to five files can be scanned at a time.';
@@ -193,7 +196,31 @@ class _ScannerViewState extends State<ScannerView> {
           _selectedFiles.add(capturedFile);
         }
         _error = null;
+        photoAdded = true;
       });
+      if (!photoAdded) {
+        _showToast(_error ?? 'The photo could not be added.', isError: true);
+        return;
+      }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final queueContext = _selectedFilesKey.currentContext;
+        if (queueContext != null) {
+          unawaited(
+            Scrollable.ensureVisible(
+              queueContext,
+              alignment: 0.25,
+              duration: const Duration(milliseconds: 180),
+            ),
+          );
+        }
+      });
+      _showToast(
+        replaceIndex == null
+            ? 'Photo added to Ready to scan. Review it, agree to the scan, then tap Scan.'
+            : 'Photo added to Ready to scan as the replacement.',
+      );
     } catch (_) {
       if (mounted) {
         await _recordOutcome('error', photo.name);
@@ -212,9 +239,9 @@ class _ScannerViewState extends State<ScannerView> {
       final photo = await _imagePicker.pickImage(
         source: ImageSource.camera,
         preferredCameraDevice: CameraDevice.rear,
-        imageQuality: 88,
-        maxWidth: 3000,
-        maxHeight: 4000,
+        imageQuality: 80,
+        maxWidth: 2048,
+        maxHeight: 2880,
       );
       if (photo != null) {
         await _useCapturedPhoto(photo, replaceIndex: replaceIndex);
@@ -627,12 +654,61 @@ class _ScannerViewState extends State<ScannerView> {
                       ],
                       if (_selectedFiles.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        for (
-                          var index = 0;
-                          index < _selectedFiles.length;
-                          index++
-                        )
-                          _selectedFileTile(index),
+                        Container(
+                          key: _selectedFilesKey,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.surface2,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: colors.line),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.fact_check_outlined,
+                                      size: 18,
+                                      color: colors.taskMeta,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Ready to scan',
+                                        style: tkText(
+                                          context,
+                                          size: 13,
+                                          weight: 600,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${_selectedFiles.length}/5',
+                                      style: tkText(
+                                        context,
+                                        size: 12,
+                                        color: colors.muted,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              for (
+                                var index = 0;
+                                index < _selectedFiles.length;
+                                index++
+                              )
+                                _selectedFileTile(index),
+                            ],
+                          ),
+                        ),
                       ],
                       const SizedBox(height: 6),
                       Text(
