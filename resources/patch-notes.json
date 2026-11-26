@@ -1,6 +1,18 @@
 [
     {
         "date": "2026-11-27",
+        "published_at": "2026-11-27T01:38:30+08:00",
+        "version": "1.0.18+19",
+        "title": "Role-focused mobile navigation and course tools",
+        "items": [
+            "Admin, TESDA, and Career Seeker accounts now have five role-specific bottom navigation destinations, with grouped tools in readable menus and Document Scanner available from a floating action button.",
+            "Admin and TESDA staff can add, edit, and delete courses from training center cards in the mobile app, with center access checks and linked-record protections.",
+            "Wide desktop dashboard and course catalog layouts use more of the available screen width.",
+            "Android build version advanced to 1.0.18 build 19."
+        ]
+    },
+    {
+        "date": "2026-11-27",
         "published_at": "2026-11-27T00:31:03+08:00",
         "version": "Mobile update",
         "title": "Clearer document scanner photo capture",
