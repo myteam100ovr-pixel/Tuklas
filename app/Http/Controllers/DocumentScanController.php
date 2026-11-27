@@ -123,13 +123,6 @@ class DocumentScanController extends Controller
                 ->all();
             unset($analysis['recommendedLinkIds']);
 
-            if (! in_array($analysis['documentType'] ?? null, ['resume', 'certificate'], true)) {
-                return response()->json([
-                    'message' => 'This file is not a readable resume or certificate. Upload a resume or certificate to receive career and TESDA recommendations. Nothing was saved.',
-                    'errors' => ['file' => ['Only readable resumes and certificates are accepted.']],
-                ], 422);
-            }
-
             $scan = DB::transaction(function () use ($user, $file, $analysis): DocumentScan {
                 if ($user->hasRole(Role::Youth)
                     && in_array($analysis['documentType'] ?? 'other', ['resume', 'certificate'], true)) {

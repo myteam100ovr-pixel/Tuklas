@@ -114,7 +114,14 @@ if (scanner) {
 
         const heading = document.createElement('p');
         heading.className = 'document-scanner__latest-file';
-        heading.textContent = documentData.original_name ?? 'Latest scan';
+        const documentTypeLabels = {
+            resume: 'Resume',
+            certificate: 'Certificate',
+            study_material: 'Study material',
+            other: 'Document',
+        };
+        const documentType = documentTypeLabels[analysis.documentType];
+        heading.textContent = `${documentData.original_name ?? 'Latest scan'}${documentType ? ` · ${documentType}` : ''}`;
 
         const content = document.createElement('div');
         content.className = 'document-scanner__latest-content';
@@ -132,8 +139,34 @@ if (scanner) {
             content.append(failure);
         }
 
+        const keyFacts = Array.isArray(analysis.keyFacts) ? analysis.keyFacts : [];
+        if (keyFacts.length > 0) {
+            const facts = document.createElement('section');
+            facts.className = 'document-scanner__insight';
+            const title = document.createElement('h4');
+            title.textContent = 'Key details found';
+            const list = document.createElement('ul');
+            keyFacts.forEach((fact) => {
+                if (!fact || typeof fact !== 'object' || !fact.label || !fact.value) return;
+                const row = document.createElement('li');
+                row.textContent = `${fact.label}: ${fact.value}`;
+                if (fact.evidence) {
+                    const evidence = document.createElement('small');
+                    evidence.className = 'document-scanner__skill-evidence';
+                    evidence.textContent = `Document evidence: ${fact.evidence}`;
+                    row.append(evidence);
+                }
+                list.append(row);
+            });
+            if (list.childElementCount > 0) {
+                facts.append(title, list);
+                content.append(facts);
+            }
+        }
+
         const extractedFields = analysis.extractedFields;
-        if (extractedFields && typeof extractedFields === 'object') {
+        if (extractedFields && typeof extractedFields === 'object'
+            && Object.values(extractedFields).some((value) => value !== null && value !== undefined && value !== '')) {
             const details = document.createElement('section');
             details.className = 'document-scanner__insight';
             const title = document.createElement('h4');
@@ -699,7 +732,7 @@ if (scanner) {
             cameraVideo.srcObject = cameraStream;
             cameraDialog.showModal();
             await cameraVideo.play();
-            cameraStatus.textContent = 'Position the resume or certificate inside the frame.';
+            cameraStatus.textContent = 'Position the document inside the frame and keep the text in focus.';
         } catch (error) {
             stopCamera();
             cameraOpenButton.disabled = false;

@@ -1,7 +1,7 @@
 <section class="document-scanner" id="ai-scanner" data-document-scanner data-profile-sync="{{ auth()->user()->hasRole(\App\Enums\Role::Youth) ? 'true' : 'false' }}" data-upload-url="{{ route('document-scans.store') }}" data-history-url="{{ route('document-scans.index') }}" data-outcome-url="{{ route('document-scans.outcomes') }}" data-gemini-ready="{{ filled(config('services.google.gemini_api_key')) ? 'true' : 'false' }}" aria-labelledby="document-scanner-title">
     <div class="document-scanner__workspace">
         <div class="document-scanner__controls">
-            <header class="scan-panel-heading"><span>01 / INPUT</span><h3>Upload documents</h3><p>Choose up to five resumes or certificates to scan one by one.</p></header>
+            <header class="scan-panel-heading"><span>01 / INPUT</span><h3>Upload documents</h3><p>Choose up to five readable documents. Tuklas summarizes each and suggests career next steps when relevant.</p></header>
             <input class="document-scanner__input" data-document-input type="file" accept=".pdf,.docx,.jpg,.jpeg,.png,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/webp" aria-label="Choose documents" multiple>
             <button class="document-scanner__dropzone" data-document-choose type="button" aria-describedby="document-file-help">
                 <span class="document-scanner__upload-mark" aria-hidden="true">↑</span>
@@ -40,10 +40,10 @@
     <div class="document-scanner__intro">
         <p class="document-scanner__eyebrow"><span aria-hidden="true">✦</span> Powered by Google Gemini</p>
         <h2 id="document-scanner-title">Turn your documents into a next step.</h2>
-        <p>Upload one readable resume or certificate. We’ll identify documented skills and suggest careers and training to explore.</p>
+        <p>Upload a readable PDF, DOCX, or image. Tuklas will summarize its contents and offer career or training ideas when the document supports them.</p>
         <details class="scan-data-note">
         <summary>Before you scan: your data and AI guidance</summary>
-        <div class="document-scanner__privacy"><span aria-hidden="true">↗</span><span>Your file is temporarily stored and sent to Google Gemini, then deleted after processing. Only accepted resume and certificate scan results stay in your account.</span></div>
+        <div class="document-scanner__privacy"><span aria-hidden="true">↗</span><span>Your file is temporarily stored and sent to Google Gemini, then deleted after processing. The scan summary and readable facts are saved in your account. Resume skills are added to your profile only for resume and certificate scans.</span></div>
         <div class="document-scanner__privacy" role="note"><span aria-hidden="true">!</span><span>Gemini is an AI and may misread a document or suggest an unsuitable career or TESDA program. Skill percentages show documented skills from a listed set of role skills, not your chance of being hired. Check the details and confirm training and assessment requirements with TESDA or the provider.</span></div>
         <a href="{{ route('policy.show') }}">Read the privacy notice ↗</a>
         </details>

@@ -24,7 +24,7 @@ class StoreDocumentScanRequest extends FormRequest
     {
         return [
             'goal' => ['nullable', 'string', 'max:1000'],
-            'document_type' => ['sometimes', 'required', 'in:resume,certificate'],
+            'document_type' => ['sometimes', 'required', 'in:resume,certificate,study_material,other'],
             'file' => [
                 'required',
                 'file',
