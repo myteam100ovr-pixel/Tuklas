@@ -42,10 +42,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get training => 'Pagsasanay';
 
   @override
-  String get inbox => 'Inbox';
+  String get inbox => 'Mga Mensahe';
 
   @override
-  String get scanner => 'Scanner';
+  String get scanner => 'Pag-scan';
 
   @override
   String get more => 'Iba pa';
@@ -381,7 +381,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get exploreCareers => 'Tuklasin ang mga karera';
 
   @override
-  String get aiSkillsTesda => 'AI skills + TESDA';
+  String get aiSkillsTesda => 'Mga kasanayan sa AI + TESDA';
 
   @override
   String get planNextStep => 'Magplano ng susunod na hakbang';
@@ -671,7 +671,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get signatureVisible => 'Nakikita ang lagda';
 
   @override
-  String get qualification => 'Qualification';
+  String get qualification => 'Kwalipikasyon';
 
   @override
   String get noAdditionalMatchDetails =>
@@ -699,7 +699,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get scannerEyebrow => 'TUKLASIN ANG IYONG MGA KASANAYAN';
 
   @override
-  String get documentScanner => 'Document scanner';
+  String get documentScanner => 'Pag-scan ng dokumento';
 
   @override
   String get understandDocumentNextSteps =>
@@ -899,7 +899,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get noPublishedUpdates => 'Wala pang nailalathalang update.';
 
   @override
-  String get update => 'Update';
+  String get update => 'I-update';
 
   @override
   String get tuklasUpdate => 'Update ng Tuklas';
@@ -1404,7 +1404,7 @@ class AppLocalizationsTl extends AppLocalizations {
       'I-refresh ang status ng verification';
 
   @override
-  String get twoFactorAuthentication => 'Two-factor authentication';
+  String get twoFactorAuthentication => 'Pagpapatunay gamit ang dalawang salik';
 
   @override
   String get enabled => 'Naka-on';
@@ -1503,7 +1503,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get collegeGraduate => 'Nagtapos ng kolehiyo';
 
   @override
-  String get postgraduate => 'Postgraduate';
+  String get postgraduate => 'Pagkatapos ng kolehiyo';
 
   @override
   String get student => 'Estudyante';

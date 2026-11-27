@@ -10,8 +10,8 @@
   "home": "Tahanan",
   "jobs": "Mga Trabaho",
   "training": "Pagsasanay",
-  "inbox": "Inbox",
-  "scanner": "Scanner",
+  "inbox": "Mga Mensahe",
+  "scanner": "Pag-scan",
   "more": "Iba pa",
   "profile": "Profile",
   "applications": "Mga Aplikasyon",
@@ -47,8 +47,12 @@
   "pageOf": "Pahina {current} ng {total}",
   "@pageOf": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "previous": "Nakaraan",
@@ -115,10 +119,23 @@
   "chooseMunicipalityBarangayError": "Piliin ang iyong munisipalidad at barangay.",
   "specialCharacterExample": "Gumamit ng 1 espesyal na simbolo, hal. @",
   "passwordLengthError": "Maglagay ng hindi bababa sa {length} character.",
-  "@passwordLengthError": {"placeholders": {"length": {"type": "int"}}},
+  "@passwordLengthError": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
   "chooseSkillCount": "Pumili ng {min} hanggang {max} kasanayan.",
   "@chooseSkillCount": {
-    "placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
   },
   "pathSkillsGuidance": "Pumili ng hanggang 8 kasanayan mula sa source ng landas. Kailangan ng hindi bababa sa 3 para mailathala ang isang landas.",
   "selectDateOfBirth": "Piliin ang petsa ng kapanganakan",
@@ -161,7 +178,11 @@
   "scanDocument": "I-scan ang dokumento",
   "openingPage": "Binubuksan ang {page}…",
   "@openingPage": {
-    "placeholders": {"page": {"type": "String"}}
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
   },
   "openingOverview": "Pangkalahatang-tanaw",
   "confirmEmailInstructions": "Kung hindi mo pa nave-verify, buksan ang link sa email at tingnan muli.",
@@ -184,9 +205,21 @@
   "chooseReplacementFile": "Pumili ng kapalit na file o larawan",
   "takeReplacementPhoto": "Kumuha ng kapalit na larawan",
   "removeFile": "Alisin ang {file}",
-  "@removeFile": {"placeholders": {"file": {"type": "String"}}},
+  "@removeFile": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "replaceFile": "Palitan ang {file}",
-  "@replaceFile": {"placeholders": {"file": {"type": "String"}}},
+  "@replaceFile": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "openPage": "Buksan ang pahina",
   "refresh": "I-refresh",
   "deleteAccount": "I-delete ang account",
@@ -203,7 +236,7 @@
   "changePassword": "Palitan ang password",
   "sendVerificationEmail": "Ipadala ang verification email",
   "refreshVerificationStatus": "I-refresh ang status ng verification",
-  "twoFactorAuthentication": "Two-factor authentication",
+  "twoFactorAuthentication": "Pagpapatunay gamit ang dalawang salik",
   "enabled": "Naka-on",
   "disabled": "Naka-off",
   "chooseYouthAccount": "Pumili ng youth account",
@@ -214,8 +247,12 @@
   "stepOf": "Hakbang {current} sa {total}",
   "@stepOf": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "assessmentWalkthroughOneTitle": "Magsimula sa ilang tanong tungkol sa iyo.",
@@ -230,13 +267,19 @@
   "addToAuthenticator": "Idagdag sa authenticator",
   "saveRecoveryCodes": "I-save ang mga recovery code",
   "authenticatorSetupInstructions": "Ilagay ang key na ito sa authenticator mo, saka piliin ang Kumpirmahin ang setup.\n\n{key}",
-  "@authenticatorSetupInstructions": {"placeholders": {"key": {"type": "String"}}},
+  "@authenticatorSetupInstructions": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
   "couldNotLoadConversation": "Hindi ma-load ang nakaraang usapan. Subukan muli.",
   "couldNotReachCareerAssistant": "Hindi makakonekta sa career assistant. Tingnan ang koneksyon at subukan muli.",
   "chatHowCanIHelp": "Paano kita matutulungan?",
   "chatIntro": "Magtanong sa Tuklas tungkol sa mga karera, AI skills, pagsasanay ng TESDA, o praktikal na susunod na hakbang.",
   "exploreCareers": "Tuklasin ang mga karera",
-  "aiSkillsTesda": "AI skills + TESDA",
+  "aiSkillsTesda": "Mga kasanayan sa AI + TESDA",
   "planNextStep": "Magplano ng susunod na hakbang",
   "buildMySkills": "Paunlarin ang aking mga kasanayan",
   "promptExploreCareers": "Tulungan akong tuklasin ang mga karerang tugma sa mga interes ko.",
@@ -259,11 +302,29 @@
   "previewUnavailableTapSave": "Hindi makita ang preview. Pindutin para i-save ang larawan.",
   "loadingPhoto": "Nilo-load ang larawan…",
   "attachLimit": "Hanggang {count} file ang puwedeng ilakip sa bawat mensahe.",
-  "@attachLimit": {"placeholders": {"count": {"type": "int"}}},
+  "@attachLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "attachmentTooLarge": "Mahigit 10 MB ang {file}.",
-  "@attachmentTooLarge": {"placeholders": {"file": {"type": "String"}}},
+  "@attachmentTooLarge": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "attachmentNameTapSave": "{name} · pindutin para i-save",
-  "@attachmentNameTapSave": {"placeholders": {"name": {"type": "String"}}},
+  "@attachmentNameTapSave": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "messageWorkspaceEyebrow": "WORKSPACE · MGA TAO",
   "messagePeopleDescription": "Magpadala ng mensahe sa mga administrator, trainer, at iba pang aktibong miyembro ng Tuklas.",
   "couldNotSendMessage": "Hindi maipadala ang mensahe. Tingnan ang koneksyon at subukan muli.",
@@ -277,9 +338,21 @@
   "fileAccessDenied": "Walang pahintulot sa mga file. Payagan ang access at subukan muli.",
   "fileSelectionCanceled": "Kinansela ang pagpili ng file.",
   "fileOverTenMb": "Mahigit 10 MB ang {file}.",
-  "@fileOverTenMb": {"placeholders": {"file": {"type": "String"}}},
+  "@fileOverTenMb": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "fileCouldNotRead": "Hindi mabasa ang {file}. Piliin itong muli.",
-  "@fileCouldNotRead": {"placeholders": {"file": {"type": "String"}}},
+  "@fileCouldNotRead": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "maxFiveScans": "Hanggang limang file lang ang puwedeng i-scan nang sabay.",
   "fileAlreadyInScanList": "Nasa listahan na ng scan ang file na ito.",
   "photoOverTenMb": "Mahigit 10 MB ang larawan. Kumuha muli sa mas maliwanag na lugar.",
@@ -296,25 +369,47 @@
   "agreeBeforeGeminiScan": "Sumang-ayon muna bago ipadala sa Gemini ang mga piniling file.",
   "scanDocumentsCount": "Na-scan ang {count} {count, plural, one{dokumento} other{dokumento}}.",
   "@scanDocumentsCount": {
-    "placeholders": {"count": {"type": "int"}},
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
     "type": "text",
     "plural": "count"
   },
   "scansRemain": "{scanned} sa {total} ang na-scan; {remaining} ang natitira. Ayusin ang isyu at subukang muli ang mga natitirang file.",
   "@scansRemain": {
     "placeholders": {
-      "scanned": {"type": "int"},
-      "total": {"type": "int"},
-      "remaining": {"type": "int"}
+      "scanned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "int"
+      }
     }
   },
   "remainingDocuments": "{count} natitirang dokumento",
-  "@remainingDocuments": {"placeholders": {"count": {"type": "int"}}},
+  "@remainingDocuments": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "documentScanCanceled": "Kinansela ang pag-scan. Handa nang subukang muli ang mga natitirang file.",
   "someScansFailed": "May mga scan na hindi nagtagumpay. Tingnan ang Mga Abiso para sa detalye.",
   "duplicateScanReused": "Na-scan na kamakailan ang eksaktong file na ito; ginamit muli ang naka-save na resulta sa halip na gumawa ng duplicate.",
   "documentsScannedSuccessfully": "Matagumpay na na-scan ang {count} dokumento.",
-  "@documentsScannedSuccessfully": {"placeholders": {"count": {"type": "int"}}},
+  "@documentsScannedSuccessfully": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "readyToScan": "Handa nang i-scan",
   "scanFileLimits": "PDF, DOCX o larawan · hanggang 10 MB bawat isa · hanggang 5 file bawat scan",
   "keyDetailsFound": "Mahahalagang detalyeng nahanap",
@@ -331,7 +426,7 @@
   "issueDate": "Petsa ng pagkakaloob",
   "expiryDate": "Petsa ng pag-expire",
   "signatureVisible": "Nakikita ang lagda",
-  "qualification": "Qualification",
+  "qualification": "Kwalipikasyon",
   "noAdditionalMatchDetails": "Walang karagdagang detalye tungkol sa tugma.",
   "scanProcessing": "Pinoproseso",
   "scanCompleted": "Tapos na",
@@ -340,7 +435,7 @@
   "documentEvidenceLabel": "Batayan mula sa dokumento",
   "checkLabel": "Suriin",
   "scannerEyebrow": "TUKLASIN ANG IYONG MGA KASANAYAN",
-  "documentScanner": "Document scanner",
+  "documentScanner": "Pag-scan ng dokumento",
   "understandDocumentNextSteps": "Unawain ang dokumento at tuklasin ang mga susunod na hakbang.",
   "howToUseScanner": "Paano gamitin ang scanner",
   "chooseYourDocument": "Piliin ang iyong dokumento",
@@ -362,7 +457,13 @@
   "agreeSendFilesToGemini": "Sumasang-ayon akong ipadala sa Google Gemini ang mga piniling file para i-scan.",
   "scanningDocuments": "Ini-scan ang mga dokumento…",
   "scanDocumentCount": "Mag-scan ng {count} dokumento",
-  "@scanDocumentCount": {"placeholders": {"count": {"type": "int"}}},
+  "@scanDocumentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cancelingCurrentDocument": "Kakanselahin pagkatapos matapos ang kasalukuyang dokumento…",
   "canceling": "Kinakansela…",
   "cancelRemainingScans": "Kanselahin ang natitirang scan",
@@ -400,7 +501,7 @@
   "patchNotesDescription": "Mga pinakabagong update sa website at mobile app.",
   "couldNotLoadPatchNotes": "Hindi ma-load ang mga tala ng update. Tingnan ang koneksyon at subukan muli.",
   "noPublishedUpdates": "Wala pang nailalathalang update.",
-  "update": "Update",
+  "update": "I-update",
   "tuklasUpdate": "Update ng Tuklas",
   "tryAgainToLoad": "Subukan muli",
   "delete": "I-delete",
@@ -420,12 +521,24 @@
   "cancelApplication": "Kanselahin ang aplikasyon",
   "browsePhilJobNet": "Tingnan ang mga bakanteng trabaho sa DOLE PhilJobNet",
   "searchSection": "Maghanap sa {section}",
-  "@searchSection": {"placeholders": {"section": {"type": "String"}}},
+  "@searchSection": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
   "clearSearch": "I-clear ang paghahanap",
   "search": "Maghanap",
   "loadingCurrentResults": "Nilo-load ang mga resulta…",
   "resultsCount": "{count} resulta",
-  "@resultsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@resultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "applyForScholarship": "Mag-apply sa scholarship",
   "scholarshipApplication": "Aplikasyon sa scholarship",
   "whyApplying": "Bakit ka nag-a-apply?",
@@ -480,7 +593,13 @@
   "downloadUpdate": "I-download ang update",
   "updateAvailable": "May update ang Tuklas",
   "whatsNew": "Ano ang bago sa {version}",
-  "@whatsNew": {"placeholders": {"version": {"type": "String"}}},
+  "@whatsNew": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "elementaryGraduate": "Nagtapos ng elementarya",
   "juniorHighUndergraduate": "Hindi nagtapos ng junior high school",
   "juniorHighGraduate": "Nagtapos ng junior high school",
@@ -489,7 +608,7 @@
   "vocationalGraduate": "Nagtapos ng vocational o TVET",
   "collegeUndergraduate": "Hindi nagtapos ng kolehiyo",
   "collegeGraduate": "Nagtapos ng kolehiyo",
-  "postgraduate": "Postgraduate",
+  "postgraduate": "Pagkatapos ng kolehiyo",
   "student": "Estudyante",
   "employed": "May trabaho",
   "selfEmployed": "Sariling hanapbuhay",
