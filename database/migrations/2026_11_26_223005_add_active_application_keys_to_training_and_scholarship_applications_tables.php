@@ -10,11 +10,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('scholarship_applications', function (Blueprint $table): void {
+            $table->index('scholarship_id', 'scholarship_applications_scholarship_id_index');
             $table->dropUnique('scholarship_applications_scholarship_id_user_id_unique');
             $table->char('active_application_key', 64)->nullable()->unique();
         });
 
         Schema::table('training_applications', function (Blueprint $table): void {
+            $table->index('training_program_id', 'training_applications_training_program_id_index');
             $table->dropUnique('training_applications_training_program_id_user_id_unique');
             $table->char('active_application_key', 64)->nullable()->unique();
         });
@@ -63,12 +65,14 @@ return new class extends Migration
             $table->dropUnique('scholarship_applications_active_application_key_unique');
             $table->dropColumn('active_application_key');
             $table->unique(['scholarship_id', 'user_id']);
+            $table->dropIndex('scholarship_applications_scholarship_id_index');
         });
 
         Schema::table('training_applications', function (Blueprint $table): void {
             $table->dropUnique('training_applications_active_application_key_unique');
             $table->dropColumn('active_application_key');
             $table->unique(['training_program_id', 'user_id']);
+            $table->dropIndex('training_applications_training_program_id_index');
         });
     }
 };
