@@ -28,7 +28,7 @@ class CreateNewUser implements CreatesNewUsers
                 $age = Carbon::parse($value)->age;
 
                 if ($age < 18 || $age > 30) {
-                    $fail('Tuklas is for Career Seekers aged 18 to 30.');
+                    $fail(__('Tuklas is for Career Seekers aged 18 to 30.'));
                 }
             }],
         ])->validate()['date_of_birth'];

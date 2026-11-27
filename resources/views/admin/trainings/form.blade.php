@@ -5,15 +5,15 @@
         <form method="POST" action="{{ $editing ? route('admin.trainings.update', $program) : route('admin.trainings.store') }}" class="trainer-courses__form">
             @csrf
             @if ($editing)@method('PUT')@endif
-            @if ($errors->any())<p class="trainer-courses__error" role="alert">Please review the highlighted fields.</p>@endif
+            @if ($errors->any())<p class="trainer-courses__error" role="alert">{{ __('Please review the highlighted fields.') }}</p>@endif
             <label>Program title
                 <input name="title" type="text" maxlength="255" required value="{{ old('title', $program->title) }}" placeholder="e.g. Cookery NC II">
                 @error('title')<small>{{ $message }}</small>@enderror
             </label>
             <div class="trainer-courses__form-row">
-                <label>NC level
+                <label>{{ __('NC level') }}
                     <select name="nc_level">
-                        <option value="">Not specified</option>
+                        <option value="">{{ __('Not specified') }}</option>
                         @foreach (['NC I', 'NC II', 'NC III', 'NC IV'] as $level)
                             <option value="{{ $level }}" @selected(old('nc_level', $program->nc_level) === $level)>{{ $level }}</option>
                         @endforeach
@@ -38,7 +38,7 @@
                 </select>
                 @error('training_center_id')<small>{{ $message }}</small>@enderror
             </label>
-            <label>Description
+            <label>{{ __('Description') }}
                 <textarea name="description" rows="4" maxlength="3000">{{ old('description', $program->description) }}</textarea>
                 @error('description')<small>{{ $message }}</small>@enderror
             </label>
@@ -64,7 +64,7 @@
             </label>
             <div class="trainer-courses__form-actions">
                 <button class="trainer-courses__primary" type="submit">{{ $editing ? 'Save changes' : 'Save program' }}</button>
-                <a href="{{ route('admin.trainings.index') }}">Cancel</a>
+                <a href="{{ route('admin.trainings.index') }}">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>

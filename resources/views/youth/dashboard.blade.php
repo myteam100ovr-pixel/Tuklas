@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-role-dashboard accent="youth" role-label="Youth workspace" eyebrow="Your next step / Youth" title="Your future has more than one path." description="Explore skills and opportunities at your pace. Your workspace will grow with you." :focus-areas="['Training', 'Careers', 'Opportunities']">
         <section class="role-dashboard__summary" aria-label="Workspace summary">
-            <div class="role-dashboard__summary-card"><span>Account</span><strong>Active</strong></div>
-            <div class="role-dashboard__summary-card"><span>Training catalog</span><strong>Coming soon</strong></div>
-            <div class="role-dashboard__summary-card"><span>Career guidance</span><strong>Coming soon</strong></div>
-            <div class="role-dashboard__summary-card"><span>Opportunities</span><strong>Coming soon</strong></div>
+            <div class="role-dashboard__summary-card"><span>{{ __('Account') }}</span><strong>{{ __('Active') }}</strong></div>
+            <div class="role-dashboard__summary-card"><span>Training catalog</span><strong>{{ __('Coming soon') }}</strong></div>
+            <div class="role-dashboard__summary-card"><span>Career guidance</span><strong>{{ __('Coming soon') }}</strong></div>
+            <div class="role-dashboard__summary-card"><span>{{ __('Opportunities') }}</span><strong>{{ __('Coming soon') }}</strong></div>
         </section>
         <div class="role-dashboard__workspace-grid">
             <section class="role-dashboard__panel" aria-labelledby="youth-pathway-title">
@@ -13,7 +13,7 @@
             </section>
             <div class="role-dashboard__sidebar">
                 <section class="role-dashboard__panel" aria-labelledby="youth-actions-title">
-                    <header class="role-dashboard__panel-heading"><div><h2 id="youth-actions-title">Your next steps</h2><p>Start with what you can do today</p></div></header>
+                    <header class="role-dashboard__panel-heading"><div><h2 id="youth-actions-title">{{ __('Your next steps') }}</h2><p>Start with what you can do today</p></div></header>
                     <div class="role-dashboard__actions">
                         <a class="role-dashboard__action" href="{{ route('profile.show') }}"><span class="role-dashboard__action-mark">↗</span><span class="role-dashboard__action-copy"><strong>Update your profile</strong><small>Keep your account information current.</small></span></a>
                         <div class="role-dashboard__action is-planned"><span class="role-dashboard__action-mark">02</span><span class="role-dashboard__action-copy"><strong>Explore skills training</strong><small>Verified programs will appear when published.</small></span></div>

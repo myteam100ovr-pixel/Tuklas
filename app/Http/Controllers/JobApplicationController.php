@@ -29,6 +29,10 @@ class JobApplicationController extends Controller
             ->withQueryString();
 
         if ($request->expectsJson()) {
+            $applications->getCollection()->each(function (JobApplication $application): void {
+                $application->setAttribute('status_label', __('api.status_labels.'.$application->status));
+            });
+
             return response()->json(compact('applications'));
         }
 
@@ -60,6 +64,7 @@ class JobApplicationController extends Controller
             'application_message' => $data['application_message'] ?? null,
             'status' => 'submitted',
         ]);
+        $application->setAttribute('status_label', __('api.status_labels.'.$application->status));
         WorkspaceChanged::dispatch('job-applications');
 
         User::query()->where('role', Role::Admin->value)->where('is_active', true)->each(
@@ -74,12 +79,12 @@ class JobApplicationController extends Controller
 
         if ($request->routeIs('mobile.*') || $request->expectsJson()) {
             return response()->json([
-                'message' => 'Your job application was submitted to PESO.',
+                'message' => __('api.jobs.submitted'),
                 'application' => $application->load('job:id,title'),
             ], 201);
         }
 
-        return back()->with('status', 'Your job application was submitted to PESO.');
+        return back()->with('status', __('api.jobs.submitted'));
     }
 
     public function update(Request $request, JobApplication $jobApplication): RedirectResponse|JsonResponse
@@ -97,6 +102,7 @@ class JobApplicationController extends Controller
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+        $jobApplication->setAttribute('status_label', __('api.status_labels.'.$jobApplication->status));
         WorkspaceChanged::dispatch('job-applications');
 
         $applicationStatus = match ($data['status']) {
@@ -134,11 +140,11 @@ class JobApplicationController extends Controller
 
         if ($request->routeIs('mobile.*') || $request->expectsJson()) {
             return response()->json([
-                'message' => 'Job application updated.',
+                'message' => __('api.jobs.updated'),
                 'application' => $jobApplication->fresh()->load(['job:id,title', 'user:id,name,email']),
             ]);
         }
 
-        return back()->with('status', 'Job application updated.');
+        return back()->with('status', __('api.jobs.updated'));
     }
 }

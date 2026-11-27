@@ -167,12 +167,12 @@
                     <p>Choose a published PTC or PSAT course, confirm its scholarship places, then request TESDA center and trainer approval.</p>
                 </div>
                 <form class="operations-editor__form" method="POST" action="{{ route('scholarships.store') }}">@csrf<input type="hidden" name="_operation" value="create-scholarship">
-                    <label>Title <input name="title" required value="{{ $creatingScholarship ? old('title') : '' }}"></label>
+                    <label>{{ __('Title') }} <input name="title" required value="{{ $creatingScholarship ? old('title') : '' }}"></label>
                     <label>Provider <input name="provider" required value="{{ $creatingScholarship ? old('provider') : '' }}"></label>
                     <label>PTC or PSAT training center <span>Required for approval.</span><select name="training_center_id" required><option value="">Select a center</option>@foreach ($centers as $center)<option value="{{ $center->id }}" @selected(($creatingScholarship ? old('training_center_id') : auth()->user()->training_center_id) == $center->id)>{{ $center->type }} · {{ $center->name }}</option>@endforeach</select></label>
                     <label>Course receiving the scholarship <span>Choose a published course from PTC or PSAT.</span><select name="training_program_id" required><option value="">Select a course</option>@foreach ($programs as $program)<option value="{{ $program->id }}" @selected($creatingScholarship && old('training_program_id') == $program->id)>{{ $program->center->type }} · {{ $program->center->name }} — {{ $program->title }}</option>@endforeach</select></label>
                     <label>Available scholarship slots <span>Use the number confirmed by the provider. Applications reserve places in submission order.</span><input name="slot_limit" type="number" min="1" max="500" required value="{{ $creatingScholarship ? old('slot_limit') : '' }}"></label>
-                    <label class="operations-editor__wide">Description <textarea name="description" required>{{ $creatingScholarship ? old('description') : '' }}</textarea></label>
+                    <label class="operations-editor__wide">{{ __('Description') }} <textarea name="description" required>{{ $creatingScholarship ? old('description') : '' }}</textarea></label>
                     <label class="operations-editor__wide">Who can apply? <textarea name="eligibility" placeholder="Explain who qualifies. Enter 'Not specified by provider' if unconfirmed.">{{ $creatingScholarship ? old('eligibility') : '' }}</textarea></label>
                     <label class="operations-editor__wide">Application requirements <textarea name="requirements" placeholder="List documents or conditions the provider requires.">{{ $creatingScholarship ? old('requirements') : '' }}</textarea></label>
                     <label>Assessment type <select name="assessment_type"><option value="">Not specified by provider</option>@foreach (['None', 'Exam', 'Interview', 'Skills assessment', 'Other'] as $type)<option value="{{ $type }}" @selected($creatingScholarship && old('assessment_type') === $type)>{{ $type }}</option>@endforeach</select></label>
@@ -180,7 +180,7 @@
                     <label class="operations-editor__wide">Official information source <span>Required to request TESDA approvals. Use the provider’s current scholarship page or notice.</span><input name="source_url" type="url" placeholder="https://" value="{{ $creatingScholarship ? old('source_url') : '' }}"></label>
                     <label>Application URL <input name="application_url" type="url" value="{{ $creatingScholarship ? old('application_url') : '' }}"></label>
                     <label>Deadline <input name="deadline" type="date" value="{{ $creatingScholarship ? old('deadline') : '' }}"></label>
-                    <label>Next step <select name="status"><option value="draft" @selected(! $creatingScholarship || old('status') === 'draft')>Save draft</option><option value="review" @selected($creatingScholarship && old('status') === 'review')>Submit for TESDA center and trainer approval</option><option value="closed" @selected($creatingScholarship && old('status') === 'closed')>Closed</option></select></label>
+                    <label>Next step <select name="status"><option value="draft" @selected(! $creatingScholarship || old('status') === 'draft')>Save draft</option><option value="review" @selected($creatingScholarship && old('status') === 'review')>Submit for TESDA center and trainer approval</option><option value="closed" @selected($creatingScholarship && old('status') === 'closed')>{{ __('Closed') }}</option></select></label>
                     <p class="operations-editor__wide">Each application is reviewed by a TESDA account assigned to the center, then a different TESDA trainer assigned to the course. Applicants see both decisions and the overall status.</p>
                     <div class="operations-editor__actions"><button class="trainer-courses__primary" type="submit">Save scholarship</button></div>
                 </form>
@@ -246,16 +246,16 @@
                     <p>Check the <a href="https://www.tesda.gov.ph/tvi" target="_blank" rel="noopener noreferrer">TESDA directory of registered training centers ↗</a> for other providers.</p>
                 @endif
                 @if ($scholarship->application_url)<a href="{{ $scholarship->application_url }}" target="_blank" rel="noopener noreferrer">Apply externally ↗</a>@endif
-                @if ($canManage)<details><summary>Edit</summary><form method="POST" action="{{ route('scholarships.update', $scholarship) }}">@csrf @method('PUT')
-                    <label>Title <input name="title" required value="{{ $scholarship->title }}"></label><label>Provider <input name="provider" required value="{{ $scholarship->provider }}"></label>
+                @if ($canManage)<details><summary>{{ __('Edit') }}</summary><form method="POST" action="{{ route('scholarships.update', $scholarship) }}">@csrf @method('PUT')
+                    <label>{{ __('Title') }} <input name="title" required value="{{ $scholarship->title }}"></label><label>Provider <input name="provider" required value="{{ $scholarship->provider }}"></label>
                     <label>PTC or PSAT training center <select name="training_center_id" required><option value="">Select a center</option>@foreach ($centers as $center)<option value="{{ $center->id }}" @selected($scholarship->training_center_id == $center->id)>{{ $center->type }} · {{ $center->name }}</option>@endforeach</select></label>
                     <label>Course receiving the scholarship <select name="training_program_id" required><option value="">Select a course</option>@foreach ($programs as $program)<option value="{{ $program->id }}" @selected($scholarship->training_program_id == $program->id)>{{ $program->center->type }} · {{ $program->center->name }} — {{ $program->title }}</option>@endforeach</select></label>
                     <label>Available scholarship slots <input name="slot_limit" type="number" min="1" max="500" required value="{{ $scholarship->slot_limit }}"></label>
-                    <label>Description <textarea name="description" required>{{ $scholarship->description }}</textarea></label><label>Who can apply? <textarea name="eligibility">{{ $scholarship->eligibility }}</textarea></label>
+                    <label>{{ __('Description') }} <textarea name="description" required>{{ $scholarship->description }}</textarea></label><label>Who can apply? <textarea name="eligibility">{{ $scholarship->eligibility }}</textarea></label>
                     <label>Requirements <textarea name="requirements">{{ $scholarship->requirements }}</textarea></label><label>Assessment type <select name="assessment_type"><option value="">Not specified by provider</option>@foreach (['None', 'Exam', 'Interview', 'Skills assessment', 'Other'] as $type)<option value="{{ $type }}" @selected($scholarship->assessment_type === $type)>{{ $type }}</option>@endforeach</select></label>
                     <label>Assessment instructions <textarea name="assessment_details">{{ $scholarship->assessment_details }}</textarea></label><label>Official source URL <span>Required to request TESDA approvals.</span><input name="source_url" type="url" value="{{ $scholarship->source_url }}"></label>
                     <label>Application URL <input name="application_url" type="url" value="{{ $scholarship->application_url }}"></label><label>Deadline <input name="deadline" type="date" value="{{ $scholarship->deadline?->toDateString() }}"></label>
-                    <label>Next step <select name="status"><option value="draft" @selected($scholarship->status === 'draft')>Save draft</option><option value="review" @selected($scholarship->status === 'review')>Submit or resubmit for TESDA approvals</option>@if ($scholarship->status === 'published')<option value="published" selected>Published — resubmit changes for approval</option>@endif<option value="closed" @selected($scholarship->status === 'closed')>Closed</option></select></label><button type="submit">Update</button>
+                    <label>Next step <select name="status"><option value="draft" @selected($scholarship->status === 'draft')>Save draft</option><option value="review" @selected($scholarship->status === 'review')>Submit or resubmit for TESDA approvals</option>@if ($scholarship->status === 'published')<option value="published" selected>Published — resubmit changes for approval</option>@endif<option value="closed" @selected($scholarship->status === 'closed')>{{ __('Closed') }}</option></select></label><button type="submit">{{ __('Update') }}</button>
                 </form></details>@endif
                 @if ($canManage)
                     <details>
@@ -264,7 +264,7 @@
                         <form method="POST" action="{{ route('scholarships.destroy', $scholarship) }}">
                             @csrf
                             @method('DELETE')
-                            <button type="submit">Confirm delete</button>
+                            <button type="submit">{{ __('Confirm delete') }}</button>
                         </form>
                     </details>
                 @endif

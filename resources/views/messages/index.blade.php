@@ -1,13 +1,13 @@
 <x-app-layout>
     <div class="suite-page messages-page">
-        <x-workspace-heading eyebrow="WORKSPACE · PEOPLE" title="Messages" description="Talk directly with Tuklas members and administrators." />
+        <x-workspace-heading eyebrow="WORKSPACE · PEOPLE" title="{{ __('Messages') }}" description="Talk directly with Tuklas members and administrators." />
 
         <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)]">
-            <aside class="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900" aria-label="People">
+            <aside class="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900" aria-label="{{ __('People') }}">
                 <form method="GET" action="{{ route('messages.index') }}" class="mb-4 flex gap-2">
-                    <label for="message-search" class="sr-only">Find a person</label>
-                    <input id="message-search" name="search" type="search" value="{{ $search }}" placeholder="Find a person" class="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800">
-                    <button type="submit" class="rounded-xl bg-violet-700 px-3 py-2 text-sm font-semibold text-white">Find</button>
+                    <label for="message-search" class="sr-only">{{ __('Find a person') }}</label>
+                    <input id="message-search" name="search" type="search" value="{{ $search }}" placeholder="{{ __('Find a person') }}" class="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800">
+                    <button type="submit" class="rounded-xl bg-violet-700 px-3 py-2 text-sm font-semibold text-white">{{ __('Find') }}</button>
                 </form>
                 <div class="grid gap-2">
                     @forelse ($people as $person)
@@ -16,7 +16,7 @@
                             <span class="text-xs text-slate-500 dark:text-slate-400">{{ $person->role->label() }}</span>
                         </a>
                     @empty
-                        <p class="py-4 text-sm text-slate-500">No people found.</p>
+                        <p class="py-4 text-sm text-slate-500">{{ __('No people found.') }}</p>
                     @endforelse
                 </div>
                 <div class="mt-4">{{ $people->links() }}</div>
@@ -40,14 +40,14 @@
                                 <time class="mt-2 block text-xs opacity-75" datetime="{{ $message->created_at->toIso8601String() }}">{{ $message->created_at->format('M j, g:i A') }}</time>
                             </article>
                         @empty
-                            <p data-message-empty class="m-auto text-center text-sm text-slate-500">No messages yet. Say hello.</p>
+                            <p data-message-empty class="m-auto text-center text-sm text-slate-500">{{ __('No messages yet. Say hello.') }}</p>
                         @endforelse
                     </div>
                     <form method="POST" enctype="multipart/form-data" action="{{ route('messages.store', $user) }}" data-message-form class="border-t border-slate-200 p-4 dark:border-slate-700">
                         @csrf
-                        <label for="message-body" class="mb-2 block text-sm font-semibold">Your message</label>
+                        <label for="message-body" class="mb-2 block text-sm font-semibold">{{ __('Your message') }}</label>
                         <textarea id="message-body" name="body" rows="3" maxlength="2000" class="w-full rounded-xl border border-slate-300 p-3 text-sm dark:border-slate-600 dark:bg-slate-800" placeholder="Write a message or attach files">{{ old('body') }}</textarea>
-                        <label for="message-attachments" class="mt-3 block text-sm font-semibold">Attachments (up to 5 files, 10 MB each)</label>
+                        <label for="message-attachments" class="mt-3 block text-sm font-semibold">{{ __('Attachments (up to 5 files, 10 MB each)') }}</label>
                         <input id="message-attachments" name="attachments[]" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" class="mt-1 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-2 file:font-semibold file:text-violet-800 dark:file:bg-violet-950 dark:file:text-violet-200">
                         @error('body') <p class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p> @enderror
                         @foreach ($errors->get('attachments.*') as $attachmentErrors)
@@ -56,10 +56,10 @@
                             @endforeach
                         @endforeach
                         <p data-message-status class="mt-2 text-sm text-red-600 dark:text-red-400" role="status" aria-live="polite"></p>
-                        <div class="mt-3 flex justify-end"><button type="submit" class="rounded-xl bg-violet-700 px-5 py-2.5 font-semibold text-white hover:bg-violet-800 disabled:opacity-50">Send message</button></div>
+                        <div class="mt-3 flex justify-end"><button type="submit" class="rounded-xl bg-violet-700 px-5 py-2.5 font-semibold text-white hover:bg-violet-800 disabled:opacity-50">{{ __('Send message') }}</button></div>
                     </form>
                 @else
-                    <p class="m-auto p-6 text-center text-slate-500">Choose a person to start a conversation.</p>
+                    <p class="m-auto p-6 text-center text-slate-500">{{ __('Choose a person to start a conversation.') }}</p>
                 @endif
             </section>
         </div>

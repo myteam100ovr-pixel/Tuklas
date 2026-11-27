@@ -61,8 +61,8 @@ class _ScannerViewState extends State<ScannerView> {
         final denied = _isPermissionDenied(error);
         setState(
           () => _error = denied
-              ? 'File access was denied. Allow access and try again.'
-              : 'Could not open your files. Please try again.',
+              ? tkL10n(context).fileAccessDenied
+              : tkL10n(context).couldNotOpenFiles,
         );
         await _recordOutcome(denied ? 'denied' : 'error', 'File picker');
         _showToast(_error!, isError: true);
@@ -72,7 +72,8 @@ class _ScannerViewState extends State<ScannerView> {
     if (!mounted) return;
     if (result == null || result.files.isEmpty) {
       await _recordOutcome('canceled', 'File selection');
-      _showToast('File selection canceled.');
+      if (!mounted) return;
+      _showToast(tkL10n(context).fileSelectionCanceled);
       return;
     }
 
@@ -83,8 +84,8 @@ class _ScannerViewState extends State<ScannerView> {
       final invalid = invalidFiles.first;
       setState(
         () => _error = invalid.size > 10 * 1024 * 1024
-            ? '${invalid.name} is over 10 MB.'
-            : '${invalid.name} could not be read. Please choose it again.',
+            ? tkL10n(context).fileOverTenMb(invalid.name)
+            : tkL10n(context).fileCouldNotRead(invalid.name),
       );
       return;
     }
@@ -101,9 +102,7 @@ class _ScannerViewState extends State<ScannerView> {
           _selectedFiles.add(file);
         }
       }
-      _error = _selectedFiles.length >= 5
-          ? 'Up to five files can be scanned at a time.'
-          : null;
+      _error = _selectedFiles.length >= 5 ? tkL10n(context).maxFiveScans : null;
     });
   }
 
@@ -122,8 +121,8 @@ class _ScannerViewState extends State<ScannerView> {
       if (file.size > 10 * 1024 * 1024 || file.bytes == null) {
         setState(
           () => _error = file.size > 10 * 1024 * 1024
-              ? '${file.name} is over 10 MB.'
-              : '${file.name} could not be read. Please choose it again.',
+              ? tkL10n(context).fileOverTenMb(file.name)
+              : tkL10n(context).fileCouldNotRead(file.name),
         );
         return;
       }
@@ -135,7 +134,7 @@ class _ScannerViewState extends State<ScannerView> {
                     listEquals(entry.value.bytes, file.bytes))),
       );
       if (duplicate) {
-        setState(() => _error = 'That file is already in the scan list.');
+        setState(() => _error = tkL10n(context).fileAlreadyInScanList);
         return;
       }
       setState(() {
@@ -148,8 +147,8 @@ class _ScannerViewState extends State<ScannerView> {
       if (mounted) {
         setState(
           () => _error = _isPermissionDenied(error)
-              ? 'File access was denied. Allow access and try again.'
-              : 'Could not open your files. Please try again.',
+              ? tkL10n(context).fileAccessDenied
+              : tkL10n(context).couldNotOpenFiles,
         );
       }
     }
@@ -162,10 +161,7 @@ class _ScannerViewState extends State<ScannerView> {
         return;
       }
       if (bytes.length > 10 * 1024 * 1024) {
-        setState(
-          () => _error =
-              'The photo is over 10 MB. Try again with better lighting.',
-        );
+        setState(() => _error = tkL10n(context).photoOverTenMb);
         _showToast(_error!, isError: true);
         return;
       }
@@ -173,7 +169,7 @@ class _ScannerViewState extends State<ScannerView> {
       var photoAdded = false;
       setState(() {
         if (replaceIndex == null && _selectedFiles.length >= 5) {
-          _error = 'Up to five files can be scanned at a time.';
+          _error = tkL10n(context).maxFiveScans;
           return;
         }
         final isDuplicate = _selectedFiles.indexed.any(
@@ -183,7 +179,7 @@ class _ScannerViewState extends State<ScannerView> {
               listEquals(entry.$2.bytes, bytes),
         );
         if (isDuplicate) {
-          _error = 'This exact photo is already in your scan list.';
+          _error = tkL10n(context).photoAlreadyInScanList;
           return;
         }
         final capturedFile = PlatformFile(
@@ -200,7 +196,7 @@ class _ScannerViewState extends State<ScannerView> {
         photoAdded = true;
       });
       if (!photoAdded) {
-        _showToast(_error ?? 'The photo could not be added.', isError: true);
+        _showToast(_error ?? tkL10n(context).photoCouldNotAdd, isError: true);
         return;
       }
 
@@ -219,16 +215,13 @@ class _ScannerViewState extends State<ScannerView> {
       });
       _showToast(
         replaceIndex == null
-            ? 'Photo added to Ready to scan. Review it, agree to the scan, then tap Scan.'
-            : 'Photo added to Ready to scan as the replacement.',
+            ? tkL10n(context).photoAddedReady
+            : tkL10n(context).photoAddedReplacement,
       );
     } catch (_) {
       if (mounted) {
         await _recordOutcome('error', photo.name);
-        setState(
-          () => _error =
-              'The captured photo could not be read. Please try again.',
-        );
+        setState(() => _error = tkL10n(context).capturedPhotoUnreadable);
         _showToast(_error!, isError: true);
       }
     }
@@ -248,15 +241,16 @@ class _ScannerViewState extends State<ScannerView> {
         await _useCapturedPhoto(photo, replaceIndex: replaceIndex);
       } else {
         await _recordOutcome('canceled', 'Camera capture');
-        _showToast('Camera capture canceled.');
+        if (!mounted) return;
+        _showToast(tkL10n(context).cameraCaptureCanceled);
       }
     } catch (error) {
       if (mounted) {
         final denied = _isPermissionDenied(error);
         setState(
           () => _error = denied
-              ? 'Camera access was denied. Allow camera access in Settings and try again.'
-              : 'Could not open the camera. Please try again.',
+              ? tkL10n(context).cameraAccessDenied
+              : tkL10n(context).cameraCouldNotOpen,
         );
         await _recordOutcome(denied ? 'denied' : 'error', 'Camera');
         _showToast(_error!, isError: true);
@@ -306,7 +300,7 @@ class _ScannerViewState extends State<ScannerView> {
         mainAxisSize: MainAxisSize.min,
         children: [
           PopupMenuButton<String>(
-            tooltip: 'Replace ${file.name}',
+            tooltip: tkL10n(context).replaceFile(file.name),
             enabled: !_scanning,
             onSelected: (choice) {
               if (choice == 'camera') {
@@ -316,20 +310,20 @@ class _ScannerViewState extends State<ScannerView> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'file',
-                child: Text('Choose replacement file or picture'),
+                child: Text(tkL10n(context).chooseReplacementFile),
               ),
               if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'camera',
-                  child: Text('Take replacement photo'),
+                  child: Text(tkL10n(context).takeReplacementPhoto),
                 ),
             ],
             icon: const Icon(Icons.edit_outlined),
           ),
           IconButton(
-            tooltip: 'Remove ${file.name}',
+            tooltip: tkL10n(context).removeFile(file.name),
             onPressed: _scanning
                 ? null
                 : () => setState(() => _selectedFiles.removeAt(index)),
@@ -367,9 +361,7 @@ class _ScannerViewState extends State<ScannerView> {
       }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = 'A previous camera photo could not be restored. Please take it again.',
-        );
+        setState(() => _error = tkL10n(context).previousCameraPhotoNotRestored);
       }
     }
   }
@@ -377,14 +369,11 @@ class _ScannerViewState extends State<ScannerView> {
   Future<void> _scan() async {
     if (_scanning) return;
     if (_selectedFiles.isEmpty) {
-      setState(() => _error = 'Choose a document first.');
+      setState(() => _error = tkL10n(context).chooseDocumentFirst);
       return;
     }
     if (!_consent) {
-      setState(
-        () => _error =
-            'Please agree before sending the selected files to Gemini.',
-      );
+      setState(() => _error = tkL10n(context).agreeBeforeGeminiScan);
       return;
     }
 
@@ -441,11 +430,12 @@ class _ScannerViewState extends State<ScannerView> {
       _consent = false;
       if (failedFiles.isEmpty) {
         _goalController.clear();
-        _error = '$scanned ${scanned == 1 ? 'document' : 'documents'} scanned.';
+        _error = tkL10n(context).scanDocumentsCount(scanned);
       } else {
         _error = [
           firstFailure,
-          '$scanned of ${filesToScan.length} scanned; ${failedFiles.length} remain. Fix the issue and retry the remaining files.',
+          tkL10n(context)
+              .scansRemain(scanned, filesToScan.length, failedFiles.length),
         ].whereType<String>().join('\n');
       }
       _history = ApiClient.instance.documentScans();
@@ -453,19 +443,17 @@ class _ScannerViewState extends State<ScannerView> {
     if (_cancelRequested && failedFiles.isNotEmpty) {
       await _recordOutcome(
         'canceled',
-        '${failedFiles.length} remaining document${failedFiles.length == 1 ? '' : 's'}',
+        tkL10n(context).remainingDocuments(failedFiles.length),
       );
-      _showToast('Document scan canceled. Remaining files are ready to retry.');
+      if (!mounted) return;
+      _showToast(tkL10n(context).documentScanCanceled);
     } else if (failedFiles.isNotEmpty) {
-      _showToast(
-        'Some scans failed. Check Notifications for details.',
-        isError: true,
-      );
+      _showToast(tkL10n(context).someScansFailed, isError: true);
     } else if (scanned > 0) {
       _showToast(
         reusedRecentScan
-            ? 'This exact file was scanned recently; its saved result was reused without creating a duplicate.'
-            : '$scanned document${scanned == 1 ? '' : 's'} scanned successfully.',
+            ? tkL10n(context).duplicateScanReused
+            : tkL10n(context).documentsScannedSuccessfully(scanned),
       );
     }
     if (scanned > 0) widget.onScanComplete();
@@ -539,13 +527,13 @@ class _ScannerViewState extends State<ScannerView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TkPageHeading(
-                  eyebrow: 'YOUR SKILLS, DISCOVERED',
-                  title: 'Document scanner',
+                TkPageHeading(
+                  eyebrow: tkL10n(context).scannerEyebrow,
+                  title: tkL10n(context).documentScanner,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Understand a document and find next steps.',
+                  tkL10n(context).understandDocumentNextSteps,
                   style: tkText(context, size: 15, color: colors.muted),
                 ),
                 const SizedBox(height: 18),
@@ -555,32 +543,32 @@ class _ScannerViewState extends State<ScannerView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'How to use the scanner',
+                        tkL10n(context).howToUseScanner,
                         style: tkText(context, size: 15, weight: 500),
                       ),
                       _scanStep(
                         context,
                         1,
-                        'Choose your document',
-                        'Select a resume, certificate, or training document, or take a clear photo.',
+                        tkL10n(context).chooseYourDocument,
+                        tkL10n(context).scannerChooseDocumentLong,
                       ),
                       _scanStep(
                         context,
                         2,
-                        'Add a goal if you want',
-                        'Tell Gemini what you are aiming for, such as a job or TESDA course.',
+                        tkL10n(context).addGoalOptional,
+                        tkL10n(context).scannerGoalDescription,
                       ),
                       _scanStep(
                         context,
                         3,
-                        'Review and agree',
-                        'Check the selected files and consent before they are sent for analysis.',
+                        tkL10n(context).reviewAndAgree,
+                        tkL10n(context).scannerReviewDescription,
                       ),
                       _scanStep(
                         context,
                         4,
-                        'Scan, then review your next steps',
-                        'Check suggested jobs, skills to build, and learning resources. Confirm important details with the provider.',
+                        tkL10n(context).scanReviewNextSteps,
+                        tkL10n(context).scannerReviewResultsDescription,
                       ),
                     ],
                   ),
@@ -591,12 +579,12 @@ class _ScannerViewState extends State<ScannerView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Google Gemini AI',
+                        tkL10n(context).geminiAi,
                         style: tkText(context, size: 17, weight: 500),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Gemini summarizes documents, identifies covered skills and topics, and suggests related careers and training.',
+                        tkL10n(context).geminiScannerDescription,
                         style: tkText(
                           context,
                           size: 13.5,
@@ -606,7 +594,7 @@ class _ScannerViewState extends State<ScannerView> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Your file is temporarily stored for the scan and sent to Google Gemini. Tuklas deletes the uploaded file after processing; your scan summary stays in your account.',
+                        tkL10n(context).scannerPrivacyLong,
                         style: tkText(
                           context,
                           size: 12.5,
@@ -623,7 +611,7 @@ class _ScannerViewState extends State<ScannerView> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          'Gemini is an AI and can get details or TESDA matches wrong. Check the result and confirm training and assessment requirements with TESDA or the provider.',
+                          tkL10n(context).scannerAiNotice,
                           style: tkText(
                             context,
                             size: 12.5,
@@ -638,7 +626,7 @@ class _ScannerViewState extends State<ScannerView> {
                         child: OutlinedButton.icon(
                           onPressed: _scanning ? null : _pickDocument,
                           icon: const Icon(Icons.attach_file),
-                          label: const Text('Choose multiple files or images'),
+                          label: Text(tkL10n(context).chooseMultipleFiles),
                         ),
                       ),
                       if (!kIsWeb &&
@@ -649,7 +637,7 @@ class _ScannerViewState extends State<ScannerView> {
                           child: OutlinedButton.icon(
                             onPressed: _scanning ? null : _takeDocumentPhoto,
                             icon: const Icon(Icons.camera_alt_outlined),
-                            label: const Text('Take document photo'),
+                            label: Text(tkL10n(context).takeDocumentPhoto),
                           ),
                         ),
                       ],
@@ -682,7 +670,7 @@ class _ScannerViewState extends State<ScannerView> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'Ready to scan',
+                                        tkL10n(context).readyToScan,
                                         style: tkText(
                                           context,
                                           size: 13,
@@ -713,7 +701,7 @@ class _ScannerViewState extends State<ScannerView> {
                       ],
                       const SizedBox(height: 6),
                       Text(
-                        'PDF, DOCX or image · up to 10 MB each · up to 5 files per scan',
+                        tkL10n(context).scanFileLimits,
                         style: tkText(context, size: 12, color: colors.muted),
                       ),
                       const SizedBox(height: 12),
@@ -723,9 +711,9 @@ class _ScannerViewState extends State<ScannerView> {
                         maxLines: 3,
                         minLines: 2,
                         enabled: !_scanning,
-                        decoration: const InputDecoration(
-                          labelText: 'What should Gemini focus on? (optional)',
-                          hintText: 'Example: Match my certificate to a TESDA qualification and explain why.',
+                        decoration: InputDecoration(
+                          labelText: tkL10n(context).geminiFocusOptional,
+                          hintText: tkL10n(context).scannerExamplePrompt,
                           alignLabelWithHint: true,
                         ),
                       ),
@@ -738,7 +726,7 @@ class _ScannerViewState extends State<ScannerView> {
                             : (value) =>
                                   setState(() => _consent = value ?? false),
                         title: Text(
-                          'I agree to send the selected files to Google Gemini to scan them.',
+                          tkL10n(context).agreeSendFilesToGemini,
                           style: tkText(context, size: 13),
                         ),
                         controlAffinity: ListTileControlAffinity.leading,
@@ -767,8 +755,9 @@ class _ScannerViewState extends State<ScannerView> {
                               : const Icon(Icons.auto_awesome),
                           label: Text(
                             _scanning
-                                ? 'Scanning documents…'
-                                : 'Scan ${_selectedFiles.length} document${_selectedFiles.length == 1 ? '' : 's'}',
+                                ? tkL10n(context).scanningDocuments
+                                : tkL10n(context)
+                                      .scanDocumentCount(_selectedFiles.length),
                           ),
                         ),
                       ),
@@ -781,12 +770,13 @@ class _ScannerViewState extends State<ScannerView> {
                                 ? null
                                 : () => setState(() {
                                     _cancelRequested = true;
-                                    _error = 'Canceling after the current document finishes…';
+                                    _error = tkL10n(context)
+                                        .cancelingCurrentDocument;
                                   }),
                             child: Text(
                               _cancelRequested
-                                  ? 'Canceling…'
-                                  : 'Cancel remaining scans',
+                                  ? tkL10n(context).canceling
+                                  : tkL10n(context).cancelRemainingScans,
                             ),
                           ),
                         ),
@@ -798,7 +788,7 @@ class _ScannerViewState extends State<ScannerView> {
                   const SizedBox(height: 16),
                   _analysisCard(
                     context,
-                    '${_latestDocument!['original_name'] ?? 'Latest scan'}',
+                    '${_latestDocument!['original_name'] ?? tkL10n(context).latestScan}',
                     asMap(_latestDocument!['analysis']),
                   ),
                 ],
@@ -808,7 +798,7 @@ class _ScannerViewState extends State<ScannerView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Your scans',
+                        tkL10n(context).yourScans,
                         style: tkText(context, size: 17, weight: 500),
                       ),
                       const SizedBox(height: 12),
@@ -827,7 +817,7 @@ class _ScannerViewState extends State<ScannerView> {
                           if (snapshot.hasError) {
                             final message = snapshot.error is ApiException
                                 ? (snapshot.error as ApiException).message
-                                : 'Could not load your scan history.';
+                                : tkL10n(context).couldNotLoadScanHistory;
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -846,7 +836,9 @@ class _ScannerViewState extends State<ScannerView> {
                                         .documentScans(),
                                   ),
                                   icon: const Icon(Icons.refresh),
-                                  label: const Text('Retry loading scans'),
+                                  label: Text(
+                                    tkL10n(context).retryLoadingScans,
+                                  ),
                                 ),
                               ],
                             );
@@ -854,7 +846,7 @@ class _ScannerViewState extends State<ScannerView> {
                           final documents = snapshot.data ?? [];
                           if (documents.isEmpty) {
                             return Text(
-                              'Your completed scans will appear here.',
+                              tkL10n(context).completedScansEmpty,
                               style: tkText(
                                 context,
                                 size: 13,
@@ -884,6 +876,7 @@ class _ScannerViewState extends State<ScannerView> {
   Widget _historyItem(BuildContext context, Map<String, dynamic> document) {
     final analysis = asMap(document['analysis']);
     final status = '${document['status'] ?? 'processing'}';
+    final l10n = tkL10n(context);
     final tone = status == 'completed'
         ? 'good'
         : status == 'failed'
@@ -893,14 +886,21 @@ class _ScannerViewState extends State<ScannerView> {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       title: Text(
-        '${document['original_name'] ?? 'Document'}',
+        '${document['original_name'] ?? l10n.document}',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: tkText(context, size: 14, weight: 500),
       ),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 4),
-        child: TkChip(label: status, tone: tone),
+        child: TkChip(
+          label: switch (status) {
+            'completed' => l10n.scanCompleted,
+            'failed' => l10n.scanFailed,
+            _ => l10n.scanProcessing,
+          },
+          tone: tone,
+        ),
       ),
       children: [
         if (document['failure_message'] != null)
@@ -938,37 +938,72 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   Widget _analysisContent(BuildContext context, Map<String, dynamic> analysis) {
+    final l10n = tkL10n(context);
     final sections = <(String, String)>[
-      ('summary', 'Summary'),
+      ('summary', l10n.scanSummary),
       (
         analysis.containsKey('skillsDetected') ? 'skillsDetected' : 'skills',
-        'Skills found',
+        l10n.skillsFound,
       ),
       (
         analysis.containsKey('careerMatches') ? 'careerMatches' : 'job_roles',
-        'Career matches',
+        l10n.careerMatches,
       ),
-      ('jobRecommendations', 'Job recommendations'),
-      ('skillGaps', 'Skills to build'),
+      ('jobRecommendations', l10n.jobRecommendations),
+      ('skillGaps', l10n.skillsToBuild),
       (
         analysis.containsKey('tesdaRecommendations')
             ? 'tesdaRecommendations'
             : 'tesda_training',
-        'TESDA training to consider',
+        l10n.tesdaTrainingConsider,
       ),
-      ('learningRecommendations', 'Learning recommendations'),
+      ('learningRecommendations', l10n.learningRecommendations),
       (
         analysis.containsKey('nextActions') ? 'nextActions' : 'next_steps',
-        'Next steps',
+        l10n.nextSteps,
       ),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (analysis['extractedFields'] is Map) ...[
+        if (analysis['keyFacts'] is List &&
+            asList(analysis['keyFacts']).isNotEmpty) ...[
           Text(
-            'Readable document details',
+            l10n.keyDetails,
+            style: tkText(context, size: 13.5, weight: 500),
+          ),
+          const SizedBox(height: 4),
+          for (final fact in asList(analysis['keyFacts']))
+            if (fact is Map && fact['label'] != null && fact['value'] != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 4, top: 2, bottom: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${fact['label']}: ${fact['value']}',
+                      style: tkText(context, size: 12.5),
+                    ),
+                    if (fact['evidence'] is String &&
+                        (fact['evidence'] as String).trim().isNotEmpty)
+                      Text(
+                        '${l10n.documentEvidenceLabel}: ${fact['evidence']}',
+                        style: tkText(
+                          context,
+                          size: 11.5,
+                          color: TkColors.of(context).muted,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+        ],
+        if (analysis['extractedFields'] is Map &&
+            asMap(analysis['extractedFields']).values
+                .any((value) => value != null && value != '')) ...[
+          Text(
+            l10n.readableDocumentDetails,
             style: tkText(context, size: 13.5, weight: 500),
           ),
           const SizedBox(height: 4),
@@ -977,7 +1012,7 @@ class _ScannerViewState extends State<ScannerView> {
               padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
               child: Text(
                 '${_fieldLabel(entry.key)}: ${entry.value == null
-                    ? 'Not readable or not shown'
+                    ? l10n.notReadableOrShown
                     : entry.value == true
                     ? 'Yes'
                     : entry.value == false
@@ -987,9 +1022,9 @@ class _ScannerViewState extends State<ScannerView> {
               ),
             ),
         ],
-        for (final (key, label) in const <(String, String)>[
-          ('identityChecks', 'Identity cross-check'),
-          ('requirementChecks', 'Requirement cross-check'),
+        for (final (key, label) in <(String, String)>[
+          ('identityChecks', l10n.identityCrossCheck),
+          ('requirementChecks', l10n.requirementCrossCheck),
         ])
           if (analysis[key] is List && asList(analysis[key]).isNotEmpty) ...[
             Padding(
@@ -1015,7 +1050,7 @@ class _ScannerViewState extends State<ScannerView> {
         if (analysis['recommended_links'] is List &&
             asList(analysis['recommended_links']).isNotEmpty) ...[
           Text(
-            'Open in Tuklas',
+            l10n.openInTuklas,
             style: tkText(context, size: 13.5, weight: 500),
           ),
           const SizedBox(height: 6),
@@ -1034,7 +1069,7 @@ class _ScannerViewState extends State<ScannerView> {
                       size: 15,
                       color: TkColors.violet,
                     ),
-                    label: Text('${item['label'] ?? 'Open page'}'),
+                    label: Text('${item['label'] ?? l10n.openPage}'),
                     onPressed: widget.onOpenLink == null
                         ? null
                         : () => widget.onOpenLink!(
@@ -1069,30 +1104,32 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   String _fieldLabel(String key) => switch (key) {
-    'fullName' => 'Name',
-    'issuingOrganization' => 'Issuing organization',
-    'issueDate' => 'Issue date',
-    'expiryDate' => 'Expiry date',
-    'signaturePresent' => 'Signature visible',
-    'qualification' => 'Qualification',
+    'fullName' => tkL10n(context).name,
+    'issuingOrganization' => tkL10n(context).issuingOrganization,
+    'issueDate' => tkL10n(context).issueDate,
+    'expiryDate' => tkL10n(context).expiryDate,
+    'signaturePresent' => tkL10n(context).signatureVisible,
+    'qualification' => tkL10n(context).qualification,
     _ => key,
   };
 
   String _checkText(dynamic check) {
     if (check is! Map) return '$check';
-    final subject = check['field'] ?? check['requirement'] ?? 'Check';
+    final subject =
+        check['field'] ?? check['requirement'] ?? tkL10n(context).checkLabel;
     final details = [
       check['status'],
       check['reason'],
       check['evidence'],
     ].where((value) => value != null && '$value'.trim().isNotEmpty).join(' · ');
-    return '$subject: ${details.isEmpty ? 'No readable comparison available' : details}';
+    return '$subject: ${details.isEmpty ? tkL10n(context).noReadableComparison : details}';
   }
 
   String _analysisItemText(dynamic item) {
     if (item is! Map) return '$item';
 
-    final title = item['title'] ?? item['name'] ?? 'Recommendation';
+    final title =
+        item['title'] ?? item['name'] ?? tkL10n(context).recommendation;
     final reason = item['reason'];
     final description = item['description'];
     final source = item['source'] ?? item['site'];
@@ -1127,14 +1164,12 @@ class _ScannerViewState extends State<ScannerView> {
               );
               if (!opened && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Could not open this resource.'),
-                  ),
+                  SnackBar(content: Text(tkL10n(context).couldNotOpenResource)),
                 );
               }
             },
             icon: const Icon(Icons.open_in_new, size: 14),
-            label: const Text('Open resource'),
+            label: Text(tkL10n(context).openResource),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               visualDensity: VisualDensity.compact,

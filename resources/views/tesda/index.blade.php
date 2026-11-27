@@ -17,14 +17,14 @@
     </head>
     <body class="tesda-body">
         <header class="hdr" id="hdr">
-            <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
-            <nav class="pill" aria-label="Primary">
+            <a href="{{ route('home') }}" class="logo" aria-label="{{ __('Tuklas home') }}"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
+            <nav class="pill" aria-label="{{ __('Primary') }}">
                 <a href="{{ route('home') }}#features">Features</a>
                 <a href="{{ route('scanner.index') }}">Scanner</a>
                 <a href="{{ route('tesda.index') }}" aria-current="page">TESDA</a>
             </nav>
             <div class="hdr-actions">
-                <a class="login" href="{{ route('login') }}">Log in</a>
+                <a class="login" href="{{ route('login') }}">{{ __('Log in') }}</a>
                 <a class="btn btn-black" href="{{ route('register') }}">Get started</a>
             </div>
         </header>

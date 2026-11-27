@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../date_format.dart';
+import '../l10n/app_localizations.dart';
+import '../locale_controller.dart';
 import 'workspace_view.dart';
 import '../theme.dart';
 import '../ui.dart';
@@ -12,15 +14,37 @@ class ProfileView extends StatefulWidget {
     required this.onSaved,
     required this.onLogout,
     this.loadProfile,
+    this.saveAccount,
   });
 
   final VoidCallback onSaved;
   final VoidCallback onLogout;
   final Future<Map<String, dynamic>> Function()? loadProfile;
+  final Future<Map<String, dynamic>> Function(Map<String, dynamic>)?
+  saveAccount;
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
 }
+
+String _localizedOption(AppLocalizations l10n, String option) =>
+    switch (option) {
+      'Elementary graduate' => l10n.elementaryGraduate,
+      'Junior high school undergraduate' => l10n.juniorHighUndergraduate,
+      'Junior high school graduate' => l10n.juniorHighGraduate,
+      'Senior high school undergraduate' => l10n.seniorHighUndergraduate,
+      'Senior high school graduate' => l10n.seniorHighGraduate,
+      'Vocational or TVET graduate' => l10n.vocationalGraduate,
+      'College undergraduate' => l10n.collegeUndergraduate,
+      'College graduate' => l10n.collegeGraduate,
+      'Postgraduate' => l10n.postgraduate,
+      'Student' => l10n.student,
+      'Employed' => l10n.employed,
+      'Self-employed' => l10n.selfEmployed,
+      'Unemployed' => l10n.unemployed,
+      'Out of school' => l10n.outOfSchool,
+      _ => option,
+    };
 
 class _ProfileViewState extends State<ProfileView> {
   late Future<Map<String, dynamic>> _future;
@@ -48,6 +72,63 @@ class _ProfileViewState extends State<ProfileView> {
   void initState() {
     super.initState();
     _future = (widget.loadProfile ?? ApiClient.instance.profile)();
+  }
+
+  Widget _languageCard(BuildContext context) {
+    final l10n = tkL10n(context);
+    return TkCard(
+      child: ListenableBuilder(
+        listenable: localeController,
+        builder: (context, _) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.languageSettings,
+              style: tkText(context, size: 16, weight: 500),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.languageSettingsDescription,
+              style: tkText(
+                context,
+                size: 13,
+                color: TkColors.of(context).muted,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              key: ValueKey('language-${localeController.languageCode}'),
+              initialValue: localeController.languageCode,
+              decoration: InputDecoration(labelText: l10n.chooseLanguage),
+              items: [
+                DropdownMenuItem(value: 'en', child: Text(l10n.english)),
+                DropdownMenuItem(
+                  value: 'tl',
+                  child: Text(l10n.tagalogFilipino),
+                ),
+              ],
+              onChanged: _saving ? null : _updateLanguage,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _updateLanguage(String? languageCode) async {
+    if (languageCode == null) return;
+    await localeController.setLocale(languageCode);
+    try {
+      await (widget.saveAccount ?? ApiClient.instance.updateAccount)({
+        'locale': languageCode,
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tkL10n(context).saveLanguageError)),
+      );
+    }
   }
 
   @override
@@ -86,19 +167,20 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _editAccount(Map<String, dynamic> account) async {
     _fillAccount(account);
+    final l10n = tkL10n(context);
     final accepted = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit account profile'),
+        title: Text(l10n.editAccountProfile),
         scrollable: true,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             for (final field in [
-              ('Last name', _accountLastName),
-              ('First name', _accountFirstName),
-              ('Middle initial (optional)', _accountMiddleInitial),
-              ('Email', _accountEmail),
+              (l10n.lastName, _accountLastName),
+              (l10n.firstName, _accountFirstName),
+              (l10n.middleInitialOptional, _accountMiddleInitial),
+              (l10n.email, _accountEmail),
             ]) ...[
               Align(
                 alignment: Alignment.centerLeft,
@@ -122,11 +204,11 @@ class _ProfileViewState extends State<ProfileView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -134,12 +216,13 @@ class _ProfileViewState extends State<ProfileView> {
     if (accepted != true || !mounted) return;
 
     try {
-      final response = await ApiClient.instance.updateAccount({
-        'last_name': _accountLastName.text.trim(),
-        'first_name': _accountFirstName.text.trim(),
-        'middle_initial': _accountMiddleInitial.text.trim(),
-        'email': _accountEmail.text.trim(),
-      });
+      final response =
+          await (widget.saveAccount ?? ApiClient.instance.updateAccount)({
+            'last_name': _accountLastName.text.trim(),
+            'first_name': _accountFirstName.text.trim(),
+            'middle_initial': _accountMiddleInitial.text.trim(),
+            'email': _accountEmail.text.trim(),
+          });
       ApiClient.instance.user = Map<String, dynamic>.from(
         response['user'] as Map,
       );
@@ -155,11 +238,7 @@ class _ProfileViewState extends State<ProfileView> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Could not reach the server. Check your connection and try again.',
-          ),
-        ),
+        SnackBar(content: Text(tkL10n(context).couldNotReachServer)),
       );
     }
   }
@@ -183,7 +262,7 @@ class _ProfileViewState extends State<ProfileView> {
       initialDate: initial,
       firstDate: first,
       lastDate: last,
-      helpText: 'Choose a date between ages 18 and 30',
+      helpText: tkL10n(context).chooseAgeRangeDate,
     );
     if (picked == null) return;
     setState(() => _dob = formatDateForApi(picked));
@@ -209,7 +288,10 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             for (final option in options)
               ListTile(
-                title: Text(option, style: tkText(sheet, size: 14.5)),
+                title: Text(
+                  _localizedOption(tkL10n(sheet), option),
+                  style: tkText(sheet, size: 14.5),
+                ),
                 trailing: option == current
                     ? const Icon(Icons.check, color: TkColors.violet)
                     : null,
@@ -238,7 +320,7 @@ class _ProfileViewState extends State<ProfileView> {
         'livelihood_interests': _interests.text.trim(),
       });
       if (!mounted) return;
-      setState(() => _flash = 'Your details were saved.');
+      setState(() => _flash = tkL10n(context).accountSaved);
       widget.onSaved();
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -249,7 +331,7 @@ class _ProfileViewState extends State<ProfileView> {
     } catch (_) {
       if (!mounted) return;
       setState(
-        () => _formError = 'Could not reach the server. Check the address and your connection.',
+        () => _formError = tkL10n(context).serverAddressAndConnectionError,
       );
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -269,7 +351,7 @@ class _ProfileViewState extends State<ProfileView> {
         if (snapshot.hasError) {
           final message = snapshot.error is ApiException
               ? (snapshot.error as ApiException).message
-              : 'Could not reach the server. Check the address and your connection.';
+              : tkL10n(context).serverAddressAndConnectionError;
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -284,7 +366,7 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                     TextButton(
                       onPressed: widget.onLogout,
-                      child: const Text('Log out'),
+                      child: Text(tkL10n(context).logOut),
                     ),
                   ],
                 ),
@@ -294,6 +376,7 @@ class _ProfileViewState extends State<ProfileView> {
         }
 
         final data = snapshot.data!;
+        final l10n = tkL10n(context);
         final youth = data['youth'];
         final account = asMap(data['account']);
         if (!_accountFilled) _fillAccount(account);
@@ -308,12 +391,14 @@ class _ProfileViewState extends State<ProfileView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const TkPageHeading(
-                      eyebrow: 'YOUR PROFILE',
-                      title: 'A profile that grows with you',
+                    TkPageHeading(
+                      eyebrow: l10n.yourProfile,
+                      title: l10n.profileGrowsWithYou,
                     ),
                     const SizedBox(height: 12),
                     _accountCard(context, account),
+                    const SizedBox(height: 16),
+                    _languageCard(context),
                     const SizedBox(height: 16),
                     if (youth is Map)
                       _youthCard(context, asMap(data['options'])),
@@ -327,10 +412,8 @@ class _ProfileViewState extends State<ProfileView> {
                           listenable: motionController,
                           builder: (context, _) => SwitchListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: const Text('Reduce motion'),
-                            subtitle: const Text(
-                              'Turn off transitions for smoother use on budget devices.',
-                            ),
+                            title: Text(l10n.reduceMotion),
+                            subtitle: Text(l10n.reduceMotionDescription),
                             value: motionController.enabled,
                             onChanged: motionController.setEnabled,
                           ),
@@ -374,7 +457,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
           ),
           IconButton(
-            tooltip: 'Edit profile',
+            tooltip: tkL10n(context).editProfile,
             onPressed: _saving ? null : () => _editAccount(account),
             icon: const Icon(Icons.edit_outlined),
           ),
@@ -390,12 +473,12 @@ class _ProfileViewState extends State<ProfileView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Password and security',
+            tkL10n(context).passwordAndSecurity,
             style: tkText(context, size: 16, weight: 500),
           ),
           const SizedBox(height: 6),
           Text(
-            'Manage your account details, password, and two-factor authentication here.',
+            tkL10n(context).manageAccountSecurity,
             style: tkText(context, size: 13, color: c.muted, height: 1.5),
           ),
           TextButton(
@@ -406,7 +489,7 @@ class _ProfileViewState extends State<ProfileView> {
                     const WorkspaceView(section: 'Account & security'),
               ),
             ),
-            child: const Text('Open account & security'),
+            child: Text(tkL10n(context).openAccountSecurity),
           ),
         ],
       ),
@@ -422,10 +505,13 @@ class _ProfileViewState extends State<ProfileView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Sign out', style: tkText(context, size: 16, weight: 500)),
+                Text(
+                  tkL10n(context).signOut,
+                  style: tkText(context, size: 16, weight: 500),
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  'Sign out of your Tuklas account on this device.',
+                  tkL10n(context).signOutDescription,
                   style: tkText(context, size: 13, color: c.muted, height: 1.4),
                 ),
               ],
@@ -436,7 +522,7 @@ class _ProfileViewState extends State<ProfileView> {
             key: const ValueKey('profile-logout-button'),
             onPressed: widget.onLogout,
             icon: const Icon(Icons.logout, size: 18),
-            label: const Text('Log out'),
+            label: Text(tkL10n(context).logOut),
             style: FilledButton.styleFrom(
               backgroundColor: c.badBg,
               foregroundColor: c.bad,
@@ -549,12 +635,12 @@ class _ProfileViewState extends State<ProfileView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Career Seeker details',
+            tkL10n(context).careerSeekerDetails,
             style: tkText(context, size: 17, weight: 500),
           ),
           const SizedBox(height: 6),
           Text(
-            'Tell us about your education and interests. Tuklas uses these to suggest careers and TESDA training. Suggestions are guidance; they do not guarantee a job, admission, or a training place.',
+            tkL10n(context).careerSeekerProfileDescription,
             style: tkText(context, size: 13, color: c.muted, height: 1.5),
           ),
           const SizedBox(height: 20),
@@ -590,32 +676,32 @@ class _ProfileViewState extends State<ProfileView> {
           ],
           _select(
             context,
-            'Date of birth',
+            tkL10n(context).dateOfBirth,
             'date_of_birth',
             _dob,
-            'Select your date of birth',
+            tkL10n(context).selectDateOfBirth,
             _pickDob,
             displayValue: _dob == null ? null : formatTuklasDate(_dob),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Text(
-              'Career Seeker accounts are for people aged 18 to 30.',
+              tkL10n(context).careerSeekerAgeNotice,
               style: tkText(context, size: 12.5, color: c.muted),
             ),
           ),
           const SizedBox(height: 16),
           _text(
             context,
-            'Barangay',
+            tkL10n(context).barangay,
             'barangay',
             _barangay,
-            hint: 'Barangay in Bugallon',
+            hint: '${tkL10n(context).barangay} in Bugallon',
           ),
           const SizedBox(height: 16),
           _text(
             context,
-            'Contact number',
+            tkL10n(context).contactNumber,
             'contact_number',
             _contact,
             type: TextInputType.phone,
@@ -623,42 +709,48 @@ class _ProfileViewState extends State<ProfileView> {
           const SizedBox(height: 16),
           _select(
             context,
-            'Educational attainment',
+            tkL10n(context).educationalAttainment,
             'educational_attainment',
             _education,
-            'Select one',
+            tkL10n(context).selectOne,
             () async {
               final picked = await _choose(
-                'Educational attainment',
+                tkL10n(context).educationalAttainment,
                 education,
                 _education,
               );
               if (picked != null) setState(() => _education = picked);
             },
+            displayValue: _education == null
+                ? null
+                : _localizedOption(tkL10n(context), _education!),
           ),
           const SizedBox(height: 16),
           _select(
             context,
-            'Current status',
+            tkL10n(context).currentStatus,
             'employment_status',
             _employment,
-            'Select one',
+            tkL10n(context).selectOne,
             () async {
               final picked = await _choose(
-                'Current status',
+                tkL10n(context).currentStatus,
                 employment,
                 _employment,
               );
               if (picked != null) setState(() => _employment = picked);
             },
+            displayValue: _employment == null
+                ? null
+                : _localizedOption(tkL10n(context), _employment!),
           ),
           const SizedBox(height: 16),
           _text(
             context,
-            'Interests and livelihood interests',
+            tkL10n(context).interestsAndLivelihood,
             'livelihood_interests',
             _interests,
-            hint: 'For example: cooking, farming, electronics, selling online',
+            hint: tkL10n(context).livelihoodExamples,
             lines: 3,
           ),
           const SizedBox(height: 22),
@@ -687,7 +779,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
                     )
                   : Text(
-                      'Save details',
+                      tkL10n(context).saveDetails,
                       style: tkText(
                         context,
                         size: 14,

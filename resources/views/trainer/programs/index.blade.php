@@ -34,12 +34,12 @@
                     <div class="trainer-courses__card-actions">
                         <a href="{{ route('trainer.programs.edit', $program) }}">Edit course <span aria-hidden="true">↗</span></a>
                         <details>
-                            <summary>Delete</summary>
+                            <summary>{{ __('Delete') }}</summary>
                             <form method="POST" action="{{ route('trainer.programs.destroy', $program) }}">
                                 @csrf
                                 @method('DELETE')
                                 <p>Delete {{ $program->title }} permanently? Courses with linked records must be archived instead.</p>
-                                <button type="submit">Confirm delete</button>
+                                <button type="submit">{{ __('Confirm delete') }}</button>
                             </form>
                         </details>
                     </div>

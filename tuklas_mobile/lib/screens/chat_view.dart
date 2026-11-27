@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
+import '../locale_controller.dart';
 import '../theme.dart';
 import '../ui.dart';
 
@@ -54,9 +55,7 @@ class CareerChatCardState extends State<CareerChatCard> {
       _scrollToLatest();
     } catch (e) {
       if (mounted) {
-        setState(
-          () => _error = 'Could not load conversation history. Try again.',
-        );
+        setState(() => _error = tkL10n(context).couldNotLoadConversation);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -127,7 +126,7 @@ class CareerChatCardState extends State<CareerChatCard> {
                 .map(
                   (link) => <String, dynamic>{
                     'type': 'internal',
-                    'title': link['label'] ?? 'Open Tuklas page',
+                    'title': link['label'] ?? tkL10n(context).openResource,
                     'url': link['web_url'],
                     'mobile_route': link['mobile_route'],
                   },
@@ -152,7 +151,9 @@ class CareerChatCardState extends State<CareerChatCard> {
           _messageController.text = text;
         }
         _messages.removeLast();
-        _error = error is ApiException ? error.message : 'Could not reach the career assistant. Check your connection and try again.';
+        _error = error is ApiException
+            ? error.message
+            : tkL10n(context).couldNotReachCareerAssistant;
       });
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -170,7 +171,7 @@ class CareerChatCardState extends State<CareerChatCard> {
 
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open this source.')),
+        SnackBar(content: Text(tkL10n(context).couldNotOpenSource)),
       );
     }
   }
@@ -213,7 +214,10 @@ class CareerChatCardState extends State<CareerChatCard> {
 
     return [
       const SizedBox(height: 6),
-      Text('Sources', style: tkText(context, size: 11.5, color: colors.muted)),
+      Text(
+        tkL10n(context).sources,
+        style: tkText(context, size: 11.5, color: colors.muted),
+      ),
       const SizedBox(height: 3),
       Wrap(spacing: 4, runSpacing: 2, children: links),
     ];
@@ -222,18 +226,27 @@ class CareerChatCardState extends State<CareerChatCard> {
   @override
   Widget build(BuildContext context) {
     final colors = TkColors.of(context);
+    final l10n = tkL10n(context);
+    final isTagalog = localeController.languageCode == 'tl';
     final suggestions = [
-      'Explore careers',
-      'AI skills + TESDA',
-      'Plan a next step',
-      'Build my skills',
+      l10n.exploreCareers,
+      l10n.aiSkillsTesda,
+      l10n.planNextStep,
+      l10n.buildMySkills,
     ];
-    final prompts = [
-      'Help me explore careers that match my interests.',
-      'I want to work in AI. What skills should I develop, and which TESDA NC or online TESDA course should I consider first?',
-      'Help me make a practical plan for my next step.',
-      'What skills should I build for the kind of work I want?',
-    ];
+    final prompts = isTagalog
+        ? const [
+            'Tulungan akong tuklasin ang mga karerang tugma sa mga interes ko.',
+            'Gusto kong magtrabaho sa larangan ng AI. Anong mga kasanayan ang dapat kong paunlarin, at anong TESDA NC o online TESDA course ang dapat kong unahin?',
+            'Tulungan akong gumawa ng praktikal na plano para sa susunod kong hakbang.',
+            'Anong mga kasanayan ang dapat kong paunlarin para sa trabahong gusto ko?',
+          ]
+        : [
+            l10n.promptExploreCareers,
+            l10n.promptAiSkillsTesda,
+            l10n.promptPlanNextStep,
+            l10n.promptBuildSkills,
+          ];
 
     return TkCard(
       child: Column(
@@ -242,12 +255,12 @@ class CareerChatCardState extends State<CareerChatCard> {
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
-              'How can I help you?',
+              l10n.chatHowCanIHelp,
               style: tkText(context, size: 17, weight: 500, spacing: -0.2),
             ),
           ),
           Text(
-            'Ask Tuklas about careers, AI skills, TESDA training, or a practical next step.',
+            l10n.chatIntro,
             style: tkText(context, size: 13, color: colors.muted, height: 1.4),
           ),
           const SizedBox(height: 12),
@@ -255,7 +268,7 @@ class CareerChatCardState extends State<CareerChatCard> {
           if (_error != null && _messages.isEmpty)
             TextButton(
               onPressed: _loadHistory,
-              child: const Text('Reload conversation'),
+              child: Text(l10n.reloadConversation),
             ),
           if (_messages.isNotEmpty)
             Container(
@@ -365,8 +378,8 @@ class CareerChatCardState extends State<CareerChatCard> {
                   maxLines: 2,
                   minLines: 1,
                   enabled: !_loading,
-                  decoration: const InputDecoration(
-                    hintText: 'Ask something...',
+                  decoration: InputDecoration(
+                    hintText: l10n.askSomething,
                     counterText: '',
                   ),
                   onSubmitted: (_) => _send(),
@@ -375,14 +388,14 @@ class CareerChatCardState extends State<CareerChatCard> {
               const SizedBox(width: 8),
               IconButton.filled(
                 onPressed: _sending || _loading ? null : _send,
-                tooltip: 'Send message',
+                tooltip: l10n.sendMessage,
                 icon: const Icon(Icons.arrow_upward),
               ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
-            'Messages are sent to Google Gemini. For career questions, limited skills and job matches from your latest resume or certificate scan may also be shared to personalize suggestions.',
+            l10n.chatPrivacyNote,
             style: tkText(context, size: 11.5, color: colors.muted),
           ),
         ],

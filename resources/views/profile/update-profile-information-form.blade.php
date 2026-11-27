@@ -65,7 +65,7 @@
             </div>
             <div>
                 <x-label for="middle_initial" value="{{ __('Middle Initial') }}" />
-                <x-input id="middle_initial" type="text" class="mt-1 block w-full" wire:model="state.middle_initial" maxlength="10" autocomplete="additional-name" placeholder="Optional" />
+                <x-input id="middle_initial" type="text" class="mt-1 block w-full" wire:model="state.middle_initial" maxlength="10" autocomplete="additional-name" placeholder="{{ __('Optional') }}" />
                 <x-input-error for="middle_initial" class="mt-2" />
             </div>
         </div>

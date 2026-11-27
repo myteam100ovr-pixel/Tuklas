@@ -165,8 +165,7 @@ void main() {
         'Jobs',
         'Training',
         'Inbox',
-        'Scanner',
-        'More',
+        'Profile',
       ]) {
         expect(find.text(label), findsOneWidget);
       }
@@ -206,7 +205,7 @@ void main() {
     expect(topDecoration.color, bottomDecoration.color);
   });
 
-  testWidgets('bottom navigation exposes six role grouped destinations', (
+  testWidgets('career seeker bottom navigation exposes five destinations', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -223,28 +222,26 @@ void main() {
     final destinations = tester
         .widgetList<NavigationDestination>(find.byType(NavigationDestination))
         .toList();
-    expect(destinations.length, 6);
+    expect(destinations.length, 5);
     expect(destinations.map((destination) => destination.label).toList(), [
       'Home',
       'Jobs',
       'Training',
       'Inbox',
-      'Scanner',
-      'More',
+      'Profile',
     ]);
     expect(destinations.map((destination) => destination.tooltip).toList(), [
       'Home',
       'Jobs',
       'Training',
       'Inbox',
-      'Scanner',
-      'More',
+      'Profile',
     ]);
     final selection = tester.widget<NavigationBar>(find.byType(NavigationBar));
     expect(selection.indicatorColor, TkColors.violet);
   });
 
-  testWidgets('More is the final bottom navigation destination', (
+  testWidgets('Profile is the final career seeker navigation destination', (
     WidgetTester tester,
   ) async {
     int? selectedIndex;
@@ -259,8 +256,8 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('More'));
-    expect(selectedIndex, 5);
+    await tester.tap(find.byTooltip('Profile'));
+    expect(selectedIndex, 4);
   });
 
   testWidgets('profile page provides a working Log out button', (

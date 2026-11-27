@@ -19,6 +19,7 @@ class MobileAuthControllerTest extends TestCase
 
         $response = $this->postJson(route('mobile.auth.register'), [
             'name' => 'Mobile Youth',
+            'date_of_birth' => '2004-05-12',
             'email' => 'mobile-youth@example.com',
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',
@@ -54,6 +55,7 @@ class MobileAuthControllerTest extends TestCase
 
         $this->postJson(route('mobile.auth.register'), [
             'name' => 'Duplicate Youth',
+            'date_of_birth' => '2004-05-12',
             'email' => 'existing@example.com',
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',
@@ -70,6 +72,7 @@ class MobileAuthControllerTest extends TestCase
     {
         $user = app(CreateNewUser::class)->create([
             'name' => 'Web Youth',
+            'date_of_birth' => '2004-05-12',
             'email' => 'web-youth@example.com',
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',

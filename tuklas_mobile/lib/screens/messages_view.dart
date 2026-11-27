@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
+import '../locale_controller.dart';
 import '../theme.dart';
 import '../ui.dart';
 
@@ -55,18 +56,18 @@ class _MessagesViewState extends State<MessagesView> {
   Widget build(BuildContext context) {
     final c = TkColors.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Messages')),
+      appBar: AppBar(title: Text(tkL10n(context).messages)),
       body: RefreshIndicator(
         onRefresh: () async => setState(() => _people = _loadPeople()),
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const TkPageHeading(
-              eyebrow: 'WORKSPACE · PEOPLE',
-              title: 'Messages',
+            TkPageHeading(
+              eyebrow: tkL10n(context).messageWorkspaceEyebrow,
+              title: tkL10n(context).messages,
             ),
             Text(
-              'Message administrators, trainers, and other active Tuklas members.',
+              tkL10n(context).messagePeopleDescription,
               style: tkText(context, color: c.muted),
             ),
             const SizedBox(height: 16),
@@ -75,7 +76,7 @@ class _MessagesViewState extends State<MessagesView> {
               textInputAction: TextInputAction.search,
               onSubmitted: (_) => setState(() => _people = _loadPeople()),
               decoration: InputDecoration(
-                hintText: 'Find a person',
+                hintText: tkL10n(context).messagesSearchHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.arrow_forward),
@@ -98,13 +99,13 @@ class _MessagesViewState extends State<MessagesView> {
                     child: Column(
                       children: [
                         Text(
-                          'Could not load people.',
+                          tkL10n(context).couldNotLoadPeople,
                           style: tkText(context, color: c.bad),
                         ),
                         TextButton(
                           onPressed: () =>
                               setState(() => _people = _loadPeople()),
-                          child: const Text('Try again'),
+                          child: Text(tkL10n(context).tryAgain),
                         ),
                       ],
                     ),
@@ -115,7 +116,7 @@ class _MessagesViewState extends State<MessagesView> {
                   return Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      'No active members found.',
+                      tkL10n(context).noActiveMembers,
                       textAlign: TextAlign.center,
                       style: tkText(context, color: c.muted),
                     ),
@@ -301,8 +302,8 @@ class _ConversationViewState extends State<_ConversationView>
       if (mounted) {
         setState(
           () => _loadError = _loaded
-              ? 'Messages could not sync. Retrying…'
-              : 'Could not load messages. Tap to retry.',
+              ? tkL10n(context).messagesCouldNotSync
+              : tkL10n(context).noMessagesRetry,
         );
       }
     } finally {
@@ -346,7 +347,10 @@ class _ConversationViewState extends State<_ConversationView>
           'flash': 'false',
         },
       );
-      socket = await WebSocket.connect(socketUri.toString());
+      socket = await WebSocket.connect(
+        socketUri.toString(),
+        headers: {'Accept-Language': localeController.languageCode},
+      );
       if (!mounted) {
         await socket.close();
         return;
@@ -460,11 +464,9 @@ class _ConversationViewState extends State<_ConversationView>
         _addMessage(asMap(response['message']));
       });
       if (sendingAttachments.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Attachment sent and saved in this conversation.'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(tkL10n(context).attachmentSent)));
       }
     } on ApiException catch (error) {
       if (mounted) {
@@ -474,11 +476,7 @@ class _ConversationViewState extends State<_ConversationView>
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Could not send message. Check your connection and try again.',
-            ),
-          ),
+          SnackBar(content: Text(tkL10n(context).couldNotSendMessage)),
         );
       }
     } finally {
@@ -509,7 +507,7 @@ class _ConversationViewState extends State<_ConversationView>
       }
     } on Exception catch (_) {
       if (mounted) {
-        _showAttachmentError('Could not open your files. Please try again.');
+        _showAttachmentError(tkL10n(context).couldNotOpenFiles);
       }
     }
   }
@@ -551,9 +549,7 @@ class _ConversationViewState extends State<_ConversationView>
       ]);
       if (attached && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Photo attached. Tap Send to share it.'),
-          ),
+          SnackBar(content: Text(tkL10n(context).photoAttachedSend)),
         );
       }
     } on Exception catch (_) {
@@ -561,9 +557,7 @@ class _ConversationViewState extends State<_ConversationView>
         await _clearPendingCameraRecipient();
       }
       if (mounted) {
-        _showAttachmentError(
-          'Could not access the image. Check app permissions and try again.',
-        );
+        _showAttachmentError(tkL10n(context).couldNotAccessImage);
       }
     }
   }
@@ -597,22 +591,16 @@ class _ConversationViewState extends State<_ConversationView>
       if (recovered.isNotEmpty) {
         if (_addAttachments(recovered)) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Your photo was recovered. Tap Send to share it.'),
-            ),
+            SnackBar(content: Text(tkL10n(context).photoRecoveredSend)),
           );
         }
       } else if (result.exception != null) {
-        _showAttachmentError(
-          'The camera did not return a photo. Please take it again.',
-        );
+        _showAttachmentError(tkL10n(context).cameraNoPhoto);
       }
     } on Exception catch (_) {
       await _clearPendingCameraRecipient();
       if (mounted) {
-        _showAttachmentError(
-          'Could not recover the photo. Please take it again.',
-        );
+        _showAttachmentError(tkL10n(context).couldNotRecoverPhoto);
       }
     }
   }
@@ -690,8 +678,8 @@ class _ConversationViewState extends State<_ConversationView>
             ),
             child: Text(
               snapshot.hasError
-                  ? 'Preview unavailable. Tap to save the image.'
-                  : 'Loading photo…',
+                  ? tkL10n(context).previewUnavailableTapSave
+                  : tkL10n(context).loadingPhoto,
               textAlign: TextAlign.center,
               style: tkText(
                 context,
@@ -715,7 +703,7 @@ class _ConversationViewState extends State<_ConversationView>
               height: 120,
               child: Center(
                 child: Text(
-                  'Preview unavailable. Tap to save the image.',
+                  tkL10n(context).previewUnavailableTapSave,
                   textAlign: TextAlign.center,
                   style: tkText(
                     context,
@@ -735,13 +723,13 @@ class _ConversationViewState extends State<_ConversationView>
     final remaining = _maximumAttachmentCount - _attachments.length;
     if (selected.length > remaining) {
       _showAttachmentError(
-        'You can attach up to $_maximumAttachmentCount files per message.',
+        tkL10n(context).attachLimit(_maximumAttachmentCount),
       );
       return false;
     }
     for (final file in selected) {
       if (file.size > _maximumAttachmentBytes) {
-        _showAttachmentError('${file.name} is larger than 10 MB.');
+        _showAttachmentError(tkL10n(context).attachmentTooLarge(file.name));
         return false;
       }
     }
@@ -762,7 +750,7 @@ class _ConversationViewState extends State<_ConversationView>
           children: [
             ListTile(
               leading: const Icon(Icons.attach_file),
-              title: const Text('Choose files or photos'),
+              title: Text(tkL10n(sheetContext).chooseFilesOrPhotos),
               onTap: () {
                 Navigator.pop(sheetContext);
                 _pickDocuments();
@@ -770,7 +758,7 @@ class _ConversationViewState extends State<_ConversationView>
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose a picture'),
+              title: Text(tkL10n(sheetContext).choosePicture),
               onTap: () {
                 Navigator.pop(sheetContext);
                 _pickPhoto(ImageSource.gallery);
@@ -778,7 +766,7 @@ class _ConversationViewState extends State<_ConversationView>
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Take a picture'),
+              title: Text(tkL10n(sheetContext).takePicture),
               onTap: () {
                 Navigator.pop(sheetContext);
                 _pickPhoto(ImageSource.camera);
@@ -805,8 +793,9 @@ class _ConversationViewState extends State<_ConversationView>
         bytes: bytes,
       );
       if (mounted && saved != null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Attachment saved.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tkL10n(context).attachmentSaved)),
+        );
       }
     } on ApiException catch (error) {
       if (mounted) {
@@ -814,9 +803,7 @@ class _ConversationViewState extends State<_ConversationView>
       }
     } on Exception catch (_) {
       if (mounted) {
-        _showAttachmentError(
-          'Could not save this attachment. Please try again.',
-        );
+        _showAttachmentError(tkL10n(context).couldNotSaveAttachment);
       }
     }
   }
@@ -865,14 +852,14 @@ class _ConversationViewState extends State<_ConversationView>
                     child: TextButton(
                       onPressed: _refreshMessages,
                       child: Text(
-                        _loadError ?? 'Could not load messages. Tap to retry.',
+                        _loadError ?? tkL10n(context).noMessagesRetry,
                       ),
                     ),
                   )
                 : _messages.isEmpty
                 ? Center(
                     child: Text(
-                      'No messages yet. Say hello.',
+                      tkL10n(context).noMessagesYet,
                       style: tkText(context, color: c.muted),
                     ),
                   )
@@ -953,7 +940,11 @@ class _ConversationViewState extends State<_ConversationView>
                                                 const SizedBox(width: 5),
                                                 Flexible(
                                                   child: Text(
-                                                    '${attachment['name'] ?? 'Attachment'} · tap to save',
+                                                    tkL10n(
+                                                      context,
+                                                    ).attachmentNameTapSave(
+                                                      '${attachment['name'] ?? 'Attachment'}',
+                                                    ),
                                                     maxLines: 2,
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -1041,7 +1032,7 @@ class _ConversationViewState extends State<_ConversationView>
                             ? null
                             : _showAttachmentOptions,
                         icon: const Icon(Icons.add_circle_outline),
-                        tooltip: 'Attach a file or picture',
+                        tooltip: tkL10n(context).attachFileOrPicture,
                       ),
                       Expanded(
                         child: TextField(
@@ -1049,8 +1040,8 @@ class _ConversationViewState extends State<_ConversationView>
                           minLines: 1,
                           maxLines: 4,
                           maxLength: 2000,
-                          decoration: const InputDecoration(
-                            hintText: 'Write a message',
+                          decoration: InputDecoration(
+                            hintText: tkL10n(context).writeMessage,
                             counterText: '',
                           ),
                         ),
@@ -1067,7 +1058,7 @@ class _ConversationViewState extends State<_ConversationView>
                                 ),
                               )
                             : const Icon(Icons.send),
-                        tooltip: 'Send message',
+                        tooltip: tkL10n(context).sendMessage,
                       ),
                     ],
                   ),

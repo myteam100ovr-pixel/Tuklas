@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'api.dart';
+import 'locale_controller.dart';
 
 /// Keeps the active mobile workspace current when shared Tuklas data changes.
 class WorkspaceRealtime {
@@ -60,7 +61,10 @@ class WorkspaceRealtime {
           'flash': 'false',
         },
       );
-      final socket = await WebSocket.connect(socketUri.toString());
+      final socket = await WebSocket.connect(
+        socketUri.toString(),
+        headers: {'Accept-Language': localeController.languageCode},
+      );
       if (!_enabled) {
         await socket.close();
         return;

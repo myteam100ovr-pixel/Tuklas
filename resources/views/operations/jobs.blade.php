@@ -11,11 +11,11 @@
             <section class="operations-card"><h2>Add opening</h2><form method="POST" action="{{ route('admin.opportunities.store') }}">@csrf<input type="hidden" name="_operation" value="create-job">
                 <label>Employer or organization <input name="employer_name" required maxlength="255" value="{{ $creatingJob ? old('employer_name') : '' }}"></label>
                 <label><input type="checkbox" name="employer_verified" value="1" @checked($creatingJob && old('employer_verified'))> I checked that this employer and opening are current</label>
-                <label>Title <input name="title" required value="{{ $creatingJob ? old('title') : '' }}"></label><label>Pay / compensation <input name="compensation" maxlength="100" placeholder="Enter exactly as the source states" value="{{ $creatingJob ? old('compensation') : '' }}"></label><label>Location <input name="location" value="{{ $creatingJob ? old('location') : '' }}"></label>
-                <label>Description <textarea name="description" required>{{ $creatingJob ? old('description') : '' }}</textarea></label><label>Requirements <textarea name="requirements">{{ $creatingJob ? old('requirements') : '' }}</textarea></label>
+                <label>{{ __('Title') }} <input name="title" required value="{{ $creatingJob ? old('title') : '' }}"></label><label>Pay / compensation <input name="compensation" maxlength="100" placeholder="Enter exactly as the source states" value="{{ $creatingJob ? old('compensation') : '' }}"></label><label>Location <input name="location" value="{{ $creatingJob ? old('location') : '' }}"></label>
+                <label>{{ __('Description') }} <textarea name="description" required>{{ $creatingJob ? old('description') : '' }}</textarea></label><label>Requirements <textarea name="requirements">{{ $creatingJob ? old('requirements') : '' }}</textarea></label>
                 <label>Application URL <input name="application_url" type="url" value="{{ $creatingJob ? old('application_url') : '' }}"></label><label>Closing date <input name="closes_at" type="date" value="{{ $creatingJob ? old('closes_at') : '' }}"></label>
                 <label>Source URL <input name="source_url" type="url" placeholder="Official vacancy listing" value="{{ $creatingJob ? old('source_url') : '' }}"></label><label>Source checked date <input name="source_checked_at" type="date" value="{{ $creatingJob ? old('source_checked_at') : '' }}"></label>
-                <label>Status <select name="status"><option value="draft" @selected(! $creatingJob || old('status') === 'draft')>Draft</option><option value="published" @selected($creatingJob && old('status') === 'published')>Publish</option><option value="closed" @selected($creatingJob && old('status') === 'closed')>Closed</option></select></label>
+                <label>{{ __('Status') }} <select name="status"><option value="draft" @selected(! $creatingJob || old('status') === 'draft')>Draft</option><option value="published" @selected($creatingJob && old('status') === 'published')>Publish</option><option value="closed" @selected($creatingJob && old('status') === 'closed')>{{ __('Closed') }}</option></select></label>
                 <button class="trainer-courses__primary" type="submit">Save opening</button>
             </form></section>
         @endif
@@ -36,7 +36,7 @@
                                 <label for="job-qualifications-{{ $job->id }}">How your qualifications meet this job’s requirements
                                     <textarea id="job-qualifications-{{ $job->id }}" name="qualification_summary" minlength="20" maxlength="3000" required>{{ old('qualification_summary') }}</textarea>
                                 </label>
-                                <label for="job-application-message-{{ $job->id }}">Message to PESO <span>Optional</span>
+                                <label for="job-application-message-{{ $job->id }}">Message to PESO <span>{{ __('Optional') }}</span>
                                     <textarea id="job-application-message-{{ $job->id }}" name="application_message" maxlength="3000">{{ old('application_message') }}</textarea>
                                 </label>
                                 <button type="submit">Submit application</button>
@@ -102,18 +102,18 @@
                     <details><summary>Edit opening</summary><form method="POST" action="{{ route('admin.opportunities.update', $job) }}">@csrf @method('PUT')
                     <label>Employer or organization <input name="employer_name" required maxlength="255" value="{{ $job->employer_name ?: $job->employer?->name }}"></label>
                     <label><input type="checkbox" name="employer_verified" value="1" @checked($job->employer_verified || $job->employer?->is_verified)> I checked that this employer and opening are current</label>
-                    <label>Title <input name="title" required value="{{ $job->title }}"></label><label>Pay / compensation <input name="compensation" maxlength="100" value="{{ $job->compensation }}"></label><label>Location <input name="location" value="{{ $job->location }}"></label>
-                    <label>Description <textarea name="description" required>{{ $job->description }}</textarea></label><label>Requirements <textarea name="requirements">{{ $job->requirements }}</textarea></label>
+                    <label>{{ __('Title') }} <input name="title" required value="{{ $job->title }}"></label><label>Pay / compensation <input name="compensation" maxlength="100" value="{{ $job->compensation }}"></label><label>Location <input name="location" value="{{ $job->location }}"></label>
+                    <label>{{ __('Description') }} <textarea name="description" required>{{ $job->description }}</textarea></label><label>Requirements <textarea name="requirements">{{ $job->requirements }}</textarea></label>
                     <label>Application URL <input name="application_url" type="url" value="{{ $job->application_url }}"></label><label>Closing date <input name="closes_at" type="date" value="{{ $job->closes_at?->toDateString() }}"></label>
                     <label>Source URL <input name="source_url" type="url" value="{{ $job->source_url }}"></label><label>Source checked date <input name="source_checked_at" type="date" value="{{ $job->source_checked_at?->toDateString() }}"></label>
-                    <label>Status <select name="status">@foreach (['draft', 'published', 'closed'] as $status)<option value="{{ $status }}" @selected($job->status === $status)>{{ ucfirst($status) }}</option>@endforeach</select></label><button type="submit">Update</button>
+                    <label>{{ __('Status') }} <select name="status">@foreach (['draft', 'published', 'closed'] as $status)<option value="{{ $status }}" @selected($job->status === $status)>{{ ucfirst($status) }}</option>@endforeach</select></label><button type="submit">{{ __('Update') }}</button>
                 </form></details>
                     <details><summary>Delete opening</summary>
                         <p>Openings with applications or career seeker matches can’t be deleted. Close those openings to preserve their records.</p>
                         <form method="POST" action="{{ route('admin.opportunities.destroy', $job) }}" onsubmit="return confirm('Delete this job opening? This action cannot be undone.')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit">Confirm delete</button>
+                            <button type="submit">{{ __('Confirm delete') }}</button>
                         </form>
                     </details>
                 @endif

@@ -499,12 +499,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                     const Icon(Icons.mark_email_unread_outlined, size: 48),
                     const SizedBox(height: 20),
                     Text(
-                      'Verify your email',
+                      tkL10n(context).verifyYourEmail,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Open the verification link in your email to access your workspace.',
+                    Text(
+                      tkL10n(context).verificationInstructions,
                       textAlign: TextAlign.center,
                     ),
                     if (_verificationMessage != null) ...[
@@ -524,8 +524,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                           : () => _checkVerification(),
                       child: Text(
                         _checkingVerification
-                            ? 'Please wait…'
-                            : 'I have verified my email',
+                            ? tkL10n(context).pleaseWait
+                                : tkL10n(context).verifiedEmailButton,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -533,11 +533,11 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                       onPressed: _checkingVerification
                           ? null
                           : () => _checkVerification(resend: true),
-                      child: const Text('Resend verification email'),
+                      child: Text(tkL10n(context).resendVerificationEmail),
                     ),
                     TextButton(
                       onPressed: _checkingVerification ? null : _logout,
-                      child: const Text('Log out'),
+                      child: Text(tkL10n(context).logOut),
                     ),
                   ],
                 ),
@@ -578,7 +578,14 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                             const Icon(Icons.hourglass_empty_outlined),
                           const SizedBox(height: 12),
                           Text(
-                            'Opening ${_tab == 0 ? 'Overview' : (_activeGroupItem ?? _defaultGroupItem)}…',
+                            tkL10n(context).openingPage(
+                              tkWorkspaceLabel(
+                                context,
+                                _tab == 0
+                                    ? 'Overview'
+                                    : (_activeGroupItem ?? _defaultGroupItem),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -601,7 +608,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           ? FloatingActionButton.extended(
               onPressed: () => _openWorkspace('Document Scanner'),
               icon: const Icon(Icons.document_scanner_outlined),
-              label: const Text('Scan document'),
+              label: Text(tkL10n(context).scanDocument),
             )
           : null,
     );
@@ -643,7 +650,7 @@ class _NavigationHub extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(title)),
+    appBar: AppBar(title: Text(tkWorkspaceLabel(context, title))),
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -652,7 +659,7 @@ class _NavigationHub extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
               leading: Icon(_icon(item)),
-              title: Text(item),
+              title: Text(tkWorkspaceLabel(context, item)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

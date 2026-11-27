@@ -5,7 +5,7 @@
         <textarea id="{{ $dialogId }}-reason" name="notes" required minlength="5" maxlength="3000" disabled data-review-decline-reason>{{ $reason ?? '' }}</textarea>
     </label>
     <div class="scholarship-review-dialog__actions">
-        <button type="button" data-review-decline-cancel>Cancel</button>
+        <button type="button" data-review-decline-cancel>{{ __('Cancel') }}</button>
         <button type="submit" name="decision" value="{{ $decision }}">Confirm decline</button>
     </div>
 </dialog>

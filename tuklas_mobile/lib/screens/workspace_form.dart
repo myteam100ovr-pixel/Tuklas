@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../api.dart';
+import '../ui.dart';
 
 class WorkspaceField {
   const WorkspaceField(
@@ -108,8 +109,10 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
       if (_selections[field.name]!.length < field.minSelections ||
           _selections[field.name]!.length > field.maxSelections) {
         setState(
-          () => _errors[field.name] =
-              'Choose ${field.minSelections} to ${field.maxSelections} skills.',
+          () => _errors[field.name] = tkL10n(context).chooseSkillCount(
+            field.minSelections,
+            field.maxSelections,
+          ),
         );
         return;
       }
@@ -149,7 +152,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
       setState(() {
         _error = e is ApiException
             ? e.message
-            : 'Could not save. Check your connection and try again.';
+            : tkL10n(context).couldNotReachServer;
         if (e is ApiException) _errors = e.fieldErrors;
       });
     } finally {
@@ -173,7 +176,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          f.label,
+                          tkWorkspaceLabel(context, f.label),
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                         const SizedBox(height: 8),
@@ -183,7 +186,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                           children: [
                             for (final option in f.options ?? [])
                               FilterChip(
-                                label: Text(option),
+                                label: Text(tkWorkspaceLabel(context, option)),
                                 selected: _selections[f.name]!.contains(option),
                                 onSelected:
                                     _saving ||
@@ -212,7 +215,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                             ),
                           ),
                         Text(
-                          'Select up to 8 skills from the path source. A published path needs at least 3.',
+                          tkL10n(context).pathSkillsGuidance,
                         ),
                       ],
                     )
@@ -231,13 +234,13 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                                   ? 72
                                   : null),
                           decoration: InputDecoration(
-                            labelText: f.label,
+                            labelText: tkWorkspaceLabel(context, f.label),
                             errorText: _errors[f.name],
                             suffixIcon: f.secret && f.name.contains('password')
                                 ? IconButton(
                                     tooltip: _visibleSecrets.contains(f.name)
-                                        ? 'Hide password'
-                                        : 'Show password',
+                                        ? tkL10n(context).hidePassword
+                                        : tkL10n(context).showPassword,
                                     onPressed: () => setState(() {
                                       if (!_visibleSecrets.add(f.name)) {
                                         _visibleSecrets.remove(f.name);
@@ -258,20 +261,22 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                           validator: (value) {
                             final currentValue = value ?? '';
                             if (f.required && currentValue.trim().isEmpty) {
-                              return 'Required';
+                              return tkL10n(context).required;
                             }
                             if (f.minLength != null &&
                                 currentValue.trim().length < f.minLength!) {
-                              return 'Enter at least ${f.minLength} characters.';
+                              return tkL10n(context).passwordLengthError(
+                                f.minLength!,
+                              );
                             }
                             if (f.passwordStrength &&
                                 (_passwordStrength(currentValue) < 1 ||
                                     currentValue.length > 72)) {
-                              return 'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.';
+                              return tkL10n(context).passwordRequirements;
                             }
                             if (f.passwordConfirmation &&
                                 currentValue != _inputs['password']?.text) {
-                              return 'Passwords do not match.';
+                              return tkL10n(context).passwordsDoNotMatch;
                             }
 
                             return null;
@@ -289,8 +294,8 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                           const SizedBox(height: 6),
                           Text(
                             _inputs[f.name]!.text == _inputs['password']?.text
-                                ? 'Passwords match.'
-                                : 'Passwords do not match.',
+                                ? tkL10n(context).passwordsMatch
+                                : tkL10n(context).passwordsDoNotMatch,
                             style: TextStyle(
                               color:
                                   _inputs[f.name]!.text ==
@@ -308,21 +313,25 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
                           : null,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        labelText: f.label,
+                        labelText: tkWorkspaceLabel(context, f.label),
                         errorText: _errors[f.name],
                       ),
                       items: [
                         for (final o in f.options!)
                           DropdownMenuItem(
                             value: o,
-                            child: Text(f.optionLabels[o] ?? o),
+                            child: Text(
+                              tkWorkspaceLabel(context, f.optionLabels[o] ?? o),
+                            ),
                           ),
                       ],
                       onChanged: _saving
                           ? null
                           : (v) => _inputs[f.name]!.text = v ?? '',
                       validator: (v) =>
-                          f.required && v == null ? 'Required' : null,
+                          f.required && v == null
+                              ? tkL10n(context).required
+                              : null,
                     ),
             ),
           if (_error != null)
@@ -333,7 +342,9 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
           const SizedBox(height: 12),
           FilledButton(
             onPressed: _saving ? null : _save,
-            child: Text(_saving ? 'Saving…' : 'Save'),
+            child: Text(
+              _saving ? tkL10n(context).saving : tkL10n(context).save,
+            ),
           ),
         ],
       ),
@@ -341,11 +352,12 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
   );
 
   Widget _passwordStrengthIndicator(BuildContext context, int strength) {
-    const labels = ['Weak', 'Okay', 'Strong'];
-    const messages = [
-      'Weak. Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
-      'Okay. It meets the password requirements.',
-      'Strong. This password meets the requirements with extra length.',
+    final l10n = tkL10n(context);
+    final labels = [l10n.weak, l10n.okay, l10n.strong];
+    final messages = [
+      '${l10n.weak}. ${l10n.passwordRequirements}',
+      l10n.passwordMeetsRequirements,
+      l10n.passwordStrongExtraLength,
     ];
     final colors = [
       Theme.of(context).colorScheme.error,
@@ -359,7 +371,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Password strength'),
+            Text(tkL10n(context).passwordStrength),
             Text(
               labels[strength],
               style: TextStyle(
@@ -376,9 +388,7 @@ class _WorkspaceFormState extends State<WorkspaceForm> {
         ),
         const SizedBox(height: 5),
         Text(messages[strength]),
-        const Text(
-          'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
-        ),
+        Text(tkL10n(context).passwordRequirements),
       ],
     );
   }

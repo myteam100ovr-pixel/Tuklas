@@ -20,9 +20,9 @@
         <input name="title" maxlength="255" required value="{{ $values['title'] ?? $program->title }}" placeholder="e.g. Cookery NC II">
     </label>
 
-    <label>NC level
+    <label>{{ __('NC level') }}
         <select name="nc_level">
-            <option value="">Not specified</option>
+            <option value="">{{ __('Not specified') }}</option>
             @foreach (['NC I', 'NC II', 'NC III', 'NC IV'] as $level)
                 <option value="{{ $level }}" @selected(($values['nc_level'] ?? $program->nc_level) === $level)>{{ $level }}</option>
             @endforeach
@@ -37,7 +37,7 @@
         <input type="number" name="duration_days" min="1" max="65535" value="{{ $values['duration_days'] ?? $program->duration_days }}">
     </label>
 
-    <label>Description
+    <label>{{ __('Description') }}
         <textarea name="description" maxlength="3000" rows="3">{{ $values['description'] ?? $program->description }}</textarea>
     </label>
 

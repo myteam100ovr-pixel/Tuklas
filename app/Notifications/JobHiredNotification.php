@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Support\SupportedLocale;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -24,11 +25,15 @@ class JobHiredNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $locale = method_exists($notifiable, 'preferredLocale')
+            ? SupportedLocale::normalize($notifiable->preferredLocale())
+            : SupportedLocale::DEFAULT;
+
         return (new MailMessage)
-            ->subject('PESO recorded your hiring')
-            ->greeting('Congratulations!')
-            ->line('PESO recorded that you were hired for '.$this->jobTitle.' at '.$this->employerName.'.')
-            ->line('Open your Tuklas job opportunities to see the update.')
-            ->action('View job opportunities', route('opportunities.index'));
+            ->subject(__('notifications.job_hired.subject', [], $locale))
+            ->greeting(__('notifications.job_hired.greeting', [], $locale))
+            ->line(__('notifications.job_hired.line', ['job' => $this->jobTitle, 'employer' => $this->employerName], $locale))
+            ->line(__('notifications.job_hired.followup', [], $locale))
+            ->action(__('notifications.job_hired.action', [], $locale), route('opportunities.index'));
     }
 }

@@ -18,8 +18,8 @@
 </head>
 <body class="app-download-body">
     <header class="app-download-nav">
-        <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
-        <a href="{{ route('home') }}">Back to Tuklas</a>
+        <a href="{{ route('home') }}" class="logo" aria-label="{{ __('Tuklas home') }}"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
+        <a href="{{ route('home') }}">{{ __('Back to Tuklas') }}</a>
     </header>
 
     <main class="app-download-main">

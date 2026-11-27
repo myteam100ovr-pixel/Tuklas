@@ -83,6 +83,10 @@ class TrainingApplicationController extends Controller
         $applications = $query->latest()->paginate(50)->withQueryString();
 
         if ($request->routeIs('mobile.*')) {
+            $applications->getCollection()->each(function (TrainingApplication $application): void {
+                $application->setAttribute('status_label', __('api.status_labels.'.$application->status));
+            });
+
             return response()->json(compact('applications'));
         }
 
@@ -179,7 +183,7 @@ class TrainingApplicationController extends Controller
             ]);
         });
 
-        return $request->routeIs('mobile.*') ? response()->json(['message' => 'Application submitted.'], 201) : back()->with('status', 'Application submitted.');
+        return $request->routeIs('mobile.*') ? response()->json(['message' => __('api.applications.submitted')], 201) : back()->with('status', __('api.applications.submitted'));
     }
 
     public function update(Request $request, TrainingApplication $application): RedirectResponse|JsonResponse
@@ -272,7 +276,7 @@ class TrainingApplicationController extends Controller
             ]);
         });
 
-        return $request->routeIs('mobile.*') ? response()->json(['message' => 'Application updated.']) : back()->with('status', 'Application updated.');
+        return $request->routeIs('mobile.*') ? response()->json(['message' => __('api.applications.updated')]) : back()->with('status', __('api.applications.updated'));
     }
 
     public function destroy(Request $request, TrainingApplication $application): RedirectResponse|JsonResponse
@@ -282,6 +286,6 @@ class TrainingApplicationController extends Controller
 
         $application->update(['status' => 'withdrawn']);
 
-        return $request->routeIs('mobile.*') ? response()->json(['message' => 'Application withdrawn.']) : back()->with('status', 'Application withdrawn.');
+        return $request->routeIs('mobile.*') ? response()->json(['message' => __('api.applications.withdrawn')]) : back()->with('status', __('api.applications.withdrawn'));
     }
 }

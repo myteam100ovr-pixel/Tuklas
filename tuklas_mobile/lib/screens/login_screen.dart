@@ -120,28 +120,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     if (_loading) return;
     if (_registering && !_acceptedTerms) {
-      setState(
-        () => _error = 'Please accept the Terms of use and Privacy notice.',
-      );
+      setState(() => _error = tkL10n(context).acceptTermsError);
       return;
     }
     if (_registering && _passwordStrength(_password.text) == 0) {
-      setState(
-        () => _error = 'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
-      );
+      setState(() => _error = tkL10n(context).passwordRequirements);
       return;
     }
     if (_registering && _password.text != _passwordConfirmation.text) {
-      setState(() => _error = 'Passwords do not match.');
+      setState(() => _error = tkL10n(context).passwordsDoNotMatch);
       return;
     }
     if (_registering && _birthDate.text.trim().isEmpty) {
-      setState(() => _error = 'Select your date of birth.');
+      setState(() => _error = tkL10n(context).selectDateOfBirth);
       return;
     }
     if (_registering &&
         (_registrationMunicipality == null || _registrationBarangay == null)) {
-      setState(() => _error = 'Choose your municipality and barangay.');
+      setState(() => _error = tkL10n(context).chooseMunicipalityBarangayError);
       return;
     }
     setState(() {
@@ -176,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _passwordConfirmation.clear();
           _notice =
               response['message'] as String? ??
-              'Account created. Verify your email address before signing in.';
+              tkL10n(context).accountCreatedVerificationNotice;
         });
       } else {
         await ApiClient.instance.login(
@@ -198,9 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(
-        () => _error = 'Could not reach the server. Check the address and your connection.',
-      );
+      setState(() => _error = tkL10n(context).serverAddressAndConnectionError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -221,11 +215,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _passwordStrengthFeedback(BuildContext context) {
     final strength = _passwordStrength(_password.text);
-    const labels = ['Weak', 'Okay', 'Strong'];
-    const messages = [
-      'Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.',
-      'Okay. It meets the password requirements.',
-      'Strong. This password meets the requirements with extra length.',
+    final l10n = tkL10n(context);
+    final labels = [l10n.weak, l10n.okay, l10n.strong];
+    final messages = [
+      l10n.passwordRequirements,
+      l10n.passwordMeetsRequirements,
+      l10n.passwordStrongExtraLength,
     ];
     final colors = [
       Theme.of(context).colorScheme.error,
@@ -241,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Password strength'),
+              Text(tkL10n(context).passwordStrength),
               Text(
                 labels[strength],
                 style: TextStyle(
@@ -290,7 +285,7 @@ class _LoginScreenState extends State<LoginScreen> {
       initialDate: initialDate,
       firstDate: firstDate,
       lastDate: lastDate,
-      helpText: 'Choose a date between ages 18 and 30',
+      helpText: tkL10n(context).chooseAgeRangeDate,
     );
 
     if (picked != null) {
@@ -392,7 +387,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 16),
                             ],
                             if (_registering) ...[
-                              _label(context, 'Last name'),
+                              _label(context, tkL10n(context).lastName),
                               TextField(
                                 controller: _lastName,
                                 textCapitalization: TextCapitalization.words,
@@ -400,7 +395,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: tkText(context, size: 14.5),
                               ),
                               const SizedBox(height: 16),
-                              _label(context, 'First name'),
+                              _label(context, tkL10n(context).firstName),
                               TextField(
                                 controller: _name,
                                 textCapitalization: TextCapitalization.words,
@@ -408,7 +403,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: tkText(context, size: 14.5),
                               ),
                               const SizedBox(height: 16),
-                              _label(context, 'Middle initial (optional)'),
+                              _label(
+                                context,
+                                tkL10n(context).middleInitialOptional,
+                              ),
                               TextField(
                                 controller: _middleInitial,
                                 textCapitalization:
@@ -417,17 +415,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: tkText(context, size: 14.5),
                               ),
                               const SizedBox(height: 16),
-                              _label(context, 'Contact number'),
+                              _label(context, tkL10n(context).contactNumber),
                               TextField(
                                 controller: _contact,
                                 keyboardType: TextInputType.phone,
                               ),
                               const SizedBox(height: 16),
-                              _label(context, 'Municipality'),
+                              _label(context, tkL10n(context).municipality),
                               DropdownButtonFormField<String>(
                                 initialValue: _registrationMunicipality,
                                 isExpanded: true,
-                                hint: const Text('Choose municipality'),
+                                hint: Text(tkL10n(context).chooseMunicipality),
                                 items: [
                                   for (final municipality
                                       in _barangaysByMunicipality.keys)
@@ -443,15 +441,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 }),
                               ),
                               const SizedBox(height: 16),
-                              _label(context, 'Barangay'),
+                              _label(context, tkL10n(context).barangay),
                               DropdownButtonFormField<String>(
                                 key: ValueKey(_registrationMunicipality),
                                 initialValue: _registrationBarangay,
                                 isExpanded: true,
                                 hint: Text(
                                   _registrationMunicipality == null
-                                      ? 'Choose municipality first'
-                                      : 'Choose barangay',
+                                      ? tkL10n(context).chooseMunicipalityFirst
+                                      : tkL10n(context).chooseBarangay,
                                 ),
                                 items: [
                                   for (final barangay
@@ -472,20 +470,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                       }),
                               ),
                               const SizedBox(height: 16),
-                              _label(context, 'Date of birth'),
+                              _label(context, tkL10n(context).dateOfBirth),
                               InkWell(
                                 onTap: _pickBirthDate,
                                 borderRadius: BorderRadius.circular(13),
                                 child: InputDecorator(
-                                  decoration: const InputDecoration(
-                                    hintText: 'Select your date of birth',
+                                  decoration: InputDecoration(
+                                    hintText: tkL10n(context).selectDateOfBirth,
                                     suffixIcon: Icon(
                                       Icons.calendar_month_outlined,
                                     ),
                                   ),
                                   child: Text(
                                     _birthDate.text.isEmpty
-                                        ? 'Select your date of birth'
+                                        ? tkL10n(context).selectDateOfBirth
                                         : formatTuklasDate(_birthDate.text),
                                     style: tkText(
                                       context,
@@ -499,7 +497,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               const SizedBox(height: 16),
                             ],
-                            _label(context, 'Email'),
+                            _label(context, tkL10n(context).email),
                             TextField(
                               controller: _email,
                               keyboardType: TextInputType.emailAddress,
@@ -507,7 +505,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: tkText(context, size: 14.5),
                             ),
                             const SizedBox(height: 16),
-                            _label(context, 'Password'),
+                            _label(context, tkL10n(context).password),
                             TextField(
                               controller: _password,
                               obscureText: !_showPassword,
@@ -518,12 +516,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   : null,
                               decoration: InputDecoration(
                                 hintText: _registering
-                                    ? 'Use 1 special character, e.g. @'
+                                    ? tkL10n(context).specialCharacterExample
                                     : null,
                                 suffixIcon: IconButton(
                                   tooltip: _showPassword
-                                      ? 'Hide password'
-                                      : 'Show password',
+                                      ? tkL10n(context).hidePassword
+                                      : tkL10n(context).showPassword,
                                   onPressed: () => setState(
                                     () => _showPassword = !_showPassword,
                                   ),
@@ -543,7 +541,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                             if (_registering) ...[
                               const SizedBox(height: 16),
-                              _label(context, 'Confirm password'),
+                              _label(context, tkL10n(context).confirmPassword),
                               TextField(
                                 controller: _passwordConfirmation,
                                 obscureText: !_showPasswordConfirmation,
@@ -551,8 +549,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 decoration: InputDecoration(
                                   suffixIcon: IconButton(
                                     tooltip: _showPasswordConfirmation
-                                        ? 'Hide password'
-                                        : 'Show password',
+                                        ? tkL10n(context).hidePassword
+                                        : tkL10n(context).showPassword,
                                     onPressed: () => setState(
                                       () => _showPasswordConfirmation =
                                           !_showPasswordConfirmation,
@@ -573,8 +571,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(height: 6),
                                 Text(
                                   _passwordConfirmation.text == _password.text
-                                      ? 'Passwords match.'
-                                      : 'Passwords do not match.',
+                                      ? tkL10n(context).passwordsMatch
+                                      : tkL10n(context).passwordsDoNotMatch,
                                   style: TextStyle(
                                     color:
                                         _passwordConfirmation.text ==
@@ -587,7 +585,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                             if (_needsCode) ...[
                               const SizedBox(height: 16),
-                              _label(context, 'Authenticator or recovery code'),
+                              _label(
+                                context,
+                                tkL10n(context).authenticatorOrRecoveryCode,
+                              ),
                               TextField(
                                 controller: _code,
                                 keyboardType: TextInputType.text,
@@ -607,16 +608,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                       : (value) => setState(
                                           () => _acceptedTerms = value ?? false,
                                         ),
-                                  title: const Text(
-                                    'I agree to the Terms of use and acknowledge the Privacy notice.',
-                                  ),
+                                  title: Text(tkL10n(context).agreeToTerms),
                                 ),
                               ),
                               Wrap(
                                 children: [
                                   for (final policy in [
-                                    ('Terms of use', '/terms-of-service'),
-                                    ('Privacy notice', '/privacy-policy'),
+                                    (
+                                      tkL10n(context).termsOfUse,
+                                      '/terms-of-service',
+                                    ),
+                                    (
+                                      tkL10n(context).privacyNotice,
+                                      '/privacy-policy',
+                                    ),
                                   ])
                                     TextButton(
                                       onPressed: () async {
@@ -635,7 +640,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         } catch (_) {
                                           if (mounted) {
                                             setState(
-                                              () => _error = 'Could not open this page. Please try again.',
+                                              () =>
+                                                  _error = tkL10n(context)
+                                                      .couldNotOpenPage,
                                             );
                                           }
                                         }
@@ -672,8 +679,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       )
                                     : Text(
                                         _registering
-                                            ? 'Create account'
-                                            : 'Log in',
+                                            ? tkL10n(context).createAccount
+                                            : tkL10n(context).logIn,
                                         style: tkText(
                                           context,
                                           size: 14,
@@ -690,13 +697,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : () async {
                                         final result = await openWorkspaceForm(
                                           context,
-                                          title: 'Request password reset',
+                                          title: tkL10n(context)
+                                              .requestPasswordReset,
                                           path: '/auth/forgot-password',
                                           auth: false,
-                                          fields: const [
+                                          fields: [
                                             WorkspaceField(
                                               'email',
-                                              'Email',
+                                              tkL10n(context).email,
                                               required: true,
                                             ),
                                           ],
@@ -709,7 +717,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           );
                                         }
                                       },
-                                child: const Text('Forgot password?'),
+                                child: Text(tkL10n(context).forgotPassword),
                               ),
                             const SizedBox(height: 10),
                             Center(
@@ -719,8 +727,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : () => _setRegistering(!_registering),
                                 child: Text(
                                   _registering
-                                      ? 'Already have an account? Log in'
-                                      : 'New to Tuklas? Create an account',
+                                      ? tkL10n(context).alreadyHaveAccount
+                                      : tkL10n(context).newToTuklas,
                                   style: tkText(
                                     context,
                                     size: 13,
@@ -744,7 +752,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 icon: c.isDark
                     ? Icons.dark_mode_outlined
                     : Icons.light_mode_outlined,
-                tooltip: 'Light / dark mode',
+                tooltip: tkL10n(context).lightDarkMode,
                 onTap: () => themeController.toggle(context),
               ),
             ),

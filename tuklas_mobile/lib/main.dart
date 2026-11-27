@@ -9,10 +9,13 @@ import 'package:http/http.dart' as http;
 import 'api.dart';
 import 'app_update.dart';
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
+import 'locale_controller.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'theme.dart';
+import 'ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +31,7 @@ Future<void> main() async {
       );
     }
   }
+  await localeController.load();
   runApp(const TuklasApp());
   unawaited(themeController.load());
   unawaited(motionController.load());
@@ -39,9 +43,16 @@ class TuklasApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: Listenable.merge([themeController, motionController]),
+      listenable: Listenable.merge([
+        themeController,
+        motionController,
+        localeController,
+      ]),
       builder: (context, _) => MaterialApp(
         title: 'Tuklas',
+        locale: localeController.locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         debugShowCheckedModeBanner: false,
         theme: tkTheme(
           Brightness.light,
@@ -254,16 +265,16 @@ class _ServerUnavailable extends StatelessWidget {
                   const SizedBox(height: 14),
                   Text(
                     serverResponded
-                        ? 'Tuklas is online, but sign-in could not be checked'
-                        : 'Can’t reach the Tuklas server',
+                        ? tkL10n(context).tuklasOnlineSignInCheckFailed
+                        : tkL10n(context).cannotReachTuklasServer,
                     textAlign: TextAlign.center,
                     style: tkText(context, size: 18, weight: 500),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     serverResponded
-                        ? 'Your internet connection is working. The server returned an error while checking your saved sign-in. Please retry in a moment.'
-                        : 'Your saved sign-in is still on this device. Tuklas could not connect to its server. It will retry automatically; you can also retry now.',
+                        ? tkL10n(context).serverSignInCheckError
+                        : tkL10n(context).savedSignInOffline,
                     textAlign: TextAlign.center,
                     style: tkText(
                       context,
@@ -276,7 +287,7 @@ class _ServerUnavailable extends StatelessWidget {
                   FilledButton.icon(
                     onPressed: onRetry,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry connection'),
+                    label: Text(tkL10n(context).retryConnection),
                   ),
                 ],
               ),

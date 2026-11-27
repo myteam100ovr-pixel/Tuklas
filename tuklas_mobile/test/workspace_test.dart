@@ -35,14 +35,15 @@ void main() {
     addTearDown(() => ApiClient.instance.user = null);
     await tester.pumpWidget(const MaterialApp(home: HomeShell()));
 
-    await tester.tap(find.byTooltip('Training'));
+    await tester.tap(find.byTooltip('Programs'));
     await tester.pump();
 
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       2,
     );
-    expect(find.text('Opening Centers…'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('Scholarships'), findsOneWidget);
   });
 
   testWidgets('admin role receives grouped navigation destinations', (
@@ -56,18 +57,17 @@ void main() {
     addTearDown(() => ApiClient.instance.user = null);
     await tester.pumpWidget(const MaterialApp(home: HomeShell()));
 
-    for (final label in ['Home', 'Jobs', 'Training', 'Inbox', 'More']) {
+    for (final label in ['Home', 'Applications', 'Programs', 'Users', 'More']) {
       expect(find.byTooltip(label), findsOneWidget);
     }
-    await tester.tap(find.byTooltip('Jobs'));
+    await tester.tap(find.byTooltip('Applications'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
-    expect(find.text('Openings'), findsOneWidget);
-    expect(find.text('PESO AI'), findsOneWidget);
     expect(find.text('Applications'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Training'));
+    await tester.tap(find.byTooltip('More'));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('Centers'), findsOneWidget);
     expect(find.text('Trainers'), findsOneWidget);
     expect(find.text('Dates'), findsOneWidget);

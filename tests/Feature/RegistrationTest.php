@@ -20,6 +20,7 @@ class RegistrationTest extends TestCase
         $this->postJson(route('register.store'), [
             'name' => 'New Youth',
             'email' => 'terms@example.com',
+            'date_of_birth' => '2004-05-12',
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',
             'terms' => $accepted,
@@ -92,6 +93,22 @@ class RegistrationTest extends TestCase
                 'terms' => true,
             ])->assertUnprocessable()->assertJsonValidationErrors('date_of_birth');
         }
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_registration_requires_date_of_birth(): void
+    {
+        $this->post(route('register'), [
+            'first_name' => 'Maria',
+            'last_name' => 'Cruz',
+            'email' => 'maria@example.com',
+            'contact_number' => '0912 345 6789',
+            'barangay' => 'Poblacion',
+            'password' => 'StrongPassword123!',
+            'password_confirmation' => 'StrongPassword123!',
+            'terms' => true,
+        ])->assertSessionHasErrors('date_of_birth');
 
         $this->assertDatabaseCount('users', 0);
     }

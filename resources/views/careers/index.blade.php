@@ -1,9 +1,9 @@
 <x-app-layout>
     <div class="trainer-courses suite-page">
-        <x-workspace-heading eyebrow="EXPLORE · CAREERS" title="Career paths" description="Explore published career ideas and the education or training that may help you get started. Confirm current requirements with employers or training providers." />
+        <x-workspace-heading eyebrow="EXPLORE · CAREERS" title="{{ __('Career paths') }}" description="Explore published career ideas and the education or training that may help you get started. Confirm current requirements with employers or training providers." />
         <div class="trainer-courses__toolbar">
             <span class="text-sm text-slate-600 dark:text-slate-300">{{ $careers->total() }} published paths</span>
-            <a href="{{ route('tesda.index') }}" class="trainer-courses__primary">Explore TESDA training <span aria-hidden="true">↗</span></a>
+            <a href="{{ route('tesda.index') }}" class="trainer-courses__primary">{{ __('Explore TESDA training') }} <span aria-hidden="true">↗</span></a>
         </div>
         <section aria-label="Published career paths">
             @forelse ($careers as $career)

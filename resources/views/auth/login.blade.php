@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <x-auth-shell mode="login" title="Welcome back" description="Log in to pick up where your next step begins.">
+    <x-auth-shell mode="login" title="{{ __('Welcome back') }}" description="Log in to pick up where your next step begins.">
         <x-validation-errors class="auth-errors" />
 
         @session('status')
@@ -22,8 +22,8 @@
                     @endif
                 </div>
                 <div class="auth-password-field">
-                    <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password" />
-                    <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password" aria-label="Show password" aria-pressed="false" title="Show password">
+                    <x-input id="password" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="{{ __('Enter your password') }}" />
+                    <button type="button" class="auth-password-toggle" data-auth-password-toggle aria-controls="password" aria-label="{{ __('Show password') }}" aria-pressed="false" title="{{ __('Show password') }}">
                         <svg class="ic" data-auth-password-hidden aria-hidden="true"><use href="#i-eye"/></svg>
                         <svg class="ic" data-auth-password-visible aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
                     </button>

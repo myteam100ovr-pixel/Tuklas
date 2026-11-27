@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Role;
+use App\Http\Controllers\AccountLocaleController;
 use App\Http\Controllers\AccountPasswordResetController;
 use App\Http\Controllers\Admin\CareerPathController;
 use App\Http\Controllers\Admin\CareerRecommendationController;
@@ -42,6 +43,8 @@ Route::get('/terms-of-service', [TermsOfServiceController::class, 'show'])->name
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'show'])->name('policy.show');
 Route::get('/admin/programs/tesda', [TesdaCatalogController::class, 'index'])->name('tesda.index');
 Route::get('/tesda', fn (Request $request): RedirectResponse => redirect()->route('tesda.index', $request->query()));
+Route::put('/account/locale', [AccountLocaleController::class, 'update'])
+    ->middleware('auth:sanctum')->name('account.locale.update');
 
 Route::middleware([
     'auth:sanctum',

@@ -50,7 +50,7 @@ class _FirstLaunchState extends State<FirstLaunch> {
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error = 'Could not save your preference. Please try again.',
+          () => _error = tkL10n(context).couldNotSaveTryAgain,
         );
       }
     } finally {
@@ -109,12 +109,12 @@ class _FirstLaunchState extends State<FirstLaunch> {
                               size: 36,
                             ),
                             const SizedBox(height: 20),
-                            const TkPageHeading(
-                              eyebrow: 'WELCOME TO YOUR NEXT STEP',
-                              title: 'What to expect',
+                            TkPageHeading(
+                              eyebrow: tkL10n(context).welcomeEyebrow,
+                              title: tkL10n(context).whatToExpect,
                             ),
                             Text(
-                              'Discover your skills. Explore possibilities. Build a path that feels like you.',
+                              tkL10n(context).welcomeDescription,
                               style: tkText(
                                 context,
                                 size: 15,
@@ -130,25 +130,25 @@ class _FirstLaunchState extends State<FirstLaunch> {
                         context,
                         Icons.document_scanner_outlined,
                         '01',
-                        'Discover what you bring',
-                        'Upload a resume or certificate. The AI scanner helps identify your skills and possible next steps.',
+                        tkL10n(context).welcomeFeatureOneTitle,
+                        tkL10n(context).welcomeFeatureOneDescription,
                       ),
                       _feature(
                         context,
                         Icons.school_outlined,
                         '02',
-                        'Explore careers and TESDA',
-                        'See scan-based career and training recommendations. These are guidance, not confirmed jobs or guaranteed training slots.',
+                        tkL10n(context).welcomeFeatureTwoTitle,
+                        tkL10n(context).welcomeFeatureTwoDescription,
                       ),
                       _feature(
                         context,
                         Icons.person_outline,
                         '03',
-                        'Make it yours',
-                        'Sign in or create an account, complete your profile, and keep your scans and saved details connected across mobile and web.',
+                        tkL10n(context).welcomeFeatureThreeTitle,
+                        tkL10n(context).welcomeFeatureThreeDescription,
                       ),
                       Text(
-                        'AI features require a connection. Documents you choose to scan are sent for AI analysis; review suggestions before acting on them.',
+                        tkL10n(context).welcomePrivacyNote,
                         style: tkText(
                           context,
                           size: 12,
@@ -170,7 +170,11 @@ class _FirstLaunchState extends State<FirstLaunch> {
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(52),
                         ),
-                        child: Text(_saving ? 'Getting ready…' : 'Get started'),
+                        child: Text(
+                          _saving
+                              ? tkL10n(context).gettingReady
+                              : tkL10n(context).getStarted,
+                        ),
                       ),
                       const SizedBox(height: 12),
                     ],

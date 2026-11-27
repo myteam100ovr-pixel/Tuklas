@@ -1,7 +1,53 @@
 import 'package:flutter/material.dart';
 
 import 'api.dart';
+import 'l10n/app_localizations.dart';
+import 'l10n/app_localizations_en.dart';
 import 'theme.dart';
+
+AppLocalizations tkL10n(BuildContext context) =>
+    AppLocalizations.of(context) ?? AppLocalizationsEn();
+
+String tkWorkspaceLabel(BuildContext context, String label) {
+  final l10n = tkL10n(context);
+  return switch (label) {
+    'Home' => l10n.home,
+    'Jobs' || 'Find jobs' => l10n.jobs,
+    'Training' => l10n.training,
+    'Inbox' => l10n.inbox,
+    'Scanner' || 'Document Scanner' => l10n.scanner,
+    'More' => l10n.more,
+    'Profile' => l10n.profile,
+    'Applications' || 'Job applications' => l10n.applications,
+    'Programs' => l10n.programs,
+    'Users' => l10n.users,
+    'Courses' => l10n.courses,
+    'Course catalog' => l10n.courseCatalog,
+    'Scholarships' => l10n.scholarships,
+    'Career paths' || 'Careers' => l10n.careerPaths,
+    'Centers' => l10n.centers,
+    'Trainers' => l10n.trainers,
+    'Dates' || 'Sessions' => l10n.dates,
+    'Requests' || 'My requests' => l10n.requests,
+    'Results' || 'My results' || 'Assessments' => l10n.results,
+    'Messages' => l10n.messages,
+    'Notifications' => l10n.notifications,
+    'TuklasBot' => l10n.tuklasBot,
+    'PESO AI' => l10n.pesoAi,
+    'Account & security' => l10n.accountAndSecurity,
+    'Patch Notes' => l10n.patchNotes,
+    'My courses' || 'My programs' => l10n.myCourses,
+    'Training plans' => l10n.trainingPlans,
+    'Skills assessment' => l10n.skillsAssessment,
+    'Assign trainers' => l10n.assignTrainers,
+    'Openings' => l10n.openings,
+    'More tools' => l10n.moreTools,
+    'Profile and settings' => l10n.profileAndSettings,
+    'Workspace' => l10n.workspace,
+    'Overview' => l10n.openingOverview,
+    _ => label,
+  };
+}
 
 String tkInitials(String name) {
   final parts = name
@@ -263,7 +309,7 @@ class TkHeader extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Text(
-                      'WORKSPACE',
+                      tkL10n(context).workspaceLabel,
                       style: tkText(
                         context,
                         size: 9,
@@ -279,7 +325,7 @@ class TkHeader extends StatelessWidget {
                   icon: dark
                       ? Icons.dark_mode_outlined
                       : Icons.light_mode_outlined,
-                  tooltip: 'Light / dark mode',
+                  tooltip: tkL10n(context).lightDarkMode,
                   onTap: () => themeController.toggle(context),
                 ),
               ],
@@ -307,7 +353,7 @@ class TkBottomNavigation extends StatelessWidget {
     final user = ApiClient.instance.user ?? <String, dynamic>{};
     final role = '${user['role'] ?? ''}';
     final destinations = role == 'tesda_admin'
-        ? const [
+        ? [
             ('Home', Icons.dashboard_outlined, Icons.dashboard),
             ('Training', Icons.school_outlined, Icons.school),
             ('Programs', Icons.menu_book_outlined, Icons.menu_book),
@@ -315,14 +361,14 @@ class TkBottomNavigation extends StatelessWidget {
             ('More', Icons.grid_view_outlined, Icons.grid_view),
           ]
         : role == 'admin'
-        ? const [
+        ? [
             ('Home', Icons.dashboard_outlined, Icons.dashboard),
             ('Applications', Icons.assignment_outlined, Icons.assignment),
             ('Programs', Icons.menu_book_outlined, Icons.menu_book),
             ('Users', Icons.people_outline, Icons.people),
             ('More', Icons.grid_view_outlined, Icons.grid_view),
           ]
-        : const [
+        : [
             ('Home', Icons.dashboard_outlined, Icons.dashboard),
             ('Jobs', Icons.work_outline, Icons.work),
             ('Training', Icons.school_outlined, Icons.school),
@@ -367,8 +413,8 @@ class TkBottomNavigation extends StatelessWidget {
                   NavigationDestination(
                     icon: Icon(destination.$2),
                     selectedIcon: Icon(destination.$3),
-                    label: destination.$1,
-                    tooltip: destination.$1,
+                    label: tkWorkspaceLabel(context, destination.$1),
+                    tooltip: tkWorkspaceLabel(context, destination.$1),
                   ),
               ],
             ),
@@ -400,7 +446,7 @@ class TkPagination extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = TkColors.of(context);
     final label = Text(
-      'Page $currentPage of $lastPage',
+      tkL10n(context).pageOf(currentPage, lastPage),
       textAlign: TextAlign.center,
       style: tkText(context, size: 12.5, color: c.muted),
     );
@@ -418,9 +464,11 @@ class TkPagination extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Expanded(child: pageButton('Previous', onPrevious)),
+                  Expanded(
+                    child: pageButton(tkL10n(context).previous, onPrevious),
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: pageButton('Next', onNext)),
+                  Expanded(child: pageButton(tkL10n(context).next, onNext)),
                 ],
               ),
             ],
@@ -430,9 +478,9 @@ class TkPagination extends StatelessWidget {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            pageButton('Previous', onPrevious),
+            pageButton(tkL10n(context).previous, onPrevious),
             label,
-            pageButton('Next', onNext),
+            pageButton(tkL10n(context).next, onNext),
           ],
         );
       },

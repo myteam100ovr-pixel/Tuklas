@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
 import 'config.dart';
+import 'locale_controller.dart';
 
 class ApiException implements Exception {
   ApiException(
@@ -85,6 +86,7 @@ class ApiClient {
 
   Map<String, String> _headers(String? bearer) => {
     'Accept': 'application/json',
+    'Accept-Language': localeController.languageCode,
     'Content-Type': 'application/json',
     if (bearer != null) 'Authorization': 'Bearer $bearer',
   };
@@ -198,6 +200,7 @@ class ApiClient {
     );
     await _storage.write(key: _tokenKey, value: body['token'] as String);
     user = Map<String, dynamic>.from(body['user'] as Map);
+    await localeController.hydrateFromUser(user?['locale']);
     return user!;
   }
 
@@ -224,6 +227,7 @@ class ApiClient {
   Future<Map<String, dynamic>> me() async {
     final body = await _send('GET', '/me');
     user = Map<String, dynamic>.from(body['user'] as Map);
+    await localeController.hydrateFromUser(user?['locale']);
     return user!;
   }
 
@@ -247,6 +251,7 @@ class ApiClient {
         http.MultipartRequest('POST', _apiUri('/messages/$recipientId'))
           ..headers.addAll({
             'Accept': 'application/json',
+            'Accept-Language': localeController.languageCode,
             'Authorization': 'Bearer $bearer',
           });
     if (body.trim().isNotEmpty) request.fields['body'] = body.trim();
@@ -290,6 +295,7 @@ class ApiClient {
         _apiUri('/messages/$personId/$messageId/attachments/$attachmentIndex'),
         headers: {
           'Accept': 'application/octet-stream',
+          'Accept-Language': localeController.languageCode,
           'Authorization': 'Bearer $bearer',
         },
       ),
@@ -313,6 +319,7 @@ class ApiClient {
         ),
         headers: {
           'Accept': 'application/octet-stream',
+          'Accept-Language': localeController.languageCode,
           'Authorization': 'Bearer $bearer',
         },
       ),
@@ -406,6 +413,7 @@ class ApiClient {
     final request = http.MultipartRequest('POST', _apiUri('/document-scans'))
       ..headers.addAll({
         'Accept': 'application/json',
+        'Accept-Language': localeController.languageCode,
         'Authorization': 'Bearer $bearer',
       })
       ..files.add(
@@ -439,6 +447,7 @@ class ApiClient {
           )
           ..headers.addAll({
             'Accept': 'application/json',
+            'Accept-Language': localeController.languageCode,
             'Authorization': 'Bearer $bearer',
           })
           ..fields['application_message'] = message;

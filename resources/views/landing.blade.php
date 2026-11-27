@@ -13,7 +13,7 @@
 
 {{-- Header --}}
 <header class="site-header">
-    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
+    <a href="{{ route('home') }}" class="logo" aria-label="{{ __('Tuklas home') }}"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
 
     <nav class="nav-pill" aria-label="Main">
         <a href="#features">Features</a>
@@ -24,7 +24,7 @@
     </nav>
 
     <div class="header-actions">
-        <a href="{{ Route::has('login') ? route('login') : url('/login') }}">Log in</a>
+        <a href="{{ Route::has('login') ? route('login') : url('/login') }}">{{ __('Log in') }}</a>
         <a href="{{ Route::has('register') ? route('register') : url('/register') }}" class="btn-get">Get started</a>
     </div>
 </header>
@@ -146,7 +146,7 @@
         <a href="#" class="step reveal">
             <h4>Tell Us<br>About You</h4>
             <div class="step-box o">
-                <small>Profile</small>
+                <small>{{ __('Profile') }}</small>
                 <svg class="ico" width="28" height="30" viewBox="0 0 28 30"><circle cx="14" cy="9" r="8" fill="#4300b9"/><path d="M2 30a12 12 0 0 1 24 0z" fill="#fbe132"/></svg>
                 <span class="num">01</span><span class="arrow">&rarr;</span>
             </div>
@@ -215,7 +215,7 @@
                 <div class="opt"><small>Skills</small>Computer basics, customer service</div>
                 <div class="opt"><small>Schooling</small>Senior high school graduate</div>
                 <div class="opt"><small>Credentials</small>Certificate of completion</div>
-                <div class="opt next"><small>Next</small>Review and confirm</div>
+                <div class="opt next"><small>{{ __('Next') }}</small>Review and confirm</div>
             </div>
             <p class="note" style="grid-column: 1">Illustration only. Not a real document.</p>
         </div>
@@ -227,7 +227,7 @@
     <h2 class="h-xl reveal">See How<br>Tuklas Helps</h2>
     <div class="masonry" style="margin-top: 40px">
         <div class="col">
-            <div class="mcard reveal"><span class="star">&#10022;</span><p>Share your interests, skills, schooling, credentials, and livelihood interests once, and update them when your situation changes.</p><div class="who">Youth users<small>Profile</small></div></div>
+            <div class="mcard reveal"><span class="star">&#10022;</span><p>Share your interests, skills, schooling, credentials, and livelihood interests once, and update them when your situation changes.</p><div class="who">Youth users<small>{{ __('Profile') }}</small></div></div>
             <div class="mcard reveal"><span class="star">&#10022;</span><p>Oversee users and keep career, skills, and training information organized in one place.</p><div class="who">PESO Bugallon<small>Admin</small></div></div>
         </div>
         <div class="col">
@@ -305,14 +305,14 @@
 
 <footer class="site-footer">
     <div class="footer-main">
-        <a href="{{ route('home') }}" class="footer-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
+        <a href="{{ route('home') }}" class="footer-logo" aria-label="{{ __('Tuklas home') }}"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
         <p>Career and skills guidance for youth in Bugallon, Pangasinan.</p>
         <nav aria-label="Footer">
             <a href="#features">Features</a>
             <a href="#pathways">Pathways</a>
             <a href="#ai-scan">AI Scan</a>
             <a href="#faq">FAQ</a>
-            <a href="{{ Route::has('login') ? route('login') : url('/login') }}">Log in</a>
+            <a href="{{ Route::has('login') ? route('login') : url('/login') }}">{{ __('Log in') }}</a>
             <a href="{{ Route::has('register') ? route('register') : url('/register') }}">Get started</a>
         </nav>
     </div>

@@ -6,7 +6,7 @@
         <form method="POST" action="{{ $editing ? route('trainer.programs.update', $program) : route('trainer.programs.store') }}" class="trainer-courses__form">
             @csrf
             @if ($editing)@method('PUT')@endif
-            @if ($errors->any())<p class="trainer-courses__error" role="alert">Please review the highlighted fields.</p>@endif
+            @if ($errors->any())<p class="trainer-courses__error" role="alert">{{ __('Please review the highlighted fields.') }}</p>@endif
 
             <label>Course title
                 <input name="title" type="text" maxlength="255" required value="{{ old('title', $program->title) }}" placeholder="e.g. Cookery NC II">
@@ -18,9 +18,9 @@
                 </label>
             @endif
             <div class="trainer-courses__form-row">
-                <label>NC level
+                <label>{{ __('NC level') }}
                     <select name="nc_level">
-                        <option value="">Not specified</option>
+                        <option value="">{{ __('Not specified') }}</option>
                         @foreach (['NC I', 'NC II', 'NC III', 'NC IV'] as $level)
                             <option value="{{ $level }}" @selected(old('nc_level', $program->nc_level) === $level)>{{ $level }}</option>
                         @endforeach
@@ -36,7 +36,7 @@
                     @error('duration_days')<small>{{ $message }}</small>@enderror
                 </label>
             </div>
-            <label>Description
+            <label>{{ __('Description') }}
                 <textarea name="description" rows="4" maxlength="3000">{{ old('description', $program->description) }}</textarea>
                 @error('description')<small>{{ $message }}</small>@enderror
             </label>
@@ -63,7 +63,7 @@
 
             <div class="trainer-courses__form-actions">
                 <button class="trainer-courses__primary" type="submit">{{ $editing ? 'Save changes' : 'Save course' }}</button>
-                <a href="{{ route('trainer.programs.index') }}">Cancel</a>
+                <a href="{{ route('trainer.programs.index') }}">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>

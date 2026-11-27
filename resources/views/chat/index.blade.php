@@ -10,7 +10,7 @@
             <x-career-chat />
 
             <aside class="tuklasbot-profile" aria-labelledby="tuklasbot-profile-title">
-                <span class="tuklasbot-profile__eyebrow">YOUR PROFILE</span>
+                <span class="tuklasbot-profile__eyebrow">{{ __('YOUR PROFILE') }}</span>
                 <div class="tuklasbot-profile__avatar" aria-hidden="true">
                     @if (auth()->user()->profile_photo_path)
                         <img src="{{ auth()->user()->profile_photo_url }}" alt="">

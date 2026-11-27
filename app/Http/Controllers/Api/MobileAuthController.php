@@ -8,9 +8,11 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\SupportedLocale;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -44,7 +46,7 @@ class MobileAuthController extends Controller
         event(new Registered($user));
 
         return response()->json([
-            'message' => 'Account created. Verify your email address before signing in.',
+            'message' => __('api.account.created'),
             'user' => $this->presentUser($user),
         ], 201);
     }
@@ -63,11 +65,11 @@ class MobileAuthController extends Controller
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['These credentials do not match our records.'],
+                'email' => [__('auth.failed')],
             ]);
         }
 
-        abort_unless($user->is_active, 403, 'This account is inactive.');
+        abort_unless($user->is_active, 403, __('api.auth.inactive'));
         $this->verifyTwoFactorIfNeeded($request, $user, $twoFactorProvider);
 
         return $this->issueToken($user, $validated['device_name']);
@@ -80,15 +82,38 @@ class MobileAuthController extends Controller
 
     public function updateAccount(Request $request, UpdateUserProfileInformation $updateProfile): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-            'first_name' => ['sometimes', 'required', 'string', 'max:127'],
-            'middle_initial' => ['nullable', 'string', 'max:10'],
-            'last_name' => ['sometimes', 'required', 'string', 'max:127'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($request->user()->id)],
-        ]);
+        $hasProfileFields = $request->hasAny(['name', 'first_name', 'middle_initial', 'last_name', 'email']);
+        $rules = [
+            'locale' => ['sometimes', Rule::in(SupportedLocale::VALUES)],
+        ];
 
-        $updateProfile->update($request->user(), $validated);
+        if ($hasProfileFields || ! $request->exists('locale')) {
+            $rules = [
+                ...$rules,
+                'name' => ['nullable', 'string', 'max:255'],
+                'first_name' => ['sometimes', 'required', 'string', 'max:127'],
+                'middle_initial' => ['nullable', 'string', 'max:10'],
+                'last_name' => ['sometimes', 'required', 'string', 'max:127'],
+                'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($request->user()->id)],
+            ];
+        }
+
+        $validated = $request->validate($rules);
+
+        if ($hasProfileFields || ! $request->exists('locale')) {
+            $profile = collect($validated)->except('locale')->all();
+
+            if (array_key_exists('first_name', $profile) || array_key_exists('last_name', $profile)) {
+                $profile['middle_initial'] ??= null;
+            }
+
+            $updateProfile->update($request->user(), $profile);
+        }
+
+        if (array_key_exists('locale', $validated)) {
+            $request->user()->forceFill(['locale' => $validated['locale']])->save();
+            App::setLocale($request->user()->preferredLocale());
+        }
 
         return response()->json(['user' => $this->presentUser($request->user()->fresh())]);
     }
@@ -102,9 +127,7 @@ class MobileAuthController extends Controller
         $user = $request->user();
 
         if (! Hash::check($validated['current_password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => ['The provided password does not match your current password.'],
-            ]);
+            throw ValidationException::withMessages(['current_password' => [__('api.auth.current_password_invalid')]]);
         }
 
         $user->forceFill([
@@ -120,7 +143,7 @@ class MobileAuthController extends Controller
             $tokens->delete();
         }
 
-        return response()->json(['message' => 'Password updated.']);
+        return response()->json(['message' => __('api.account.password_updated')]);
     }
 
     public function requestPasswordReset(Request $request): JsonResponse
@@ -129,7 +152,7 @@ class MobileAuthController extends Controller
         Password::sendResetLink($request->only('email'));
 
         return response()->json([
-            'message' => 'If an account exists for this email, a password reset link has been sent.',
+            'message' => __('api.auth.reset_link_sent'),
         ], 202);
     }
 
@@ -169,12 +192,12 @@ class MobileAuthController extends Controller
         $user = $request->user();
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email address already verified.']);
+            return response()->json(['message' => __('api.account.verification_already_complete')]);
         }
 
         $user->sendEmailVerificationNotification();
 
-        return response()->json(['message' => 'Verification email sent.'], 202);
+        return response()->json(['message' => __('api.account.verification_sent')], 202);
     }
 
     public function security(Request $request): JsonResponse
@@ -194,7 +217,7 @@ class MobileAuthController extends Controller
         $user = $request->user();
 
         if ($user->hasEnabledTwoFactorAuthentication()) {
-            return response()->json(['message' => 'Two-factor authentication is already enabled.'], 409);
+            return response()->json(['message' => __('api.account.two_factor_already_enabled')], 409);
         }
 
         $enable($user);
@@ -247,7 +270,7 @@ class MobileAuthController extends Controller
 
         if (! Hash::check($validated['current_password'], $request->user()->password)) {
             throw ValidationException::withMessages([
-                'current_password' => ['The provided password does not match your current password.'],
+                'current_password' => [__('api.auth.current_password_invalid')],
             ]);
         }
     }
@@ -273,9 +296,7 @@ class MobileAuthController extends Controller
             );
 
             if ($recoveryCode === null) {
-                throw ValidationException::withMessages([
-                    'recovery_code' => ['The recovery code is invalid.'],
-                ]);
+                throw ValidationException::withMessages(['recovery_code' => [__('api.auth.recovery_code_invalid')]]);
             }
 
             $user->replaceRecoveryCode($recoveryCode);
@@ -286,9 +307,7 @@ class MobileAuthController extends Controller
         $secret = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
 
         if (! $provider->verify($secret, $challenge['code'])) {
-            throw ValidationException::withMessages([
-                'code' => ['The authentication code is invalid.'],
-            ]);
+            throw ValidationException::withMessages(['code' => [__('api.auth.code_invalid')]]);
         }
     }
 
@@ -315,6 +334,7 @@ class MobileAuthController extends Controller
             'email_verified' => $user->hasVerifiedEmail(),
             'role' => $user->role->value,
             'role_label' => $user->role->label(),
+            'locale' => $user->preferredLocale(),
             'training_center_id' => $user->training_center_id,
             'date_of_birth' => $user->date_of_birth?->toDateString(),
         ];

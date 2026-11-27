@@ -144,23 +144,15 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     if (!mounted || preferences.getBool(key) == true) return;
     _showingAssessmentWalkthrough = true;
     var step = 0;
-    const steps = [
+    final l10n = tkL10n(context);
+    final steps = [
+      (l10n.assessmentWalkthroughOneTitle, l10n.assessmentWalkthroughOneBody),
+      (l10n.assessmentWalkthroughTwoTitle, l10n.assessmentWalkthroughTwoBody),
       (
-        'Start with a few choices about yourself.',
-        'This is not a test. Your answers help Tuklas suggest directions that fit what you like and what you have tried.',
+        l10n.assessmentWalkthroughThreeTitle,
+        l10n.assessmentWalkthroughThreeBody,
       ),
-      (
-        'Choose practiced skills or no prior experience.',
-        'You can begin without a resume or certificate. Select only skills you have actually tried.',
-      ),
-      (
-        'Pick interests and answer each required choice.',
-        'Choose fields you want to explore. Use the flexible or “not sure yet” option if you are still deciding.',
-      ),
-      (
-        'Save to see your matches, then choose a next step.',
-        'Work, career, and training suggestions appear above the questions. Scanning a resume or certificate is optional.',
-      ),
+      (l10n.assessmentWalkthroughFourTitle, l10n.assessmentWalkthroughFourBody),
     ];
     final completed = await showDialog<bool>(
       context: context,
@@ -173,7 +165,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Step ${step + 1} of ${steps.length}'),
+              Text(l10n.stepOf(step + 1, steps.length)),
               const SizedBox(height: 10),
               Text(steps[step].$2),
             ],
@@ -181,12 +173,12 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Skip walkthrough'),
+              child: Text(l10n.skipWalkthrough),
             ),
             if (step > 0)
               TextButton(
                 onPressed: () => updateDialog(() => step--),
-                child: const Text('Back'),
+                child: Text(l10n.back),
               ),
             FilledButton(
               onPressed: () {
@@ -196,7 +188,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                   updateDialog(() => step++);
                 }
               },
-              child: Text(step == steps.length - 1 ? 'Let’s begin' : 'Next'),
+              child: Text(
+                step == steps.length - 1 ? l10n.letsBegin : l10n.next,
+              ),
             ),
           ],
         ),
@@ -221,11 +215,11 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(c, false),
-              child: const Text('Cancel'),
+              child: Text(tkL10n(context).cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(c, true),
-              child: const Text('Confirm'),
+              child: Text(tkL10n(context).confirm),
             ),
           ],
         ),
@@ -242,7 +236,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${result['message'] ?? 'Saved.'}')),
+        SnackBar(
+          content: Text('${result['message'] ?? tkL10n(context).saved}'),
+        ),
       );
       await _load();
       if (path == '/assessment' && result['starter_recommendations'] is Map) {
@@ -282,20 +278,22 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         builder: (c) => AlertDialog(
           title: Text(
             result['manual_setup_key'] != null
-                ? 'Add to your authenticator'
-                : 'Save your recovery codes',
+                ? tkL10n(context).addToAuthenticator
+                : tkL10n(context).saveRecoveryCodes,
           ),
           content: SingleChildScrollView(
             child: SelectableText(
               result['manual_setup_key'] != null
-                  ? 'Enter this key in your authenticator, then choose Confirm setup.\n\n${result['manual_setup_key']}'
+                  ? tkL10n(context).authenticatorSetupInstructions(
+                      '${result['manual_setup_key']}',
+                    )
                   : asList(result['recovery_codes']).join('\n'),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(c),
-              child: const Text('Done'),
+              child: Text(tkL10n(context).done),
             ),
           ],
         ),
@@ -306,7 +304,10 @@ class _WorkspaceViewState extends State<WorkspaceView> {
 
   Widget _button(String label, VoidCallback action) => Padding(
     padding: const EdgeInsets.only(right: 8, bottom: 8),
-    child: OutlinedButton(onPressed: _busy ? null : action, child: Text(label)),
+    child: OutlinedButton(
+      onPressed: _busy ? null : action,
+      child: Text(tkWorkspaceLabel(context, label)),
+    ),
   );
   Widget _card(String title, List<Widget> children, {String? subtitle}) =>
       Padding(
@@ -315,8 +316,11 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
-              if (subtitle != null) Text(subtitle),
+              Text(
+                tkWorkspaceLabel(context, title),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              if (subtitle != null) Text(tkWorkspaceLabel(context, subtitle)),
               const SizedBox(height: 10),
               ...children,
             ],
@@ -378,13 +382,13 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                 ),
                 if (!_deleted)
                   IconButton(
-                    tooltip: 'Delete account',
+                    tooltip: tkL10n(context).deleteAccount,
                     onPressed: _busy
                         ? null
                         : () => _act(
                             '/admin/users/$userId',
                             method: 'DELETE',
-                            confirm: 'Delete this account? It can be restored.',
+                            confirm: tkL10n(context).deleteAccountConfirm,
                           ),
                     icon: const Icon(Icons.delete_outline),
                     color: Theme.of(context).colorScheme.error,
@@ -407,10 +411,10 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                       ? null
                       : () => _act(
                           '/admin/users/$userId/restore',
-                          confirm: 'Restore this account?',
+                          confirm: tkL10n(context).restoreAccountConfirm,
                         ),
                   icon: const Icon(Icons.restore_outlined),
-                  label: const Text('Restore account'),
+                  label: Text(tkL10n(context).restoreAccount),
                 ),
               )
             else
@@ -420,7 +424,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                     child: OutlinedButton.icon(
                       onPressed: _busy ? null : () => _editUser(user),
                       icon: const Icon(Icons.edit_outlined, size: 18),
-                      label: const Text('Edit', maxLines: 1),
+                      label: Text(tkL10n(context).edit, maxLines: 1),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -432,10 +436,11 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                             ? null
                             : () => _act(
                                 '/admin/users/$userId/reset-password',
-                                confirm: 'Request a password reset for this account?',
+                                confirm: tkL10n(context)
+                                    .requestPasswordResetForAccount,
                               ),
                         icon: const Icon(Icons.lock_reset_outlined, size: 18),
-                        label: const Text('Reset', maxLines: 1),
+                        label: Text(tkL10n(context).reset, maxLines: 1),
                       ),
                     ),
                   ),
@@ -568,7 +573,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     final rows = asList(pagination['data']);
     return [
       _button('Mark all read', () => _act('/notifications/read-all')),
-      if (rows.isEmpty) const Text('No notifications yet.'),
+      if (rows.isEmpty) Text(tkL10n(context).noNotificationsYet),
       for (final raw in rows)
         Builder(
           builder: (context) {
@@ -713,7 +718,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
               ? null
               : _maybeShowAssessmentWalkthrough,
           icon: const Icon(Icons.explore_outlined),
-          label: const Text('Walk me through this'),
+          label: Text(tkL10n(context).walkMeThrough),
         ),
       ),
       ..._assessmentRecommendations(recommendations),
@@ -734,7 +739,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                 children: [
                   for (final option in asList(entry.value))
                     FilterChip(
-                      label: Text('$option'),
+                      label: Text(tkWorkspaceLabel(context, '$option')),
                       selected: asList(_assessment[entry.key]).contains(option),
                       onSelected: _busy
                           ? null
@@ -811,12 +816,15 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                   color: TkColors.of(context).taskMeta,
                 ),
                 dropdownColor: TkColors.of(context).surface,
-                decoration: const InputDecoration(
-                  hintText: 'Choose one option',
+                decoration: InputDecoration(
+                  hintText: tkL10n(context).chooseOneOption,
                 ),
                 items: [
                   for (final option in asList(entry.value))
-                    DropdownMenuItem(value: '$option', child: Text('$option')),
+                    DropdownMenuItem(
+                      value: '$option',
+                      child: Text(tkWorkspaceLabel(context, '$option')),
+                    ),
                 ],
                 onChanged: (v) => setState(() {
                   _assessment[entry.key] = v;
@@ -851,7 +859,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         ),
       FilledButton(
         onPressed: _busy ? null : _saveAssessment,
-        child: const Text('Save assessment'),
+        child: Text(tkL10n(context).saveAssessment),
       ),
     ];
   }
@@ -930,7 +938,8 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           initial: {'status': 'draft'},
         ),
       ),
-      if (asList(pagination['data']).isEmpty) const Text('No programs yet.'),
+      if (asList(pagination['data']).isEmpty)
+        Text(tkL10n(context).noProgramsYet),
       for (final raw in asList(pagination['data']))
         _card(
           '${raw['title']}',
@@ -1079,11 +1088,11 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         child: OutlinedButton.icon(
           onPressed: _busy ? null : () => _editUser(null),
           icon: const Icon(Icons.person_add_alt_1_outlined),
-          label: const Text('Create account'),
+          label: Text(tkL10n(context).createAccount),
         ),
       ),
       SwitchListTile(
-        title: const Text('Deleted accounts'),
+        title: Text(tkL10n(context).deletedAccounts),
         value: _deleted,
         contentPadding: EdgeInsets.zero,
         onChanged: _busy
@@ -1094,7 +1103,8 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                 _load();
               },
       ),
-      if (asList(pagination['data']).isEmpty) const Text('No accounts found.'),
+      if (asList(pagination['data']).isEmpty)
+        Text(tkL10n(context).noAccountsFound),
       for (final raw in asList(pagination['data'])) _userCard(asMap(raw)),
       _pages(pagination),
     ];
@@ -1205,13 +1215,13 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         IconButton(
           onPressed: _busy ? null : _load,
           icon: const Icon(Icons.refresh),
-          tooltip: 'Refresh',
+          tooltip: tkL10n(context).refresh,
         ),
         if (widget.onLogout != null)
           IconButton(
             onPressed: widget.onLogout,
             icon: const Icon(Icons.logout_outlined),
-            tooltip: 'Log out',
+            tooltip: tkL10n(context).logOut,
           ),
       ],
     ),
@@ -1262,7 +1272,7 @@ class _YouthPickerState extends State<YouthPicker> {
   });
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Choose youth account')),
+    appBar: AppBar(title: Text(tkL10n(context).chooseYouthAccount)),
     body: FutureBuilder<Map<String, dynamic>>(
       future: _future,
       builder: (context, snapshot) {
@@ -1270,7 +1280,7 @@ class _YouthPickerState extends State<YouthPicker> {
           return Center(
             child: TextButton(
               onPressed: () => _load(_page),
-              child: const Text('Could not load. Try again'),
+              child: Text(tkL10n(context).couldNotLoadTryAgain),
             ),
           );
         }
@@ -1281,7 +1291,7 @@ class _YouthPickerState extends State<YouthPicker> {
         return ListView(
           children: [
             if (asList(page['data']).isEmpty)
-              const ListTile(title: Text('No active youth accounts.')),
+              ListTile(title: Text(tkL10n(context).noActiveYouthAccounts)),
             for (final user in asList(page['data']))
               ListTile(
                 title: Text('${user['name']}'),
@@ -1295,13 +1305,13 @@ class _YouthPickerState extends State<YouthPicker> {
               children: [
                 TextButton(
                   onPressed: _page > 1 ? () => _load(_page - 1) : null,
-                  child: const Text('Previous'),
+                  child: Text(tkL10n(context).previous),
                 ),
                 TextButton(
                   onPressed: _page < (page['last_page'] as num? ?? 1)
                       ? () => _load(_page + 1)
                       : null,
-                  child: const Text('Next'),
+                  child: Text(tkL10n(context).next),
                 ),
               ],
             ),

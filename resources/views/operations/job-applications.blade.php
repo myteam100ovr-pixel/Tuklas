@@ -44,7 +44,7 @@
                     <form class="job-application-card__review" method="POST" action="{{ route('admin.job-applications.update', $application) }}">
                         @csrf
                         @method('PUT')
-                        <label>Status
+                        <label>{{ __('Status') }}
                             <select name="status" required>
                                 <option value="reviewing" @selected($application->status === 'reviewing')>Under review</option>
                                 <option value="hired">Hired</option>

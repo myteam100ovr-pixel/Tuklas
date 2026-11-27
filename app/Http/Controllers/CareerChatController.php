@@ -39,7 +39,7 @@ class CareerChatController
     ): JsonResponse {
         if (! $assistant->isConfigured()) {
             return response()->json([
-                'message' => 'TuklasBot is temporarily unavailable. Please tell a Tuklas administrator.',
+                'message' => __('api.chat.unavailable'),
             ], 503);
         }
 
@@ -62,6 +62,7 @@ class CareerChatController
                 [...$history, $message],
                 $this->careerContext($user, $scanHistory, $recommendations),
                 $systemContext,
+                $user->preferredLocale(),
             );
             $resolvedLinks = $aiContext->resolveChatLinks($result['reply'], $systemContext);
             $result['reply'] = $resolvedLinks['reply'];
@@ -104,11 +105,11 @@ class CareerChatController
 
             return response()->json([
                 'message' => match ($providerStatus) {
-                    429 => 'TuklasBot has reached its current Google AI usage limit. Please try again later. If this continues, tell a Tuklas administrator.',
-                    500, 502, 503, 504 => 'Gemini is temporarily busy. Please try again shortly.',
-                    401, 403 => 'TuklasBot’s AI connection needs an administrator to check the server setup.',
-                    404 => 'TuklasBot’s AI service is unavailable with the current setup. Please tell a Tuklas administrator.',
-                    default => 'Gemini could not reply right now. Please try again.',
+                    429 => __('api.chat.quota'),
+                    500, 502, 503, 504 => __('api.chat.busy'),
+                    401, 403 => __('api.chat.setup'),
+                    404 => __('api.chat.service_unavailable'),
+                    default => __('api.chat.failed'),
                 },
                 'provider_status' => $providerStatus > 0 ? $providerStatus : null,
             ], $responseStatus);

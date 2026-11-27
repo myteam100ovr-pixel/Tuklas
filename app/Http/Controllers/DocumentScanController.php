@@ -43,7 +43,7 @@ class DocumentScanController extends Controller
         abort_unless($request->user()->hasRole(Role::Admin, Role::Youth), 403);
         if (! $scanner->isConfigured()) {
             return response()->json([
-                'message' => 'Document scanning is temporarily unavailable. Please tell a Tuklas administrator.',
+                'message' => __('api.scanner.unavailable'),
             ], 503);
         }
 
@@ -54,7 +54,7 @@ class DocumentScanController extends Controller
         $fingerprint = is_string($temporaryPath) ? hash_file('sha256', $temporaryPath) : false;
 
         if (! is_string($fingerprint)) {
-            return response()->json(['message' => 'The selected document could not be read. Please choose it again.'], 422);
+            return response()->json(['message' => __('api.scanner.unreadable')], 422);
         }
 
         $requestFingerprint = hash('sha256', $fingerprint.'|'.trim($validated['goal'] ?? ''));
@@ -68,7 +68,7 @@ class DocumentScanController extends Controller
                 return response()->json([
                     'document' => $this->presentDocument($existingScan),
                     'duplicate' => true,
-                    'message' => 'This exact file was scanned just now. Showing the saved result instead of creating a duplicate.',
+                    'message' => __('api.scanner.duplicate'),
                 ]);
             }
 
@@ -85,11 +85,11 @@ class DocumentScanController extends Controller
                 return response()->json([
                     'document' => $this->presentDocument($existingScan),
                     'duplicate' => true,
-                    'message' => 'This exact file was scanned just now. Showing the saved result instead of creating a duplicate.',
+                    'message' => __('api.scanner.duplicate'),
                 ]);
             }
 
-            return response()->json(['message' => 'This exact document is already being scanned. Wait for it to finish before submitting it again.'], 409);
+            return response()->json(['message' => __('api.scanner.already_processing')], 409);
         }
 
         $path = $file->store('document-scans/'.$user->getKey(), 'local');
@@ -97,7 +97,7 @@ class DocumentScanController extends Controller
         if (! is_string($path)) {
             Cache::forget($deduplicationKey);
 
-            return response()->json(['message' => 'The document could not be saved. Please try again.'], 500);
+            return response()->json(['message' => __('api.scanner.save_failed')], 500);
         }
 
         try {
@@ -115,7 +115,7 @@ class DocumentScanController extends Controller
             $preferences = $user->hasRole(Role::Youth) ? ($user->youthProfile?->careerPreferences() ?? []) : [];
             $systemContext = $aiContext->buildSystemContext($user, $validated['goal'] ?? null);
             $systemContext['target_requirements'] = filled($validated['goal'] ?? null) ? trim($validated['goal']) : null;
-            $analysis = $scanner->analyze($file, $programs, $validated['goal'] ?? '', $preferences, $systemContext);
+            $analysis = $scanner->analyze($file, $programs, $validated['goal'] ?? '', $preferences, $systemContext, $user->preferredLocale());
             $analysis['recommended_links'] = collect($systemContext['links'] ?? [])
                 ->keyBy('id')
                 ->only($analysis['recommendedLinkIds'] ?? [])
@@ -205,7 +205,7 @@ class DocumentScanController extends Controller
             $this->sendOutcomeNotice($user, $validated['status'], $fileName);
         }
 
-        return response()->json(['message' => 'The scan update was recorded.']);
+        return response()->json(['message' => __('api.scanner.outcome_recorded')]);
     }
 
     private function sendOutcomeNotice(User $user, string $status, string $fileName): void
@@ -237,11 +237,14 @@ class DocumentScanController extends Controller
     /** @return array<string, mixed> */
     private function presentDocument(DocumentScan $scan): array
     {
+        $status = $scan->status === 'done' ? 'completed' : $scan->status;
+
         return [
             'id' => $scan->id,
             'document_type' => $scan->doc_type === 'certificate' ? 'certification' : $scan->doc_type,
             'original_name' => $scan->original_name,
-            'status' => $scan->status === 'done' ? 'completed' : $scan->status,
+            'status' => $status,
+            'status_label' => __('api.status_labels.'.$status),
             'analysis' => $scan->result,
             'failure_message' => $scan->error,
             'created_at' => $scan->created_at,
@@ -251,15 +254,15 @@ class DocumentScanController extends Controller
     private function failureMessage(Throwable $exception): string
     {
         if ($exception->getCode() === 429) {
-            return 'Tuklas document scanning has reached its current Google AI usage limit. Please try again later. If this continues, tell a Tuklas administrator.';
+            return __('api.scanner.quota');
         }
 
         if (in_array($exception->getCode(), [401, 403], true)) {
-            return 'The AI connection needs an administrator to check the server setup. Your document was not scanned.';
+            return __('api.scanner.setup');
         }
 
         if ($exception->getCode() === 404) {
-            return 'The AI service is unavailable with the current setup. Please tell a Tuklas administrator. Your document was not scanned.';
+            return __('api.scanner.service_unavailable');
         }
 
         $previous = $exception->getPrevious();
@@ -267,14 +270,14 @@ class DocumentScanController extends Controller
         if (in_array($exception->getCode(), [500, 502, 503, 504], true)
             || ($previous instanceof RequestException
                 && in_array($previous->response->status(), [500, 502, 503, 504], true))) {
-            return 'Gemini is temporarily busy. Please try the scan again shortly.';
+            return __('api.scanner.busy');
         }
 
         if ($previous instanceof ConnectionException) {
-            return 'Gemini did not respond in time. Please try the scan again shortly.';
+            return __('api.scanner.timeout');
         }
 
-        return 'Gemini could not finish this scan. Please try again.';
+        return __('api.scanner.failed');
     }
 
     /** @param array<int, string>|null $existing

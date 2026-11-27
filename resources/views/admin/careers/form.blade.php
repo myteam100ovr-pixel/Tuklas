@@ -5,12 +5,12 @@
         <form method="POST" action="{{ $editing ? route('admin.careers.update', $career) : route('admin.careers.store') }}" class="trainer-courses__form">
             @csrf
             @if ($editing)@method('PUT')@endif
-            @if ($errors->any())<p class="trainer-courses__error" role="alert">Please review the highlighted fields.</p>@endif
+            @if ($errors->any())<p class="trainer-courses__error" role="alert">{{ __('Please review the highlighted fields.') }}</p>@endif
             <label>Career title
                 <input name="title" type="text" maxlength="255" required value="{{ old('title', $career->title) }}" placeholder="e.g. Agricultural technician">
                 @error('title')<small>{{ $message }}</small>@enderror
             </label>
-            <label>Description
+            <label>{{ __('Description') }}
                 <textarea name="description" rows="5" maxlength="3000">{{ old('description', $career->description) }}</textarea>
                 @error('description')<small>{{ $message }}</small>@enderror
             </label>
@@ -46,7 +46,7 @@
             </label>
             <div class="trainer-courses__form-actions">
                 <button class="trainer-courses__primary" type="submit">{{ $editing ? 'Save changes' : 'Save career path' }}</button>
-                <a href="{{ route('admin.careers.index') }}">Cancel</a>
+                <a href="{{ route('admin.careers.index') }}">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>

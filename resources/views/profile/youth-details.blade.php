@@ -14,20 +14,20 @@
         @method('PUT')
 
         <div class="field">
-            <label class="label" for="date_of_birth">Date of birth</label>
+            <label class="label" for="date_of_birth">{{ __('Date of birth') }}</label>
             <input class="input" id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth', $u->date_of_birth?->toDateString()) }}" min="{{ now()->subYears(31)->addDay()->toDateString() }}" max="{{ now()->subYears(18)->toDateString() }}" required>
-            <span class="hint">Career Seekers must be 18 to 30 years old.</span>
+            <span class="hint">{{ __('Career Seekers must be 18 to 30 years old.') }}</span>
             @error('date_of_birth')<p class="field-error">{{ $message }}</p>@enderror
         </div>
 
         <div class="field-row">
             <div class="field">
-                <label class="label" for="barangay">Barangay</label>
+                <label class="label" for="barangay">{{ __('Barangay') }}</label>
                 <input class="input" id="barangay" name="barangay" type="text" maxlength="100" value="{{ old('barangay', $yp?->barangay) }}" placeholder="Barangay in Bugallon">
                 @error('barangay')<p class="field-error">{{ $message }}</p>@enderror
             </div>
             <div class="field">
-                <label class="label" for="contact_number">Contact number</label>
+                <label class="label" for="contact_number">{{ __('Contact number') }}</label>
                 <input class="input" id="contact_number" name="contact_number" type="tel" maxlength="30" value="{{ old('contact_number', $yp?->contact_number) }}">
                 @error('contact_number')<p class="field-error">{{ $message }}</p>@enderror
             </div>

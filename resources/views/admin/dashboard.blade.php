@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-role-dashboard accent="admin" role-label="PESO Bugallon · Admin" eyebrow="Control room / Local workforce" title="Good morning, {{ auth()->user()->name }}." description="A central workspace for guiding Bugallon’s youth, training, and employment programs." :navigation="[['Overview', 'admin.dashboard'], ['People', 'admin.users.index'], ['PESO AI', 'peso.index'], ['AI Scanner', 'scanner.index'], ['TESDA', 'tesda.index']]">
         <section class="role-dashboard__summary" aria-label="Workspace summary">
-            <div class="role-dashboard__summary-card"><span>Account</span><strong>Active</strong></div>
-            <div class="role-dashboard__summary-card"><span>Role</span><strong>Admin</strong></div>
+            <div class="role-dashboard__summary-card"><span>{{ __('Account') }}</span><strong>{{ __('Active') }}</strong></div>
+            <div class="role-dashboard__summary-card"><span>{{ __('Role') }}</span><strong>Admin</strong></div>
             <div class="role-dashboard__summary-card"><span>Office</span><strong>PESO Bugallon</strong></div>
-            <div class="role-dashboard__summary-card"><span>Workspace</span><strong>In setup</strong></div>
+            <div class="role-dashboard__summary-card"><span>{{ __('Workspace') }}</span><strong>In setup</strong></div>
         </section>
         <div class="role-dashboard__workspace-grid">
             <section class="role-dashboard__panel" aria-labelledby="admin-overview-title">

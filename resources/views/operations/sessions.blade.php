@@ -26,7 +26,7 @@
             <article class="operations-card">
                 <h2>{{ $session->program->title }} <span class="operations-status">{{ ucfirst($session->status) }}</span></h2>
                 <p>{{ $session->center->name }} · {{ $session->starts_at->format('M j, Y g:i A') }} – {{ $session->ends_at->format('M j, Y g:i A') }}</p>
-                <p><strong>Trainer:</strong> {{ $session->trainer?->name ?? 'Not assigned' }}</p>
+                <p><strong>{{ __('Trainer:') }}</strong> {{ $session->trainer?->name ?? 'Not assigned' }}</p>
                 @if ($session->training_dates)
                     <p><strong>Training dates:</strong> {{ collect($session->training_dates)->map(fn ($date) => \Illuminate\Support\Carbon::parse($date)->format('M j, Y'))->implode(' · ') }}</p>
                 @endif
@@ -48,7 +48,7 @@
                             @csrf
                             @method('PUT')
                             @include('operations.session-form-fields', ['session' => $session, 'creatingSession' => false])
-                            <button type="submit">Update</button>
+                            <button type="submit">{{ __('Update') }}</button>
                         </form>
                     </details>
                     <details>

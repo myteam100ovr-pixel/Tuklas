@@ -1,6 +1,6 @@
 <section class="qualification-catalog" id="nc-offerings" data-qualification-catalog aria-labelledby="qualification-title">
     <header class="qualification-heading">
-        <div><p class="tesda-eyebrow">01 / THE QUALIFICATION DIRECTORY</p><h2 id="qualification-title">Find a qualification.</h2></div>
+        <div><p class="tesda-eyebrow">01 / THE QUALIFICATION DIRECTORY</p><h2 id="qualification-title">{{ __('Find a qualification.') }}</h2></div>
         <a href="{{ $nationalCatalog['source'] }}" target="_blank" rel="noopener noreferrer">View official source ↗</a>
     </header>
     <p class="qualification-intro">Browse national qualifications from NC I to NC IV. These standards describe training and assessment; they do not confirm open enrollment or availability at a particular school.</p>
@@ -30,9 +30,9 @@
         <p class="qualification-checked">Fetched {{ \Carbon\Carbon::parse($nationalCatalog['fetched_at'])->timezone('Asia/Manila')->format('M j, Y') }} · {{ $nationalCatalog['pages'] }} official pages · {{ count($nationalCatalog['qualifications']) }} entries including archived versions</p>
     @endif
     <div class="qualification-filters">
-        <label>Find a qualification or location<input type="search" data-qualification-search placeholder="Try cookery, welding, Bugallon, or Lingayen…" aria-controls="qualification-results"></label>
-        <label>NC level<select data-qualification-level aria-controls="qualification-results"><option value="">All levels</option>@foreach (['NC I', 'NC II', 'NC III', 'NC IV'] as $level)<option value="{{ $level }}">{{ $level }}</option>@endforeach</select></label>
-        <label>Listing<select data-qualification-status aria-controls="qualification-results"><option value="current">Current listings</option><option value="archived">Archived / superseded</option><option value="">All entries</option></select></label>
+        <label>{{ __('Find a qualification or location') }}<input type="search" data-qualification-search placeholder="Try cookery, welding, Bugallon, or Lingayen…" aria-controls="qualification-results"></label>
+        <label>{{ __('NC level') }}<select data-qualification-level aria-controls="qualification-results"><option value="">All levels</option>@foreach (['NC I', 'NC II', 'NC III', 'NC IV'] as $level)<option value="{{ $level }}">{{ $level }}</option>@endforeach</select></label>
+        <label>{{ __('Listing') }}<select data-qualification-status aria-controls="qualification-results"><option value="current">Current listings</option><option value="archived">Archived / superseded</option><option value="">{{ __('All entries') }}</option></select></label>
     </div>
     <p class="qualification-result-count" data-qualification-count role="status">{{ count($nationalCatalog['qualifications']) }} catalog entries</p>
     <div class="qualification-grid" id="qualification-results">
@@ -86,9 +86,9 @@
                 @auth
                     @if (auth()->user()->hasRole(\App\Enums\Role::TesdaAdmin) && $qualification['status'] === 'current')
                         @if ($trainerQualifications->has($qualification['id']))
-                            <form method="POST" action="{{ route('trainer.qualifications.destroy', $qualification['id']) }}" class="qualification-choice-form">@csrf @method('DELETE')<button type="submit">Remove from teaching</button></form>
+                            <form method="POST" action="{{ route('trainer.qualifications.destroy', $qualification['id']) }}" class="qualification-choice-form">@csrf @method('DELETE')<button type="submit">{{ __('Remove from teaching') }}</button></form>
                         @else
-                            <form method="POST" action="{{ route('trainer.qualifications.store') }}" class="qualification-choice-form">@csrf<input type="hidden" name="qualification_id" value="{{ $qualification['id'] }}"><button type="submit">Choose to teach</button></form>
+                            <form method="POST" action="{{ route('trainer.qualifications.store') }}" class="qualification-choice-form">@csrf<input type="hidden" name="qualification_id" value="{{ $qualification['id'] }}"><button type="submit">{{ __('Choose to teach') }}</button></form>
                         @endif
                     @endif
                 @endauth

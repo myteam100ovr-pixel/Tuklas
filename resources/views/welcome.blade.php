@@ -21,9 +21,9 @@
 
 {{-- ============ HEADER ============ --}}
 <header class="hdr" id="hdr">
-    <a href="{{ route('home') }}" class="logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
+    <a href="{{ route('home') }}" class="logo" aria-label="{{ __('Tuklas home') }}"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
 
-    <nav class="pill" id="site-nav" aria-label="Primary">
+    <nav class="pill" id="site-nav" aria-label="{{ __('Primary') }}">
         <a href="#features">Features</a>
         <a href="#pathways">Pathways</a>
         <a href="{{ route('scanner.index') }}">Scanner</a>
@@ -32,20 +32,20 @@
         <a href="#faq">FAQ</a>
         <a href="#contact">Contact</a>
         @guest
-            <a class="mobile-nav-link" href="{{ route('login') }}">Log in</a>
+            <a class="mobile-nav-link" href="{{ route('login') }}">{{ __('Log in') }}</a>
             <a class="mobile-nav-link" href="{{ route('register') }}">Create an account</a>
         @endguest
     </nav>
 
     <div class="hdr-actions">
-        <button type="button" class="theme-btn" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
+        <button type="button" class="theme-btn" data-theme-toggle aria-label="{{ __('Switch between light and dark mode') }}" title="{{ __('Light / dark mode') }}">
             <svg class="t-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
             <svg class="t-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
         </button>
         @auth
             <a class="btn btn-black" href="{{ route('dashboard') }}">Dashboard</a>
         @else
-            <a class="login" href="{{ route('login') }}">Log in</a>
+            <a class="login" href="{{ route('login') }}">{{ __('Log in') }}</a>
             <a class="btn btn-black" href="{{ route('register') }}">Get started</a>
         @endauth
     </div>
@@ -282,7 +282,7 @@
             <div class="pw-cards">
                 <article class="pc c1">
                     <p>Tell Us<br>About You</p>
-                    <div class="pc-tile o"><small>Profile</small><b>01</b>
+                    <div class="pc-tile o"><small>{{ __('Profile') }}</small><b>01</b>
                         <svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="34" cy="24" r="16" fill="#3a14b0"/><path d="M6 58 C10 36, 40 36, 46 58 Z" fill="#ffd92e"/></svg>
                         <em>&rarr;</em></div>
                 </article>
@@ -364,7 +364,7 @@
                 <div class="fd"><small>Skills</small><span>Computer basics, customer service</span></div>
                 <div class="fd"><small>Schooling</small><span>Senior high school graduate</span></div>
                 <div class="fd"><small>Credentials</small><span>Certificate of completion</span></div>
-                <div class="fd ok"><small>Next</small><span>Review and confirm</span></div>
+                <div class="fd ok"><small>{{ __('Next') }}</small><span>Review and confirm</span></div>
             </div>
             <p class="scan-cap">Illustration only. Not a real document.</p>
         </div>
@@ -376,7 +376,7 @@
     <h2 class="title">See How<br>Tuklas Helps</h2>
     <div class="cols">
         <div class="col c-a" data-speed="70">
-            <article class="qc"><i class="qm">&#10022;</i><p>Share your interests, skills, schooling, credentials, and livelihood interests once, and update them when your situation changes.</p><footer><b>Youth users</b><span>Profile</span></footer></article>
+            <article class="qc"><i class="qm">&#10022;</i><p>Share your interests, skills, schooling, credentials, and livelihood interests once, and update them when your situation changes.</p><footer><b>Youth users</b><span>{{ __('Profile') }}</span></footer></article>
             <article class="qc"><i class="qm">&#10022;</i><p>Oversee users and keep career, skills, and training information organized in one place.</p><footer><b>PESO Bugallon</b><span>Admin</span></footer></article>
         </div>
         <div class="col c-b" data-speed="130">
@@ -448,7 +448,7 @@
 <footer class="foot" id="contact">
     <div class="foot-top">
         <div class="foot-brand">
-            <a href="{{ route('home') }}" class="foot-logo" aria-label="Tuklas home"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
+            <a href="{{ route('home') }}" class="foot-logo" aria-label="{{ __('Tuklas home') }}"><img class="site-logo-mark" src="{{ asset('images/tuklas-logo.png') }}" alt=""><span>Tuklas</span></a>
             <p>AI-powered career path and skills development for youth in Pangasinan, piloting in Bugallon.</p>
             <p class="gem sm"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8bff"/><stop offset=".55" stop-color="#7b5cff"/><stop offset="1" stop-color="#f55ba8"/></linearGradient></defs><path d="M12 1.5C12 8 16 12 22.5 12C16 12 12 16 12 22.5C12 16 8 12 1.5 12C8 12 12 8 12 1.5Z" fill="url(#gg3)"/></svg>Powered by Google Gemini AI</p>
         </div>
@@ -464,13 +464,13 @@
             <a href="#faq">FAQ</a>
         </nav>
 
-        <nav class="foot-col" aria-label="Account">
+        <nav class="foot-col" aria-label="{{ __('Account') }}">
             <h3>Get Started</h3>
             @auth
                 <a href="{{ route('dashboard') }}">Dashboard</a>
             @else
                 <a href="{{ route('register') }}">Create an account</a>
-                <a href="{{ route('login') }}">Log in</a>
+                <a href="{{ route('login') }}">{{ __('Log in') }}</a>
             @endauth
         </nav>
 
@@ -483,8 +483,8 @@
 
         <div class="foot-col">
             <h3>Contact</h3>
-            <a href="{{ route('policy.show') }}">Privacy notice</a>
-            <a href="{{ route('terms.show') }}">Terms of use</a>
+            <a href="{{ route('policy.show') }}">{{ __('Privacy notice') }}</a>
+            <a href="{{ route('terms.show') }}">{{ __('Terms of use') }}</a>
             <span>Questions about Tuklas? Reach out to PESO Bugallon.</span>
         </div>
     </div>

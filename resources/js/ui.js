@@ -1,3 +1,4 @@
+import './locale.js';
 import './admin-user-password.js';
 import './admin-user-role.js';
 import './theme.js';

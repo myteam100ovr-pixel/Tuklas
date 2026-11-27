@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use App\Support\SupportedLocale;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,7 +18,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     use HasApiTokens;
     use HasFactory;
@@ -136,6 +138,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasRole(Role ...$roles): bool
     {
         return in_array($this->role, $roles, true);
+    }
+
+    public function preferredLocale(): string
+    {
+        return SupportedLocale::normalize($this->locale);
     }
 
     public function isCenterScopedTesda(): bool

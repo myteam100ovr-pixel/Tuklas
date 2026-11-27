@@ -961,7 +961,7 @@ class _OperationsViewState extends State<OperationsView> {
       data: {
         'stage': stage,
         'decision': decision,
-        if (notes != null) 'notes': notes,
+        'notes': ?notes,
       },
     );
   }

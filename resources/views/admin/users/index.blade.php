@@ -5,17 +5,17 @@
     @if (session('status'))<p class="trainer-courses__feedback" role="status">{{ session('status') }}</p>@endif
     @error('reset')<p class="trainer-courses__error" role="alert">{{ $message }}</p>@enderror
     <div class="users-directory__toolbar">
-        <div><a href="{{ route('admin.users.index') }}" @if (request('status') !== 'deleted') aria-current="page" @endif>Active accounts</a><a href="{{ route('admin.users.index', ['status' => 'deleted']) }}" @if (request('status') === 'deleted') aria-current="page" @endif>Deleted accounts</a></div>
+        <div><a href="{{ route('admin.users.index') }}" @if (request('status') !== 'deleted') aria-current="page" @endif>Active accounts</a><a href="{{ route('admin.users.index', ['status' => 'deleted']) }}" @if (request('status') === 'deleted') aria-current="page" @endif>{{ __('Deleted accounts') }}</a></div>
         <a class="trainer-courses__primary" href="{{ route('admin.users.create') }}">Add a user</a>
     </div>
 
     <form class="operations-search" method="GET" action="{{ route('admin.users.index') }}" role="search" data-users-search-form>
         @if (request('status') === 'deleted')<input type="hidden" name="status" value="deleted">@endif
-        <label for="users-name-search">Search users by name</label>
+        <label for="users-name-search">{{ __('Search users by name') }}</label>
         <div class="operations-search__controls">
             <input id="users-name-search" name="q" type="search" value="{{ request('q') }}" maxlength="100" placeholder="Enter a user’s name" data-users-search-input>
-            <button type="submit">Search</button>
-            <a href="{{ route('admin.users.index', request('status') === 'deleted' ? ['status' => 'deleted'] : []) }}" data-users-search-clear @if (! request()->filled('q')) hidden @endif>Clear</a>
+            <button type="submit">{{ __('Search') }}</button>
+            <a href="{{ route('admin.users.index', request('status') === 'deleted' ? ['status' => 'deleted'] : []) }}" data-users-search-clear @if (! request()->filled('q')) hidden @endif>{{ __('Clear') }}</a>
         </div>
         <p data-user-search-count role="status">{{ number_format($users->total()) }} {{ \Illuminate\Support\Str::plural('user', $users->total()) }} found</p>
     </form>
@@ -31,13 +31,13 @@
                 <table class="tbl-t users-directory__table">
                     <thead>
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Role</th>
+                            <th scope="col">{{ __('Name') }}</th>
+                            <th scope="col">{{ __('Email') }}</th>
+                            <th scope="col">{{ __('Role') }}</th>
                             <th scope="col">Account status</th>
-                            <th scope="col">Email status</th>
+                            <th scope="col">{{ __('Email status') }}</th>
                             <th scope="col">Joined</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,11 +54,11 @@
                                         @if (request('status') === 'deleted')
                                             <form method="POST" action="{{ route('admin.users.restore', $user->id) }}">@csrf<button type="submit">Restore</button></form>
                                         @else
-                                            <a href="{{ route('admin.users.edit', $user) }}">Edit</a>
+                                            <a href="{{ route('admin.users.edit', $user) }}">{{ __('Edit') }}</a>
                                             @if ($user->is_active && $user->hasVerifiedEmail() && $user->id !== auth()->id())<a href="{{ route('messages.show', $user) }}">Message</a>@endif
-                                            <form method="POST" action="{{ route('admin.users.reset-password', $user) }}">@csrf<button type="submit">Reset password</button></form>
+                                            <form method="POST" action="{{ route('admin.users.reset-password', $user) }}">@csrf<button type="submit">{{ __('Reset password') }}</button></form>
                                             @if ($user->id !== auth()->id())
-                                                <details><summary>Delete</summary><form method="POST" action="{{ route('admin.users.destroy', $user) }}">@csrf @method('DELETE')<p>Delete {{ $user->name }}? You can restore this account later.</p><button type="submit">Confirm delete</button></form></details>
+                                                <details><summary>{{ __('Delete') }}</summary><form method="POST" action="{{ route('admin.users.destroy', $user) }}">@csrf @method('DELETE')<p>Delete {{ $user->name }}? You can restore this account later.</p><button type="submit">{{ __('Confirm delete') }}</button></form></details>
                                             @endif
                                         @endif
                                     </div>
@@ -72,17 +72,17 @@
             @if ($users->hasPages())
                 <nav class="users-directory__pagination" aria-label="User directory pages">
                     @if ($users->previousPageUrl())
-                        <a href="{{ $users->previousPageUrl() }}" rel="prev">Previous</a>
+                        <a href="{{ $users->previousPageUrl() }}" rel="prev">{{ __('Previous') }}</a>
                     @else
-                        <span aria-disabled="true">Previous</span>
+                        <span aria-disabled="true">{{ __('Previous') }}</span>
                     @endif
 
                     <span>Page {{ $users->currentPage() }} of {{ $users->lastPage() }}</span>
 
                     @if ($users->nextPageUrl())
-                        <a href="{{ $users->nextPageUrl() }}" rel="next">Next</a>
+                        <a href="{{ $users->nextPageUrl() }}" rel="next">{{ __('Next') }}</a>
                     @else
-                        <span aria-disabled="true">Next</span>
+                        <span aria-disabled="true">{{ __('Next') }}</span>
                     @endif
                 </nav>
             @endif

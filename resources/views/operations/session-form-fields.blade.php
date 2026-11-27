@@ -96,10 +96,10 @@
     <input type="number" name="capacity" min="1" value="{{ $useOldValues ? old('capacity') : ($session?->capacity ?? '') }}" required>
     <small>Only PESO and TESDA can set or change this limit.</small>
 </label>
-<label>
-    Status
+<label
+    >{{ __('Status') }}
     <select name="status">
-        <option value="open" @selected(($useOldValues ? old('status') : $session?->status ?? 'open') === 'open')>Open</option>
-        <option value="closed" @selected(($useOldValues ? old('status') : $session?->status) === 'closed')>Closed</option>
+        <option value="open" @selected(($useOldValues ? old('status') : $session?->status ?? 'open') === 'open')>{{ __('Open') }}</option>
+        <option value="closed" @selected(($useOldValues ? old('status') : $session?->status) === 'closed')>{{ __('Closed') }}</option>
     </select>
 </label>

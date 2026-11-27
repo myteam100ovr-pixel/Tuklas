@@ -14,7 +14,7 @@
 <body class="tk-body">
     @include('partials.sprite')
     <div class="tk-guest-top">
-        <button type="button" class="tk-ibtn" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
+        <button type="button" class="tk-ibtn" data-theme-toggle aria-label="{{ __('Switch between light and dark mode') }}" title="{{ __('Light / dark mode') }}">
             <svg class="ic ic-sun"><use href="#i-sun"/></svg><svg class="ic ic-moon"><use href="#i-moon"/></svg>
         </button>
     </div>

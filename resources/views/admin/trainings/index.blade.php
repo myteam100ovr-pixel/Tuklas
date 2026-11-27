@@ -12,7 +12,7 @@
             <a href="{{ route('admin.trainings.create') }}" class="trainer-courses__primary">Add program <span aria-hidden="true">↗</span></a>
         </div>
         <p class="text-sm text-slate-600 dark:text-slate-300"><a class="underline" href="{{ route('tesda.index') }}#nc-offerings">View the public TESDA catalog ↗</a></p>
-        <section aria-label="Training programs">
+        <section aria-label="{{ __('Training programs') }}">
             <div class="trainer-courses__section-heading"><h2>{{ $programs->total() }} programs</h2></div>
             @forelse ($programs as $program)
                 <article class="trainer-courses__card">
@@ -29,12 +29,12 @@
                     <div class="trainer-courses__card-actions">
                         <a href="{{ route('admin.trainings.edit', $program) }}">Edit program <span aria-hidden="true">↗</span></a>
                         <details>
-                            <summary>Delete</summary>
+                            <summary>{{ __('Delete') }}</summary>
                             <form method="POST" action="{{ route('admin.trainings.destroy', $program) }}">
                                 @csrf
                                 @method('DELETE')
                                 <p>Delete {{ $program->title }} permanently? Courses with linked records must be archived instead.</p>
-                                <button type="submit">Confirm delete</button>
+                                <button type="submit">{{ __('Confirm delete') }}</button>
                             </form>
                         </details>
                     </div>

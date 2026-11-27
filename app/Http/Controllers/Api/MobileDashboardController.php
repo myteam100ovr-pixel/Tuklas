@@ -176,7 +176,7 @@ class MobileDashboardController extends Controller
                     ['t' => $program->nc_level ?: 'Not set'],
                     ['t' => $program->updated_at->format('M j, Y')],
                     [
-                        'chip' => ucfirst($program->status),
+                        'chip' => __('api.status_labels.'.$program->status),
                         'tone' => match ($program->status) {
                             'published' => 'good',
                             'draft' => 'warn',
@@ -257,7 +257,7 @@ class MobileDashboardController extends Controller
                     ['t' => ucfirst($scan->doc_type)],
                     ['t' => $scan->created_at->format('M j, Y')],
                     [
-                        'chip' => ucfirst($scan->status),
+                        'chip' => __('api.status_labels.'.$scan->status),
                         'tone' => match ($scan->status) {
                             'done' => 'good',
                             'failed' => 'bad',

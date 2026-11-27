@@ -36,7 +36,7 @@
                                 @elseif ($key === 'tesda_training')
                                     <p>{{ $profileInsights['has_scan'] ? 'No TESDA qualification was saved with your latest scan. Check the catalog or scan an updated resume or certificate.' : 'Scan a resume or certificate to get AI TESDA recommendations based on your documented skills.' }}</p>
                                     @if ($profileInsights['has_scan'])
-                                        <a href="{{ route('tesda.index') }}">Browse TESDA programs</a>
+                                        <a href="{{ route('tesda.index') }}">{{ __('Browse TESDA programs') }}</a>
                                     @else
                                         <a href="{{ route('scanner.index') }}">Open AI Scanner</a>
                                     @endif

@@ -13,6 +13,52 @@ use Tests\TestCase;
 
 class GeminiModelFallbackTest extends TestCase
 {
+    public function test_both_ai_prompts_use_the_selected_locale_while_preserving_machine_values(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-key');
+        config()->set('services.google.gemini_model', 'gemini-3.5-flash-lite');
+        config()->set('services.google.gemini_fallback_model', null);
+        config()->set('services.google.gemini_chat_web_search', false);
+        Http::preventStrayRequests();
+        $chatResponse = ['candidates' => [['content' => ['parts' => [['text' => 'Sagot.']]]]]];
+        $documentResponse = ['candidates' => [[
+            'content' => ['parts' => [['text' => json_encode([
+                'documentType' => 'resume',
+                'summary' => 'Buod.',
+            ])]]],
+        ]]];
+        Http::fake([
+            '*generateContent' => Http::sequence()
+                ->push($chatResponse)
+                ->push($documentResponse),
+        ]);
+
+        (new GeminiCareerAssistant)->reply([
+            ['role' => 'user', 'text' => 'Ano ang susunod kong hakbang?'],
+        ], locale: 'tl');
+
+        $scan = (new GeminiDocumentScanner)->analyze(
+            UploadedFile::fake()->createWithContent('resume.pdf', "%PDF-1.4\nResume\n%%EOF"),
+            locale: 'tl',
+        );
+
+        Http::assertSent(fn (Request $request): bool => str_contains(
+            (string) data_get($request->data(), 'systemInstruction.parts.0.text'),
+            'Write the complete user-facing reply in natural Filipino (Tagalog)',
+        ) && str_contains(
+            (string) data_get($request->data(), 'systemInstruction.parts.0.text'),
+            'exact status values unchanged',
+        ));
+        Http::assertSent(fn (Request $request): bool => str_contains(
+            (string) data_get($request->data(), 'systemInstruction.parts.0.text'),
+            'Write all user-facing report text in natural Filipino (Tagalog)',
+        ) && str_contains(
+            (string) data_get($request->data(), 'systemInstruction.parts.0.text'),
+            'Keep JSON keys, documentType values, status codes',
+        ));
+        $this->assertSame('resume', $scan['documentType']);
+    }
+
     #[TestWith(['connection', 2])]
     #[TestWith(['overloaded', 3])]
     public function test_career_assistant_uses_fallback_model_after_primary_failure(string $failure, int $requestCount): void

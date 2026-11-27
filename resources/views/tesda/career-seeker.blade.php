@@ -2,7 +2,7 @@
     <div class="tesda-section-heading">
         <div>
             <p class="tesda-eyebrow">Based on your skills assessment</p>
-            <h2 id="career-seeker-training-matches-title">Training recommendations for you</h2>
+            <h2 id="career-seeker-training-matches-title">{{ __('Training recommendations for you') }}</h2>
         </div>
         <a class="tesda-provider-directory__link" href="{{ route('youth.assessment.index') }}">Update your assessment ↗</a>
     </div>
@@ -35,22 +35,22 @@
     <p class="tesda-note">Filter by PTC, PSAT, or private training center. Apply for a published course; if no intake is scheduled, the center will confirm dates and available places before accepting. PESO and TESDA manage each session’s place limit.</p>
 
     <form class="tesda-center-filter" method="GET" action="{{ route('tesda.index') }}">
-        <label for="training-center-type">Training center type</label>
+        <label for="training-center-type">{{ __('Training center type') }}</label>
         <select id="training-center-type" name="center_type">
-            <option value="" @selected($careerSeekerCenterType === null)>All training centers</option>
+            <option value="" @selected($careerSeekerCenterType === null)>{{ __('All training centers') }}</option>
             <option value="PTC" @selected($careerSeekerCenterType === 'PTC')>PTC · Provincial Training Center</option>
             <option value="PSAT" @selected($careerSeekerCenterType === 'PSAT')>PSAT · Pangasinan School of Arts and Trades</option>
-            <option value="PRIVATE" @selected($careerSeekerCenterType === 'PRIVATE')>Private training centers</option>
+            <option value="PRIVATE" @selected($careerSeekerCenterType === 'PRIVATE')>{{ __('Private training centers') }}</option>
         </select>
         <button type="submit">Apply filter</button>
         @if ($careerSeekerCenterType !== null)
-            <a href="{{ route('tesda.index') }}">Clear</a>
+            <a href="{{ route('tesda.index') }}">{{ __('Clear') }}</a>
         @endif
     </form>
 
     @if ($careerSeekerProgramGroups->isEmpty())
         <div class="tesda-empty">
-            <h3>No published courses are available for this filter yet.</h3>
+            <h3>{{ __('No published courses are available for this filter yet.') }}</h3>
             <p>Try another center type or contact a listed provider to confirm its current courses and schedules.</p>
         </div>
     @else
@@ -107,7 +107,7 @@
                                             </div>
                                             <form method="POST" action="{{ route('applications.program-store', $program) }}">
                                                 @csrf
-                                                <button type="submit">Apply for this course</button>
+                                                <button type="submit">{{ __('Apply for this course') }}</button>
                                             </form>
                                         @endif
                                     </div>
@@ -126,7 +126,7 @@
     <div class="tesda-section-heading">
         <div>
             <p class="tesda-eyebrow">If no public-school intake is open</p>
-            <h2 id="career-seeker-other-providers-title">Private TESDA-registered training centers</h2>
+            <h2 id="career-seeker-other-providers-title">{{ __('Private TESDA-registered training centers') }}</h2>
         </div>
         <a class="tesda-provider-directory__link" href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse=&SearchIns=&SearchLoc=pangasinan" target="_blank" rel="noopener noreferrer">Open official TESDA directory ↗</a>
     </div>
@@ -146,6 +146,6 @@
         @endforeach
     </div>
     <p class="tesda-note" data-provider-empty hidden>No registered provider entries match that search.</p>
-    <p class="tesda-provider-source">Source: <a href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse=&SearchIns=&SearchLoc=pangasinan" target="_blank" rel="noopener noreferrer">TESDA TVI Pangasinan registry</a> · Snapshot fetched {{ $registeredProgramsFetchedAt ? \Carbon\Carbon::parse($registeredProgramsFetchedAt)->timezone('Asia/Manila')->format('M j, Y') : 'date unavailable' }}.</p>
+    <p class="tesda-provider-source">{{ __('Source:') }} <a href="https://www.tesda.gov.ph/Tvi/Result?SearchCourse=&SearchIns=&SearchLoc=pangasinan" target="_blank" rel="noopener noreferrer">{{ __('TESDA TVI Pangasinan registry') }}</a> · Snapshot fetched {{ $registeredProgramsFetchedAt ? \Carbon\Carbon::parse($registeredProgramsFetchedAt)->timezone('Asia/Manila')->format('M j, Y') : 'date unavailable' }}.</p>
 </section>
 @endif

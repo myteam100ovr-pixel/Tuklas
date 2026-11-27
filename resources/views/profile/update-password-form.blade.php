@@ -24,15 +24,15 @@
             <div class="mb-4">
                 <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
                 <x-input id="password_confirmation" type="password" class="mt-1 block w-full" wire:model="state.password_confirmation" autocomplete="new-password" maxlength="72" data-password-confirmation />
-                <small class="users-form__confirmation-error" data-password-confirmation-message hidden>Passwords do not match.</small>
+                <small class="users-form__confirmation-error" data-password-confirmation-message hidden>{{ __('Passwords do not match.') }}</small>
                 <x-input-error for="password_confirmation" class="mt-2" />
             </div>
 
             <div class="users-form__strength" data-password-strength-meter data-strength="weak" aria-live="polite">
-                <div class="users-form__strength-heading"><span>Password strength</span><strong data-password-strength-label>Weak</strong></div>
+                <div class="users-form__strength-heading"><span>{{ __('Password strength') }}</span><strong data-password-strength-label>{{ __('Weak') }}</strong></div>
                 <div class="users-form__strength-track" aria-hidden="true"><span></span></div>
-                <p data-password-strength-message>Enter a password to check its strength.</p>
-                <small>Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.</small>
+                <p data-password-strength-message>{{ __('Enter a password to check its strength.') }}</p>
+                <small>{{ __('Use 12 to 72 characters with uppercase and lowercase letters, a number, and a symbol.') }}</small>
             </div>
         </div>
     </x-slot>

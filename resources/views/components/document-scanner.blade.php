@@ -11,11 +11,11 @@
             <dialog class="document-scanner__camera-dialog" data-camera-dialog aria-labelledby="document-camera-title">
                 <div class="document-scanner__camera-heading"><h3 id="document-camera-title">Capture a document</h3><button type="button" data-camera-close aria-label="Close camera">×</button></div>
                 <video data-camera-video autoplay playsinline muted></video>
-                <p data-camera-status aria-live="polite">Position the resume or certificate inside the frame.</p>
-                <div class="document-scanner__camera-actions"><button type="button" data-camera-capture>Take photo</button><button type="button" data-camera-cancel>Cancel</button></div>
+                <p data-camera-status aria-live="polite">Position the document inside the frame and keep the text in focus.</p>
+                <div class="document-scanner__camera-actions"><button type="button" data-camera-capture>Take photo</button><button type="button" data-camera-cancel>{{ __('Cancel') }}</button></div>
             </dialog>
             <div class="document-scanner__selected" data-document-selected aria-live="polite"></div>
-            <label class="document-scanner__goal" for="scan-goal">Where would you like to go next? <small>Optional</small></label>
+            <label class="document-scanner__goal" for="scan-goal">Where would you like to go next? <small>{{ __('Optional') }}</small></label>
             <textarea class="input" id="scan-goal" data-document-goal maxlength="1000" rows="2" placeholder="For example: Find training related to my certificate."></textarea>
             <label class="document-scanner__consent">
                 <input type="checkbox" data-document-consent>

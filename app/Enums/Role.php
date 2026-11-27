@@ -19,10 +19,6 @@ enum Role: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Admin => 'PESO Bugallon Admin',
-            self::TesdaAdmin => 'TESDA',
-            self::Youth => 'Career Seeker',
-        };
+        return __('roles.'.$this->value);
     }
 }

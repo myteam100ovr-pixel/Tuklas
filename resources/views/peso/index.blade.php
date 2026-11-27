@@ -95,17 +95,17 @@
             @if ($recommendationPages->hasPages())
                 <nav class="users-directory__pagination" aria-label="PESO job match pages">
                     @if ($recommendationPages->previousPageUrl())
-                        <a href="{{ $recommendationPages->previousPageUrl() }}" rel="prev">Previous</a>
+                        <a href="{{ $recommendationPages->previousPageUrl() }}" rel="prev">{{ __('Previous') }}</a>
                     @else
-                        <span aria-disabled="true">Previous</span>
+                        <span aria-disabled="true">{{ __('Previous') }}</span>
                     @endif
 
                     <span>Page {{ $recommendationPages->currentPage() }} of {{ $recommendationPages->lastPage() }}</span>
 
                     @if ($recommendationPages->nextPageUrl())
-                        <a href="{{ $recommendationPages->nextPageUrl() }}" rel="next">Next</a>
+                        <a href="{{ $recommendationPages->nextPageUrl() }}" rel="next">{{ __('Next') }}</a>
                     @else
-                        <span aria-disabled="true">Next</span>
+                        <span aria-disabled="true">{{ __('Next') }}</span>
                     @endif
                 </nav>
             @endif
