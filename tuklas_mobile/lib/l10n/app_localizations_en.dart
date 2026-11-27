@@ -1502,4 +1502,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get outOfSchool => 'Out of school';
+
+  @override
+  String get scannerPrivacyDetails => 'Privacy details';
 }

@@ -2797,6 +2797,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Out of school'**
   String get outOfSchool;
+
+  /// No description provided for @scannerPrivacyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy details'**
+  String get scannerPrivacyDetails;
 }
 
 class _AppLocalizationsDelegate

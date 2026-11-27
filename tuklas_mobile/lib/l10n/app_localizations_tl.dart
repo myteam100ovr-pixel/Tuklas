@@ -1519,4 +1519,7 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get outOfSchool => 'Hindi nag-aaral';
+
+  @override
+  String get scannerPrivacyDetails => 'Mga detalye ng privacy';
 }

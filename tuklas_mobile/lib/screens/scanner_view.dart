@@ -290,6 +290,8 @@ class _ScannerViewState extends State<ScannerView> {
                 file.bytes!,
                 width: 48,
                 height: 48,
+                cacheWidth: 120,
+                cacheHeight: 120,
                 fit: BoxFit.cover,
               ),
             )
@@ -538,14 +540,21 @@ class _ScannerViewState extends State<ScannerView> {
                 ),
                 const SizedBox(height: 18),
                 TkCard(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  child: ExpansionTile(
+                    tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+                    childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    expansionAnimationStyle: motionController.enabled
+                        ? AnimationStyle.noAnimation
+                        : null,
+                    title: Text(
+                      tkL10n(context).howToUseScanner,
+                      style: tkText(context, size: 14, weight: 500),
+                    ),
                     children: [
-                      Text(
-                        tkL10n(context).howToUseScanner,
-                        style: tkText(context, size: 15, weight: 500),
-                      ),
                       _scanStep(
                         context,
                         1,
@@ -593,14 +602,27 @@ class _ScannerViewState extends State<ScannerView> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        tkL10n(context).scannerPrivacyLong,
-                        style: tkText(
-                          context,
-                          size: 12.5,
-                          color: colors.ink2,
-                          height: 1.45,
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        childrenPadding: const EdgeInsets.only(bottom: 8),
+                        expansionAnimationStyle: motionController.enabled
+                            ? AnimationStyle.noAnimation
+                            : null,
+                        title: Text(
+                          tkL10n(context).scannerPrivacyDetails,
+                          style: tkText(context, size: 13, weight: 500),
                         ),
+                        children: [
+                          Text(
+                            tkL10n(context).scannerPrivacyLong,
+                            style: tkText(
+                              context,
+                              size: 12.5,
+                              color: colors.ink2,
+                              height: 1.45,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       Container(

@@ -613,5 +613,6 @@
   "employed": "May trabaho",
   "selfEmployed": "Sariling hanapbuhay",
   "unemployed": "Walang trabaho",
-  "outOfSchool": "Hindi nag-aaral"
+  "outOfSchool": "Hindi nag-aaral",
+  "scannerPrivacyDetails": "Mga detalye ng privacy"
 }

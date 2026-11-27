@@ -47,8 +47,12 @@
   "pageOf": "Page {current} of {total}",
   "@pageOf": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "previous": "Previous",
@@ -114,10 +118,23 @@
   "chooseMunicipalityBarangayError": "Choose your municipality and barangay.",
   "specialCharacterExample": "Use 1 special character, e.g. @",
   "passwordLengthError": "Enter at least {length} characters.",
-  "@passwordLengthError": {"placeholders": {"length": {"type": "int"}}},
+  "@passwordLengthError": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
   "chooseSkillCount": "Choose {min} to {max} skills.",
   "@chooseSkillCount": {
-    "placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
   },
   "pathSkillsGuidance": "Select up to 8 skills from the path source. A published path needs at least 3.",
   "couldNotLoadConversation": "Could not load conversation history. Try again.",
@@ -148,11 +165,29 @@
   "previewUnavailableTapSave": "Preview unavailable. Tap to save the image.",
   "loadingPhoto": "Loading photo…",
   "attachLimit": "You can attach up to {count} files per message.",
-  "@attachLimit": {"placeholders": {"count": {"type": "int"}}},
+  "@attachLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "attachmentTooLarge": "{file} is larger than 10 MB.",
-  "@attachmentTooLarge": {"placeholders": {"file": {"type": "String"}}},
+  "@attachmentTooLarge": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "attachmentNameTapSave": "{name} · tap to save",
-  "@attachmentNameTapSave": {"placeholders": {"name": {"type": "String"}}},
+  "@attachmentNameTapSave": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "messageWorkspaceEyebrow": "WORKSPACE · PEOPLE",
   "messagePeopleDescription": "Message administrators, trainers, and other active Tuklas members.",
   "couldNotSendMessage": "Could not send message. Check your connection and try again.",
@@ -166,9 +201,21 @@
   "fileAccessDenied": "File access was denied. Allow access and try again.",
   "fileSelectionCanceled": "File selection canceled.",
   "fileOverTenMb": "{file} is over 10 MB.",
-  "@fileOverTenMb": {"placeholders": {"file": {"type": "String"}}},
+  "@fileOverTenMb": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "fileCouldNotRead": "{file} could not be read. Please choose it again.",
-  "@fileCouldNotRead": {"placeholders": {"file": {"type": "String"}}},
+  "@fileCouldNotRead": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "maxFiveScans": "Up to five files can be scanned at a time.",
   "fileAlreadyInScanList": "That file is already in the scan list.",
   "photoOverTenMb": "The photo is over 10 MB. Try again with better lighting.",
@@ -185,25 +232,47 @@
   "agreeBeforeGeminiScan": "Please agree before sending the selected files to Gemini.",
   "scanDocumentsCount": "{count} {count, plural, one{document} other{documents}} scanned.",
   "@scanDocumentsCount": {
-    "placeholders": {"count": {"type": "int"}},
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
     "type": "text",
     "plural": "count"
   },
   "scansRemain": "{scanned} of {total} scanned; {remaining} remain. Fix the issue and retry the remaining files.",
   "@scansRemain": {
     "placeholders": {
-      "scanned": {"type": "int"},
-      "total": {"type": "int"},
-      "remaining": {"type": "int"}
+      "scanned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "int"
+      }
     }
   },
   "remainingDocuments": "{count} remaining document(s)",
-  "@remainingDocuments": {"placeholders": {"count": {"type": "int"}}},
+  "@remainingDocuments": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "documentScanCanceled": "Document scan canceled. Remaining files are ready to retry.",
   "someScansFailed": "Some scans failed. Check Notifications for details.",
   "duplicateScanReused": "This exact file was scanned recently; its saved result was reused without creating a duplicate.",
   "documentsScannedSuccessfully": "{count} document(s) scanned successfully.",
-  "@documentsScannedSuccessfully": {"placeholders": {"count": {"type": "int"}}},
+  "@documentsScannedSuccessfully": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "readyToScan": "Ready to scan",
   "scanFileLimits": "PDF, DOCX or image · up to 10 MB each · up to 5 files per scan",
   "keyDetailsFound": "Key details found",
@@ -251,7 +320,13 @@
   "agreeSendFilesToGemini": "I agree to send the selected files to Google Gemini to scan them.",
   "scanningDocuments": "Scanning documents…",
   "scanDocumentCount": "Scan {count} document(s)",
-  "@scanDocumentCount": {"placeholders": {"count": {"type": "int"}}},
+  "@scanDocumentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cancelingCurrentDocument": "Canceling after the current document finishes…",
   "canceling": "Canceling…",
   "cancelRemainingScans": "Cancel remaining scans",
@@ -308,12 +383,24 @@
   "cancelApplication": "Cancel application",
   "browsePhilJobNet": "Browse live DOLE PhilJobNet vacancies",
   "searchSection": "Search {section}",
-  "@searchSection": {"placeholders": {"section": {"type": "String"}}},
+  "@searchSection": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
   "clearSearch": "Clear search",
   "search": "Search",
   "loadingCurrentResults": "Loading current results…",
   "resultsCount": "{count} results",
-  "@resultsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@resultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "applyForScholarship": "Apply for scholarship",
   "whyApplying": "Why are you applying?",
   "chooseUpToFiveDocuments": "Choose up to five documents.",
@@ -370,7 +457,13 @@
   "downloadUpdate": "Download update",
   "updateAvailable": "Tuklas update available",
   "whatsNew": "What’s new in {version}",
-  "@whatsNew": {"placeholders": {"version": {"type": "String"}}},
+  "@whatsNew": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "selectDateOfBirth": "Select your date of birth",
   "chooseMunicipality": "Choose municipality",
   "chooseMunicipalityFirst": "Choose municipality first",
@@ -411,7 +504,11 @@
   "scanDocument": "Scan document",
   "openingPage": "Opening {page}…",
   "@openingPage": {
-    "placeholders": {"page": {"type": "String"}}
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
   },
   "openingOverview": "Overview",
   "confirmEmailInstructions": "If you have not verified yet, open the link in your email and check again.",
@@ -434,9 +531,21 @@
   "chooseReplacementFile": "Choose replacement file or picture",
   "takeReplacementPhoto": "Take replacement photo",
   "removeFile": "Remove {file}",
-  "@removeFile": {"placeholders": {"file": {"type": "String"}}},
+  "@removeFile": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "replaceFile": "Replace {file}",
-  "@replaceFile": {"placeholders": {"file": {"type": "String"}}},
+  "@replaceFile": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
   "openPage": "Open page",
   "refresh": "Refresh",
   "deleteAccount": "Delete account",
@@ -464,8 +573,12 @@
   "stepOf": "Step {current} of {total}",
   "@stepOf": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "assessmentWalkthroughOneTitle": "Start with a few choices about yourself.",
@@ -480,7 +593,13 @@
   "addToAuthenticator": "Add to your authenticator",
   "saveRecoveryCodes": "Save your recovery codes",
   "authenticatorSetupInstructions": "Enter this key in your authenticator, then choose Confirm setup.\n\n{key}",
-  "@authenticatorSetupInstructions": {"placeholders": {"key": {"type": "String"}}},
+  "@authenticatorSetupInstructions": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
   "elementaryGraduate": "Elementary graduate",
   "juniorHighUndergraduate": "Junior high school undergraduate",
   "juniorHighGraduate": "Junior high school graduate",
@@ -494,5 +613,6 @@
   "employed": "Employed",
   "selfEmployed": "Self-employed",
   "unemployed": "Unemployed",
-  "outOfSchool": "Out of school"
+  "outOfSchool": "Out of school",
+  "scannerPrivacyDetails": "Privacy details"
 }
