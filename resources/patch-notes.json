@@ -1,6 +1,17 @@
 [
     {
         "date": "2026-11-27",
+        "published_at": "2026-11-27T08:37:03+08:00",
+        "version": "1.0.20+21",
+        "title": "AI career links and document checks",
+        "items": [
+            "TuklasBot can link to matching courses, jobs, scholarships, and account pages that are available to your role.",
+            "Document scans now show extracted details, profile and requirement checks, and verified next steps when supported by the document.",
+            "Unclear or missing document details are left unconfirmed instead of being guessed."
+        ]
+    },
+    {
+        "date": "2026-11-27",
         "published_at": "2026-11-27T06:09:03+08:00",
         "version": "1.0.19+20",
         "title": "Scholarship application review update",
