@@ -12,9 +12,10 @@ import '../workspace_realtime.dart';
 import 'workspace_form.dart';
 
 class OperationsView extends StatefulWidget {
-  const OperationsView({super.key, required this.section});
+  const OperationsView({super.key, required this.section, this.initialQuery});
 
   final String section;
+  final String? initialQuery;
 
   @override
   State<OperationsView> createState() => _OperationsViewState();
@@ -85,6 +86,8 @@ class _OperationsViewState extends State<OperationsView> {
   @override
   void initState() {
     super.initState();
+    _query = widget.initialQuery?.trim() ?? '';
+    _search.text = _query;
     _load();
     _syncTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (!WorkspaceRealtime.instance.isConnected) _sync();

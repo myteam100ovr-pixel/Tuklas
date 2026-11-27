@@ -172,6 +172,53 @@ body.tk-body.tesda-body .tesda-main { padding-top: 2rem; padding-bottom: 2rem; }
 .operations-search a { color:var(--violet); border:1px solid var(--line); }
 .operations-search p { margin:0; color:var(--muted); font-size:.75rem; }
 .operations-page > .operations-empty { margin:0; padding:1.5rem; border:1px dashed var(--line); border-radius:.9rem; background:var(--surface); color:var(--muted); }
+.training-applications-toolbar { min-width:0; }
+.training-applications-status-tabs { display:flex; flex:1 1 100%; flex-wrap:wrap; gap:.45rem; }
+.training-applications-status-tab { display:inline-flex; align-items:center; gap:.45rem; padding:.48rem .7rem; border:1px solid var(--line); border-radius:999px; color:var(--ink-2); background:var(--surface); font-size:.78rem; font-weight:600; text-decoration:none!important; }
+.training-applications-status-tab span { min-width:1.35rem; padding:.08rem .35rem; border-radius:999px; color:var(--muted); background:var(--surface-2); font-size:.68rem; text-align:center; }
+.training-applications-status-tab:hover,.training-applications-status-tab:focus-visible,.training-applications-status-tab.is-active { border-color:var(--violet); color:var(--violet); }
+.training-applications-status-tab.is-active span { color:var(--violet); background:color-mix(in srgb,var(--violet) 10%,var(--surface)); }
+.training-applications-filters { display:grid; flex:1 1 100%; grid-template-columns:minmax(12rem,1.5fr) repeat(2,minmax(9rem,1fr)) auto; align-items:end; gap:.65rem; min-width:0; }
+.training-applications-filters label,.training-application-card__decline label,.training-application-card__edit-actions label { display:grid; min-width:0; gap:.35rem; color:var(--ink-2); font-size:.72rem; font-weight:650; }
+.training-applications-filters :is(input,select),.training-application-card__accept-form select,.training-application-card__decline textarea,.training-application-card__edit-actions textarea,.training-application-card__edit-actions select { width:100%; min-width:0; padding:.65rem .75rem; border:1px solid var(--line); border-radius:.6rem; color:var(--ink); background:var(--surface-2); font:inherit; font-size:.78rem; font-weight:400; }
+.training-applications-filters :is(input,select):focus-visible,.training-application-card__accept-form select:focus-visible,.training-application-card__decline textarea:focus-visible,.training-application-card__edit-actions :is(textarea,select):focus-visible { outline:2px solid var(--violet); outline-offset:2px; }
+.training-applications-filter-actions { display:flex; align-items:center; gap:.45rem; }
+.training-applications-filter-actions :is(button,a) { display:inline-flex; min-height:2.55rem; align-items:center; justify-content:center; padding:.55rem .75rem; border:1px solid var(--violet); border-radius:.6rem; font-size:.75rem; font-weight:650; text-decoration:none!important; white-space:nowrap; }
+.training-applications-filter-actions button { color:#fff; background:var(--violet); cursor:pointer; }
+.training-applications-filter-actions a { color:var(--violet); background:transparent; }
+.training-applications-grid { align-items:stretch; }
+.training-applications-grid > .training-application-card { display:flex; min-width:0; flex-direction:column; justify-content:space-between; gap:.75rem; margin:0; padding:1.25rem; border:1px solid var(--line); border-radius:.75rem; background:var(--surface); overflow-wrap:anywhere; }
+.training-application-card__header { display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem; }
+.training-application-card__header h2 { min-width:0; margin:0; color:var(--ink); font-size:1.05rem; line-height:1.35; }
+.training-application-status { flex:0 0 auto; margin:0; text-transform:capitalize; }
+.training-application-status--pending { color:#8a5a00; background:color-mix(in srgb,#d99000 13%,var(--surface)); }
+.training-application-status--accepted { color:#167447; background:color-mix(in srgb,#198754 13%,var(--surface)); }
+.training-application-status--declined { color:#b42318; background:color-mix(in srgb,#b42318 10%,var(--surface)); }
+.training-application-card__body { display:grid; gap:.35rem; min-width:0; }
+.training-application-card__body p { margin:0; color:var(--muted); font-size:.8rem; line-height:1.5; }
+.training-application-card__body strong { color:var(--ink); font-weight:650; }
+.training-application-card__footer { display:flex; align-items:flex-end; flex-wrap:wrap; gap:.55rem; min-width:0; padding-top:.75rem; border-top:1px solid var(--line); }
+.training-application-card__footer form { display:flex; min-width:0; flex:1 1 auto; align-items:flex-end; flex-wrap:wrap; gap:.55rem; margin:0; }
+.training-application-card__accept-form label { flex:1 1 100%; }
+.training-application-card__footer button,.training-application-card__footer summary { display:inline-flex; min-height:2.45rem; align-items:center; justify-content:center; padding:.6rem .8rem; border:1px solid #197344; border-radius:.6rem; color:#fff; background:#197344; font:inherit; font-size:.76rem; font-weight:650; line-height:1.2; text-decoration:none; cursor:pointer; }
+.training-application-card__footer button:hover { filter:brightness(1.08); }
+.training-application-card__footer button.operations-secondary { border-color:var(--line); color:var(--violet); background:var(--surface-2); }
+.training-application-card__footer button:disabled { opacity:.55; cursor:not-allowed; }
+.training-application-card__decline,.training-application-card__edit { min-width:0; }
+.training-application-card__footer details > summary { border-color:#b42318; background:#b42318; list-style:none; }
+.training-application-card__footer details > summary::-webkit-details-marker { display:none; }
+.training-application-card__footer details[open] { flex:1 1 100%; }
+.training-application-card__footer details[open] > summary { margin-bottom:.65rem; }
+.training-application-card__decline form,.training-application-card__edit-actions { display:grid!important; grid-template-columns:minmax(0,1fr); gap:.7rem; width:100%; margin:0; }
+.training-application-card__decline textarea,.training-application-card__edit-actions textarea { min-height:5rem; resize:vertical; }
+.training-application-card__footer .training-application-card__decline-button { justify-self:start; border-color:#b42318; background:#b42318; }
+.training-application-card__edit-actions > form { display:flex; min-width:0; align-items:flex-end; flex-wrap:wrap; gap:.55rem; padding:.7rem 0; border-top:1px solid var(--line); }
+.training-application-card__edit-actions > form:first-child { border-top:0; }
+.training-application-card__edit-actions > form > label { flex:1 1 100%; }
+.training-applications-grid > .operations-empty { grid-column:1/-1; margin:0; padding:1.5rem; border:1px dashed var(--line); border-radius:.9rem; background:var(--surface); color:var(--muted); text-align:center; }
+.training-applications-grid > .operations-empty a { color:var(--violet); font-weight:650; }
+@media(max-width:900px) { .training-applications-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } .training-applications-filter-actions { grid-column:1/-1; } }
+@media(max-width:560px) { .training-applications-filters { grid-template-columns:minmax(0,1fr); } .training-applications-filter-actions { grid-column:auto; } .training-applications-filter-actions :is(button,a) { flex:1 1 auto; } }
 .training-date-planner { display:grid; grid-column:1/-1; gap:.8rem; min-width:0; margin:0; padding:1rem; border:1px solid var(--line); border-radius:.8rem; background:var(--surface-2); }
 .training-date-planner legend { padding:0 .35rem; color:var(--ink); font-size:.9rem; font-weight:700; }
 .training-date-planner > p,.training-date-planner > small { margin:0; color:var(--muted); font-size:.76rem; line-height:1.5; }

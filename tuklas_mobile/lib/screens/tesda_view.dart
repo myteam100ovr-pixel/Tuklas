@@ -7,7 +7,9 @@ import '../theme.dart';
 import '../ui.dart';
 
 class TesdaView extends StatefulWidget {
-  const TesdaView({super.key});
+  const TesdaView({super.key, this.initialQuery});
+
+  final String? initialQuery;
 
   @override
   State<TesdaView> createState() => _TesdaViewState();
@@ -17,6 +19,7 @@ class _TesdaViewState extends State<TesdaView> {
   int _page = 1;
   int _registeredPage = 1;
   String? _centerType;
+  late String _query;
   final Set<int> _applyingSessionIds = {};
   final Set<int> _applyingProgramIds = {};
   late Future<Map<String, dynamic>> _catalog;
@@ -26,9 +29,11 @@ class _TesdaViewState extends State<TesdaView> {
   @override
   void initState() {
     super.initState();
+    _query = widget.initialQuery?.trim() ?? '';
     _catalog = ApiClient.instance.tesdaCatalog(
       careerSeeker: _isCareerSeeker,
       centerType: _centerType,
+      query: _query,
     );
   }
 
@@ -41,6 +46,7 @@ class _TesdaViewState extends State<TesdaView> {
         registeredPage: _registeredPage,
         careerSeeker: _isCareerSeeker,
         centerType: _centerType,
+        query: _query,
       );
     });
   }
@@ -53,6 +59,7 @@ class _TesdaViewState extends State<TesdaView> {
       _catalog = ApiClient.instance.tesdaCatalog(
         careerSeeker: _isCareerSeeker,
         centerType: centerType,
+        query: _query,
       );
     });
   }

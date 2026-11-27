@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Trainer;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\TrainingApplication;
+use App\Models\TrainingCenter;
 use App\Models\TrainingProgram;
 use App\Models\TrainingSession;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,9 +44,70 @@ class TrainingApplicationController extends Controller
         } else {
             abort_unless($user->hasRole(Role::Admin, Role::TesdaAdmin), 403);
         }
-        $applications = $query->latest()->paginate(50);
 
-        return $request->routeIs('mobile.*') ? response()->json(compact('applications')) : view('operations.applications', compact('applications'));
+        $filters = $request->validate([
+            'status' => ['nullable', Rule::in(['pending', 'accepted', 'declined'])],
+            'q' => ['nullable', 'string', 'max:100'],
+            'center' => ['nullable', 'integer', 'min:1'],
+            'course' => ['nullable', 'integer', 'min:1'],
+        ]);
+        $baseQuery = clone $query;
+        $countsByStatus = (clone $baseQuery)
+            ->select('status')
+            ->selectRaw('COUNT(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        $query->when($filters['status'] ?? null, fn (Builder $applications, string $status) => $applications->where('status', $status));
+
+        $search = trim($filters['q'] ?? '');
+        if ($search !== '') {
+            $query->where(fn (Builder $applications) => $applications
+                ->whereHas('user', fn (Builder $trainees) => $trainees->where('name', 'like', '%'.$search.'%'))
+                ->orWhereHas('program', fn (Builder $programs) => $programs->where('title', 'like', '%'.$search.'%')));
+        }
+
+        if (isset($filters['center'])) {
+            $centerId = (int) $filters['center'];
+            $query->where(fn (Builder $applications) => $applications
+                ->whereHas('session', fn (Builder $sessions) => $sessions->where('training_center_id', $centerId))
+                ->orWhere(fn (Builder $applications) => $applications
+                    ->whereNull('training_session_id')
+                    ->whereHas('program', fn (Builder $programs) => $programs->where('training_center_id', $centerId))));
+        }
+
+        if (isset($filters['course'])) {
+            $query->where('training_program_id', (int) $filters['course']);
+        }
+
+        $applications = $query->latest()->paginate(50)->withQueryString();
+
+        if ($request->routeIs('mobile.*')) {
+            return response()->json(compact('applications'));
+        }
+
+        $applicationCounts = [
+            'all' => (clone $baseQuery)->count(),
+            'pending' => (int) $countsByStatus->get('pending', 0),
+            'accepted' => (int) $countsByStatus->get('accepted', 0),
+            'declined' => (int) $countsByStatus->get('declined', 0),
+        ];
+        $sessionCenterIds = TrainingSession::query()
+            ->whereIn('id', (clone $baseQuery)->whereNotNull('training_session_id')->select('training_session_id'))
+            ->pluck('training_center_id');
+        $programCenterIds = TrainingProgram::query()
+            ->whereIn('id', (clone $baseQuery)->whereNull('training_session_id')->select('training_program_id'))
+            ->pluck('training_center_id');
+        $centers = TrainingCenter::query()
+            ->whereIn('id', $sessionCenterIds->merge($programCenterIds)->filter()->unique())
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $courses = TrainingProgram::query()
+            ->whereIn('id', (clone $baseQuery)->select('training_program_id'))
+            ->orderBy('title')
+            ->get(['id', 'title']);
+
+        return view('operations.applications', compact('applications', 'applicationCounts', 'centers', 'courses'));
     }
 
     public function storeForProgram(Request $request, TrainingProgram $program): RedirectResponse|JsonResponse
@@ -131,10 +194,12 @@ class TrainingApplicationController extends Controller
         $data = $request->validate([
             'status' => ['required', Rule::in(['accepted', 'declined'])],
             'training_session_id' => ['nullable', 'integer', 'exists:training_sessions,id'],
+            'decision_reason' => ['nullable', 'required_if:status,declined', 'string', 'min:5', 'max:3000'],
         ]);
         DB::transaction(function () use ($application, $data, $user): void {
             $lockedApplication = TrainingApplication::query()->lockForUpdate()->findOrFail($application->id);
             $isPending = $lockedApplication->status === 'pending';
+            $isDecisionEditable = in_array($lockedApplication->status, ['accepted', 'declined'], true);
             if ($lockedApplication->status === 'accepted'
                 && $lockedApplication->training_session_id === null
                 && $data['status'] === 'accepted'
@@ -147,10 +212,13 @@ class TrainingApplicationController extends Controller
                 && $lockedApplication->training_session_id === null
                 && $data['status'] === 'accepted'
                 && ! empty($data['training_session_id']);
-            abort_unless($isPending || $isAssigningIntake, 422);
+            abort_unless($isPending || $isAssigningIntake || $isDecisionEditable, 422);
 
             if ($data['status'] === 'declined') {
-                $lockedApplication->update(['status' => 'declined']);
+                $lockedApplication->update([
+                    'status' => 'declined',
+                    'decision_reason' => $data['decision_reason'],
+                ]);
 
                 return;
             }
@@ -159,8 +227,12 @@ class TrainingApplicationController extends Controller
                 ? $data['training_session_id']
                 : $lockedApplication->training_session_id;
             if (! $sessionId) {
-                if ($isPending) {
-                    $lockedApplication->update(['training_session_id' => null, 'status' => 'accepted']);
+                if ($isPending || $lockedApplication->status === 'declined') {
+                    $lockedApplication->update([
+                        'training_session_id' => null,
+                        'status' => 'accepted',
+                        'decision_reason' => null,
+                    ]);
 
                     return;
                 }
@@ -196,6 +268,7 @@ class TrainingApplicationController extends Controller
             $lockedApplication->update([
                 'training_session_id' => $session->id,
                 'status' => 'accepted',
+                'decision_reason' => null,
             ]);
         });
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
@@ -6,19 +7,23 @@ import '../theme.dart';
 import '../ui.dart';
 
 class ChatView extends StatelessWidget {
-  const ChatView({super.key});
+  const ChatView({super.key, this.onOpenLink});
+
+  final ValueChanged<String>? onOpenLink;
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('TuklasBot')),
-    body: const SingleChildScrollView(
+    body: SingleChildScrollView(
       padding: EdgeInsets.all(16),
-      child: CareerChatCard(),
+      child: CareerChatCard(onOpenLink: onOpenLink),
     ),
   );
 }
 
 class CareerChatCard extends StatefulWidget {
-  const CareerChatCard({super.key});
+  const CareerChatCard({super.key, this.onOpenLink});
+
+  final ValueChanged<String>? onOpenLink;
 
   @override
   State<CareerChatCard> createState() => CareerChatCardState();
@@ -115,11 +120,25 @@ class CareerChatCardState extends State<CareerChatCard> {
                 .map((source) => Map<String, dynamic>.from(source))
                 .toList()
           : <Map<String, dynamic>>[];
+      final internalLinks = response['recommended_links'] is List
+          ? (response['recommended_links'] as List)
+                .whereType<Map>()
+                .map((link) => Map<String, dynamic>.from(link))
+                .map(
+                  (link) => <String, dynamic>{
+                    'type': 'internal',
+                    'title': link['label'] ?? 'Open Tuklas page',
+                    'url': link['web_url'],
+                    'mobile_route': link['mobile_route'],
+                  },
+                )
+                .toList()
+          : <Map<String, dynamic>>[];
       setState(() {
         _messages.add({
           'role': 'model',
           'text': response['reply'] as String,
-          'sources': sources,
+          'sources': [...sources, ...internalLinks],
         });
         if (_messages.length > 20) {
           _messages.removeRange(0, _messages.length - 20);
@@ -164,6 +183,7 @@ class CareerChatCardState extends State<CareerChatCard> {
     final colors = TkColors.of(context);
     final links = rawSources
         .whereType<Map>()
+        .where((source) => source['type'] != 'internal')
         .map((source) {
           final url = source['url'];
           final title = source['title'];
@@ -276,8 +296,14 @@ class CareerChatCardState extends State<CareerChatCard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              message['text'] as String,
+                            _ChatRichText(
+                              text: message['text'] as String,
+                              sources: message['sources'] is List
+                                  ? (message['sources'] as List)
+                                        .whereType<Map>()
+                                        .toList()
+                                  : const [],
+                              onOpenLink: widget.onOpenLink,
                               style: tkText(
                                 context,
                                 size: 13,
@@ -361,6 +387,93 @@ class CareerChatCardState extends State<CareerChatCard> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ChatRichText extends StatefulWidget {
+  const _ChatRichText({
+    required this.text,
+    required this.sources,
+    required this.style,
+    this.onOpenLink,
+  });
+
+  final String text;
+  final List<Map> sources;
+  final TextStyle style;
+  final ValueChanged<String>? onOpenLink;
+
+  @override
+  State<_ChatRichText> createState() => _ChatRichTextState();
+}
+
+class _ChatRichTextState extends State<_ChatRichText> {
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  @override
+  void dispose() {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    _recognizers.clear();
+    final links = <String, String>{};
+    for (final source in widget.sources.where(
+      (item) => item['type'] == 'internal',
+    )) {
+      final webUrl = source['url'];
+      final mobileRoute = source['mobile_route'];
+      if (webUrl is String &&
+          mobileRoute is String &&
+          webUrl.startsWith('/') &&
+          !webUrl.startsWith('//')) {
+        links[webUrl] = mobileRoute;
+      }
+    }
+
+    final spans = <InlineSpan>[];
+    final pattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
+    var cursor = 0;
+    for (final match in pattern.allMatches(widget.text)) {
+      if (match.start > cursor) {
+        spans.add(TextSpan(text: widget.text.substring(cursor, match.start)));
+      }
+      final label = match.group(1) ?? '';
+      final route = links[match.group(2)];
+      TapGestureRecognizer? recognizer;
+      if (route != null && widget.onOpenLink != null) {
+        recognizer = TapGestureRecognizer()
+          ..onTap = () => widget.onOpenLink!(route);
+        _recognizers.add(recognizer);
+      }
+      spans.add(
+        TextSpan(
+          text: label,
+          style: recognizer == null
+              ? null
+              : const TextStyle(
+                  color: TkColors.violet,
+                  decoration: TextDecoration.underline,
+                ),
+          recognizer: recognizer,
+        ),
+      );
+      cursor = match.end;
+    }
+    if (cursor < widget.text.length) {
+      spans.add(TextSpan(text: widget.text.substring(cursor)));
+    }
+
+    return RichText(
+      text: TextSpan(style: widget.style, children: spans),
     );
   }
 }

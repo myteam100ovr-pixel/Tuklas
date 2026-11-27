@@ -4,6 +4,11 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Models\DocumentScan;
+use App\Models\Employer;
+use App\Models\JobOpportunity;
+use App\Models\TrainingApplication;
+use App\Models\TrainingCenter;
+use App\Models\TrainingProgram;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -62,11 +67,11 @@ class CareerChatControllerTest extends TestCase
         ])->assertOk()->assertJsonPath('reply', 'Start with one small project.');
 
         Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'answer the latest question first')
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Never claim a job is open unless live search verifies it'));
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Answer the latest question first')
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'system_context is the sole authority'));
     }
 
-    public function test_ai_skill_and_tesda_questions_use_search_and_offer_a_grounded_plan(): void
+    public function test_general_career_skill_questions_use_search_with_sources(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
         config()->set('services.google.gemini_chat_web_search', true);
@@ -78,8 +83,8 @@ class CareerChatControllerTest extends TestCase
                     'content' => ['parts' => [['text' => 'Build AI and data skills, then compare relevant TESDA training.']]],
                     'groundingMetadata' => ['groundingChunks' => [[
                         'web' => [
-                            'title' => 'TESDA Training Regulations',
-                            'uri' => 'https://www.tesda.gov.ph/Download/Training_Regulations',
+                            'title' => 'International Labour Organization',
+                            'uri' => 'https://www.ilo.org/',
                         ],
                     ]]],
                 ]],
@@ -90,46 +95,45 @@ class CareerChatControllerTest extends TestCase
         $response = $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [[
                 'role' => 'user',
-                'text' => 'What AI skills should I develop, and which TESDA NC or online TESDA course should I consider?',
+                'text' => 'Which digital skills should I develop for a career in AI? Please include a current source.',
             ]],
         ]);
 
         $response->assertOk()
             ->assertJsonPath('reply', 'Build AI and data skills, then compare relevant TESDA training.')
-            ->assertJsonPath('sources.0.url', 'https://www.tesda.gov.ph/Download/Training_Regulations');
+            ->assertJsonPath('sources.0.url', 'https://www.ilo.org/');
 
         Http::assertSent(fn (Request $request): bool => array_key_exists('google_search', $request->data()['tools'][0] ?? [])
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'skills to develop')
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'e-TESDA')
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'assessment and certification')
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'self-reported skills as unverified')
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'current Tuklas listing only when it also exists in system_context')
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Never construct or alter a host, path, query, or record ID')
         );
     }
 
-    public function test_tuklasbot_searches_general_topics_and_returns_source_links(): void
+    public function test_tuklasbot_declines_off_topic_questions_without_searching(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
         config()->set('services.google.gemini_chat_web_search', true);
         Http::preventStrayRequests();
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
             'candidates' => [[
-                'content' => ['parts' => [['text' => 'Here is a source about astronomy.']]],
-                'groundingMetadata' => ['groundingChunks' => [[
-                    'web' => ['title' => 'NASA', 'uri' => 'https://science.nasa.gov/'],
-                ]]],
+                'content' => ['parts' => [['text' => 'I focus on career and TESDA guidance, but I can help with your training goals.']]],
             ]],
         ])]);
         $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'Tell me about astronomy and include a source.']],
-        ])->assertOk()->assertJsonPath('sources.0.url', 'https://science.nasa.gov/');
+        ])->assertOk()
+            ->assertJsonPath('reply', 'I focus on career and TESDA guidance, but I can help with your training goals.')
+            ->assertJsonPath('sources', []);
 
         Http::assertSent(fn (Request $request): bool => array_key_exists('google_search', $request->data()['tools'][0] ?? [])
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'You are TuklasBot')
-            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'PESO job recommendations'));
+            === false
+            && str_contains(data_get($request->data(), 'systemInstruction.parts.0.text', ''), 'Politely and briefly decline unrelated requests'));
     }
 
-    public function test_chat_tries_the_fallback_model_with_search_after_primary_rate_limit(): void
+    public function test_chat_tries_the_fallback_model_with_search_for_career_information_after_rate_limit(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
         config()->set('services.google.gemini_chat_web_search', true);
@@ -142,9 +146,9 @@ class CareerChatControllerTest extends TestCase
             ], 429),
             'generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent' => Http::response([
                 'candidates' => [[
-                    'content' => ['parts' => [['text' => 'I found a current listing from the official job portal.']]],
+                    'content' => ['parts' => [['text' => 'Prioritize digital literacy, data skills, and responsible AI use.']]],
                     'groundingMetadata' => ['groundingChunks' => [[
-                        'web' => ['title' => 'Official job portal', 'uri' => 'https://example.test/jobs'],
+                        'web' => ['title' => 'International Labour Organization', 'uri' => 'https://www.ilo.org/'],
                     ]]],
                 ]],
             ]),
@@ -152,10 +156,10 @@ class CareerChatControllerTest extends TestCase
         $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
-            'messages' => [['role' => 'user', 'text' => 'Find current job openings near Bugalon.']],
+            'messages' => [['role' => 'user', 'text' => 'What are the current digital skills for a career in technology? Include sources.']],
         ])->assertOk()
-            ->assertJsonPath('reply', 'I found a current listing from the official job portal.')
-            ->assertJsonPath('sources.0.url', 'https://example.test/jobs');
+            ->assertJsonPath('reply', 'Prioritize digital literacy, data skills, and responsible AI use.')
+            ->assertJsonPath('sources.0.url', 'https://www.ilo.org/');
 
         Http::assertSentCount(2);
         Http::assertSent(fn (Request $request): bool => str_contains(
@@ -169,7 +173,7 @@ class CareerChatControllerTest extends TestCase
         $this->assertDatabaseCount('career_chat_messages', 2);
     }
 
-    public function test_chat_returns_a_safe_notice_when_all_search_models_are_rate_limited(): void
+    public function test_chat_returns_a_safe_notice_when_all_career_search_models_are_rate_limited(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
         config()->set('services.google.gemini_chat_web_search', true);
@@ -184,10 +188,10 @@ class CareerChatControllerTest extends TestCase
         $user = $this->createYouth();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
-            'messages' => [['role' => 'user', 'text' => 'Find current job openings near Bugalon.']],
+            'messages' => [['role' => 'user', 'text' => 'Share current official information about digital career skills with sources.']],
         ])->assertOk()
             ->assertJsonPath('sources', [])
-            ->assertJsonPath('reply', 'Live web search is temporarily unavailable, so I can’t verify current details or provide sourced links right now. I won’t guess which employers are hiring. Please try again later or share a public page URL for me to review.');
+            ->assertJsonPath('reply', 'I couldn’t retrieve current public sources, so I can’t verify those details or provide a cited link right now. Please try again later or check an official source.');
 
         Http::assertSentCount(1);
         Http::assertSent(fn (Request $request): bool => array_key_exists('google_search', $request->data()['tools'][0] ?? []));
@@ -211,7 +215,7 @@ class CareerChatControllerTest extends TestCase
             ->assertSee($user->name);
     }
 
-    public function test_public_github_links_use_url_context_without_search(): void
+    public function test_off_topic_github_links_are_not_fetched(): void
     {
         config()->set('services.google.gemini_api_key', 'test-api-key');
         config()->set('services.google.gemini_chat_web_search', true);
@@ -220,11 +224,7 @@ class CareerChatControllerTest extends TestCase
         Http::fake([
             'generativelanguage.googleapis.com/*' => Http::response([
                 'candidates' => [[
-                    'content' => ['parts' => [['text' => 'This is the public repository you shared.']]],
-                    'urlContextMetadata' => ['urlMetadata' => [[
-                        'retrievedUrl' => 'https://github.com/laravel/framework',
-                        'urlRetrievalStatus' => 'URL_RETRIEVAL_STATUS_SUCCESS',
-                    ]]],
+                    'content' => ['parts' => [['text' => 'I focus on career and TESDA guidance.']]],
                 ]],
             ]),
         ]);
@@ -238,10 +238,10 @@ class CareerChatControllerTest extends TestCase
         ]);
 
         $response->assertOk()
-            ->assertJsonPath('sources.0.url', 'https://github.com/laravel/framework');
+            ->assertJsonPath('reply', 'I focus on career and TESDA guidance.')
+            ->assertJsonPath('sources', []);
 
-        Http::assertSent(fn (Request $request): bool => array_key_exists('url_context', $request->data()['tools'][0] ?? [])
-            && ! array_key_exists('google_search', $request->data()['tools'][0] ?? [])
+        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
         );
     }
 
@@ -255,12 +255,12 @@ class CareerChatControllerTest extends TestCase
         Http::preventStrayRequests();
         Http::fake([
             'generativelanguage.googleapis.com/*' => Http::sequence()
-                ->push(['candidates' => [['content' => ['parts' => [['text' => 'I can help review that repository.']]]]]])
+                ->push(['candidates' => [['content' => ['parts' => [['text' => 'I can help review that TESDA training regulation.']]]]]])
                 ->push([
                     'candidates' => [[
-                        'content' => ['parts' => [['text' => 'The repository contains the Laravel framework.']]],
+                        'content' => ['parts' => [['text' => 'The page contains TESDA training-regulation information.']]],
                         'urlContextMetadata' => ['urlMetadata' => [[
-                            'retrievedUrl' => 'https://github.com/laravel/framework',
+                            'retrievedUrl' => 'https://www.tesda.gov.ph/Download/Training_Regulations',
                             'urlRetrievalStatus' => 'URL_RETRIEVAL_STATUS_SUCCESS',
                         ]]],
                     ]],
@@ -271,15 +271,15 @@ class CareerChatControllerTest extends TestCase
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [[
                 'role' => 'user',
-                'text' => 'Explain this repository: https://github.com/laravel/framework',
+                'text' => 'Here is an official TESDA training regulation page: https://www.tesda.gov.ph/Download/Training_Regulations',
             ]],
         ])->assertOk();
 
         $this->actingAs($user)->postJson(route('career-chat.store'), [
             'messages' => [['role' => 'user', 'text' => 'Can you summarize that page?']],
         ])->assertOk()
-            ->assertJsonPath('reply', 'The repository contains the Laravel framework.')
-            ->assertJsonPath('sources.0.url', 'https://github.com/laravel/framework');
+            ->assertJsonPath('reply', 'The page contains TESDA training-regulation information.')
+            ->assertJsonPath('sources.0.url', 'https://www.tesda.gov.ph/Download/Training_Regulations');
 
         Http::assertSentCount(2);
         Http::assertSent(function (Request $request): bool {
@@ -288,7 +288,7 @@ class CareerChatControllerTest extends TestCase
             return array_key_exists('url_context', $request->data()['tools'][0] ?? [])
                 && is_string($contents)
                 && str_contains($contents, 'Can you summarize that page?')
-                && str_contains($contents, 'https://github.com/laravel/framework');
+                && str_contains($contents, 'https://www.tesda.gov.ph/Download/Training_Regulations');
         });
     }
 
@@ -359,6 +359,150 @@ class CareerChatControllerTest extends TestCase
         $response->assertOk();
 
         Http::assertSent(fn (Request $request): bool => ! str_contains($request->body(), 'Private skill marker')
+        );
+    }
+
+    public function test_career_seekers_receive_only_their_own_application_context_and_valid_tracking_link(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        $trackingUrl = route('applications.index', [], false);
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => '[Track My Training Applications]('.$trackingUrl.')']]]]],
+        ])]);
+        $user = $this->createYouth();
+        $otherUser = User::factory()->create(['role' => Role::Youth, 'name' => 'Private Other Applicant']);
+        $course = TrainingProgram::factory()->create(['title' => 'Community Health NC II']);
+        $otherCourse = TrainingProgram::factory()->create(['title' => 'Private Other Course']);
+        TrainingApplication::factory()->for($course, 'program')->for($user, 'user')->create([
+            'status' => 'declined',
+            'decision_reason' => 'Your recorded reason',
+        ]);
+        TrainingApplication::factory()->for($course, 'program')->for($user, 'user')->create(['status' => 'accepted']);
+        TrainingApplication::factory()->for($otherCourse, 'program')->for($otherUser, 'user')->create([
+            'status' => 'declined',
+            'decision_reason' => 'Private decision reason',
+        ]);
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'What is my training application status?']],
+        ])->assertOk()
+            ->assertJsonPath('reply', '[Track My Training Applications]('.$trackingUrl.')')
+            ->assertJsonPath('recommended_links.0.id', 'applications:mine');
+
+        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
+            && data_get($this->systemContextFromRequest($request), 'my_applications.training.0.course') === 'Community Health NC II'
+            && data_get($this->systemContextFromRequest($request), 'my_applications.training.0.status') === 'accepted'
+            && data_get($this->systemContextFromRequest($request), 'my_applications.training.1.decision_reason') === 'Your recorded reason'
+            && ! str_contains($request->body(), 'Private Other Applicant')
+            && ! str_contains($request->body(), 'Private decision reason')
+        );
+    }
+
+    public function test_scoped_tesda_context_contains_only_its_pending_requests_and_review_links(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        $requestQueueUrl = route('applications.index', [], false);
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => '[Review Training Requests]('.$requestQueueUrl.')']]]]],
+        ])]);
+        $center = TrainingCenter::factory()->create(['name' => 'Scoped Technical Center']);
+        $otherCenter = TrainingCenter::factory()->create(['name' => 'Other Technical Center']);
+        $staff = User::factory()->create([
+            'role' => Role::TesdaAdmin,
+            'training_center_id' => $center->id,
+            'is_active' => true,
+        ]);
+        $course = TrainingProgram::factory()->for($center, 'center')->create(['title' => 'Scoped Electrical NC II']);
+        $otherCourse = TrainingProgram::factory()->for($otherCenter, 'center')->create(['title' => 'Other Electrical NC II']);
+        $trainee = User::factory()->create(['name' => 'Scoped Trainee']);
+        $otherTrainee = User::factory()->create(['name' => 'Other Center Trainee']);
+        TrainingApplication::factory()->for($course, 'program')->for($trainee, 'user')->create();
+        TrainingApplication::factory()->for($otherCourse, 'program')->for($otherTrainee, 'user')->create();
+        TrainingApplication::factory()->for($course, 'program')->for(User::factory(), 'user')->create([
+            'status' => 'declined',
+        ]);
+        TrainingApplication::factory()->for($course, 'program')->for(User::factory(), 'user')->create([
+            'is_demo' => true,
+        ]);
+
+        $this->actingAs($staff)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Summarize my pending training requests.']],
+        ])->assertOk()
+            ->assertJsonPath('reply', '[Review Training Requests]('.$requestQueueUrl.')')
+            ->assertJsonPath('recommended_links.0.id', 'training_requests:queue');
+
+        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
+            && data_get($this->systemContextFromRequest($request), 'pending_training_requests.pending_count') === 1
+            && data_get($this->systemContextFromRequest($request), 'pending_training_requests.requests.0.trainee') === 'Scoped Trainee'
+            && data_get($this->systemContextFromRequest($request), 'pending_training_requests.requests.0.training_center') === 'Scoped Technical Center'
+            && in_array(route('assessments.index', [], false), collect(data_get($this->systemContextFromRequest($request), 'links', []))->pluck('web_url')->all(), true)
+            && ! str_contains($request->body(), 'Other Center Trainee')
+        );
+    }
+
+    public function test_chat_strips_internal_markdown_links_absent_from_system_context(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => 'Try [this course](/courses/987654).']]]]],
+        ])]);
+        $user = $this->createYouth();
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Which course should I apply for?']],
+        ])->assertOk()
+            ->assertJsonPath('reply', 'Try this course.')
+            ->assertJsonPath('recommended_links', []);
+
+        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data()));
+    }
+
+    public function test_job_listing_questions_use_verified_live_context_without_external_search(): void
+    {
+        config()->set('services.google.gemini_api_key', 'test-api-key');
+        Http::preventStrayRequests();
+        $verifiedEmployer = Employer::factory()->create(['is_verified' => true]);
+        $unverifiedEmployer = Employer::factory()->create(['is_verified' => false]);
+        $verifiedJob = JobOpportunity::factory()->create([
+            'title' => 'Verified Data Analyst',
+            'location' => 'Bugalon',
+            'employer_id' => $verifiedEmployer->id,
+            'employer_verified' => true,
+            'is_demo' => false,
+        ]);
+        JobOpportunity::factory()->create([
+            'title' => 'Unverified Job Marker',
+            'location' => 'Bugalon',
+            'employer_id' => $unverifiedEmployer->id,
+            'employer_verified' => false,
+            'is_demo' => false,
+        ]);
+        JobOpportunity::factory()->create([
+            'title' => 'Demo Job Marker',
+            'location' => 'Bugalon',
+            'employer_id' => $verifiedEmployer->id,
+            'employer_verified' => true,
+            'is_demo' => true,
+        ]);
+        $jobUrl = route('opportunities.index', ['q' => $verifiedJob->title], false);
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => '[Verified Data Analyst]('.$jobUrl.')']]]]],
+        ])]);
+        $user = $this->createYouth();
+
+        $this->actingAs($user)->postJson(route('career-chat.store'), [
+            'messages' => [['role' => 'user', 'text' => 'Find current job openings near Bugalon.']],
+        ])->assertOk()
+            ->assertJsonPath('reply', '[Verified Data Analyst]('.$jobUrl.')')
+            ->assertJsonPath('recommended_links.0.id', 'job:'.$verifiedJob->id);
+
+        Http::assertSent(fn (Request $request): bool => ! array_key_exists('tools', $request->data())
+            && data_get($this->systemContextFromRequest($request), 'jobs.0.title') === 'Verified Data Analyst'
+            && ! str_contains($request->body(), 'Unverified Job Marker')
+            && ! str_contains($request->body(), 'Demo Job Marker')
         );
     }
 
@@ -467,5 +611,18 @@ class CareerChatControllerTest extends TestCase
         ]);
 
         return $user;
+    }
+
+    /** @return array<string, mixed> */
+    private function systemContextFromRequest(Request $request): array
+    {
+        $text = data_get($request->data(), 'systemInstruction.parts.1.text');
+        if (! is_string($text) || preg_match('/<system_context>(.*?)<\/system_context>/s', $text, $matches) !== 1) {
+            return [];
+        }
+
+        $context = json_decode($matches[1], true);
+
+        return is_array($context) ? $context : [];
     }
 }

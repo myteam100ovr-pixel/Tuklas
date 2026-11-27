@@ -329,8 +329,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _openWorkspace(String section) async {
-    if (_switching) return;
+  Future<void> _openWorkspace(
+    String section, {
+    String? initialQuery,
+    bool allowNested = false,
+  }) async {
+    if (_switching && !allowNested) return;
     setState(() => _switching = true);
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return;
@@ -339,17 +343,24 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       MaterialPageRoute(
         builder: (_) => WorkspaceRefreshScope(
           child: switch (section) {
-            'TuklasBot' => const ChatView(),
+            'TuklasBot' => ChatView(onOpenLink: _openSystemLink),
             'Patch Notes' => const PatchNotesView(),
             'Messages' => const MessagesView(),
             'PESO AI' => const PesoView(),
-            'Career paths' ||
-            'Careers' => const OperationsView(section: 'Career paths'),
-            'Course catalog' || 'Courses' => const TesdaView(),
+            'Career paths' || 'Careers' => OperationsView(
+              section: 'Career paths',
+              initialQuery: initialQuery,
+            ),
+            'Course catalog' ||
+            'Courses' => TesdaView(initialQuery: initialQuery),
             'Document Scanner' => ScannerView(
               onScanComplete: _handleScanComplete,
+              onOpenLink: _openSystemLink,
             ),
-            'Openings' || 'Find jobs' => const OperationsView(section: 'Jobs'),
+            'Openings' || 'Find jobs' => OperationsView(
+              section: 'Jobs',
+              initialQuery: initialQuery,
+            ),
             'Dates' => const OperationsView(section: 'Sessions'),
             'Applications' => const OperationsView(section: 'Job applications'),
             'Requests' ||
@@ -362,8 +373,14 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
               onSaved: () => setState(() => _version++),
               onLogout: _logout,
             ),
-            'Jobs' ||
-            'Scholarships' ||
+            'Jobs' => OperationsView(
+              section: section,
+              initialQuery: initialQuery,
+            ),
+            'Scholarships' => OperationsView(
+              section: section,
+              initialQuery: initialQuery,
+            ),
             'Centers' ||
             'Trainers' ||
             'Sessions' ||
@@ -380,6 +397,62 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         _switching = false;
         _version++;
       });
+    }
+  }
+
+  void _openSystemLink(String rawRoute) {
+    final route = Uri.tryParse(rawRoute);
+    if (route == null ||
+        !route.path.startsWith('/') ||
+        route.path.startsWith('//')) {
+      return;
+    }
+    final query = route.queryParameters['q'];
+    switch (route.path) {
+      case '/dashboard':
+        Navigator.of(context).popUntil((page) => page.isFirst);
+        setState(() => _tab = 0);
+        return;
+      case '/courses':
+        _openWorkspace('Courses', initialQuery: query, allowNested: true);
+        return;
+      case '/scholarships':
+        _openWorkspace('Scholarships', initialQuery: query, allowNested: true);
+        return;
+      case '/jobs':
+        _openWorkspace('Jobs', initialQuery: query, allowNested: true);
+        return;
+      case '/applications':
+        _openWorkspace(
+          ApiClient.instance.user?['role'] == 'youth'
+              ? 'My requests'
+              : 'Applications',
+          allowNested: true,
+        );
+        return;
+      case '/training-requests':
+        _openWorkspace('Requests', allowNested: true);
+        return;
+      case '/assessment-results':
+        _openWorkspace(
+          ApiClient.instance.user?['role'] == 'youth'
+              ? 'My results'
+              : 'Results',
+          allowNested: true,
+        );
+        return;
+      case '/job-applications':
+        _openWorkspace('Applications', allowNested: true);
+        return;
+      case '/profile':
+        _openWorkspace('Profile', allowNested: true);
+        return;
+      case '/scanner':
+        _openWorkspace('Document Scanner', allowNested: true);
+        return;
+      case '/tuklasbot':
+        _openWorkspace('TuklasBot', allowNested: true);
+        return;
     }
   }
 

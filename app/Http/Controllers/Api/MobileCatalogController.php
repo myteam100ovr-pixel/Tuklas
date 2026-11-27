@@ -22,7 +22,12 @@ class MobileCatalogController extends Controller
         $centerType = $careerSeekerCatalog
             ? ($request->validate(['center_type' => ['nullable', Rule::in(['PTC', 'PSAT', 'PRIVATE'])]])['center_type'] ?? null)
             : null;
+        $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $programQuery = TrainingProgram::published()
+            ->when($search !== '', fn ($query) => $query->where(fn ($matches) => $matches
+                ->where('title', 'like', '%'.$search.'%')
+                ->orWhere('nc_level', 'like', '%'.$search.'%')
+                ->orWhere('description', 'like', '%'.$search.'%')))
             ->with($careerSeekerCatalog ? 'center:id,name,type,address,is_active,is_demo' : 'center:id,name');
 
         if ($careerSeekerCatalog) {

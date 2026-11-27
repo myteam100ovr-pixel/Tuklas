@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\Role;
 use App\Http\Requests\SendCareerChatRequest;
 use App\Models\User;
+use App\Services\AiContextService;
 use App\Services\DocumentScanHistory;
 use App\Services\GeminiCareerAssistant;
 use App\Services\StarterCareerRecommendations;
@@ -34,6 +35,7 @@ class CareerChatController
         DocumentScanHistory $scanHistory,
         StarterCareerRecommendations $recommendations,
         ActivityNotifier $activity,
+        AiContextService $aiContext,
     ): JsonResponse {
         if (! $assistant->isConfigured()) {
             return response()->json([
@@ -52,17 +54,35 @@ class CareerChatController
                 ->map(fn ($item): array => ['role' => $item->role, 'text' => $item->text])
                 ->values()
                 ->all();
+            $systemContext = $aiContext->buildSystemContext($user, $message['text']);
+            if (is_array($systemContext['user_profile'] ?? null)) {
+                unset($systemContext['user_profile']['display_name']);
+            }
             $result = $assistant->reply(
                 [...$history, $message],
                 $this->careerContext($user, $scanHistory, $recommendations),
+                $systemContext,
             );
+            $resolvedLinks = $aiContext->resolveChatLinks($result['reply'], $systemContext);
+            $result['reply'] = $resolvedLinks['reply'];
+            $result['recommended_links'] = $resolvedLinks['recommended_links'];
+            $savedSources = [
+                ...$result['sources'],
+                ...array_map(fn (array $link): array => [
+                    'type' => 'internal',
+                    'title' => $link['label'],
+                    'url' => $link['web_url'],
+                    'mobile_route' => $link['mobile_route'],
+                    'link_id' => $link['id'],
+                ], $result['recommended_links']),
+            ];
 
-            DB::transaction(function () use ($user, $message, $result): void {
+            DB::transaction(function () use ($user, $message, $result, $savedSources): void {
                 $user->careerChatMessages()->create($message);
                 $user->careerChatMessages()->create([
                     'role' => 'model',
                     'text' => $result['reply'],
-                    'sources' => $result['sources'],
+                    'sources' => $savedSources,
                 ]);
             });
 
@@ -71,6 +91,7 @@ class CareerChatController
             return response()->json([
                 'reply' => $result['reply'],
                 'sources' => $result['sources'],
+                'recommended_links' => $result['recommended_links'],
             ]);
         } catch (Throwable $exception) {
             report($exception);

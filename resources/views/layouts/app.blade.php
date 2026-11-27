@@ -113,7 +113,7 @@
         </div>
     </header>
 
-    <main class="tk-main" id="main-content" tabindex="-1">
+    <main class="tk-main pb-24" id="main-content" tabindex="-1">
         @if (!$assessmentRequired && $isGroupedWorkspace && $adminPageTabs)
             <nav class="tk-admin-page-tabs" aria-label="{{ $navCurrentLabel }} pages">
                 @foreach ($adminPageTabs as $tab)

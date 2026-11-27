@@ -12,7 +12,7 @@ class TrainingApplication extends Model
     /** @use HasFactory<TrainingApplicationFactory> */
     use HasFactory;
 
-    protected $fillable = ['training_program_id', 'training_session_id', 'user_id', 'status', 'is_demo'];
+    protected $fillable = ['training_program_id', 'training_session_id', 'user_id', 'status', 'decision_reason', 'is_demo'];
 
     protected static function booted(): void
     {

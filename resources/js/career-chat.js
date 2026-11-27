@@ -11,12 +11,36 @@ if (chat) {
     const geminiReady = chat.dataset.geminiReady === 'true';
     let isSending = false;
 
-    const appendMessage = (role, text, sources = []) => {
+    const appendMessage = (role, text, sources = [], recommendedLinks = []) => {
         const message = document.createElement('p');
         message.className = `career-chat__message${role === 'user' ? ' is-user' : ''}`;
-        message.textContent = text;
+        const internalLinks = [
+            ...(Array.isArray(recommendedLinks) ? recommendedLinks : []),
+            ...(Array.isArray(sources) ? sources.filter((source) => source?.type === 'internal') : []),
+        ];
+        const allowedLinks = new Map(internalLinks
+            .filter((link) => typeof link.web_url === 'string' || (link.type === 'internal' && typeof link.url === 'string'))
+            .map((link) => [link.web_url ?? link.url, link.label ?? link.title ?? 'Open Tuklas page']));
+        const markdownLink = /\[([^\]]+)\]\(([^)]+)\)/g;
+        let cursor = 0;
+        let match;
+        while ((match = markdownLink.exec(text)) !== null) {
+            message.append(document.createTextNode(text.slice(cursor, match.index)));
+            const label = allowedLinks.get(match[2]);
+            if (label !== undefined) {
+                const link = document.createElement('a');
+                link.href = match[2];
+                link.textContent = match[1];
+                message.append(link);
+            } else {
+                message.append(document.createTextNode(match[1]));
+            }
+            cursor = markdownLink.lastIndex;
+        }
+        message.append(document.createTextNode(text.slice(cursor)));
 
         if (role !== 'user' && Array.isArray(sources) && sources.length > 0) {
+            sources = sources.filter((source) => source?.type !== 'internal');
             const sourceList = document.createElement('span');
             sourceList.className = 'career-chat__sources';
             sourceList.append(document.createTextNode('Sources: '));
@@ -123,7 +147,7 @@ if (chat) {
                 throw new Error(payload.message ?? 'Gemini could not reply right now. Please try again.');
             }
 
-            appendMessage('model', payload.reply, payload.sources);
+            appendMessage('model', payload.reply, payload.sources, payload.recommended_links);
             thinkingMessage.remove();
             status.textContent = '';
         } catch (error) {

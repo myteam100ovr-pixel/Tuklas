@@ -18,6 +18,7 @@ class TesdaCatalogController extends Controller
 {
     public function index(Request $request, TesdaQualificationCatalog $catalog, TesdaRegisteredProgramCatalog $registeredCatalog, StarterCareerRecommendations $starterRecommendations): View|JsonResponse
     {
+        $search = trim((string) ($request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? ''));
         $centerType = $request->user()?->hasRole(Role::Youth)
             ? ($request->validate(['center_type' => ['nullable', Rule::in(['PTC', 'PSAT', 'PRIVATE'])]])['center_type'] ?? null)
             : null;
@@ -34,6 +35,10 @@ class TesdaCatalogController extends Controller
         $choiceUser?->load('tesdaChoice.selector');
 
         $programs = TrainingProgram::published()
+            ->when($search !== '', fn ($query) => $query->where(fn ($matches) => $matches
+                ->where('title', 'like', '%'.$search.'%')
+                ->orWhere('nc_level', 'like', '%'.$search.'%')
+                ->orWhere('description', 'like', '%'.$search.'%')))
             ->when($request->user()?->hasRole(Role::Youth), fn ($query) => $query
                 ->where('is_demo', false)
                 ->whereHas('center', fn ($center) => $center

@@ -345,6 +345,9 @@ class ApiClient {
     return {
       'reply': response['reply'] as String,
       'sources': response['sources'] is List ? response['sources'] as List : [],
+      'recommended_links': response['recommended_links'] is List
+          ? response['recommended_links'] as List
+          : [],
     };
   }
 
@@ -353,9 +356,10 @@ class ApiClient {
     int registeredPage = 1,
     bool careerSeeker = false,
     String? centerType,
+    String? query,
   }) => _send(
     'GET',
-    '/tesda?page=$page&registered_page=$registeredPage&career_seeker=${careerSeeker ? 1 : 0}${centerType == null ? '' : '&center_type=${Uri.encodeQueryComponent(centerType)}'}',
+    '/tesda?page=$page&registered_page=$registeredPage&career_seeker=${careerSeeker ? 1 : 0}${centerType == null ? '' : '&center_type=${Uri.encodeQueryComponent(centerType)}'}${query == null || query.trim().isEmpty ? '' : '&q=${Uri.encodeQueryComponent(query.trim())}'}',
     auth: false,
     optionalAuth: true,
   );
