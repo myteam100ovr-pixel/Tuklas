@@ -16,8 +16,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/deploy-web.yml'
-
-    workflow_dispatch:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -64,5 +63,5 @@ jobs:
           set -euo pipefail
           remote="${DEPLOY_USER}@${DEPLOY_HOST}"
           build_dir="/tmp/tuklas-web-build-${GITHUB_RUN_ID}"
-          tar -C public -czf - build | ssh -o StrictHostKeyChecking=yes "$remote" "mkdir -p $build_dir && tar -xzf - -C $build_dir"
-          ssh -o StrictHostKeyChecking=yes "$remote" "set -e; cd /var/www/tuklas; git pull --ff-only origin main; sudo install -d -m 755 public/build; sudo cp -a $build_dir/build/. public/build/; sudo chown -R \"\$(id -un)\" public/build; sudo chmod -R u+rwX public/build; sudo rm -rf $build_dir; php artisan optimize:clear; php artisan migrate --force; php artisan db:seed --class=PresentationAccountsSeeder --force; php artisan optimize:clear"
+          tar -C public -czf - build | ssh -o StrictHostKeyChecking=yes "$remote" "mkdir -p $build_dir && tar -xzf - -C$build_dir"
+          ssh -o StrictHostKeyChecking=yes "$remote" "set -e; cd /var/www/tuklas; git pull --ff-only origin main; sudo install -d -m 755 public/build; sudo cp -a $build_dir/build/. public/build/; sudo chown -R \"\$(id -un)\" public/build; sudo chmod -R u+rwX public/build; sudo rm -
