@@ -8,6 +8,7 @@ use App\Models\DocumentScan;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Notifications\WorkspaceNotice;
+use App\Services\AiContextService;
 use App\Services\GeminiDocumentScanner;
 use App\Services\TesdaQualificationCatalog;
 use App\Support\ActivityNotifier;
@@ -37,7 +38,7 @@ class DocumentScanController extends Controller
         return response()->json(['documents' => $documents]);
     }
 
-    public function store(StoreDocumentScanRequest $request, GeminiDocumentScanner $scanner, TesdaQualificationCatalog $catalog, ActivityNotifier $activity): JsonResponse
+    public function store(StoreDocumentScanRequest $request, GeminiDocumentScanner $scanner, TesdaQualificationCatalog $catalog, AiContextService $aiContext, ActivityNotifier $activity): JsonResponse
     {
         abort_unless($request->user()->hasRole(Role::Admin, Role::Youth), 403);
         if (! $scanner->isConfigured()) {
@@ -112,7 +113,15 @@ class DocumentScanController extends Controller
 
             $programs = collect($catalog->forScanner())->concat($publishedPrograms)->unique('title')->values()->all();
             $preferences = $user->hasRole(Role::Youth) ? ($user->youthProfile?->careerPreferences() ?? []) : [];
-            $analysis = $scanner->analyze($file, $programs, $validated['goal'] ?? '', $preferences);
+            $systemContext = $aiContext->buildSystemContext($user, $validated['goal'] ?? null);
+            $systemContext['target_requirements'] = filled($validated['goal'] ?? null) ? trim($validated['goal']) : null;
+            $analysis = $scanner->analyze($file, $programs, $validated['goal'] ?? '', $preferences, $systemContext);
+            $analysis['recommended_links'] = collect($systemContext['links'] ?? [])
+                ->keyBy('id')
+                ->only($analysis['recommendedLinkIds'] ?? [])
+                ->values()
+                ->all();
+            unset($analysis['recommendedLinkIds']);
 
             if (! in_array($analysis['documentType'] ?? null, ['resume', 'certificate'], true)) {
                 return response()->json([

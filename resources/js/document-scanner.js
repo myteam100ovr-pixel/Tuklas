@@ -132,6 +132,47 @@ if (scanner) {
             content.append(failure);
         }
 
+        const extractedFields = analysis.extractedFields;
+        if (extractedFields && typeof extractedFields === 'object') {
+            const details = document.createElement('section');
+            details.className = 'document-scanner__insight';
+            const title = document.createElement('h4');
+            title.textContent = 'Readable document details';
+            details.append(title);
+            const list = document.createElement('ul');
+            const labels = {
+                fullName: 'Name', qualification: 'Qualification', issuingOrganization: 'Issuing organization',
+                issueDate: 'Issue date', expiryDate: 'Expiry date', signaturePresent: 'Signature visible',
+            };
+            Object.entries(labels).forEach(([key, label]) => {
+                const value = extractedFields[key];
+                const row = document.createElement('li');
+                row.textContent = `${label}: ${value === null || value === undefined || value === '' ? 'Not readable or not shown' : value === true ? 'Yes' : value === false ? 'No' : value}`;
+                list.append(row);
+            });
+            details.append(list);
+            content.append(details);
+        }
+
+        [['identityChecks', 'Identity cross-check'], ['requirementChecks', 'Requirement cross-check']].forEach(([key, label]) => {
+            const checks = analysis[key];
+            if (!Array.isArray(checks) || checks.length === 0) return;
+            const section = document.createElement('section');
+            section.className = 'document-scanner__insight';
+            const heading = document.createElement('h4');
+            heading.textContent = label;
+            const list = document.createElement('ul');
+            checks.forEach((check) => {
+                if (typeof check !== 'object' || check === null) return;
+                const row = document.createElement('li');
+                const details = [check.status, check.reason, check.evidence].filter(Boolean);
+                row.textContent = `${check.field ?? check.requirement ?? 'Check'}: ${details.join(' · ') || 'No readable comparison available'}`;
+                list.append(row);
+            });
+            section.append(heading, list);
+            content.append(section);
+        });
+
         const sections = [
             ['jobRecommendations', 'Job recommendations'],
             ['careerMatches', 'Career matches'],
@@ -201,6 +242,30 @@ if (scanner) {
             section.append(list);
             content.append(section);
         });
+
+        const recommendedLinks = Array.isArray(analysis.recommended_links)
+            ? analysis.recommended_links.filter((item) => typeof item?.web_url === 'string'
+                && item.web_url.startsWith('/')
+                && !item.web_url.startsWith('//'))
+            : [];
+        if (recommendedLinks.length > 0) {
+            const actions = document.createElement('section');
+            actions.className = 'document-scanner__insight';
+            const title = document.createElement('h4');
+            title.textContent = 'Open in Tuklas';
+            actions.append(title);
+            const links = document.createElement('div');
+            links.className = 'document-scanner__recommended-links';
+            recommendedLinks.forEach((item) => {
+                const link = document.createElement('a');
+                link.className = 'document-scanner__recommended-link';
+                link.href = item.web_url;
+                link.textContent = item.label || 'Open page';
+                links.append(link);
+            });
+            actions.append(links);
+            content.append(actions);
+        }
 
         if (profileSyncEnabled) {
             const profileNote = document.createElement('p');

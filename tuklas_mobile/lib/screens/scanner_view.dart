@@ -12,9 +12,10 @@ import '../theme.dart';
 import '../ui.dart';
 
 class ScannerView extends StatefulWidget {
-  const ScannerView({super.key, required this.onScanComplete});
+  const ScannerView({super.key, required this.onScanComplete, this.onOpenLink});
 
   final VoidCallback onScanComplete;
+  final ValueChanged<String>? onOpenLink;
 
   @override
   State<ScannerView> createState() => _ScannerViewState();
@@ -965,6 +966,85 @@ class _ScannerViewState extends State<ScannerView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (analysis['extractedFields'] is Map) ...[
+          Text(
+            'Readable document details',
+            style: tkText(context, size: 13.5, weight: 500),
+          ),
+          const SizedBox(height: 4),
+          for (final entry in asMap(analysis['extractedFields']).entries)
+            Padding(
+              padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
+              child: Text(
+                '${_fieldLabel(entry.key)}: ${entry.value == null
+                    ? 'Not readable or not shown'
+                    : entry.value == true
+                    ? 'Yes'
+                    : entry.value == false
+                    ? 'No'
+                    : entry.value}',
+                style: tkText(context, size: 12.5),
+              ),
+            ),
+        ],
+        for (final (key, label) in const <(String, String)>[
+          ('identityChecks', 'Identity cross-check'),
+          ('requirementChecks', 'Requirement cross-check'),
+        ])
+          if (analysis[key] is List && asList(analysis[key]).isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 3),
+              child: Text(
+                label,
+                style: tkText(context, size: 13.5, weight: 500),
+              ),
+            ),
+            for (final check in asList(analysis[key]))
+              Padding(
+                padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
+                child: Text(
+                  _checkText(check),
+                  style: tkText(
+                    context,
+                    size: 12.5,
+                    color: TkColors.of(context).muted,
+                  ),
+                ),
+              ),
+          ],
+        if (analysis['recommended_links'] is List &&
+            asList(analysis['recommended_links']).isNotEmpty) ...[
+          Text(
+            'Open in Tuklas',
+            style: tkText(context, size: 13.5, weight: 500),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              for (final item in asList(analysis['recommended_links']))
+                if (item is Map &&
+                    item['mobile_route'] is String &&
+                    (item['mobile_route'] as String).startsWith('/') &&
+                    !(item['mobile_route'] as String).startsWith('//'))
+                  ActionChip(
+                    avatar: const Icon(
+                      Icons.open_in_new,
+                      size: 15,
+                      color: TkColors.violet,
+                    ),
+                    label: Text('${item['label'] ?? 'Open page'}'),
+                    onPressed: widget.onOpenLink == null
+                        ? null
+                        : () => widget.onOpenLink!(
+                            item['mobile_route'] as String,
+                          ),
+                  ),
+            ],
+          ),
+          const SizedBox(height: 6),
+        ],
         for (final (key, title) in sections) ...[
           if (analysis[key] != null && analysis[key] != '') ...[
             Padding(
@@ -986,6 +1066,27 @@ class _ScannerViewState extends State<ScannerView> {
         ],
       ],
     );
+  }
+
+  String _fieldLabel(String key) => switch (key) {
+    'fullName' => 'Name',
+    'issuingOrganization' => 'Issuing organization',
+    'issueDate' => 'Issue date',
+    'expiryDate' => 'Expiry date',
+    'signaturePresent' => 'Signature visible',
+    'qualification' => 'Qualification',
+    _ => key,
+  };
+
+  String _checkText(dynamic check) {
+    if (check is! Map) return '$check';
+    final subject = check['field'] ?? check['requirement'] ?? 'Check';
+    final details = [
+      check['status'],
+      check['reason'],
+      check['evidence'],
+    ].where((value) => value != null && '$value'.trim().isNotEmpty).join(' · ');
+    return '$subject: ${details.isEmpty ? 'No readable comparison available' : details}';
   }
 
   String _analysisItemText(dynamic item) {

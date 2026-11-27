@@ -61,6 +61,9 @@
 .scanner-studio .document-scanner__insight li { padding:0 0 14px; border-bottom:1px solid var(--line); font-size:.88rem; line-height:1.8; color:var(--ink-2); }
 .scanner-studio .document-scanner__insight li:last-child { border:0; padding-bottom:0; }
 .scanner-studio .document-scanner__insight a { display:block; width:fit-content; margin-top:10px; color:var(--violet); text-decoration:underline; text-underline-offset:4px; }
+.scanner-studio .document-scanner__recommended-links { display:flex; flex-wrap:wrap; gap:10px; }
+.scanner-studio .document-scanner__recommended-link { display:inline-flex !important; align-items:center; margin:0 !important; padding:10px 14px; border:1px solid var(--line); border-radius:10px; color:var(--violet) !important; text-decoration:none !important; }
+.scanner-studio .document-scanner__recommended-link:hover { border-color:var(--violet); }
 .scanner-studio .document-scanner__skill-coverage,.scanner-studio .document-scanner__skill-evidence { margin-top:8px; font-size:.8rem; line-height:1.7; }
 .scanner-studio .document-scanner__latest-note { grid-column:1/-1; font-size:.82rem; line-height:1.7; }
 @media(max-width:1050px) { .scanner-studio .document-scanner__workspace { grid-template-columns:minmax(0,1fr); } .scan-studio-heading { align-items:center; } .scanner-studio .document-scanner__results-list { max-height:320px; } }
