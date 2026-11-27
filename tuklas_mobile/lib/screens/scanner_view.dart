@@ -545,8 +545,15 @@ class _ScannerViewState extends State<ScannerView> {
                     vertical: 2,
                   ),
                   child: ExpansionTile(
+                    initiallyExpanded: false,
                     tilePadding: const EdgeInsets.symmetric(horizontal: 10),
                     childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    backgroundColor: colors.surface,
+                    collapsedBackgroundColor: colors.surface,
+                    iconColor: colors.taskMeta,
+                    collapsedIconColor: colors.muted,
+                    textColor: colors.ink,
+                    collapsedTextColor: colors.ink,
                     expansionAnimationStyle: motionController.enabled
                         ? AnimationStyle.noAnimation
                         : null,
@@ -603,8 +610,15 @@ class _ScannerViewState extends State<ScannerView> {
                       ),
                       const SizedBox(height: 12),
                       ExpansionTile(
+                        initiallyExpanded: false,
                         tilePadding: EdgeInsets.zero,
                         childrenPadding: const EdgeInsets.only(bottom: 8),
+                        backgroundColor: colors.surface,
+                        collapsedBackgroundColor: colors.surface,
+                        iconColor: colors.taskMeta,
+                        collapsedIconColor: colors.muted,
+                        textColor: colors.ink,
+                        collapsedTextColor: colors.ink,
                         expansionAnimationStyle: motionController.enabled
                             ? AnimationStyle.noAnimation
                             : null,
@@ -906,6 +920,15 @@ class _ScannerViewState extends State<ScannerView> {
         : 'warn';
 
     return ExpansionTile(
+      backgroundColor: TkColors.of(context).surface,
+      collapsedBackgroundColor: TkColors.of(context).surface,
+      iconColor: TkColors.of(context).taskMeta,
+      collapsedIconColor: TkColors.of(context).muted,
+      textColor: TkColors.of(context).ink,
+      collapsedTextColor: TkColors.of(context).ink,
+      expansionAnimationStyle: motionController.enabled
+          ? AnimationStyle.noAnimation
+          : null,
       tilePadding: EdgeInsets.zero,
       title: Text(
         '${document['original_name'] ?? l10n.document}',

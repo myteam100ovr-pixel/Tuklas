@@ -1,6 +1,16 @@
 [
     {
         "date": "2026-11-27",
+        "published_at": "2026-11-27T10:13:06+08:00",
+        "version": "1.0.22+23",
+        "title": "Dark mode scanner polish",
+        "items": [
+            "Scanner guide, privacy details, and scan history panels now use Tuklas dark theme surfaces and readable text instead of default Material colors.",
+            "Expanded scanner panels respect the reduced-motion preference."
+        ]
+    },
+    {
+        "date": "2026-11-27",
         "published_at": "2026-11-27T08:37:03+08:00",
         "version": "1.0.20+21",
         "title": "AI career links and document checks",

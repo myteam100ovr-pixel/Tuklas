@@ -339,6 +339,25 @@ ThemeData tkTheme(Brightness brightness, {bool reduceMotion = false}) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
     ),
+    expansionTileTheme: ExpansionTileThemeData(
+      backgroundColor: c.surface,
+      collapsedBackgroundColor: c.surface,
+      iconColor: selectedColor,
+      collapsedIconColor: c.muted,
+      textColor: c.ink,
+      collapsedTextColor: c.ink,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+      childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      expansionAnimationStyle: reduceMotion ? AnimationStyle.noAnimation : null,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: c.line),
+      ),
+      collapsedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: c.line),
+      ),
+    ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: selectedColor,
       selectionColor: selectedColor.withValues(alpha: .24),
