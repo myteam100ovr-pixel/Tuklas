@@ -17,6 +17,8 @@ on:
       - 'package-lock.json'
       - '.github/workflows/deploy-web.yml'
 
+    workflow_dispatch:
+
 permissions:
   contents: read
 
