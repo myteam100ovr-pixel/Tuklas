@@ -520,8 +520,9 @@ class _ScannerViewState extends State<ScannerView> {
   @override
   Widget build(BuildContext context) {
     final colors = TkColors.of(context);
+    final topInset = MediaQuery.paddingOf(context).top;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+      padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 24),
       children: [
         Center(
           child: ConstrainedBox(
@@ -754,19 +755,6 @@ class _ScannerViewState extends State<ScannerView> {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      CheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        value: _consent,
-                        onChanged: _scanning
-                            ? null
-                            : (value) =>
-                                  setState(() => _consent = value ?? false),
-                        title: Text(
-                          tkL10n(context).agreeSendFilesToGemini,
-                          style: tkText(context, size: 13),
-                        ),
-                        controlAffinity: ListTileControlAffinity.leading,
-                      ),
                       if (_error != null) ...[
                         const SizedBox(height: 4),
                         Text(
@@ -774,29 +762,93 @@ class _ScannerViewState extends State<ScannerView> {
                           style: tkText(context, size: 13, color: colors.bad),
                         ),
                       ],
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: _scanning ? null : _scan,
-                          icon: _scanning
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Icon(Icons.auto_awesome),
-                          label: Text(
-                            _scanning
-                                ? tkL10n(context).scanningDocuments
-                                : tkL10n(context)
-                                      .scanDocumentCount(_selectedFiles.length),
+                      if (_selectedFiles.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: colors.surface2,
+                            border: Border.all(color: colors.line),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.upload_file_outlined,
+                                color: colors.taskMeta,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      tkL10n(context).chooseYourDocument,
+                                      style: tkText(
+                                        context,
+                                        size: 13,
+                                        weight: 500,
+                                        color: colors.ink,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      tkL10n(context)
+                                          .scannerChooseDocumentDescription,
+                                      style: tkText(
+                                        context,
+                                        size: 12,
+                                        color: colors.muted,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else ...[
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          value: _consent,
+                          onChanged: _scanning
+                              ? null
+                              : (value) =>
+                                    setState(() => _consent = value ?? false),
+                          title: Text(
+                            tkL10n(context).agreeSendFilesToGemini,
+                            style: tkText(context, size: 13, color: colors.ink),
+                          ),
+                          controlAffinity: ListTileControlAffinity.leading,
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: _scanning ? null : _scan,
+                            icon: _scanning
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(Icons.auto_awesome),
+                            label: Text(
+                              _scanning
+                                  ? tkL10n(context).scanningDocuments
+                                  : tkL10n(
+                                      context,
+                                    ).scanDocumentCount(_selectedFiles.length),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                       if (_scanning) ...[
                         const SizedBox(height: 8),
                         SizedBox(

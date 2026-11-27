@@ -1,6 +1,16 @@
 [
     {
         "date": "2026-11-27",
+        "published_at": "2026-11-27T10:21:24+08:00",
+        "version": "1.0.23+24",
+        "title": "Scanner layout and theme repair",
+        "items": [
+            "The scanner now keeps content clear of the Android status bar and uses the selected Tuklas theme for its page, cards, text, borders, and warning panel.",
+            "With no file selected, the form shows a compact choose-a-document hint instead of an empty scan area; consent and the scan button appear after files are selected."
+        ]
+    },
+    {
+        "date": "2026-11-27",
         "published_at": "2026-11-27T10:13:06+08:00",
         "version": "1.0.22+23",
         "title": "Dark mode scanner polish",
